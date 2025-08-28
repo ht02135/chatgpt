@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>User Management</title>
+    <!-- CSRF Meta Tags for Spring Security -->
+    <meta name="_csrf" content="${_csrf.token}">
+    <meta name="_csrf_header" content="${_csrf.headerName}">
+    <!-- jQuery CDN -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- User.js for AJAX functionality -->
+    <script src="js/user.js"></script>
+</head>
+<body>
+<h1>User Management</h1>
+
+<!-- Add User Form -->
+<form id="addUserForm">
+    <label>Name:</label>
+    <input type="text" id="name" required><br><br>
+    <label>Email:</label>
+    <input type="email" id="email" required><br><br>
+    <button type="submit">Add User</button>
+</form>
+
+<!-- User List Table -->
+<table id="userList" border="1" style="margin-top: 20px;">
+    <thead>
+    <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Email</th>
+        <th>Action</th>
+    </tr>
+    </thead>
+    <tbody>
+    <!-- User rows will be dynamically loaded here -->
+    </tbody>
+</table>
+</body>
+</html>

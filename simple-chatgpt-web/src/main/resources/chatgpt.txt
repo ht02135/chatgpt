@@ -1,0 +1,20 @@
+
+for simple-chatgpt-web
+
+1>create non-boot
+pom.xml applicationContext.xml web.xml index.html
+add transaction advice and cutpoint
+
+2>create mvc api user service
+User.sql with User schema
+User.java pojo interface (simple.chatgpt.pojo)
+UserDao.java implements User.java interface (simple.chatgpt.dao)
+UserService.java interface (simple.chatgpt.service)
+IserServiceImpl.java implements UserService.java interface using latest hibernate (simple.chatgpt.service)
+UserController.java (simple.chatgpt.controller)
+add User.js that jquery mvc api (in user/js/user.js)
+add User.html to add users, delete user, list users (in user/user.html)
+
+3>add log4j2.xml and Log4j debug to all java class
+
+4>add api-applicationContext.xml for mvc and add to web.xml
