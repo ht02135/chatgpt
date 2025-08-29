@@ -3,14 +3,16 @@ package simple.chatgpt.controller;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import simple.chatgpt.pojo.User;
 import simple.chatgpt.service.UserService;
+import simple.chatgpt.util.Response;
 
 import java.util.List;
 
-@Controller
+@RestController
 @RequestMapping("/api/users")
 public class UserController {
     private static final Logger logger = LogManager.getLogger(UserController.class);
@@ -19,27 +21,43 @@ public class UserController {
     private UserService userService;
 
     @PostMapping
-    public @ResponseBody User save(@RequestBody User user) {
+    public ResponseEntity<Response<User>> save(@RequestBody User user) {
         logger.debug("Received save request for user: {}", user.getName());
-        userService.save(user);
-        return user;
+        User savedUser = userService.save(user);
+        return ResponseEntity.ok(
+                Response.success("User added successfully", savedUser, HttpStatus.CREATED.value())
+        );
     }
 
     @DeleteMapping("/{id}")
-    public @ResponseBody void delete(@PathVariable int id) {
+    public ResponseEntity<Response<Void>> delete(@PathVariable int id) {
         logger.debug("Received delete request for user ID: {}", id);
         userService.delete(id);
+        return ResponseEntity.ok(
+                Response.success("User deleted successfully", (Void) null, HttpStatus.OK.value())
+        );
     }
 
     @GetMapping("/{id}")
-    public @ResponseBody User get(@PathVariable int id) {
+    public ResponseEntity<Response<User>> get(@PathVariable int id) {
         logger.debug("Received get request for user ID: {}", id);
-        return userService.get(id);
+        User user = userService.get(id);
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                    Response.error("User not found", null, HttpStatus.NOT_FOUND.value())
+            );
+        }
+        return ResponseEntity.ok(
+                Response.success("User retrieved successfully", user, HttpStatus.OK.value())
+        );
     }
 
     @GetMapping
-    public @ResponseBody List<User> getAll() {
+    public ResponseEntity<Response<List<User>>> getAll() {
         logger.debug("Received get all users request");
-        return userService.getAll();
+        List<User> users = userService.getAll();
+        return ResponseEntity.ok(
+                Response.success("Users retrieved successfully", users, HttpStatus.OK.value())
+        );
     }
 }

@@ -1,15 +1,10 @@
 package simple.chatgpt.pojo;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import javax.persistence.*;
 
 @Entity
 @Table(name = "users")
 public class User {
-    private static final Logger logger = LogManager.getLogger(User.class);
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
@@ -22,7 +17,6 @@ public class User {
 
     // Getters and Setters
     public int getId() {
-        logger.debug("Getting user ID: {}", id);
         return id;
     }
 

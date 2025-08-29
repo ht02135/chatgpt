@@ -1,9 +1,3 @@
-Here is the **complete updated `User.js`** file with all the fixes and improvements applied:
-
----
-
-### ✅ **Full `User.js` File**
-```javascript
 $(document).ready(function() {
     // CSRF setup (if Spring Security is enabled)
     const csrfToken = document.querySelector('meta[name="_csrf"]')?.content;
@@ -27,13 +21,17 @@ $(document).ready(function() {
 
         $.post('/api/users', user)
             .done(function(response) {
-                alert('User added successfully');
-                $('#addUserForm')[0].reset(); // Clear form
-                $('#userList').load('user.html #userList');
+                if (response.status === "SUCCESS") {
+                    alert('User added successfully');
+                    $('#addUserForm')[0].reset(); // Clear form
+                    $('#userList').load('user.html #userList');
+                } else {
+                    alert('Error: ' + response.message);
+                }
             })
             .fail(function(error) {
-                console.error("Add User Error:", error);
-                alert('Error adding user');
+                console.error("Add User Network Error:", error);
+                alert('Network error. Check console for details.');
             });
     });
 
@@ -44,13 +42,17 @@ $(document).ready(function() {
             $.ajax({
                 url: '/api/users/' + id,
                 type: 'DELETE',
-                success: function() {
-                    alert('User deleted successfully');
-                    $('#userList').load('user.html #userList');
+                success: function(response) {
+                    if (response.status === "SUCCESS") {
+                        alert('User deleted successfully');
+                        $('#userList').load('user.html #userList');
+                    } else {
+                        alert('Error: ' + response.message);
+                    }
                 },
                 error: function(error) {
-                    console.error("Delete User Error:", error);
-                    alert('Error deleting user');
+                    console.error("Delete User Network Error:", error);
+                    alert('Network error. Check console for details.');
                 }
             });
         }
@@ -58,58 +60,26 @@ $(document).ready(function() {
 
     // Load Users
     function loadUsers() {
-        $.get('/api/users', function(users) {
-            let html = '';
-            users.forEach(function(user) {
-                html += `<tr>
-                    <td>${user.id}</td>
-                    <td>${user.name}</td>
-                    <td>${user.email}</td>
-                    <td><button class="deleteUser" data-id="${user.id}">Delete</button></td>
-                </tr>`;
-            });
-            $('#userList tbody').html(html);
+        $.get('/api/users', function(response) {
+            if (response.status === "SUCCESS") {
+                let html = '';
+                response.data.forEach(function(user) {
+                    html += `<tr>
+                        <td>${user.id}</td>
+                        <td>${user.name}</td>
+                        <td>${user.email}</td>
+                        <td><button class="deleteUser" data-id="${user.id}">Delete</button></td>
+                    </tr>`;
+                });
+                $('#userList tbody').html(html);
+            } else {
+                alert('Error: ' + response.message);
+            }
         }).fail(function(error) {
-            console.error("Load Users Error:", error);
-            alert('Failed to load users');
+            console.error("Load Users Network Error:", error);
+            alert('Failed to load users. Check console for details.');
         });
     }
 
     loadUsers();
 });
-```
-
----
-
-### 🔍 **Key Changes Explained**
-1. **CSRF Protection**:
-   - Added dynamic CSRF token handling using `<meta>` tags in `user.html`.
-   - Uses optional chaining (`?.`) to avoid errors if tags are missing.
-
-2. **Relative Paths**:
-   - Replaced `/user/user.html` with `user.html` in `.load()` to avoid subcontext issues.
-
-3. **Error Logging**:
-   - Added `console.error()` for detailed debugging.
-   - Alerts for user feedback.
-
-4. **Form Reset**:
-   - Clears the form after successful user addition.
-
-5. **Robust AJAX**:
-   - `.done()` and `.fail()` for POST/DELETE/GET requests.
-
----
-
-### 🛠️ **Required Update in `user.html`**
-Add these **meta tags** to the `<head>` section of `user.html` to enable CSRF protection:
-```html
-<meta name="_csrf" content="${_csrf.token}">
-<meta name="_csrf_header" content="${_csrf.headerName}">
-```
-
----
-
-### ⚠️ **Note**
-- If you're **not using Spring Security**, the CSRF section can be removed.
-- Ensure the `user.html` file is in the correct location (`/src/main/webapp/user/user.html`).

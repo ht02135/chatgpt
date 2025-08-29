@@ -11,10 +11,29 @@ User.java pojo interface (simple.chatgpt.pojo)
 UserDao.java implements User.java interface (simple.chatgpt.dao)
 UserService.java interface (simple.chatgpt.service)
 IserServiceImpl.java implements UserService.java interface using latest hibernate (simple.chatgpt.service)
-UserController.java (simple.chatgpt.controller)
+
+3>UserController.java (simple.chatgpt.controller)
+can we make UserController not to return entity object directly, but wrap it in some generic response object that can only anything?
+keep Response, but make sure json is sent to front end and not User object
+
+4>fron front end
 add User.js that jquery mvc api (in user/js/user.js)
 add User.html to add users, delete user, list users (in user/user.html)
 
-3>add log4j2.xml and Log4j debug to all java class
+5>add log4j2.xml and Log4j debug to all java class
 
-4>add api-applicationContext.xml for mvc and add to web.xml
+6>add api-applicationContext.xml for mvc and add to web.xml
+
+--------------
+
+PS C:\worksplace\sts\chatgpt\simple-chatgpt-web> java --version
+java 24.0.1 2025-04-15
+Java(TM) SE Runtime Environment (build 24.0.1+9-30)
+Java HotSpot(TM) 64-Bit Server VM (build 24.0.1+9-30, mixed mode, sharing)
+
+----------------
+
+Navigate to Maven Runner Settings:
+In the Settings/Preferences dialog, navigate to Build, Execution, Deployment > Build Tools > Maven > Runner.
+
+--------------------
