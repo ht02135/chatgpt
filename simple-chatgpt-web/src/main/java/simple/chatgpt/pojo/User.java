@@ -15,6 +15,9 @@ public class User {
     @Column(name = "email", nullable = false, unique = true)
     private String email;
 
+    // ✅ Add this no-arg constructor for deserialization
+    public User() {}
+
     // Getters and Setters
     public int getId() {
         return id;
