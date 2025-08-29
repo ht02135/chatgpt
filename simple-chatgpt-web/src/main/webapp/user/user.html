@@ -10,27 +10,83 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <!-- User.js for AJAX functionality -->
     <script src="js/user.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        form {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        input {
+            margin: 5px 0;
+            padding: 8px;
+            width: 200px;
+        }
+        button {
+            padding: 8px 15px;
+            margin: 5px;
+            cursor: pointer;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .editUser {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 3px;
+        }
+        .deleteUser {
+            background-color: #f44336;
+            color: white;
+            border: none;
+            border-radius: 3px;
+        }
+        #cancelBtn {
+            background-color: #ff9800;
+            color: white;
+            border: none;
+            border-radius: 3px;
+            display: none;
+        }
+    </style>
 </head>
 <body>
 <h1>User Management</h1>
 
-<!-- Add User Form -->
+<!-- Add/Update User Form -->
 <form id="addUserForm">
-    <label>Name:</label>
+    <h3>Add/Update User</h3>
+    <label>Name:</label><br>
     <input type="text" id="name" required><br><br>
-    <label>Email:</label>
+    <label>Email:</label><br>
     <input type="email" id="email" required><br><br>
-    <button type="submit">Add User</button>
+    <button type="submit" id="submitBtn">Add User</button>
+    <button type="button" id="cancelBtn">Cancel</button>
 </form>
 
 <!-- User List Table -->
-<table id="userList" border="1" style="margin-top: 20px;">
+<table id="userList">
     <thead>
     <tr>
         <th>ID</th>
         <th>Name</th>
         <th>Email</th>
-        <th>Action</th>
+        <th>Actions</th>
     </tr>
     </thead>
     <tbody>

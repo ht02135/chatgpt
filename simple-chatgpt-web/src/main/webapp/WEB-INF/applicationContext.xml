@@ -1,7 +1,6 @@
 <beans xmlns="http://www.springframework.org/schema/beans"
        xmlns:context="http://www.springframework.org/schema/context"
        xmlns:tx="http://www.springframework.org/schema/tx"
-       xmlns:mvc="http://www.springframework.org/schema/mvc"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:aop="http://www.springframework.org/schema/aop"
        xsi:schemaLocation="
@@ -11,15 +10,13 @@
            http://www.springframework.org/schema/context
            http://www.springframework.org/schema/context/spring-context.xsd
            http://www.springframework.org/schema/tx
-           http://www.springframework.org/schema/tx/spring-tx.xsd
-           http://www.springframework.org/schema/mvc
-           http://www.springframework.org/schema/mvc/spring-mvc.xsd">
+           http://www.springframework.org/schema/tx/spring-tx.xsd">
 
-    <!-- Component Scan for All Packages -->
-    <context:component-scan base-package="simple.chatgpt" />
-
-    <!-- Enable MVC -->
-    <mvc:annotation-driven/>
+    <!-- Component Scan for Service, DAO, and other non-controller components -->
+    <context:component-scan base-package="simple.chatgpt">
+        <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+        <context:exclude-filter type="annotation" expression="org.springframework.web.bind.annotation.RestController"/>
+    </context:component-scan>
 
     <!-- Load properties file -->
     <context:property-placeholder location="classpath:database.properties"/>

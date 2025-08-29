@@ -4,6 +4,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import simple.chatgpt.pojo.User;
@@ -13,7 +14,7 @@ import simple.chatgpt.util.Response;
 import java.util.List;
 
 @RestController
-@RequestMapping("/users")
+@RequestMapping("/users")  // Make sure this matches your frontend URL
 public class UserController {
     private static final Logger logger = LogManager.getLogger(UserController.class);
 
@@ -24,13 +25,43 @@ public class UserController {
         logger.info("UserController initialized!");
     }
 
-    @PostMapping
+    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Response<User>> save(@RequestBody User user) {
         logger.debug("Received save request for user: {}", user.getName());
+
+        boolean isUpdate = user.getId() > 0;
         User savedUser = userService.save(user);
-        logger.debug("Saved user: {}", savedUser);
-        Response<User> response = Response.success("User added successfully", savedUser, HttpStatus.CREATED.value());
-        logger.debug("Response: {}", response);
+
+        if (isUpdate) {
+            logger.debug("Updated user: {}", savedUser);
+            Response<User> response = Response.success("User updated successfully", savedUser, HttpStatus.OK.value());
+            return ResponseEntity.ok(response);
+        } else {
+            logger.debug("Created new user: {}", savedUser);
+            Response<User> response = Response.success("User created successfully", savedUser, HttpStatus.CREATED.value());
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        }
+    }
+
+    @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Response<User>> update(@PathVariable int id, @RequestBody User user) {
+        logger.debug("Received update request for user ID: {} with data: {}", id, user.getName());
+
+        // Ensure the user ID matches the path variable
+        user.setId(id);
+
+        // Check if user exists first
+        User existingUser = userService.get(id);
+        if (existingUser == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+                    Response.error("User not found", null, HttpStatus.NOT_FOUND.value())
+            );
+        }
+
+        User updatedUser = userService.save(user);
+        logger.debug("Updated user: {}", updatedUser);
+
+        Response<User> response = Response.success("User updated successfully", updatedUser, HttpStatus.OK.value());
         return ResponseEntity.ok(response);
     }
 

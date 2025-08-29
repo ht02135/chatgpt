@@ -19,11 +19,32 @@ public class UserDaoImpl implements UserDao {
 
     @Override
     public User save(User user) {
-        logger.debug("Saving user: {}", user.getName());
+        logger.debug("Saving/updating user: {}", user.getName());
         Session session = sessionFactory.getCurrentSession();
-        session.save(user);
-        return user; // Return the saved user
+
+        if (user.getId() > 0) {
+            // This is an update - use merge or update
+            logger.debug("Updating existing user with ID: {}", user.getId());
+            User mergedUser = (User) session.merge(user);
+            return mergedUser;
+        } else {
+            // This is a new user - use save
+            logger.debug("Creating new user: {}", user.getName());
+            session.save(user);
+            return user;
+        }
     }
+
+// Alternative implementation using saveOrUpdate (deprecated but still works)
+/*
+@Override
+public User save(User user) {
+    logger.debug("Saving/updating user: {}", user.getName());
+    Session session = sessionFactory.getCurrentSession();
+    session.saveOrUpdate(user);
+    return user;
+}
+*/
 
     @Override
     public void delete(int id) {
