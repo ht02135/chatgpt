@@ -77,3 +77,10 @@ http://localhost:8080/chatgpt/api/users/test
 API is working!
 
 -----------------
+
+   curl -X POST http://localhost:8080/chatgpt/api/users \
+        -H "Content-Type: application/json" \
+        -H "Accept: application/json" \
+        -d '{"name": "Test", "email": "test@example.com"}'
+
+

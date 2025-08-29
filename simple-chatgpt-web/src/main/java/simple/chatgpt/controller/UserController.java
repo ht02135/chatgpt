@@ -28,9 +28,10 @@ public class UserController {
     public ResponseEntity<Response<User>> save(@RequestBody User user) {
         logger.debug("Received save request for user: {}", user.getName());
         User savedUser = userService.save(user);
-        return ResponseEntity.ok(
-                Response.success("User added successfully", savedUser, HttpStatus.CREATED.value())
-        );
+        logger.debug("Saved user: {}", savedUser);
+        Response<User> response = Response.success("User added successfully", savedUser, HttpStatus.CREATED.value());
+        logger.debug("Response: {}", response);
+        return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/{id}")
@@ -60,13 +61,14 @@ public class UserController {
     public ResponseEntity<Response<List<User>>> getAll() {
         logger.debug("Received get all users request");
         List<User> users = userService.getAll();
-        return ResponseEntity.ok(
-                Response.success("Users retrieved successfully", users, HttpStatus.OK.value())
-        );
+        logger.debug("users: {}", users);
+        Response<List<User>> response = Response.success("Users retrieved successfully", users, HttpStatus.OK.value());
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/test")
     public ResponseEntity<String> test() {
+        logger.debug("calling test");
         return ResponseEntity.ok("API is working!");
     }
 }
