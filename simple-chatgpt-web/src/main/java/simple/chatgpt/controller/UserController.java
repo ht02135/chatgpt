@@ -13,12 +13,16 @@ import simple.chatgpt.util.Response;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/users")
 public class UserController {
     private static final Logger logger = LogManager.getLogger(UserController.class);
 
     @Autowired
     private UserService userService;
+
+    public UserController() {
+        logger.info("UserController initialized!");
+    }
 
     @PostMapping
     public ResponseEntity<Response<User>> save(@RequestBody User user) {
@@ -59,5 +63,10 @@ public class UserController {
         return ResponseEntity.ok(
                 Response.success("Users retrieved successfully", users, HttpStatus.OK.value())
         );
+    }
+
+    @GetMapping("/test")
+    public ResponseEntity<String> test() {
+        return ResponseEntity.ok("API is working!");
     }
 }

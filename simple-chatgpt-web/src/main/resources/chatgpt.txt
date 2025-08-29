@@ -36,6 +36,9 @@ Java HotSpot(TM) 64-Bit Server VM (build 24.0.1+9-30, mixed mode, sharing)
 Navigate to Maven Runner Settings:
 In the Settings/Preferences dialog, navigate to Build, Execution, Deployment > Build Tools > Maven > Runner.
 
+can we add to pom.xml
+<finalName>chatgpt</finalName>
+
 --------------------
 
 put following into properties file
@@ -52,44 +55,25 @@ make sure db connection is connected to above.  make sure xml ref those variable
 
 --------------------
 
-http://localhost:8080/simple-chatgpt-web-1.0-SNAPSHOT/user/user.html
+15:07:46.602 [localhost-startStop-13] DEBUG _org.springframework.web.servlet.HandlerMapping.Mappings -
+        s.c.c.UserController:
+        {GET [/users/{id}]}: get(int)
+        {GET [/users/test]}: test()
+        {POST [/users]}: save(User)
+        {DELETE [/users/{id}]}: delete(int)
+        {GET [/users]}: getAll()
 
--------------------
+    <servlet-mapping>
+        <servlet-name>dispatcher</servlet-name>
+        <url-pattern>/api/*</url-pattern>
+    </servlet-mapping>
 
-test endpoing
-curl -X POST http://localhost:8080/api/users \
-        -H "Content-Type: application/json" \
-        -d '{"name": "Test User", "email": "test@example.com"}'
-
-i use tomcat and i just drop simple-chatgpt-web-1.0-SNAPSHOT.war to tomcat
-and user.html is actually http://localhost:8080/simple-chatgpt-web-1.0-SNAPSHOT/user/user.html
-so how do i test get api again?
-
-curl -X POST http://localhost:8080/simple-chatgpt-web-1.0-SNAPSHOT/api/users -H "Content-Type: application/json" -d '{"name": "Test User", "email": "test@example.com"}'
-HTTP Status 404 – Not Found
+you need to reference as api/users/test
 
 -----------------
 
 i did postman
-http://localhost:8080/simple-chatgpt-web-1.0-SNAPSHOT/api/users
-got
-HTTP Status 404 – Not Found
+http://localhost:8080/chatgpt/api/users/test
+API is working!
 
-http://localhost:8080/simple-chatgpt-web-1.0-SNAPSHOT/user/user.html
-got
-<meta name="_csrf" content="${_csrf.token}">
-<meta name="_csrf_header" content="${_csrf.headerName}">
-
-what do i need to do to get proper meta
-
-----------------
-
-in header i added
-Accept:
-Content-Type:application/json
-X-CSRF-TOKEN:$(cat /path/to/csrf-token)
-
-and got
-<!doctype html><html lang="en"><head><title>HTTP Status 405 – Method Not Allowed</title><style type="text/css">body {font-family:Tahoma,Arial,sans-serif;} h1, h2, h3, b {color:white;background-color:#525D76;} h1 {font-size:22px;} h2 {font-size:16px;} h3 {font-size:14px;} p {font-size:12px;} a {color:black;} .line {height:1px;background-color:#525D76;border:none;}</style></head><body><h1>HTTP Status 405 – Method Not Allowed</h1><hr class="line" /><p><b>Type</b> Status Report</p><p><b>Description</b> The method received in the request-line is known by the origin server but not supported by the target resource.</p><hr class="line" /><h3>Apache Tomcat/8.5.85</h3></body></html>
-
-
+-----------------

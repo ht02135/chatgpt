@@ -7,6 +7,11 @@
     </listener>
 
     <!-- Spring Context Configuration -->
+    <!--
+    comment this out to use default
+    applicationContext.xml
+    mvc-servlet.xml
+
     <context-param>
         <param-name>contextConfigLocation</param-name>
         <param-value>
@@ -14,6 +19,7 @@
             /WEB-INF/api-applicationContext.xml
         </param-value>
     </context-param>
+    -->
 
     <!-- Spring MVC Dispatcher Servlet -->
     <servlet>
