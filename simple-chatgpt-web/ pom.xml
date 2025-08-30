@@ -22,6 +22,8 @@
         <jackson.version>2.15.2</jackson.version>
         <aspectj.version>1.9.9.1</aspectj.version>
         <log4j.version>2.20.0</log4j.version>
+        <mybatis.version>3.5.13</mybatis.version>
+        <mybatis.spring.version>2.1.0</mybatis.spring.version>
     </properties>
 
     <dependencies>
@@ -95,6 +97,34 @@
             <groupId>org.aspectj</groupId>
             <artifactId>aspectjrt</artifactId>
             <version>${aspectj.version}</version>
+        </dependency>
+
+        <!-- MyBatis Core -->
+        <dependency>
+            <groupId>org.mybatis</groupId>
+            <artifactId>mybatis</artifactId>
+            <version>${mybatis.version}</version>
+        </dependency>
+
+        <!-- MyBatis Spring Integration -->
+        <dependency>
+            <groupId>org.mybatis</groupId>
+            <artifactId>mybatis-spring</artifactId>
+            <version>${mybatis.spring.version}</version>
+        </dependency>
+
+        <!-- MyBatis Core -->
+        <dependency>
+            <groupId>org.mybatis</groupId>
+            <artifactId>mybatis</artifactId>
+            <version>${mybatis.version}</version>
+        </dependency>
+
+        <!-- MyBatis Spring Integration -->
+        <dependency>
+            <groupId>org.mybatis</groupId>
+            <artifactId>mybatis-spring</artifactId>
+            <version>${mybatis.spring.version}</version>
         </dependency>
 
         <!-- Jackson for JSON processing -->

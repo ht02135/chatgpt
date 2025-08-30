@@ -43,21 +43,75 @@
         </property>
     </bean>
 
-    <!-- Transaction Manager -->
+    <!-- MyBatis SqlSessionFactory -->
+    <bean id="mybatisSqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"/>
+        <property name="typeAliasesPackage" value="simple.chatgpt.pojo"/>
+        <property name="mapperLocations" value="classpath:mapper/*.xml"/>
+        <property name="configurationProperties">
+            <props>
+                <prop key="mapUnderscoreToCamelCase">true</prop>
+            </props>
+        </property>
+    </bean>
+
+    <!-- MyBatis Mapper Scanner -->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="simple.chatgpt.mapper"/>
+        <property name="sqlSessionFactoryBeanName" value="mybatisSqlSessionFactory"/>
+    </bean>
+
+    <!-- MyBatis SqlSessionFactory -->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"/>
+        <property name="typeAliasesPackage" value="simple.chatgpt.pojo"/>
+        <property name="mapperLocations" value="classpath:mapper/*.xml"/>
+        <property name="configurationProperties">
+            <props>
+                <prop key="mapUnderscoreToCamelCase">true</prop>
+            </props>
+        </property>
+    </bean>
+
+    <!-- MyBatis Mapper Scanner -->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="simple.chatgpt.mapper"/>
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"/>
+    </bean>
+
+    <!-- Transaction Manager (Hibernate) -->
     <bean id="transactionManager" class="org.springframework.orm.hibernate5.HibernateTransactionManager">
         <property name="sessionFactory" ref="sessionFactory"/>
+    </bean>
+
+    <!-- MyBatis Transaction Manager (separate for MyBatis operations) -->
+    <bean id="mybatisTransactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"/>
     </bean>
 
     <!-- Enable Transaction Management -->
     <tx:annotation-driven transaction-manager="transactionManager"/>
 
-    <!-- AOP Transaction Advice -->
+    <!-- AOP Transaction Advice for Hibernate -->
     <aop:config>
-        <aop:pointcut id="serviceMethods" expression="execution(* simple.chatgpt.service.*Service.*(..))"/>
-        <aop:advisor pointcut-ref="serviceMethods" advice-ref="txAdvice"/>
+        <aop:pointcut id="hibernateServiceMethods" expression="execution(* simple.chatgpt.service.UserService.*(..))"/>
+        <aop:advisor pointcut-ref="hibernateServiceMethods" advice-ref="hibernateTxAdvice"/>
     </aop:config>
 
-    <tx:advice id="txAdvice" transaction-manager="transactionManager">
+    <tx:advice id="hibernateTxAdvice" transaction-manager="transactionManager">
+        <tx:attributes>
+            <tx:method name="get*" read-only="true"/>
+            <tx:method name="*" propagation="REQUIRED"/>
+        </tx:attributes>
+    </tx:advice>
+
+    <!-- AOP Transaction Advice for MyBatis -->
+    <aop:config>
+        <aop:pointcut id="mybatisServiceMethods" expression="execution(* simple.chatgpt.service.mybatis.*Service.*(..))"/>
+        <aop:advisor pointcut-ref="mybatisServiceMethods" advice-ref="mybatisTxAdvice"/>
+    </aop:config>
+
+    <tx:advice id="mybatisTxAdvice" transaction-manager="mybatisTransactionManager">
         <tx:attributes>
             <tx:method name="get*" read-only="true"/>
             <tx:method name="*" propagation="REQUIRED"/>
