@@ -1,5 +1,5 @@
 // -------------------------
-// User.js - frontend API client
+// user.js - frontend API client
 // -------------------------
 
 // Base URL for your API

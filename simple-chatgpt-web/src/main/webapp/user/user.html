@@ -67,7 +67,7 @@
     </table>
 </div>
 
-<script src="User.js"></script>
+<script src="user.js"></script>
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         const form = document.getElementById("addUserForm");
@@ -79,7 +79,7 @@
 
         let editingUserId = null;
 
-        // ----------------- Load users into table -----------------
+        // Load users into table
         async function displayUsers() {
             userTableBody.innerHTML = '<tr><td colspan="4" class="loading">Loading users...</td></tr>';
             const users = await UserApi.loadUsers();
@@ -104,7 +104,7 @@
             });
         }
 
-        // ----------------- Reset form -----------------
+        // Reset form
         function resetForm() {
             form.reset();
             editingUserId = null;
@@ -112,7 +112,7 @@
             cancelBtn.style.display = "none";
         }
 
-        // ----------------- Form submit handler -----------------
+        // Form submit handler
         form.addEventListener("submit", async function(e) {
             e.preventDefault();
             const name = nameInput.value.trim();
@@ -138,10 +138,10 @@
             }
         });
 
-        // ----------------- Cancel edit -----------------
+        // Cancel edit
         cancelBtn.addEventListener("click", resetForm);
 
-        // ----------------- Table actions (Edit/Delete) -----------------
+        // Table actions
         userTableBody.addEventListener("click", async function(e) {
             const id = e.target.dataset.id;
             if (!id) return;
