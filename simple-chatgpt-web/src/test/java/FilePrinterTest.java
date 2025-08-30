@@ -21,11 +21,22 @@ class FilePrinterTest {
         // Scan specific directories in order
         scanPath(rootPath, "src", "    ├── src");
 
-        // Check for pom.xml at root
-        Path pomPath = rootPath.resolve("pom.xml");
-        if (Files.exists(pomPath)) {
-            System.out.println("    └── pom.xml");
+        // Find and display pom.xml from directory listing
+        try {
+            Optional<Path> pomFile = Files.list(rootPath)
+                    .filter(p -> p.getFileName().toString().trim().equals("pom.xml"))
+                    .findFirst();
+
+            if (pomFile.isPresent()) {
+                System.out.println("    └── pom.xml");
+            } else {
+                System.out.println("    └── pom.xml (NOT FOUND)");
+            }
+        } catch (IOException e) {
+            System.out.println("Error finding pom.xml: " + e.getMessage());
         }
+
+        System.out.println("Test completed.");
     }
 
     private void scanPath(Path rootPath, String relativePath, String displayPrefix) throws IOException {
