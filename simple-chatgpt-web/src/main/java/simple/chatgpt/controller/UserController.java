@@ -13,6 +13,15 @@ import simple.chatgpt.util.Response;
 
 import java.util.List;
 
+/*
+POST /chatgpt/api/users/add → add user
+PUT /chatgpt/api/users/{id} → update user
+DELETE /chatgpt/api/users/{id} → delete user
+GET /chatgpt/api/users/{id} → get one
+GET /chatgpt/api/users/all → get all
+GET /chatgpt/api/users/test → test
+*/
+
 @RestController
 @RequestMapping("/users")  // Make sure this matches your frontend URL
 public class UserController {
@@ -27,6 +36,9 @@ public class UserController {
 
     //------------------------------
 
+    /*
+    curl -X POST http://localhost:8080/chatgpt/api/users/add -H "Content-Type: application/json" -H "Accept: application/json" -d '{"name": "Test3", "email": "test@example3.com"}'
+    */
     @PostMapping(value = "/add",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
@@ -91,6 +103,9 @@ public class UserController {
 
     //------------------------------
 
+    /*
+    curl -X GET "http://localhost:8080/chatgpt/api/users/1" -H "Accept: application/json"
+    */
     @GetMapping("/{id}")
     public ResponseEntity<Response<User>> get(@PathVariable int id) {
         logger.debug("Received get request for user ID: {}", id);
@@ -107,6 +122,9 @@ public class UserController {
 
     //------------------------------
 
+    /*
+    curl -X GET "http://localhost:8080/chatgpt/api/users/all" -H "Accept: application/json"
+    */
     @GetMapping("/all")
     public ResponseEntity<Response<List<User>>> getAll() {
         logger.debug("Received get all users request");
