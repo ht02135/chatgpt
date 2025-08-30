@@ -8,7 +8,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import simple.chatgpt.pojo.User;
-import simple.chatgpt.service.mybatis.UserService;
+import simple.chatgpt.service.mybatis.MyBatisUserService;
 import simple.chatgpt.util.Response;
 
 import java.util.List;
@@ -29,7 +29,7 @@ public class MyBatisUserController {
     private static final Logger logger = LogManager.getLogger(MyBatisUserController.class);
 
     @Autowired
-    private UserService userService;
+    private MyBatisUserService myBatisUserService;
 
     public MyBatisUserController() {
         logger.info("MyBatisUserController initialized!");
@@ -47,7 +47,7 @@ public class MyBatisUserController {
         logger.debug("MyBatis - Received save request for user: {}", user.getName());
 
         boolean isUpdate = user.getId() > 0;
-        User savedUser = userService.save(user);
+        User savedUser = myBatisUserService.save(user);
 
         if (isUpdate) {
             logger.debug("MyBatis - Updated user: {}", savedUser);
@@ -77,14 +77,14 @@ public class MyBatisUserController {
         user.setId(id);
 
         // Check if user exists first
-        User existingUser = userService.get(id);
+        User existingUser = myBatisUserService.get(id);
         if (existingUser == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
                     Response.error("User not found", null, HttpStatus.NOT_FOUND.value())
             );
         }
 
-        User updatedUser = userService.save(user);
+        User updatedUser = myBatisUserService.save(user);
         logger.debug("MyBatis - Updated user: {}", updatedUser);
 
         Response<User> response = Response.success("User updated successfully", updatedUser, HttpStatus.OK.value());
@@ -96,7 +96,7 @@ public class MyBatisUserController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Response<Void>> delete(@PathVariable int id) {
         logger.debug("MyBatis - Received delete request for user ID: {}", id);
-        userService.delete(id);
+        myBatisUserService.delete(id);
         return ResponseEntity.ok(
                 Response.success("User deleted successfully", (Void) null, HttpStatus.OK.value())
         );
@@ -110,7 +110,7 @@ public class MyBatisUserController {
     @GetMapping("/{id}")
     public ResponseEntity<Response<User>> get(@PathVariable int id) {
         logger.debug("MyBatis - Received get request for user ID: {}", id);
-        User user = userService.get(id);
+        User user = myBatisUserService.get(id);
         if (user == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
                     Response.error("User not found", null, HttpStatus.NOT_FOUND.value())
@@ -129,7 +129,7 @@ public class MyBatisUserController {
     @GetMapping("/all")
     public ResponseEntity<Response<List<User>>> getAll() {
         logger.debug("MyBatis - Received get all users request");
-        List<User> users = userService.getAll();
+        List<User> users = myBatisUserService.getAll();
         logger.debug("MyBatis - users: {}", users);
         Response<List<User>> response = Response.success("Users retrieved successfully", users, HttpStatus.OK.value());
         return ResponseEntity.ok(response);

@@ -12,8 +12,8 @@ import java.util.List;
 
 @Service("mybatisUserService")
 @Transactional
-public class UserServiceImpl implements UserService {
-    private static final Logger logger = LogManager.getLogger(UserServiceImpl.class);
+public class MyBatisUserServiceImpl implements MyBatisUserService {
+    private static final Logger logger = LogManager.getLogger(MyBatisUserServiceImpl.class);
 
     @Autowired
     private UserMapper userMapper;

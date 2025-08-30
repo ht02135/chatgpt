@@ -3,7 +3,7 @@ package simple.chatgpt.service.mybatis;
 import simple.chatgpt.pojo.User;
 import java.util.List;
 
-public interface UserService {
+public interface MyBatisUserService {
 
     /**
      * Save a user (insert if new, update if existing)
