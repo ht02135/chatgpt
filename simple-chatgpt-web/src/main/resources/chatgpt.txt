@@ -1,4 +1,44 @@
 
+[INFO] Running FilePrinterTest
+└── simple-chatgpt-web
+    ├── src/main/java
+        │   ├── java
+        │   │   └── simple
+        │   │       └── chatgpt
+        │   │           ├── controller
+        │   │           │   └── UserController.java
+        │   │           ├── dao
+        │   │           │   ├── UserDao.java
+        │   │           │   └── UserDaoImpl.java
+        │   │           ├── pojo
+        │   │           │   └── User.java
+        │   │           ├── service
+        │   │           │   ├── UserService.java
+        │   │           │   └── UserServiceImpl.java
+        │   │           └── util
+        │   │               └── Response.java
+    ├── src/main/resources
+        │   ├── resources
+        │   │   ├── database.properties
+        │   │   └── User.sql
+    ├── src/main/webapp
+        │   ├── webapp
+        │   │   ├── knockjs-user
+        │   │   │   ├── knockout-latest.js
+        │   │   │   ├── user.js
+        │   │   │   └── user.jsp
+        │   │   ├── user
+        │   │   │   ├── user.html
+        │   │   │   └── user.js
+        │   │   ├── WEB-INF
+        │   │   │   ├── api-servlet.xml
+        │   │   │   ├── applicationContext.xml
+        │   │   │   ├── log4j2.xml
+        │   │   │   └── web.xml
+        │   │   └── index.html
+
+///////////////////
+
 for simple-chatgpt-web
 
 1>create non-boot
@@ -83,4 +123,9 @@ API is working!
         -H "Accept: application/json" \
         -d '{"name": "Test", "email": "test@example.com"}'
 
+--------------------
+
+Yes, it is possible to add MyBatis for later development even if your applicationContext.xml is currently configured with Hibernate. Both Hibernate and MyBatis can coexist within the same Spring application.
+
+--------------------
 
