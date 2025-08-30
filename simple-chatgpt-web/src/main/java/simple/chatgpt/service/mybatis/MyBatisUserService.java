@@ -44,4 +44,20 @@ public interface MyBatisUserService {
      * @return true if user exists, false otherwise
      */
     boolean exists(int id);
+
+    /**
+     * Get users with paging and sorting
+     * @param page page number (1-based)
+     * @param size page size
+     * @param sortField field to sort by
+     * @param sortOrder ASC or DESC
+     * @return list of users
+     */
+    List<User> getUsersPagedAndSorted(int page, int size, String sortField, String sortOrder);
+
+    /**
+     * Get total user count
+     * @return total number of users
+     */
+    int getTotalUserCount();
 }

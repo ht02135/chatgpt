@@ -63,6 +63,19 @@
         LIMIT #{offset}, #{limit}
     </select>
 
+    <!-- Select Users with Pagination and optional sorting (dynamic ORDER BY) -->
+    <select id="selectWithPagingAndSorting" resultMap="UserResultMap">
+        SELECT id, name, email
+        FROM users
+        <if test="sortField != null and sortField != ''">
+            ORDER BY ${sortField} ${sortOrder}
+        </if>
+        <if test="sortField == null or sortField == ''">
+            ORDER BY id ASC
+        </if>
+        LIMIT #{offset}, #{limit}
+    </select>
+
     <!-- Dynamic Search with Multiple Criteria -->
     <select id="selectByDynamicCriteria" parameterType="User" resultMap="UserResultMap">
         SELECT id, name, email

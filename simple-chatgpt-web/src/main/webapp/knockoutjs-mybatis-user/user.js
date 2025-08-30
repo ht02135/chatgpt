@@ -11,17 +11,27 @@ function UserViewModel() {
     self.currentUser = ko.observable(new User({}));
     self.isEditing = ko.observable(false);
 
+    // Paging and sorting observables
+    self.page = ko.observable(1);
+    self.size = ko.observable(10);
+    self.total = ko.observable(0);
+    self.sortField = ko.observable("id");
+    self.sortOrder = ko.observable("ASC");
+
     const API_BASE = "/chatgpt/api/mybatis/users";
 
-    // Load users from backend
+    // Load users with paging and sorting
     self.loadUsers = async function() {
         try {
-            const res = await fetch(`${API_BASE}/all`, { headers: { "Accept": "application/json" } });
+            const res = await fetch(`${API_BASE}/paged?page=${self.page()}&size=${self.size()}&sortField=${self.sortField()}&sortOrder=${self.sortOrder()}`,
+                { headers: { "Accept": "application/json" } });
             const data = await res.json();
             if (data.status === "SUCCESS") {
-                self.users(data.data.map(u => new User(u)));
+                self.users((data.data.users || []).map(u => new User(u)));
+                self.total(data.data.total || 0);
             } else {
                 self.users([]);
+                self.total(0);
             }
         } catch (err) {
             console.error("Load users error:", err);
@@ -75,8 +85,41 @@ function UserViewModel() {
         self.isEditing(false);
     };
 
+    // Pagination controls
+    self.nextPage = function() {
+        if (self.page() < self.maxPage()) {
+            self.page(self.page() + 1);
+            self.loadUsers();
+        }
+    };
+    self.prevPage = function() {
+        if (self.page() > 1) {
+            self.page(self.page() - 1);
+            self.loadUsers();
+        }
+    };
+    self.maxPage = ko.computed(function() {
+        return Math.ceil(self.total() / self.size());
+    });
+
+    // Sorting
+    self.setSort = function(field) {
+        if (self.sortField() === field) {
+            self.sortOrder(self.sortOrder() === "ASC" ? "DESC" : "ASC");
+        } else {
+            self.sortField(field);
+            self.sortOrder("ASC");
+        }
+        self.page(1);
+        self.loadUsers();
+    };
+
     // Initial load
     self.loadUsers();
+
+    // Subscribe to page/size changes
+    self.page.subscribe(self.loadUsers);
+    self.size.subscribe(self.loadUsers);
 }
 
 // Activate Knockout bindings

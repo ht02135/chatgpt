@@ -150,4 +150,28 @@ public class MyBatisUserController {
         logger.debug("MyBatis - calling test");
         return ResponseEntity.ok("MyBatis API is working!");
     }
+
+    //------------------------------
+
+    /**
+     * Get users with paging and sorting
+     * Example: GET /mybatis/users/paged?page=1&size=10&sortField=name&sortOrder=ASC
+     */
+    @GetMapping(value = "/paged", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Response<Object>> getUsersPaged(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "id") String sortField,
+            @RequestParam(defaultValue = "ASC") String sortOrder) {
+        logger.debug("MyBatis - Received paged user request: page={}, size={}, sortField={}, sortOrder={}", page, size, sortField, sortOrder);
+        List<User> users = myBatisUserService.getUsersPagedAndSorted(page, size, sortField, sortOrder);
+        int total = myBatisUserService.getTotalUserCount();
+        // Return both users and total count for frontend paging
+        return ResponseEntity.ok(
+                Response.success("Paged users fetched", new java.util.HashMap<String, Object>() {{
+                    put("users", users);
+                    put("total", total);
+                }}, HttpStatus.OK.value())
+        );
+    }
 }

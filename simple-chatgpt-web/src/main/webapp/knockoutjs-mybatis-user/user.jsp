@@ -26,7 +26,12 @@
 
     <table>
         <thead>
-        <tr><th>ID</th><th>Name</th><th>Email</th><th>Actions</th></tr>
+        <tr>
+            <th data-bind="click: function() { setSort('id') }" style="cursor:pointer">ID <span data-bind="visible: sortField() === 'id'">▲▼</span></th>
+            <th data-bind="click: function() { setSort('name') }" style="cursor:pointer">Name <span data-bind="visible: sortField() === 'name'">▲▼</span></th>
+            <th data-bind="click: function() { setSort('email') }" style="cursor:pointer">Email <span data-bind="visible: sortField() === 'email'">▲▼</span></th>
+            <th>Actions</th>
+        </tr>
         </thead>
         <tbody data-bind="foreach: users">
         <tr>
@@ -40,6 +45,13 @@
         </tr>
         </tbody>
     </table>
+    <div style="margin-top:20px; text-align:center;">
+        <button type="button" data-bind="click: prevPage, enable: page() > 1">Prev</button>
+        <span data-bind="text: page"></span> / <span data-bind="text: maxPage"></span>
+        <button type="button" data-bind="click: nextPage, enable: page() < maxPage()">Next</button>
+        <span style="margin-left:20px;">Page Size: <input type="number" min="1" max="100" data-bind="value: size, valueUpdate: 'input'" style="width:50px;"></span>
+        <span style="margin-left:20px;">Total: <span data-bind="text: total"></span></span>
+    </div>
 </div>
 
 <script src="user.js"></script>

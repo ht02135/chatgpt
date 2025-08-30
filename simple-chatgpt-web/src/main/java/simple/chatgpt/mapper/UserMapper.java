@@ -93,6 +93,16 @@ public interface UserMapper {
     List<User> selectWithPagination(@Param("offset") int offset, @Param("limit") int limit);
 
     /**
+     * Find users with pagination and sorting - Defined in XML for dynamic pagination/sorting
+     * @param offset starting position
+     * @param limit number of records
+     * @param sortField field to sort by
+     * @param sortOrder ASC or DESC
+     * @return list of users
+     */
+    List<User> selectWithPagingAndSorting(@Param("offset") int offset, @Param("limit") int limit, @Param("sortField") String sortField, @Param("sortOrder") String sortOrder);
+
+    /**
      * Dynamic search with filters - Defined in XML for complex conditions
      * @param user search criteria
      * @return list of matching users

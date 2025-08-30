@@ -101,4 +101,26 @@ public class MyBatisUserServiceImpl implements MyBatisUserService {
         logger.debug("MyBatis - User exists: {}", exists);
         return exists;
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<User> getUsersPagedAndSorted(int page, int size, String sortField, String sortOrder) {
+        logger.debug("MyBatis - Getting users paged: page={}, size={}, sortField={}, sortOrder={}", page, size, sortField, sortOrder);
+        int offset = (page - 1) * size;
+        // Validate sortField and sortOrder to prevent SQL injection
+        if (sortField == null || !(sortField.equals("id") || sortField.equals("name") || sortField.equals("email"))) {
+            sortField = "id";
+        }
+        if (sortOrder == null || !(sortOrder.equalsIgnoreCase("ASC") || sortOrder.equalsIgnoreCase("DESC"))) {
+            sortOrder = "ASC";
+        }
+        return userMapper.selectWithPagingAndSorting(offset, size, sortField, sortOrder);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public int getTotalUserCount() {
+        logger.debug("MyBatis - Getting total user count");
+        return userMapper.countAll();
+    }
 }
