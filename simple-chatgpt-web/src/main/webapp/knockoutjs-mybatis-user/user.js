@@ -11,7 +11,7 @@ function UserViewModel() {
     self.currentUser = ko.observable(new User({}));
     self.isEditing = ko.observable(false);
 
-    const API_BASE = "/chatgpt/api/users";
+    const API_BASE = "/chatgpt/api/mybatis/users";
 
     // Load users from backend
     self.loadUsers = async function() {
