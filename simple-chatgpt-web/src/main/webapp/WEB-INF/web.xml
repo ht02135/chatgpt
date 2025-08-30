@@ -6,34 +6,18 @@
         <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
     </listener>
 
-    <!-- Spring Context Configuration -->
-    <!--
-    comment this out to use default
-    applicationContext.xml
-    mvc-servlet.xml
-
-    <context-param>
-        <param-name>contextConfigLocation</param-name>
-        <param-value>
-            /WEB-INF/applicationContext.xml
-            /WEB-INF/api-applicationContext.xml
-        </param-value>
-    </context-param>
-    -->
-
     <!-- Spring MVC Dispatcher Servlet -->
     <servlet>
-        <servlet-name>dispatcher</servlet-name>
+        <servlet-name>api</servlet-name>
         <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
-        <init-param>
-            <param-name>contextConfigLocation</param-name>
-            <param-value></param-value>
-        </init-param>
         <load-on-startup>1</load-on-startup>
     </servlet>
 
+    <!--
+    it seem, because i use api, then system looks for api-servlet.xml
+    -->
     <servlet-mapping>
-        <servlet-name>dispatcher</servlet-name>
+        <servlet-name>api</servlet-name>
         <url-pattern>/api/*</url-pattern>
     </servlet-mapping>
 

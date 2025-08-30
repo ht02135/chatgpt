@@ -25,7 +25,11 @@ public class UserController {
         logger.info("UserController initialized!");
     }
 
-    @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    //------------------------------
+
+    @PostMapping(value = "/add",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Response<User>> save(@RequestBody User user) {
         logger.debug("Received save request for user: {}", user.getName());
 
@@ -42,6 +46,15 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
         }
     }
+
+    @PostMapping(value = "/old/add",
+            consumes = MediaType.APPLICATION_JSON_VALUE,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Response<User>> addUser(@RequestBody User user) {
+        return save(user);
+    }
+
+    //------------------------------
 
     @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Response<User>> update(@PathVariable int id, @RequestBody User user) {
@@ -65,6 +78,8 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
+    //------------------------------
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Response<Void>> delete(@PathVariable int id) {
         logger.debug("Received delete request for user ID: {}", id);
@@ -73,6 +88,8 @@ public class UserController {
                 Response.success("User deleted successfully", (Void) null, HttpStatus.OK.value())
         );
     }
+
+    //------------------------------
 
     @GetMapping("/{id}")
     public ResponseEntity<Response<User>> get(@PathVariable int id) {
@@ -88,7 +105,9 @@ public class UserController {
         );
     }
 
-    @GetMapping
+    //------------------------------
+
+    @GetMapping("/all")
     public ResponseEntity<Response<List<User>>> getAll() {
         logger.debug("Received get all users request");
         List<User> users = userService.getAll();
@@ -97,6 +116,16 @@ public class UserController {
         return ResponseEntity.ok(response);
     }
 
+    @RequestMapping(method=RequestMethod.GET, value = "/old/all")
+    public ResponseEntity<Response<List<User>>> oldGetAll() {
+        return getAll();
+    }
+
+    //------------------------------
+
+    /*
+    curl -X GET "http://localhost:8080/chatgpt/api/users/test" -H "Accept: application/json"
+    */
     @GetMapping("/test")
     public ResponseEntity<String> test() {
         logger.debug("calling test");
