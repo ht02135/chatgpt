@@ -20,6 +20,12 @@ DELETE /chatgpt/api/users/{id} → delete user
 GET /chatgpt/api/users/{id} → get one
 GET /chatgpt/api/users/all → get all
 GET /chatgpt/api/users/test → test
+///////////////////
+Perfect — that proves everything is wired correctly:
+✅ Your WAR context path = /chatgpt
+✅ Your Servlet mapping = /api/*
+✅ Your Controller mapping = /users
+✅ Endpoint /test works as expected
 */
 
 @RestController
