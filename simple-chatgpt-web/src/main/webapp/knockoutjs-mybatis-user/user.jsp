@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <title>User Management (Knockout.js)</title>
-    <script src="knockout-latest.js"></script>
+    <script src="../js/knockoutjs/knockout-latest.js"></script>
     <style>
         /* Copy your CSS from user.html so styling is identical */
         body { font-family: Arial, sans-serif; margin: 20px; background-color: #f5f5f5; }
