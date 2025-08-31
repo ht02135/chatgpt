@@ -52,4 +52,22 @@ public class MyBatisUserUser {
 
     public String getCountry() { return country; }
     public void setCountry(String country) { this.country = country; }
+
+    @Override
+    public String toString() {
+        return "MyBatisUserUser{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", email='" + email + '\'' +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", password='" + password + '\'' +
+                ", addressLine1='" + addressLine1 + '\'' +
+                ", addressLine2='" + addressLine2 + '\'' +
+                ", city='" + city + '\'' +
+                ", state='" + state + '\'' +
+                ", postCode='" + postCode + '\'' +
+                ", country='" + country + '\'' +
+                '}';
+    }
 }

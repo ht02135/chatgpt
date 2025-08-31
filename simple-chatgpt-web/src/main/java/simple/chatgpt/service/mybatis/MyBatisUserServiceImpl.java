@@ -51,7 +51,8 @@ public class MyBatisUserServiceImpl implements MyBatisUserService {
         logger.debug("MyBatis - Getting user by ID: {}", id);
         MyBatisUserUser user = userMapper.selectById(id);
         if (user != null) {
-            logger.debug("MyBatis - Found user: {}", user.getName());
+            //logger.debug("MyBatis - Found user: {}", user.getName());
+        	logger.debug("MyBatis - Found user: {}", user);
         } else {
             logger.debug("MyBatis - No user found with ID: {}", id);
         }

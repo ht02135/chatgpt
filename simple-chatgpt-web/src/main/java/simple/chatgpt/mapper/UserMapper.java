@@ -34,11 +34,25 @@ public interface UserMapper {
     int deleteById(@Param("id") int id);
 
     /**
-     * Find user by ID - Using annotation
+     * Find user by ID - Using annotation with @Results mapping
      * @param id the user ID
      * @return the user or null if not found
      */
     @Select("SELECT id, name, email, first_name, last_name, password, address_line_1, address_line_2, city, state, post_code, country FROM users WHERE id = #{id}")
+    @Results({
+        @Result(property = "id", column = "id"),
+        @Result(property = "name", column = "name"),
+        @Result(property = "email", column = "email"),
+        @Result(property = "firstName", column = "first_name"),
+        @Result(property = "lastName", column = "last_name"),
+        @Result(property = "password", column = "password"),
+        @Result(property = "addressLine1", column = "address_line_1"),
+        @Result(property = "addressLine2", column = "address_line_2"),
+        @Result(property = "city", column = "city"),
+        @Result(property = "state", column = "state"),
+        @Result(property = "postCode", column = "post_code"),
+        @Result(property = "country", column = "country")
+    })
     MyBatisUserUser selectById(@Param("id") int id);
 
     /**
