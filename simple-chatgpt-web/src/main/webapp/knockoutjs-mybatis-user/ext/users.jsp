@@ -15,10 +15,18 @@
     <table>
         <thead>
         <tr>
-            <th data-bind="click: function() { setSort('id') }" style="cursor:pointer">ID <span data-bind="if: sortField() === 'id'"> <span data-bind="text: sortOrder() === 'ASC' ? '▲' : '▼'"></span></span></th>
-            <th data-bind="click: function() { setSort('firstName') }" style="cursor:pointer">First Name <span data-bind="if: sortField() === 'firstName'"> <span data-bind="text: sortOrder() === 'ASC' ? '\u25b2' : '\u25bc'\"></span></span></th>
-            <th data-bind="click: function() { setSort('lastName') }" style="cursor:pointer">Last Name <span data-bind="if: sortField() === 'lastName'"> <span data-bind="text: sortOrder() === 'ASC' ? '\u25b2' : '\u25bc'\"></span></span></th>
-            <th data-bind="click: function() { setSort('email') }" style="cursor:pointer">Email <span data-bind="if: sortField() === 'email'"> <span data-bind="text: sortOrder() === 'ASC' ? '\u25b2' : '\u25bc'\"></span></span></th>
+            <th data-bind="click: function() { setSort('id') }" style="cursor:pointer">
+                ID <span data-bind="visible: sortField() === 'id', text: sortOrder() === 'ASC' ? '▲' : '▼'"></span>
+            </th>
+            <th data-bind="click: function() { setSort('firstName') }" style="cursor:pointer">
+                First Name <span data-bind="visible: sortField() === 'firstName', text: sortOrder() === 'ASC' ? '▲' : '▼'"></span>
+            </th>
+            <th data-bind="click: function() { setSort('lastName') }" style="cursor:pointer">
+                Last Name <span data-bind="visible: sortField() === 'lastName', text: sortOrder() === 'ASC' ? '▲' : '▼'"></span>
+            </th>
+            <th data-bind="click: function() { setSort('email') }" style="cursor:pointer">
+                Email <span data-bind="visible: sortField() === 'email', text: sortOrder() === 'ASC' ? '▲' : '▼'"></span>
+            </th>
             <th>Actions</th>
         </tr>
         </thead>

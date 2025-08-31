@@ -76,12 +76,23 @@
     <select id="selectWithPagingAndSorting" resultMap="UserResultMap">
         SELECT id, name, email, first_name, last_name, password, address_line_1, address_line_2, city, state, post_code, country
         FROM users
-        <if test="sortField != null and sortField != ''">
-            ORDER BY ${sortField} ${sortOrder}
-        </if>
-        <if test="sortField == null or sortField == ''">
-            ORDER BY id ASC
-        </if>
+        <choose>
+            <when test="sortField == 'firstName'">
+                ORDER BY first_name ${sortOrder}
+            </when>
+            <when test="sortField == 'lastName'">
+                ORDER BY last_name ${sortOrder}
+            </when>
+            <when test="sortField == 'email'">
+                ORDER BY email ${sortOrder}
+            </when>
+            <when test="sortField == 'name'">
+                ORDER BY name ${sortOrder}
+            </when>
+            <otherwise>
+                ORDER BY id ${sortOrder}
+            </otherwise>
+        </choose>
         LIMIT #{offset}, #{limit}
     </select>
 
