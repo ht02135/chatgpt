@@ -91,7 +91,10 @@ function UserViewModel(params) {
     };
 
     // Navigation
-    self.goUsers = function() { window.location.href = 'users.jsp'; };
+    self.goUsers = function() { 
+        // Always reload users list when returning to users.jsp
+        window.location.href = 'users.jsp?reload=' + new Date().getTime(); 
+    };
     self.goAddUser = function() { window.location.href = 'addUser.jsp'; };
     self.goEditUser = function(id) {
         // id may be an observable or a plain value

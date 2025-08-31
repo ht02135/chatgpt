@@ -9,13 +9,22 @@
         <id property="id" column="id"/>
         <result property="name" column="name"/>
         <result property="email" column="email"/>
+        <result property="firstName" column="first_name"/>
+        <result property="lastName" column="last_name"/>
+        <result property="password" column="password"/>
+        <result property="addressLine1" column="address_line_1"/>
+        <result property="addressLine2" column="address_line_2"/>
+        <result property="city" column="city"/>
+        <result property="state" column="state"/>
+        <result property="postCode" column="post_code"/>
+        <result property="country" column="country"/>
     </resultMap>
 
     <!-- ============== XML-BASED METHODS (Complex queries) ============== -->
 
     <!-- Select All Users with advanced sorting -->
     <select id="selectAll" resultMap="UserResultMap">
-        SELECT id, name, email
+        SELECT id, name, email, first_name, last_name, password, address_line_1, address_line_2, city, state, post_code, country
         FROM users
         ORDER BY
         CASE WHEN name IS NULL THEN 1 ELSE 0 END,
@@ -25,7 +34,7 @@
 
     <!-- Select User by Email with case-insensitive search -->
     <select id="selectByEmail" parameterType="string" resultMap="UserResultMap">
-        SELECT id, name, email
+        SELECT id, name, email, first_name, last_name, password, address_line_1, address_line_2, city, state, post_code, country
         FROM users
         WHERE LOWER(email) = LOWER(#{email})
         LIMIT 1
@@ -47,7 +56,7 @@
 
     <!-- Select Users by Name Pattern (case-insensitive search) -->
     <select id="selectByNameLike" parameterType="string" resultMap="UserResultMap">
-        SELECT id, name, email
+        SELECT id, name, email, first_name, last_name, password, address_line_1, address_line_2, city, state, post_code, country
         FROM users
         WHERE LOWER(name) LIKE LOWER(CONCAT('%', #{name}, '%'))
         ORDER BY
@@ -57,7 +66,7 @@
 
     <!-- Select Users with Pagination and optional sorting -->
     <select id="selectWithPagination" resultMap="UserResultMap">
-        SELECT id, name, email
+        SELECT id, name, email, first_name, last_name, password, address_line_1, address_line_2, city, state, post_code, country
         FROM users
         ORDER BY id ASC
         LIMIT #{offset}, #{limit}
@@ -65,7 +74,7 @@
 
     <!-- Select Users with Pagination and optional sorting (dynamic ORDER BY) -->
     <select id="selectWithPagingAndSorting" resultMap="UserResultMap">
-        SELECT id, name, email
+        SELECT id, name, email, first_name, last_name, password, address_line_1, address_line_2, city, state, post_code, country
         FROM users
         <if test="sortField != null and sortField != ''">
             ORDER BY ${sortField} ${sortOrder}
@@ -78,7 +87,7 @@
 
     <!-- Dynamic Search with Multiple Criteria -->
     <select id="selectByDynamicCriteria" parameterType="User" resultMap="UserResultMap">
-        SELECT id, name, email
+        SELECT id, name, email, first_name, last_name, password, address_line_1, address_line_2, city, state, post_code, country
         FROM users
         <where>
             <if test="id != null and id > 0">
