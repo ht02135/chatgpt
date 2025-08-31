@@ -5,6 +5,15 @@ function User(data) {
     this.id = ko.observable(data && data.id || 0);
     this.name = ko.observable(data && data.name || '');
     this.email = ko.observable(data && data.email || '');
+    this.firstName = ko.observable(data && data.firstName || '');
+    this.lastName = ko.observable(data && data.lastName || '');
+    this.password = ko.observable(data && data.password || '');
+    this.addressLine1 = ko.observable(data && data.addressLine1 || '');
+    this.addressLine2 = ko.observable(data && data.addressLine2 || '');
+    this.city = ko.observable(data && data.city || '');
+    this.state = ko.observable(data && data.state || '');
+    this.postCode = ko.observable(data && data.postCode || '');
+    this.country = ko.observable(data && data.country || '');
 }
 
 function UserViewModel(params) {
@@ -41,14 +50,28 @@ function UserViewModel(params) {
     // Save or update user
     self.saveUser = async function() {
         const u = self.currentUser();
-        const payload = { name: u.name(), email: u.email() };
+        const payload = {
+            name: u.name(),
+            email: u.email(),
+            firstName: u.firstName(),
+            lastName: u.lastName(),
+            password: u.password(),
+            addressLine1: u.addressLine1(),
+            addressLine2: u.addressLine2(),
+            city: u.city(),
+            state: u.state(),
+            postCode: u.postCode(),
+            country: u.country()
+        };
+        if (self.mode === 'edit' && u.id() > 0) {
+            payload.id = u.id();
+        }
         try {
             let url = `${API_BASE}/add`;
             let method = 'POST';
             if (self.mode === 'edit' && u.id() > 0) {
                 url = `${API_BASE}/${u.id()}`;
                 method = 'PUT';
-                payload.id = u.id();
             }
             await fetch(url, {
                 method,

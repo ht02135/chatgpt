@@ -16,15 +16,17 @@
         <thead>
         <tr>
             <th data-bind="click: function() { setSort('id') }" style="cursor:pointer">ID <span data-bind="if: sortField() === 'id'"> <span data-bind="text: sortOrder() === 'ASC' ? '▲' : '▼'"></span></span></th>
-            <th data-bind="click: function() { setSort('name') }" style="cursor:pointer">Name <span data-bind="if: sortField() === 'name'"> <span data-bind="text: sortOrder() === 'ASC' ? '▲' : '▼'"></span></span></th>
-            <th data-bind="click: function() { setSort('email') }" style="cursor:pointer">Email <span data-bind="if: sortField() === 'email'"> <span data-bind="text: sortOrder() === 'ASC' ? '▲' : '▼'"></span></span></th>
+            <th data-bind="click: function() { setSort('firstName') }" style="cursor:pointer">First Name <span data-bind="if: sortField() === 'firstName'"> <span data-bind="text: sortOrder() === 'ASC' ? '\u25b2' : '\u25bc'\"></span></span></th>
+            <th data-bind="click: function() { setSort('lastName') }" style="cursor:pointer">Last Name <span data-bind="if: sortField() === 'lastName'"> <span data-bind="text: sortOrder() === 'ASC' ? '\u25b2' : '\u25bc'\"></span></span></th>
+            <th data-bind="click: function() { setSort('email') }" style="cursor:pointer">Email <span data-bind="if: sortField() === 'email'"> <span data-bind="text: sortOrder() === 'ASC' ? '\u25b2' : '\u25bc'\"></span></span></th>
             <th>Actions</th>
         </tr>
         </thead>
         <tbody data-bind="foreach: users">
         <tr>
             <td data-bind="text: id"></td>
-            <td data-bind="text: name"></td>
+            <td data-bind="text: firstName"></td>
+            <td data-bind="text: lastName"></td>
             <td data-bind="text: email"></td>
             <td>
                 <a href="#" data-bind="click: function() { $parent.goEditUser(id) }">Edit</a> |

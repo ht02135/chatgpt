@@ -8,6 +8,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import simple.chatgpt.pojo.User;
+import simple.chatgpt.pojo.mybatis.MyBatisUserUser;
 import simple.chatgpt.service.mybatis.MyBatisUserService;
 import simple.chatgpt.util.Response;
 
@@ -43,19 +44,19 @@ public class MyBatisUserController {
     @PostMapping(value = "/add",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Response<User>> save(@RequestBody User user) {
+    public ResponseEntity<Response<MyBatisUserUser>> save(@RequestBody MyBatisUserUser user) {
         logger.debug("MyBatis - Received save request for user: {}", user.getName());
 
         boolean isUpdate = user.getId() > 0;
-        User savedUser = myBatisUserService.save(user);
+        MyBatisUserUser savedUser = myBatisUserService.save(user);
 
         if (isUpdate) {
             logger.debug("MyBatis - Updated user: {}", savedUser);
-            Response<User> response = Response.success("User updated successfully", savedUser, HttpStatus.OK.value());
+            Response<MyBatisUserUser> response = Response.success("User updated successfully", savedUser, HttpStatus.OK.value());
             return ResponseEntity.ok(response);
         } else {
             logger.debug("MyBatis - Created new user: {}", savedUser);
-            Response<User> response = Response.success("User created successfully", savedUser, HttpStatus.CREATED.value());
+            Response<MyBatisUserUser> response = Response.success("User created successfully", savedUser, HttpStatus.CREATED.value());
             return ResponseEntity.status(HttpStatus.CREATED).body(response);
         }
     }
@@ -63,31 +64,31 @@ public class MyBatisUserController {
     @PostMapping(value = "/old/add",
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Response<User>> addUser(@RequestBody User user) {
+    public ResponseEntity<Response<MyBatisUserUser>> addUser(@RequestBody MyBatisUserUser user) {
         return save(user);
     }
 
     //------------------------------
 
     @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Response<User>> update(@PathVariable int id, @RequestBody User user) {
+    public ResponseEntity<Response<MyBatisUserUser>> update(@PathVariable int id, @RequestBody MyBatisUserUser user) {
         logger.debug("MyBatis - Received update request for user ID: {} with data: {}", id, user.getName());
 
         // Ensure the user ID matches the path variable
         user.setId(id);
 
         // Check if user exists first
-        User existingUser = myBatisUserService.get(id);
+        MyBatisUserUser existingUser = myBatisUserService.get(id);
         if (existingUser == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
                     Response.error("User not found", null, HttpStatus.NOT_FOUND.value())
             );
         }
 
-        User updatedUser = myBatisUserService.save(user);
+        MyBatisUserUser updatedUser = myBatisUserService.save(user);
         logger.debug("MyBatis - Updated user: {}", updatedUser);
 
-        Response<User> response = Response.success("User updated successfully", updatedUser, HttpStatus.OK.value());
+        Response<MyBatisUserUser> response = Response.success("User updated successfully", updatedUser, HttpStatus.OK.value());
         return ResponseEntity.ok(response);
     }
 
@@ -108,9 +109,9 @@ public class MyBatisUserController {
     curl -X GET "http://localhost:8080/chatgpt/api/mybatis/users/1" -H "Accept: application/json"
     */
     @GetMapping("/{id}")
-    public ResponseEntity<Response<User>> get(@PathVariable int id) {
+    public ResponseEntity<Response<MyBatisUserUser>> get(@PathVariable int id) {
         logger.debug("MyBatis - Received get request for user ID: {}", id);
-        User user = myBatisUserService.get(id);
+        MyBatisUserUser user = myBatisUserService.get(id);
         if (user == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
                     Response.error("User not found", null, HttpStatus.NOT_FOUND.value())
@@ -127,16 +128,16 @@ public class MyBatisUserController {
     curl -X GET "http://localhost:8080/chatgpt/api/mybatis/users/all" -H "Accept: application/json"
     */
     @GetMapping("/all")
-    public ResponseEntity<Response<List<User>>> getAll() {
+    public ResponseEntity<Response<List<MyBatisUserUser>>> getAll() {
         logger.debug("MyBatis - Received get all users request");
-        List<User> users = myBatisUserService.getAll();
+        List<MyBatisUserUser> users = myBatisUserService.getAll();
         logger.debug("MyBatis - users: {}", users);
-        Response<List<User>> response = Response.success("Users retrieved successfully", users, HttpStatus.OK.value());
+        Response<List<MyBatisUserUser>> response = Response.success("Users retrieved successfully", users, HttpStatus.OK.value());
         return ResponseEntity.ok(response);
     }
 
     @RequestMapping(method=RequestMethod.GET, value = "/old/all")
-    public ResponseEntity<Response<List<User>>> oldGetAll() {
+    public ResponseEntity<Response<List<MyBatisUserUser>>> oldGetAll() {
         return getAll();
     }
 
@@ -164,7 +165,7 @@ public class MyBatisUserController {
             @RequestParam(defaultValue = "id") String sortField,
             @RequestParam(defaultValue = "ASC") String sortOrder) {
         logger.debug("MyBatis - Received paged user request: page={}, size={}, sortField={}, sortOrder={}", page, size, sortField, sortOrder);
-        List<User> users = myBatisUserService.getUsersPagedAndSorted(page, size, sortField, sortOrder);
+        List<MyBatisUserUser> users = myBatisUserService.getUsersPaged(page, size, sortField, sortOrder);
         int total = myBatisUserService.getTotalUserCount();
         // Return both users and total count for frontend paging
         return ResponseEntity.ok(
@@ -173,5 +174,21 @@ public class MyBatisUserController {
                     put("total", total);
                 }}, HttpStatus.OK.value())
         );
+    }
+
+    @GetMapping("/paged")
+    public ResponseEntity<Response<Object>> getPaged(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "id") String sortField,
+            @RequestParam(defaultValue = "ASC") String sortOrder) {
+        logger.debug("MyBatis - Received paged users request: page={}, size={}, sortField={}, sortOrder={}", page, size, sortField, sortOrder);
+        List<MyBatisUserUser> users = myBatisUserService.getUsersPaged(page, size, sortField, sortOrder);
+        int total = myBatisUserService.getTotalUserCount();
+        var data = new java.util.HashMap<String, Object>();
+        data.put("users", users);
+        data.put("total", total);
+        Response<Object> response = Response.success("Paged users retrieved successfully", data, HttpStatus.OK.value());
+        return ResponseEntity.ok(response);
     }
 }

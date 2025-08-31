@@ -1,6 +1,6 @@
 package simple.chatgpt.service.mybatis;
 
-import simple.chatgpt.pojo.User;
+import simple.chatgpt.pojo.mybatis.MyBatisUserUser;
 import java.util.List;
 
 public interface MyBatisUserService {
@@ -10,20 +10,20 @@ public interface MyBatisUserService {
      * @param user the user to save
      * @return the saved user with generated ID if new
      */
-    User save(User user);
+    MyBatisUserUser save(MyBatisUserUser user);
 
     /**
      * Get user by ID
      * @param id the user ID
      * @return the user or null if not found
      */
-    User get(int id);
+    MyBatisUserUser get(int id);
 
     /**
      * Get all users
      * @return list of all users
      */
-    List<User> getAll();
+    List<MyBatisUserUser> getAll();
 
     /**
      * Delete user by ID
@@ -36,7 +36,7 @@ public interface MyBatisUserService {
      * @param email the email address
      * @return the user or null if not found
      */
-    User findByEmail(String email);
+    MyBatisUserUser findByEmail(String email);
 
     /**
      * Check if user exists by ID
@@ -53,7 +53,7 @@ public interface MyBatisUserService {
      * @param sortOrder ASC or DESC
      * @return list of users
      */
-    List<User> getUsersPagedAndSorted(int page, int size, String sortField, String sortOrder);
+    List<MyBatisUserUser> getUsersPaged(int page, int size, String sortField, String sortOrder);
 
     /**
      * Get total user count

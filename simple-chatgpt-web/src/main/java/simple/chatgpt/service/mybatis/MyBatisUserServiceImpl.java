@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import simple.chatgpt.mapper.UserMapper;
-import simple.chatgpt.pojo.User;
+import simple.chatgpt.pojo.mybatis.MyBatisUserUser;
 
 import java.util.List;
 
@@ -19,7 +19,7 @@ public class MyBatisUserServiceImpl implements MyBatisUserService {
     private UserMapper userMapper;
 
     @Override
-    public User save(User user) {
+    public MyBatisUserUser save(MyBatisUserUser user) {
         logger.debug("MyBatis - Saving user: {}", user.getName());
 
         if (user.getId() > 0) {
@@ -47,9 +47,9 @@ public class MyBatisUserServiceImpl implements MyBatisUserService {
 
     @Override
     @Transactional(readOnly = true)
-    public User get(int id) {
+    public MyBatisUserUser get(int id) {
         logger.debug("MyBatis - Getting user by ID: {}", id);
-        User user = userMapper.selectById(id);
+        MyBatisUserUser user = userMapper.selectById(id);
         if (user != null) {
             logger.debug("MyBatis - Found user: {}", user.getName());
         } else {
@@ -60,9 +60,9 @@ public class MyBatisUserServiceImpl implements MyBatisUserService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<User> getAll() {
+    public List<MyBatisUserUser> getAll() {
         logger.debug("MyBatis - Getting all users");
-        List<User> users = userMapper.selectAll();
+        List<MyBatisUserUser> users = userMapper.selectAll();
         logger.debug("MyBatis - Found {} users", users.size());
         return users;
     }
@@ -81,9 +81,9 @@ public class MyBatisUserServiceImpl implements MyBatisUserService {
 
     @Override
     @Transactional(readOnly = true)
-    public User findByEmail(String email) {
+    public MyBatisUserUser findByEmail(String email) {
         logger.debug("MyBatis - Finding user by email: {}", email);
-        User user = userMapper.selectByEmail(email);
+        MyBatisUserUser user = userMapper.selectByEmail(email);
         if (user != null) {
             logger.debug("MyBatis - Found user by email: {}", user.getName());
         } else {
@@ -104,7 +104,7 @@ public class MyBatisUserServiceImpl implements MyBatisUserService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<User> getUsersPagedAndSorted(int page, int size, String sortField, String sortOrder) {
+    public List<MyBatisUserUser> getUsersPaged(int page, int size, String sortField, String sortOrder) {
         logger.debug("MyBatis - Getting users paged: page={}, size={}, sortField={}, sortOrder={}", page, size, sortField, sortOrder);
         int offset = (page - 1) * size;
         // Validate sortField and sortOrder to prevent SQL injection

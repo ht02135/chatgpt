@@ -1,7 +1,7 @@
 package simple.chatgpt.mapper;
 
 import org.apache.ibatis.annotations.*;
-import simple.chatgpt.pojo.User;
+import simple.chatgpt.pojo.mybatis.MyBatisUserUser;
 import java.util.List;
 
 public interface UserMapper {
@@ -13,17 +13,17 @@ public interface UserMapper {
      * @param user the user to insert
      * @return number of affected rows
      */
-    @Insert("INSERT INTO users (name, email) VALUES (#{name}, #{email})")
+    @Insert("INSERT INTO users (name, email, first_name, last_name, password, address_line_1, address_line_2, city, state, post_code, country) VALUES (#{name}, #{email}, #{firstName}, #{lastName}, #{password}, #{addressLine1}, #{addressLine2}, #{city}, #{state}, #{postCode}, #{country})")
     @Options(useGeneratedKeys = true, keyProperty = "id", keyColumn = "id")
-    int insert(User user);
+    int insert(MyBatisUserUser user);
 
     /**
      * Update an existing user - Using annotation
      * @param user the user to update
      * @return number of affected rows
      */
-    @Update("UPDATE users SET name = #{name}, email = #{email} WHERE id = #{id}")
-    int update(User user);
+    @Update("UPDATE users SET name = #{name}, email = #{email}, first_name = #{firstName}, last_name = #{lastName}, password = #{password}, address_line_1 = #{addressLine1}, address_line_2 = #{addressLine2}, city = #{city}, state = #{state}, post_code = #{postCode}, country = #{country} WHERE id = #{id}")
+    int update(MyBatisUserUser user);
 
     /**
      * Delete user by ID - Using annotation
@@ -38,8 +38,8 @@ public interface UserMapper {
      * @param id the user ID
      * @return the user or null if not found
      */
-    @Select("SELECT id, name, email FROM users WHERE id = #{id}")
-    User selectById(@Param("id") int id);
+    @Select("SELECT id, name, email, first_name, last_name, password, address_line_1, address_line_2, city, state, post_code, country FROM users WHERE id = #{id}")
+    MyBatisUserUser selectById(@Param("id") int id);
 
     /**
      * Count users by ID - Using annotation
@@ -55,14 +55,14 @@ public interface UserMapper {
      * Find all users - Defined in XML for complex sorting/filtering
      * @return list of all users
      */
-    List<User> selectAll();
+    List<MyBatisUserUser> selectAll();
 
     /**
      * Find user by email - Defined in XML
      * @param email the email address
      * @return the user or null if not found
      */
-    User selectByEmail(@Param("email") String email);
+    MyBatisUserUser selectByEmail(@Param("email") String email);
 
     /**
      * Count all users - Defined in XML
@@ -82,7 +82,7 @@ public interface UserMapper {
      * @param name the name pattern to search
      * @return list of matching users
      */
-    List<User> selectByNameLike(@Param("name") String name);
+    List<MyBatisUserUser> selectByNameLike(@Param("name") String name);
 
     /**
      * Find users with pagination - Defined in XML for dynamic pagination
@@ -90,7 +90,7 @@ public interface UserMapper {
      * @param limit number of records
      * @return list of users
      */
-    List<User> selectWithPagination(@Param("offset") int offset, @Param("limit") int limit);
+    List<MyBatisUserUser> selectWithPagination(@Param("offset") int offset, @Param("limit") int limit);
 
     /**
      * Find users with pagination and sorting - Defined in XML for dynamic pagination/sorting
@@ -100,12 +100,12 @@ public interface UserMapper {
      * @param sortOrder ASC or DESC
      * @return list of users
      */
-    List<User> selectWithPagingAndSorting(@Param("offset") int offset, @Param("limit") int limit, @Param("sortField") String sortField, @Param("sortOrder") String sortOrder);
+    List<MyBatisUserUser> selectWithPagingAndSorting(@Param("offset") int offset, @Param("limit") int limit, @Param("sortField") String sortField, @Param("sortOrder") String sortOrder);
 
     /**
      * Dynamic search with filters - Defined in XML for complex conditions
      * @param user search criteria
      * @return list of matching users
      */
-    List<User> selectByDynamicCriteria(User user);
+    List<MyBatisUserUser> selectByDynamicCriteria(MyBatisUserUser user);
 }
