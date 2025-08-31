@@ -1,17 +1,250 @@
 /* User Management (Knockout.js) styles extracted from user.jsp */
-body { font-family: Arial, sans-serif; margin: 20px; background-color: #f5f5f5; }
-.container { max-width: 800px; margin: 0 auto; background-color: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-h1 { color: #333; text-align: center; margin-bottom: 30px; }
-form { margin-bottom: 30px; padding: 20px; border: 1px solid #ddd; border-radius: 8px; background-color: #fafafa; }
-label { display: block; margin-bottom: 5px; font-weight: bold; color: #333; }
-input[type="text"], input[type="email"] { width: 100%; max-width: 300px; padding: 10px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px; }
-button { padding: 10px 20px; margin: 5px; cursor: pointer; border: none; border-radius: 4px; font-size: 14px; font-weight: bold; }
-#submitBtn { background-color: #4CAF50; color: white; }
-#cancelBtn { background-color: #ff9800; color: white; display: none; }
-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
-th { background-color: #f2f2f2; font-weight: bold; color: #333; }
-tbody tr:nth-child(even) { background-color: #f9f9f9; }
-tbody tr:hover { background-color: #f0f8ff; }
-.editUser { background-color: #2196F3; color: white; padding: 6px 12px; font-size: 12px; }
-.deleteUser { background-color: #f44336; color: white; padding: 6px 12px; font-size: 12px; }
+body {
+    font-family: Arial, sans-serif;
+    margin: 20px;
+    background-color: #f5f5f5;
+}
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+h1 {
+    color: #333;
+    text-align: center;
+    margin-bottom: 30px;
+}
+form {
+    margin-bottom: 30px;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #fafafa;
+}
+label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #333;
+}
+input[type="text"], input[type="email"] {
+    width: 100%;
+    max-width: 300px;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+button {
+    padding: 10px 20px;
+    margin: 5px;
+    cursor: pointer;
+    border: none;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: bold;
+}
+#submitBtn {
+    background-color: #4CAF50;
+    color: white;
+}
+#cancelBtn {
+    background-color: #ff9800;
+    color: white;
+    display: none;
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+th, td {
+    border: 1px solid #ddd;
+    padding: 12px;
+    text-align: left;
+}
+th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+    color: #333;
+}
+tbody tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+tbody tr:hover {
+    background-color: #f0f8ff;
+}
+.editUser {
+    background-color: #2196F3;
+    color: white;
+    padding: 6px 12px;
+    font-size: 12px;
+}
+.deleteUser {
+    background-color: #f44336;
+    color: white;
+    padding: 6px 12px;
+    font-size: 12px;
+}
+
+/* Horizontal form row for search fields */
+.form-row-horizontal {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    align-items: flex-end;
+    border: none;
+    padding: 0;
+    margin-bottom: 16px;
+}
+.form-row-horizontal > div {
+    flex: 1 1 180px;
+    min-width: 150px;
+    margin-bottom: 0;
+}
+.form-row-horizontal label {
+    display: flex;
+    flex-direction: column;
+    font-weight: normal;
+}
+
+/* Two-column layout for search form */
+.form-columns {
+    display: flex;
+    gap: 32px;
+    justify-content: flex-start;
+}
+.form-col {
+    flex: 1 1 220px;
+    min-width: 180px;
+    border: none;
+    padding: 0;
+    margin: 0;
+}
+.form-col legend {
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+.form-col > div {
+    margin-bottom: 12px;
+}
+.form-actions {
+    margin-top: 18px;
+    text-align: left;
+}
+@media (max-width: 700px) {
+    .form-columns {
+        flex-direction: column;
+        gap: 0;
+    }
+    .form-actions {
+        text-align: center;
+    }
+}
+.form-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 12px;
+}
+.form-row label {
+    display: flex;
+    align-items: center;
+    font-weight: normal;
+    width: 100%;
+}
+.form-row input[type="text"] {
+    flex: 1 1 auto;
+    max-width: 220px;
+    margin-left: 10px;
+    padding-right: 24px;
+}
+.form-col .form-row input[type="text"] {
+    padding-right: 32px;
+}
+
+/* VERTICAL FORM LAYOUT (for addUser.jsp, editUser.jsp) */
+.form-vertical {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+.form-vertical fieldset {
+    border: 1px solid #bbb;
+    border-radius: 6px;
+    padding: 18px 18px 8px 18px;
+    margin-bottom: 18px;
+    background: #fafbfc;
+}
+.form-vertical legend {
+    font-weight: bold;
+    margin-bottom: 8px;
+    padding: 0 8px;
+    color: #333;
+}
+.form-vertical .form-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 12px;
+}
+.form-vertical .form-row label {
+    min-width: 120px;
+    font-weight: normal;
+    margin-right: 12px;
+}
+.form-vertical .form-row input[type="text"] {
+    flex: 1 1 auto;
+    max-width: 320px;
+    margin-left: 0;
+    padding-right: 0;
+}
+
+/* HORIZONTAL FORM LAYOUT (for users.jsp) */
+.form-columns {
+    display: flex;
+    gap: 32px;
+    justify-content: flex-start;
+}
+.form-col {
+    flex: 1 1 220px;
+    min-width: 180px;
+    border: none;
+    padding: 0;
+    margin: 0;
+}
+.form-col legend {
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+.form-col .form-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 12px;
+}
+.form-col .form-row label {
+    min-width: 120px;
+    font-weight: normal;
+    margin-right: 12px;
+}
+.form-col .form-row input[type="text"] {
+    flex: 1 1 auto;
+    max-width: 220px;
+    margin-left: 0;
+    padding-right: 32px;
+}
+.form-actions {
+    margin-top: 18px;
+    text-align: left;
+}
+@media (max-width: 700px) {
+    .form-columns {
+        flex-direction: column;
+        gap: 0;
+    }
+    .form-actions {
+        text-align: center;
+    }
+}

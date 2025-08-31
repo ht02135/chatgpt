@@ -11,7 +11,33 @@
 <body>
 <div class="container" data-bind="with: userVM">
     <h1>Users List</h1>
-    <a href="#" data-bind="click: goAddUser">Create User</a>
+    <!-- Search Form Start -->
+    <div style="margin-bottom: 20px; border: 1px solid #ccc; padding: 16px; max-width: 600px;">
+        <form data-bind="submit: searchUsers">
+            <div class="form-columns">
+                <fieldset class="form-col">
+                    <legend>Core Section</legend>
+                    <div class="form-row"><label>First Name: <input type="text" data-bind="value: searchFirstName, valueUpdate: 'input'"></label></div>
+                    <div class="form-row"><label>Last Name: <input type="text" data-bind="value: searchLastName, valueUpdate: 'input'"></label></div>
+                    <div class="form-row"><label>Email: <input type="text" data-bind="value: searchEmail, valueUpdate: 'input'"></label></div>
+                </fieldset>
+                <fieldset class="form-col">
+                    <legend>Additional Address</legend>
+                    <div class="form-row"><label>Address Line 1: <input type="text" data-bind="value: searchAddressLine1, valueUpdate: 'input'"></label></div>
+                    <div class="form-row"><label>Address Line 2: <input type="text" data-bind="value: searchAddressLine2, valueUpdate: 'input'"></label></div>
+                    <div class="form-row"><label>City: <input type="text" data-bind="value: searchCity, valueUpdate: 'input'"></label></div>
+                    <div class="form-row"><label>State: <input type="text" data-bind="value: searchState, valueUpdate: 'input'"></label></div>
+                    <div class="form-row"><label>Country: <input type="text" data-bind="value: searchCountry, valueUpdate: 'input'"></label></div>
+                </fieldset>
+            </div>
+        </form>
+        <div class="form-actions">
+            <a href="#" data-bind="click: goAddUser">Create User</a>
+            <a href="#" data-bind="click: searchUsers" style="margin-left: 20px;">Search</a>
+            <a href="#" data-bind="click: resetSearch" style="margin-left: 20px;">Reset</a>
+        </div>
+    </div>
+    <!-- Search Form End -->
     <table>
         <thead>
         <tr>

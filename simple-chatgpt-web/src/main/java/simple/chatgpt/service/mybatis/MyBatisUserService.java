@@ -60,4 +60,37 @@ public interface MyBatisUserService {
      * @return total number of users
      */
     int getTotalUserCount();
+
+    /**
+     * Get users with paging, sorting, and filtering
+     * @param page page number (1-based)
+     * @param size page size
+     * @param sortField field to sort by
+     * @param sortOrder ASC or DESC
+     * @param firstName filter by first name
+     * @param lastName filter by last name
+     * @param email filter by email
+     * @param addressLine1 filter by address line 1
+     * @param addressLine2 filter by address line 2
+     * @param city filter by city
+     * @param state filter by state
+     * @param country filter by country
+     * @return list of filtered users
+     */
+    List<MyBatisUserUser> getUsersPagedFiltered(int page, int size, String sortField, String sortOrder,
+        String firstName, String lastName, String email, String addressLine1, String addressLine2, String city, String state, String country);
+
+    /**
+     * Get total user count with filters
+     * @param firstName filter by first name
+     * @param lastName filter by last name
+     * @param email filter by email
+     * @param addressLine1 filter by address line 1
+     * @param addressLine2 filter by address line 2
+     * @param city filter by city
+     * @param state filter by state
+     * @param country filter by country
+     * @return total number of filtered users
+     */
+    int getTotalUserCountFiltered(String firstName, String lastName, String email, String addressLine1, String addressLine2, String city, String state, String country);
 }

@@ -123,4 +123,20 @@ public class MyBatisUserServiceImpl implements MyBatisUserService {
         logger.debug("MyBatis - Getting total user count");
         return userMapper.countAll();
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<MyBatisUserUser> getUsersPagedFiltered(int page, int size, String sortField, String sortOrder,
+        String firstName, String lastName, String email, String addressLine1, String addressLine2, String city, String state, String country) {
+        logger.debug("MyBatis - Getting users paged/filtered: page={}, size={}, sortField={}, sortOrder={}, filters...", page, size, sortField, sortOrder);
+        int offset = (page - 1) * size;
+        return userMapper.selectWithPagingSortingFiltering(offset, size, sortField, sortOrder,
+            firstName, lastName, email, addressLine1, addressLine2, city, state, country);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public int getTotalUserCountFiltered(String firstName, String lastName, String email, String addressLine1, String addressLine2, String city, String state, String country) {
+        return userMapper.countWithFiltering(firstName, lastName, email, addressLine1, addressLine2, city, state, country);
+    }
 }

@@ -28,11 +28,49 @@ function UserViewModel(params) {
     self.mode = (params && params.mode) || 'list';
     const API_BASE = '/chatgpt/api/mybatis/users';
 
+    // Search form observables
+    self.showSearchForm = ko.observable(false);
+    self.searchFirstName = ko.observable("");
+    self.searchLastName = ko.observable("");
+    self.searchEmail = ko.observable("");
+    self.searchAddressLine1 = ko.observable("");
+    self.searchAddressLine2 = ko.observable("");
+    self.searchCity = ko.observable("");
+    self.searchState = ko.observable("");
+    self.searchCountry = ko.observable("");
+
+    self.searchUsers = function() {
+        self.page(1);
+        self.loadUsers();
+    };
+
+    self.resetSearch = function() {
+        self.searchFirstName("");
+        self.searchLastName("");
+        self.searchEmail("");
+        self.searchAddressLine1("");
+        self.searchAddressLine2("");
+        self.searchCity("");
+        self.searchState("");
+        self.searchCountry("");
+        self.page(1);
+        self.loadUsers();
+    };
+
     // Load users with paging and sorting
     self.loadUsers = async function() {
         try {
-            const res = await fetch(`${API_BASE}/paged?page=${self.page()}&size=${self.size()}&sortField=${self.sortField()}&sortOrder=${self.sortOrder()}`,
-                { headers: { 'Accept': 'application/json' } });
+            let url = `${API_BASE}/paged` +
+                `?page=${self.page()}&size=${self.size()}&sortField=${self.sortField()}&sortOrder=${self.sortOrder()}` +
+                `&firstName=${encodeURIComponent(self.searchFirstName() || '')}` +
+                `&lastName=${encodeURIComponent(self.searchLastName() || '')}` +
+                `&email=${encodeURIComponent(self.searchEmail() || '')}` +
+                `&addressLine1=${encodeURIComponent(self.searchAddressLine1() || '')}` +
+                `&addressLine2=${encodeURIComponent(self.searchAddressLine2() || '')}` +
+                `&city=${encodeURIComponent(self.searchCity() || '')}` +
+                `&state=${encodeURIComponent(self.searchState() || '')}` +
+                `&country=${encodeURIComponent(self.searchCountry() || '')}`;
+            const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
             const data = await res.json();
             if (data.status === 'SUCCESS') {
                 self.users((data.data.users || []).map(u => new User(u)));
@@ -114,25 +152,22 @@ function UserViewModel(params) {
     };
     self.size.subscribe(function() { self.page(1); self.loadUsers(); });
 
-    // For edit page: load user
-    self.loadEditUser = async function() {
-        var id = localStorage.getItem('editUserId');
-        if (self.mode === 'edit' && id) {
-            try {
-                const res = await fetch(`${API_BASE}/${id}`, { headers: { 'Accept': 'application/json' } });
-                const data = await res.json();
-                if (data.status === 'SUCCESS' && data.data) {
-                    self.currentUser(new User(data.data));
-                }
-            } catch (err) {}
-        }
+    // Load a single user for editing
+    self.loadUserById = async function(id) {
+        try {
+            const res = await fetch(`${API_BASE}/` + id, { headers: { 'Accept': 'application/json' } });
+            const data = await res.json();
+            if (data.status === 'SUCCESS' && data.data) {
+                self.currentUser(new User(data.data));
+            }
+        } catch (err) {}
     };
 
-    // On page load, handle mode
+    // On edit page, load user if in edit mode
     if (self.mode === 'edit') {
-        // Only load if not already loaded
-        if (!self.currentUser() || !self.currentUser().id() || self.currentUser().id() === 0) {
-            self.loadEditUser();
+        var editId = localStorage.getItem('editUserId');
+        if (editId) {
+            self.loadUserById(editId);
         }
     } else if (self.mode === 'add') {
         self.currentUser(new User({}));

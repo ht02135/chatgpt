@@ -117,4 +117,84 @@
         id ASC
     </select>
 
+    <!-- Select Users with Paging, Sorting, and Filtering -->
+    <select id="selectWithPagingSortingFiltering" resultMap="UserResultMap">
+        SELECT id, name, email, first_name, last_name, password, address_line_1, address_line_2, city, state, post_code, country
+        FROM users
+        <where>
+            <if test="firstName != null and firstName != ''">
+                AND LOWER(first_name) LIKE LOWER(CONCAT('%', #{firstName}, '%'))
+            </if>
+            <if test="lastName != null and lastName != ''">
+                AND LOWER(last_name) LIKE LOWER(CONCAT('%', #{lastName}, '%'))
+            </if>
+            <if test="email != null and email != ''">
+                AND LOWER(email) LIKE LOWER(CONCAT('%', #{email}, '%'))
+            </if>
+            <if test="addressLine1 != null and addressLine1 != ''">
+                AND LOWER(address_line_1) LIKE LOWER(CONCAT('%', #{addressLine1}, '%'))
+            </if>
+            <if test="addressLine2 != null and addressLine2 != ''">
+                AND LOWER(address_line_2) LIKE LOWER(CONCAT('%', #{addressLine2}, '%'))
+            </if>
+            <if test="city != null and city != ''">
+                AND LOWER(city) LIKE LOWER(CONCAT('%', #{city}, '%'))
+            </if>
+            <if test="state != null and state != ''">
+                AND LOWER(state) LIKE LOWER(CONCAT('%', #{state}, '%'))
+            </if>
+            <if test="country != null and country != ''">
+                AND LOWER(country) LIKE LOWER(CONCAT('%', #{country}, '%'))
+            </if>
+        </where>
+        <choose>
+            <when test="sortField == 'firstName'">
+                ORDER BY first_name ${sortOrder}
+            </when>
+            <when test="sortField == 'lastName'">
+                ORDER BY last_name ${sortOrder}
+            </when>
+            <when test="sortField == 'email'">
+                ORDER BY email ${sortOrder}
+            </when>
+            <when test="sortField == 'name'">
+                ORDER BY name ${sortOrder}
+            </when>
+            <otherwise>
+                ORDER BY id ${sortOrder}
+            </otherwise>
+        </choose>
+        LIMIT #{offset}, #{limit}
+    </select>
+
+    <!-- Count Users with Filtering -->
+    <select id="countWithFiltering" resultType="int">
+        SELECT COUNT(*) FROM users
+        <where>
+            <if test="firstName != null and firstName != ''">
+                AND LOWER(first_name) LIKE LOWER(CONCAT('%', #{firstName}, '%'))
+            </if>
+            <if test="lastName != null and lastName != ''">
+                AND LOWER(last_name) LIKE LOWER(CONCAT('%', #{lastName}, '%'))
+            </if>
+            <if test="email != null and email != ''">
+                AND LOWER(email) LIKE LOWER(CONCAT('%', #{email}, '%'))
+            </if>
+            <if test="addressLine1 != null and addressLine1 != ''">
+                AND LOWER(address_line_1) LIKE LOWER(CONCAT('%', #{addressLine1}, '%'))
+            </if>
+            <if test="addressLine2 != null and addressLine2 != ''">
+                AND LOWER(address_line_2) LIKE LOWER(CONCAT('%', #{addressLine2}, '%'))
+            </if>
+            <if test="city != null and city != ''">
+                AND LOWER(city) LIKE LOWER(CONCAT('%', #{city}, '%'))
+            </if>
+            <if test="state != null and state != ''">
+                AND LOWER(state) LIKE LOWER(CONCAT('%', #{state}, '%'))
+            </if>
+            <if test="country != null and country != ''">
+                AND LOWER(country) LIKE LOWER(CONCAT('%', #{country}, '%'))
+            </if>
+        </where>
+    </select>
 </mapper>

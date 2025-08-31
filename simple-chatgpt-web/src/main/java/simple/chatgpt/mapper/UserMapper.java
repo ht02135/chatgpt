@@ -108,4 +108,36 @@ public interface UserMapper {
      * @return list of matching users
      */
     List<MyBatisUserUser> selectByDynamicCriteria(MyBatisUserUser user);
+
+    /**
+     * Find users with paging, sorting, and filtering - Defined in XML for dynamic search
+     */
+    List<MyBatisUserUser> selectWithPagingSortingFiltering(
+        @Param("offset") int offset,
+        @Param("limit") int limit,
+        @Param("sortField") String sortField,
+        @Param("sortOrder") String sortOrder,
+        @Param("firstName") String firstName,
+        @Param("lastName") String lastName,
+        @Param("email") String email,
+        @Param("addressLine1") String addressLine1,
+        @Param("addressLine2") String addressLine2,
+        @Param("city") String city,
+        @Param("state") String state,
+        @Param("country") String country
+    );
+
+    /**
+     * Count users with filtering - Defined in XML for dynamic search
+     */
+    int countWithFiltering(
+        @Param("firstName") String firstName,
+        @Param("lastName") String lastName,
+        @Param("email") String email,
+        @Param("addressLine1") String addressLine1,
+        @Param("addressLine2") String addressLine2,
+        @Param("city") String city,
+        @Param("state") String state,
+        @Param("country") String country
+    );
 }

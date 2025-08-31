@@ -155,18 +155,32 @@ public class MyBatisUserController {
     //------------------------------
 
     /**
-     * Get users with paging and sorting
-     * Example: GET /mybatis/users/paged?page=1&size=10&sortField=name&sortOrder=ASC
+     * Get users with paging, sorting, and filtering
+     * Example: GET /mybatis/users/paged?page=1&size=10&sortField=name&sortOrder=ASC&firstName=John&city=NY
      */
     @GetMapping(value = "/paged", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Response<Object>> getUsersPaged(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "id") String sortField,
-            @RequestParam(defaultValue = "ASC") String sortOrder) {
-        logger.debug("MyBatis - Received paged user request: page={}, size={}, sortField={}, sortOrder={}", page, size, sortField, sortOrder);
-        List<MyBatisUserUser> users = myBatisUserService.getUsersPaged(page, size, sortField, sortOrder);
-        int total = myBatisUserService.getTotalUserCount();
+            @RequestParam(defaultValue = "ASC") String sortOrder,
+            @RequestParam(required = false) String firstName,
+            @RequestParam(required = false) String lastName,
+            @RequestParam(required = false) String email,
+            @RequestParam(required = false) String addressLine1,
+            @RequestParam(required = false) String addressLine2,
+            @RequestParam(required = false) String city,
+            @RequestParam(required = false) String state,
+            @RequestParam(required = false) String country
+    ) {
+        logger.debug("MyBatis - Received paged user request: page={}, size={}, sortField={}, sortOrder={}, filters...", page, size, sortField, sortOrder);
+        List<MyBatisUserUser> users = myBatisUserService.getUsersPagedFiltered(
+            page, size, sortField, sortOrder,
+            firstName, lastName, email, addressLine1, addressLine2, city, state, country
+        );
+        int total = myBatisUserService.getTotalUserCountFiltered(
+            firstName, lastName, email, addressLine1, addressLine2, city, state, country
+        );
         // Return both users and total count for frontend paging
         return ResponseEntity.ok(
                 Response.success("Paged users fetched", new java.util.HashMap<String, Object>() {{
