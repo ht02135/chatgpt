@@ -4,8 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <title>Properties List (Knockout.js)</title>
-    <script src="../../js/knockoutjs/knockout-latest.js"></script>
-    <link rel="stylesheet" href="../../css/property.css">
+    <link rel="stylesheet" href="../css/property.css">
+    <script src="../js/knockoutjs/knockout-latest.js"></script>
     <script src="property.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
