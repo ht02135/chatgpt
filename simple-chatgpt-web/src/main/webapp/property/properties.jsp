@@ -5,41 +5,30 @@
     <meta charset="UTF-8">
     <title>Properties List (Knockout.js)</title>
     <link rel="stylesheet" href="../css/property.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="../js/knockoutjs/knockout-latest.js"></script>
     <script src="property.js"></script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
 <div class="container" data-bind="with: propertyVM">
     <h1>Properties List</h1>
 
-    <!-- Search Form Start -->
+    <!-- Search Form -->
     <div style="margin-bottom: 20px; border: 1px solid #ccc; padding: 16px; max-width: 600px;">
         <form data-bind="submit: searchProperties">
-            <div class="form-columns">
-                <fieldset class="form-col">
-                    <legend>Search</legend>
-                    <div class="form-row">
-                        <label>Key:
-                            <input type="text" data-bind="value: searchKey, valueUpdate: 'input'">
-                        </label>
-                    </div>
-                    <div class="form-row">
-                        <label>Type:
-                            <input type="text" data-bind="value: searchType, valueUpdate: 'input'">
-                        </label>
-                    </div>
-                </fieldset>
-            </div>
+            <fieldset>
+                <legend>Search</legend>
+                <div><label>Key: <input type="text" data-bind="value: searchKey, valueUpdate: 'input'"></label></div>
+                <div><label>Type: <input type="text" data-bind="value: searchType, valueUpdate: 'input'"></label></div>
+            </fieldset>
         </form>
-        <div class="form-actions">
+        <div>
             <a href="#" data-bind="click: searchProperties">Search</a>
             <a href="#" data-bind="click: resetSearch" style="margin-left: 20px;">Reset</a>
         </div>
     </div>
-    <!-- Search Form End -->
 
-    <!-- Table of Properties -->
+    <!-- Table -->
     <table>
         <thead>
         <tr>
@@ -60,33 +49,22 @@
             <td data-bind="text: key"></td>
             <td data-bind="text: type"></td>
             <td data-bind="text: value"></td>
-            <td>
-                <!-- FIX: unwrap observable with key() -->
-                <a href="#" data-bind="click: function() { $parent.goEditProperty(key()) }">Edit</a>
-            </td>
+            <td><a href="#" data-bind="click: function() { $parent.goEditProperty(key()) }">Edit</a></td>
         </tr>
         </tbody>
     </table>
 
-    <!-- Pagination Controls -->
+    <!-- Pagination -->
     <div style="margin-top:20px; text-align:center;">
         <button type="button" data-bind="click: prevPage, enable: page() > 1">Prev</button>
         <span data-bind="text: page"></span> / <span data-bind="text: maxPage"></span>
         <button type="button" data-bind="click: nextPage, enable: page() < maxPage()">Next</button>
 
         <span style="margin-left:20px;">
-            Page Size:
-            <input type="number" min="1" max="100"
-                   data-bind="value: size, valueUpdate: 'input'"
-                   style="width:50px;">
+            Page Size: <input type="number" min="1" max="100" data-bind="value: size, valueUpdate: 'input'" style="width:50px;">
         </span>
         <span style="margin-left:20px;">Total: <span data-bind="text: total"></span></span>
     </div>
 </div>
-
-<script>
-    var propertyVM = new PropertyListViewModel({});
-    ko.applyBindings({ propertyVM: propertyVM });
-</script>
 </body>
 </html>

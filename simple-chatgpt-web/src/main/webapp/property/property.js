@@ -1,12 +1,14 @@
 const API_BASE = '/chatgpt/api/mybatis/properties';
 
+// --- Model ---
 function Property(data) {
     this.key = ko.observable(data.key);
     this.type = ko.observable(data.type);
     this.value = ko.observable(data.value);
 }
 
-function PropertyListViewModel(config) {
+// --- List ViewModel ---
+function PropertyListViewModel() {
     var self = this;
     self.searchKey = ko.observable("");
     self.searchType = ko.observable("");
@@ -60,24 +62,40 @@ function PropertyListViewModel(config) {
             self.searchProperties();
         }
     };
+
     self.goEditProperty = function(key) {
         window.location.href = 'editProperty.jsp?key=' + encodeURIComponent(key);
     };
+
     self.resetSearch = function() {
         self.searchKey("");
         self.searchType("");
         self.page(1);
         self.searchProperties();
     };
+
     // Initial load
     self.searchProperties();
 }
 
-function EditPropertyViewModel(property) {
+// --- Edit ViewModel ---
+function EditPropertyViewModel(key) {
     var self = this;
-    self.key = ko.observable(property.key);
-    self.type = ko.observable(property.type);
-    self.value = ko.observable(property.value);
+    self.key = ko.observable("");
+    self.type = ko.observable("");
+    self.value = ko.observable("");
+
+    // Fetch property
+    $.getJSON(API_BASE + "/" + encodeURIComponent(key), function(resp) {
+        if (resp && resp.data) {
+            self.key(resp.data.key);
+            self.type(resp.data.type);
+            self.value(resp.data.value);
+        } else {
+            alert("Property not found");
+            window.location.href = "properties.jsp";
+        }
+    });
 
     self.done = function() {
         var payload = {
@@ -89,7 +107,7 @@ function EditPropertyViewModel(property) {
             type: "POST",
             contentType: "application/json",
             data: JSON.stringify(payload),
-            success: function(resp) {
+            success: function() {
                 window.location.href = "properties.jsp";
             }
         });
@@ -99,3 +117,24 @@ function EditPropertyViewModel(property) {
         window.location.href = "properties.jsp";
     };
 }
+
+// --- Page Initialization ---
+$(function() {
+    var path = window.location.pathname;
+
+    if (path.endsWith("properties.jsp")) {
+        var vm = new PropertyListViewModel();
+        ko.applyBindings({ propertyVM: vm });
+    }
+    else if (path.endsWith("editProperty.jsp")) {
+        const urlParams = new URLSearchParams(window.location.search);
+        const key = urlParams.get("key");
+        if (!key) {
+            alert("Missing property key");
+            window.location.href = "properties.jsp";
+            return;
+        }
+        var vm = new EditPropertyViewModel(key);
+        ko.applyBindings(vm, document.getElementById("editPropertyForm"));
+    }
+});
