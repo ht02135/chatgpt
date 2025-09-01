@@ -1,10 +1,12 @@
 
-1. Enum for Property Keys (typed)
+i like to add property and caching support to my existing mybatis project
+
+1. Enum for Property Keys (typed) put in util folder
 
 public enum PropertyKey {
-    ENABLE_JAVA_MAIL("enable_java_mail", Boolean.class, Boolean.FALSE),
-    PICKER_EDITOR_WIDTH("picker_editor_width", Integer.class, 20),
-    PICKER_FIND_LABEL("picker_find_label", String.class, "find"),
+    SOME_BOOLEAN("enable_java_mail", Boolean.class, Boolean.FALSE),
+    SOME_INTEGER("picker_editor_width", Integer.class, 20),
+    SOME_STRING("picker_find_label", String.class, "find"),
     SOME_DECIMAL("some_decimal", java.math.BigDecimal.class, new java.math.BigDecimal("1.5"));
 
     private final String key;
@@ -28,7 +30,7 @@ public enum PropertyKey {
 
 ////////////////////
 
-2. MyBatis Mapper
+2. MyBatis Mapper to mapper folder
 
 @Mapper
 public interface PropertyMapper {
@@ -41,93 +43,159 @@ public interface PropertyMapper {
 
 ////////////////////////
 
+create property.sql in resources folder
 CREATE TABLE properties (
     key VARCHAR(100) PRIMARY KEY,
+    type VARCHAR(255)
     value VARCHAR(255)
 );
 
+create Property.java in /pojo/mybatis folder
+
 //////////////////////////////
 
-3. PropertyService
+3. PropertyService in /service/mybatis folder
 
 public class PropertyService {
     private final PropertyMapper mapper;
+    private final GenericCache<String, String> cache;
 
     public PropertyService(PropertyMapper mapper) {
         this.mapper = mapper;
+        this.cache = PropertyCache.getInstance();
         initDefaults();
     }
 
+    // Initialize defaults into DB and cache
     private void initDefaults() {
         for (PropertyKey key : PropertyKey.values()) {
             String value = mapper.selectValue(key.key());
             if (value == null) {
-                mapper.insertProperty(key.key(), key.defaultValue().toString());
+                String defaultVal = key.defaultValue().toString();
+                mapper.insertProperty(key.key(), defaultVal);
+                cache.put(key.key(), defaultVal);
+            } else {
+                cache.put(key.key(), value);
             }
         }
     }
 
+    // Fetch property value with cache fallback
+    private String getValue(PropertyKey key) {
+        return cache.get(key.key(), k -> {
+            String value = mapper.selectValue(k);
+            if (value == null) {
+                String defaultVal = key.defaultValue().toString();
+                mapper.insertProperty(k, defaultVal);
+                return defaultVal;
+            }
+            return value;
+        });
+    }
+
+    // ✅ Return all properties (cached or DB values)
+    public Map<PropertyKey, String> getAllProperties() {
+        Map<PropertyKey, String> result = new EnumMap<>(PropertyKey.class);
+        for (PropertyKey key : PropertyKey.values()) {
+            result.put(key, getValue(key));
+        }
+        return result;
+    }
+
+    // ✅ Update a property value and invalidate cache
+    public void updateProperty(PropertyKey key, String newValue) {
+        mapper.updateProperty(key.key(), newValue);
+        cache.invalidate(key.key());
+        cache.put(key.key(), newValue);
+    }
+
+    // Typed getters
     public boolean getBoolean(PropertyKey key) {
-        String value = mapper.selectValue(key.key());
-        return value == null ? key.defaultValue() : Boolean.parseBoolean(value);
+        return Boolean.parseBoolean(getValue(key));
     }
 
     public int getInteger(PropertyKey key) {
-        String value = mapper.selectValue(key.key());
-        return value == null ? key.defaultValue() : Integer.parseInt(value);
+        return Integer.parseInt(getValue(key));
     }
 
-    public java.math.BigDecimal getDecimal(PropertyKey key) {
-        String value = mapper.selectValue(key.key());
-        return value == null ? key.defaultValue() : new java.math.BigDecimal(value);
+    public BigDecimal getDecimal(PropertyKey key) {
+        return new BigDecimal(getValue(key));
     }
 
     public String getString(PropertyKey key) {
-        String value = mapper.selectValue(key.key());
-        return value == null ? key.defaultValue() : value;
+        return getValue(key);
     }
 }
 
 /////////////////////////
 
-4. Usage in Code
+4. can we create a @Test to test?
 
 @Autowired
 private PropertyService propertyService;
 
-public void setupUI() {
-    String findButtonLabel = propertyService.getString(PropertyKey.PICKER_FIND_LABEL);
-    boolean mailEnabled   = propertyService.getBoolean(PropertyKey.ENABLE_JAVA_MAIL);
-    int editorWidth       = propertyService.getInteger(PropertyKey.PICKER_EDITOR_WIDTH);
-    BigDecimal threshold  = propertyService.getDecimal(PropertyKey.SOME_DECIMAL);
+    String someString = propertyService.getString(PropertyKey.SOME_STRING);
+    boolean someBoolean   = propertyService.getBoolean(PropertyKey.SOME_BOOLEAN);
+    int someInteger       = propertyService.getInteger(PropertyKey.SOME_INTEGER);
+    BigDecimal someDecimal  = propertyService.getDecimal(PropertyKey.SOME_DECIMAL);
 
-    JButton findButton = new JButton(findButtonLabel);
-    findButton.addActionListener(this);
-    // ...
-}
 
 /////////////////////
 
-PropertyKey is not a POJO, not a service, and not a mapper. It’s more 
-like a system configuration constant that will be used across 
-controllers, services, and maybe mappers.
+also i want to introduce cache into PropertyService
+update to fetch from cache first, if not found, fetch from DB and populate cache
 
-Recommended Options
+also make singleton cache (any current moderm cache implementation) generic to cache any object
+1>for now cache property
+2>later might cache other object say user or item or anything
 
-Create a new package for configuration (cleanest):
-
-simple/chatgpt/config/ or util
-    └── PropertyKey.java
-
-///////////////////
+Introduce caching into PropertyService so we don’t hammer the DB.
+🔹 1. Generic Cache Implementation
 
 
+Add dependency (Maven):
+<dependency>
+  <groupId>com.github.ben-manes.caffeine</groupId>
+  <artifactId>caffeine</artifactId>
+  <version>3.1.8</version>
+</dependency>
 
+Generic Cache Manager
+public class GenericCache<K, V> {
+    private final com.github.benmanes.caffeine.cache.Cache<K, V> cache;
 
+    private GenericCache(long expireAfterMinutes, long maximumSize) {
+        this.cache = com.github.benmanes.caffeine.cache.Caffeine.newBuilder()
+                .expireAfterWrite(expireAfterMinutes, java.util.concurrent.TimeUnit.MINUTES)
+                .maximumSize(maximumSize)
+                .build();
+    }
 
+    // Singleton instance per type
+    private static GenericCache<?, ?> INSTANCE;
 
+    @SuppressWarnings("unchecked")
+    public static synchronized <K, V> GenericCache<K, V> getInstance(long expireAfterMinutes, long maximumSize) {
+        if (INSTANCE == null) {
+            INSTANCE = new GenericCache<>(expireAfterMinutes, maximumSize);
+        }
+        return (GenericCache<K, V>) INSTANCE;
+    }
 
+    public V get(K key, java.util.function.Function<K, V> loader) {
+        return cache.get(key, loader);
+    }
 
+    public void put(K key, V value) {
+        cache.put(key, value);
+    }
 
+    public void invalidate(K key) {
+        cache.invalidate(key);
+    }
 
+    public void clear() {
+        cache.invalidateAll();
+    }
+}
 

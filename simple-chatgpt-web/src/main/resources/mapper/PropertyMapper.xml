@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="simple.chatgpt.mapper.PropertyMapper">
+
+    <select id="selectValue" parameterType="string" resultType="string">
+        SELECT value FROM property WHERE `key` = #{key}
+    </select>
+
+    <insert id="insertProperty">
+        INSERT INTO property (`key`, value) VALUES (#{key}, #{value})
+    </insert>
+
+    <update id="updateProperty">
+        UPDATE property SET value = #{value} WHERE `key` = #{key}
+    </update>
+
+</mapper>
