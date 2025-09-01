@@ -8,7 +8,7 @@
     <title>Edit Property</title>
 	<link rel="stylesheet" href="../css/property.css">
     <script src="../js/knockoutjs/knockout-latest.js"></script>
-    <script src="/property/property.js"></script>
+    <script src="property.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
 <body>
@@ -30,16 +30,5 @@
         </div>
     </form>
 </div>
-<script>
-    // Fetch property details from backend
-    $.getJSON("/properties/all", { key: "<%=key%>" }, function(resp) {
-        var prop = { key: "", type: "", value: "" };
-        if (resp && resp.data && resp.data.properties) {
-            var found = resp.data.properties.find(function(p) { return p.key === "<%=key%>"; });
-            if (found) prop = found;
-        }
-        ko.applyBindings(new EditPropertyViewModel(prop), document.getElementById('editPropertyForm'));
-    });
-</script>
 </body>
 </html>
