@@ -1,18 +1,20 @@
-package simple.chatgpt.controller;
+package simple.chatgpt.controller.mybatis;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import simple.chatgpt.pojo.mybatis.Property;
 import simple.chatgpt.service.mybatis.PropertyService;
 import simple.chatgpt.util.PropertyKey;
 import simple.chatgpt.util.Response;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/properties")
+@RequestMapping("/mybatis/properties")
 public class PropertyController {
     private final PropertyService propertyService;
 
@@ -21,10 +23,13 @@ public class PropertyController {
         this.propertyService = propertyService;
     }
 
+    /*
+    curl -X GET "http://localhost:8080/chatgpt/api/mybatis/properties/all" -H "Accept: application/json"
+    */
     @GetMapping(value = "/all", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Response<Map<PropertyKey, String>>> getAllProperties() {
-        Map<PropertyKey, String> properties = propertyService.getAllProperties();
-        Response<Map<PropertyKey, String>> response = Response.success("Properties retrieved successfully", properties, HttpStatus.OK.value());
+    public ResponseEntity<Response<List<Property>>> getAllProperties() {
+        List<Property> properties = propertyService.getAllProperties();
+        Response<List<Property>> response = Response.success("Properties retrieved successfully", properties, HttpStatus.OK.value());
         return ResponseEntity.ok(response);
     }
 

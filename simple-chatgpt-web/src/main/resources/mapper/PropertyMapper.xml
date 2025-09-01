@@ -16,4 +16,14 @@
         UPDATE property SET value = #{value} WHERE `key` = #{key}
     </update>
 
+    <resultMap id="PropertyResultMap" type="simple.chatgpt.pojo.mybatis.Property">
+        <result property="key" column="key"/>
+        <result property="type" column="type"/>
+        <result property="value" column="value"/>
+    </resultMap>
+
+    <select id="selectAllProperties" resultMap="PropertyResultMap">
+        SELECT `key`, `type`, `value` FROM property
+    </select>
+
 </mapper>
