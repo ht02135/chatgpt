@@ -55,4 +55,8 @@
         </where>
     </select>
 
+    <select id="selectByKey" parameterType="string" resultMap="PropertyResultMap">
+        SELECT `key`, `type`, `value` FROM property WHERE `key` = #{key}
+    </select>
+
 </mapper>

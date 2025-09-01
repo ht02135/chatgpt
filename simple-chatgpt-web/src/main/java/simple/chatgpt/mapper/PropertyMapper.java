@@ -14,4 +14,5 @@ public interface PropertyMapper {
     List<Property> selectAllProperties();
     List<Property> selectPropertiesPaged(@Param("key") String key, @Param("type") String type, @Param("offset") int offset, @Param("size") int size, @Param("sort") String sort, @Param("order") String order);
     int countProperties(@Param("key") String key, @Param("type") String type);
+    Property selectByKey(@Param("key") String key);
 }

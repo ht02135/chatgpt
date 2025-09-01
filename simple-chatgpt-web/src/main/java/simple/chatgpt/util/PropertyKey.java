@@ -23,4 +23,15 @@ public enum PropertyKey {
     public <T> T defaultValue() {
         return (T) defaultValue;
     }
+
+    public String getKey() { return key; }
+    public Class<?> getType() { return type; }
+    public Object getDefaultValue() { return defaultValue; }
+    public String getTypeName() {
+        if (type == Boolean.class) return "Boolean";
+        if (type == Integer.class) return "Integer";
+        if (type == String.class) return "String";
+        if (type == java.math.BigDecimal.class) return "BigDecimal";
+        return type.getSimpleName();
+    }
 }

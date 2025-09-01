@@ -1,46 +1,80 @@
 package simple.chatgpt.service.mybatis;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import simple.chatgpt.mapper.PropertyMapper;
 import simple.chatgpt.pojo.mybatis.Property;
 import simple.chatgpt.util.GenericCache;
 import simple.chatgpt.util.PropertyKey;
+import simple.chatgpt.service.mybatis.PropertyService;
 import java.math.BigDecimal;
-import java.util.HashMap;
-import java.util.Map;
-
 import java.util.List;
+import javax.annotation.PostConstruct;
 
 @Service
 public class PropertyServiceImpl implements PropertyService {
-    @Autowired
-    private PropertyMapper propertyMapper;
+    private final PropertyMapper mapper;
+    private final GenericCache<String, Property> cache;
 
-    private final GenericCache<String, String> cache = GenericCache.getInstance(30, 1000); // 30 min expiry, 1000 max size
+    public PropertyServiceImpl(PropertyMapper mapper) {
+        this.mapper = mapper;
+        this.cache = GenericCache.getInstance(30, 1000);
+        initDefaults();
+    }
+
+    @PostConstruct
+    private void initDefaults() {
+        for (PropertyKey key : PropertyKey.values()) {
+            Property prop = new Property(key.getKey(), key.getTypeName(), String.valueOf(key.getDefaultValue()));
+            cache.put(key.getKey(), prop);
+        }
+    }
+
+    private Property getCachedProperty(PropertyKey key) {
+        return cache.get(key.getKey(), k -> {
+            Property prop = mapper.selectByKey(k);
+            if (prop != null) {
+                cache.put(k, prop);
+                return prop;
+            }
+            // Not found in DB, use enum default
+            PropertyKey enumKey = null;
+            for (PropertyKey pk : PropertyKey.values()) {
+                if (pk.getKey().equals(k)) {
+                    enumKey = pk;
+                    break;
+                }
+            }
+            Property defaultProp = (enumKey == null)
+                ? new Property(k, "String", null)
+                : new Property(enumKey.getKey(), enumKey.getTypeName(), String.valueOf(enumKey.getDefaultValue()));
+            cache.put(k, defaultProp);
+            return defaultProp;
+        });
+    }
 
     @Override
     public List<Property> getAllProperties() {
-        return propertyMapper.selectAllProperties();
+        return mapper.selectAllProperties();
     }
 
     @Override
     public void updateProperty(PropertyKey key, String newValue) {
-        propertyMapper.updateProperty(key.name(), newValue);
-        cache.put(key.name(), newValue); // update cache
+        mapper.updateProperty(key.name(), newValue);
+        Property prop = new Property(key.getKey(), key.getTypeName(), newValue);
+        cache.put(key.getKey(), prop); // update cache with Property object
     }
 
     @Override
     public boolean getBoolean(PropertyKey key) {
-        String value = getCachedValue(key);
-        return Boolean.parseBoolean(value);
+        Property prop = getCachedProperty(key);
+        return Boolean.parseBoolean(prop.getValue());
     }
 
     @Override
     public int getInteger(PropertyKey key) {
-        String value = getCachedValue(key);
+        Property prop = getCachedProperty(key);
         try {
-            return Integer.parseInt(value);
+            return Integer.parseInt(prop.getValue());
         } catch (Exception e) {
             return 0;
         }
@@ -48,9 +82,9 @@ public class PropertyServiceImpl implements PropertyService {
 
     @Override
     public BigDecimal getDecimal(PropertyKey key) {
-        String value = getCachedValue(key);
+        Property prop = getCachedProperty(key);
         try {
-            return new BigDecimal(value);
+            return new BigDecimal(prop.getValue());
         } catch (Exception e) {
             return BigDecimal.ZERO;
         }
@@ -58,21 +92,18 @@ public class PropertyServiceImpl implements PropertyService {
 
     @Override
     public String getString(PropertyKey key) {
-        return getCachedValue(key);
-    }
-
-    private String getCachedValue(PropertyKey key) {
-        return cache.get(key.name(), k -> propertyMapper.selectValue(k));
+        Property prop = getCachedProperty(key);
+        return prop.getValue();
     }
 
     @Override
     public List<Property> getProperties(String key, String type, int page, int size, String sort, String order) {
         int offset = (page - 1) * size;
-        return propertyMapper.selectPropertiesPaged(key, type, offset, size, sort, order);
+        return mapper.selectPropertiesPaged(key, type, offset, size, sort, order);
     }
 
     @Override
     public int countProperties(String key, String type) {
-        return propertyMapper.countProperties(key, type);
+        return mapper.countProperties(key, type);
     }
 }
