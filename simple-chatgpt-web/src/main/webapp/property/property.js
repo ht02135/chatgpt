@@ -1,4 +1,5 @@
-// KnockoutJS ViewModel for properties listing and editing
+const API_BASE = '/chatgpt/api/mybatis/properties';
+
 function Property(data) {
     this.key = ko.observable(data.key);
     this.type = ko.observable(data.type);
@@ -26,7 +27,8 @@ function PropertyListViewModel(config) {
             sort: self.sortField(),
             order: self.sortOrder()
         };
-        $.getJSON("/properties/all", params, function(resp) {
+        var url = API_BASE + "/all?" + $.param(params);
+        $.getJSON(url, function(resp) {
             if (resp && resp.data) {
                 var arr = resp.data.properties || [];
                 self.properties(arr.map(function(p) { return new Property(p); }));
@@ -83,17 +85,17 @@ function EditPropertyViewModel(property) {
             value: self.value()
         };
         $.ajax({
-            url: "/properties/update",
+            url: API_BASE + "/update",
             type: "POST",
             contentType: "application/json",
             data: JSON.stringify(payload),
             success: function(resp) {
-                window.location.href = "/property/properties.jsp";
+                window.location.href = "properties.jsp";
             }
         });
     };
 
     self.cancel = function() {
-        window.location.href = "/property/properties.jsp";
+        window.location.href = "properties.jsp";
     };
 }
