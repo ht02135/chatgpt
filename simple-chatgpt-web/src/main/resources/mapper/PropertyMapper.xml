@@ -8,8 +8,8 @@
         SELECT value FROM property WHERE `key` = #{key}
     </select>
 
-    <insert id="insertProperty">
-        INSERT INTO property (`key`, value) VALUES (#{key}, #{value})
+    <insert id="insertPropertyFull">
+        INSERT INTO property (`key`, `type`, `value`) VALUES (#{key}, #{type}, #{value})
     </insert>
 
     <update id="updateProperty">

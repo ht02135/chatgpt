@@ -3,3 +3,5 @@ CREATE TABLE property (
     type VARCHAR(255),
     value VARCHAR(255)
 );
+
+TRUNCATE TABLE property;

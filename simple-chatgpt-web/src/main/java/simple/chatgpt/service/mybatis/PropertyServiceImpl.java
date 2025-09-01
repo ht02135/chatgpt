@@ -24,8 +24,10 @@ public class PropertyServiceImpl implements PropertyService {
     @PostConstruct
     private void initDefaults() {
         for (PropertyKey key : PropertyKey.values()) {
-            Property prop = new Property(key.getKey(), key.getTypeName(), String.valueOf(key.getDefaultValue()));
-            cache.put(key.getKey(), prop);
+            Property existing = mapper.selectByKey(key.getKey());
+            if (existing == null) {
+                mapper.insertPropertyFull(key.getKey(), key.getTypeName(), String.valueOf(key.getDefaultValue()));
+            }
         }
     }
 
