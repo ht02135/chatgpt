@@ -12,14 +12,23 @@
 <body>
 <div class="container" data-bind="with: propertyVM">
     <h1>Properties List</h1>
+
     <!-- Search Form Start -->
     <div style="margin-bottom: 20px; border: 1px solid #ccc; padding: 16px; max-width: 600px;">
         <form data-bind="submit: searchProperties">
             <div class="form-columns">
                 <fieldset class="form-col">
                     <legend>Search</legend>
-                    <div class="form-row"><label>Key: <input type="text" data-bind="value: searchKey, valueUpdate: 'input'"></label></div>
-                    <div class="form-row"><label>Type: <input type="text" data-bind="value: searchType, valueUpdate: 'input'"></label></div>
+                    <div class="form-row">
+                        <label>Key:
+                            <input type="text" data-bind="value: searchKey, valueUpdate: 'input'">
+                        </label>
+                    </div>
+                    <div class="form-row">
+                        <label>Type:
+                            <input type="text" data-bind="value: searchType, valueUpdate: 'input'">
+                        </label>
+                    </div>
                 </fieldset>
             </div>
         </form>
@@ -29,6 +38,8 @@
         </div>
     </div>
     <!-- Search Form End -->
+
+    <!-- Table of Properties -->
     <table>
         <thead>
         <tr>
@@ -50,19 +61,29 @@
             <td data-bind="text: type"></td>
             <td data-bind="text: value"></td>
             <td>
-                <a href="#" data-bind="click: function() { $parent.goEditProperty(key) }">Edit</a>
+                <!-- FIX: unwrap observable with key() -->
+                <a href="#" data-bind="click: function() { $parent.goEditProperty(key()) }">Edit</a>
             </td>
         </tr>
         </tbody>
     </table>
+
+    <!-- Pagination Controls -->
     <div style="margin-top:20px; text-align:center;">
         <button type="button" data-bind="click: prevPage, enable: page() > 1">Prev</button>
         <span data-bind="text: page"></span> / <span data-bind="text: maxPage"></span>
         <button type="button" data-bind="click: nextPage, enable: page() < maxPage()">Next</button>
-        <span style="margin-left:20px;">Page Size: <input type="number" min="1" max="100" data-bind="value: size, valueUpdate: 'input'" style="width:50px;"></span>
+
+        <span style="margin-left:20px;">
+            Page Size:
+            <input type="number" min="1" max="100"
+                   data-bind="value: size, valueUpdate: 'input'"
+                   style="width:50px;">
+        </span>
         <span style="margin-left:20px;">Total: <span data-bind="text: total"></span></span>
     </div>
 </div>
+
 <script>
     var propertyVM = new PropertyListViewModel({});
     ko.applyBindings({ propertyVM: propertyVM });

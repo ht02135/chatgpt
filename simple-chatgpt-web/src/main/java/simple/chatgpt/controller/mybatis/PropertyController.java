@@ -10,6 +10,7 @@ import simple.chatgpt.service.mybatis.PropertyService;
 import simple.chatgpt.util.PropertyKey;
 import simple.chatgpt.util.Response;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -23,9 +24,6 @@ public class PropertyController {
         this.propertyService = propertyService;
     }
 
-    /*
-    curl -X GET "http://localhost:8080/chatgpt/api/mybatis/properties/all" -H "Accept: application/json"
-    */
     @GetMapping(value = "/all", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Response<Map<String, Object>>> getAllProperties(
             @RequestParam(value = "key", required = false) String key,
@@ -38,14 +36,29 @@ public class PropertyController {
         List<Property> properties = propertyService.getProperties(key, type, page, size, sort, order);
         int total = propertyService.countProperties(key, type);
         int maxPage = (int) Math.ceil((double) total / size);
-        Map<String, Object> data = new java.util.HashMap<>();
+        Map<String, Object> data = new HashMap<>();
         data.put("properties", properties);
         data.put("total", total);
         data.put("page", page);
         data.put("size", size);
         data.put("maxPage", maxPage);
-        Response<Map<String, Object>> response = Response.success("Properties retrieved successfully", data, HttpStatus.OK.value());
+        Response<Map<String, Object>> response =
+                Response.success("Properties retrieved successfully", data, HttpStatus.OK.value());
         return ResponseEntity.ok(response);
+    }
+
+    @GetMapping(value = "/{key}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<Response<Property>> getPropertyByKey(@PathVariable("key") String key) {
+        Property property = propertyService.getAllProperties()
+                                          .stream()
+                                          .filter(p -> p.getKey().equals(key))
+                                          .findFirst()
+                                          .orElse(null);
+        if (property == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Response.error("Property not found", null, HttpStatus.NOT_FOUND.value()));
+        }
+        return ResponseEntity.ok(Response.success("Property retrieved", property, HttpStatus.OK.value()));
     }
 
     @PostMapping(value = "/update", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
