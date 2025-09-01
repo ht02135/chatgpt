@@ -64,4 +64,15 @@ public class PropertyServiceImpl implements PropertyService {
     private String getCachedValue(PropertyKey key) {
         return cache.get(key.name(), k -> propertyMapper.selectValue(k));
     }
+
+    @Override
+    public List<Property> getProperties(String key, String type, int page, int size, String sort, String order) {
+        int offset = (page - 1) * size;
+        return propertyMapper.selectPropertiesPaged(key, type, offset, size, sort, order);
+    }
+
+    @Override
+    public int countProperties(String key, String type) {
+        return propertyMapper.countProperties(key, type);
+    }
 }

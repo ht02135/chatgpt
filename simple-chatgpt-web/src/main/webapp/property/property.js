@@ -1,0 +1,99 @@
+// KnockoutJS ViewModel for properties listing and editing
+function Property(data) {
+    this.key = ko.observable(data.key);
+    this.type = ko.observable(data.type);
+    this.value = ko.observable(data.value);
+}
+
+function PropertyListViewModel(config) {
+    var self = this;
+    self.searchKey = ko.observable("");
+    self.searchType = ko.observable("");
+    self.properties = ko.observableArray([]);
+    self.page = ko.observable(1);
+    self.size = ko.observable(10);
+    self.total = ko.observable(0);
+    self.maxPage = ko.observable(1);
+    self.sortField = ko.observable("key");
+    self.sortOrder = ko.observable("ASC");
+
+    self.searchProperties = function() {
+        var params = {
+            key: self.searchKey(),
+            type: self.searchType(),
+            page: self.page(),
+            size: self.size(),
+            sort: self.sortField(),
+            order: self.sortOrder()
+        };
+        $.getJSON("/properties/all", params, function(resp) {
+            if (resp && resp.data) {
+                var arr = resp.data.properties || [];
+                self.properties(arr.map(function(p) { return new Property(p); }));
+                self.total(resp.data.total || arr.length);
+                self.maxPage(resp.data.maxPage || 1);
+            }
+        });
+    };
+
+    self.setSort = function(field) {
+        if (self.sortField() === field) {
+            self.sortOrder(self.sortOrder() === "ASC" ? "DESC" : "ASC");
+        } else {
+            self.sortField(field);
+            self.sortOrder("ASC");
+        }
+        self.searchProperties();
+    };
+
+    self.nextPage = function() {
+        if (self.page() < self.maxPage()) {
+            self.page(self.page() + 1);
+            self.searchProperties();
+        }
+    };
+    self.prevPage = function() {
+        if (self.page() > 1) {
+            self.page(self.page() - 1);
+            self.searchProperties();
+        }
+    };
+    self.goEditProperty = function(key) {
+        window.location.href = 'editProperty.jsp?key=' + encodeURIComponent(key);
+    };
+    self.resetSearch = function() {
+        self.searchKey("");
+        self.searchType("");
+        self.page(1);
+        self.searchProperties();
+    };
+    // Initial load
+    self.searchProperties();
+}
+
+function EditPropertyViewModel(property) {
+    var self = this;
+    self.key = ko.observable(property.key);
+    self.type = ko.observable(property.type);
+    self.value = ko.observable(property.value);
+
+    self.done = function() {
+        var payload = {
+            key: self.key(),
+            value: self.value()
+        };
+        $.ajax({
+            url: "/properties/update",
+            type: "POST",
+            contentType: "application/json",
+            data: JSON.stringify(payload),
+            success: function(resp) {
+                window.location.href = "/property/properties.jsp";
+            }
+        });
+    };
+
+    self.cancel = function() {
+        window.location.href = "/property/properties.jsp";
+    };
+}

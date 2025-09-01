@@ -29,4 +29,7 @@ public interface PropertyService {
     BigDecimal getDecimal(PropertyKey key);
 
     String getString(PropertyKey key);
+
+    List<Property> getProperties(String key, String type, int page, int size, String sort, String order);
+    int countProperties(String key, String type);
 }

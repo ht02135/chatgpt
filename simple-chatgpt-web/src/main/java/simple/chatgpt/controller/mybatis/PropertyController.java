@@ -27,9 +27,24 @@ public class PropertyController {
     curl -X GET "http://localhost:8080/chatgpt/api/mybatis/properties/all" -H "Accept: application/json"
     */
     @GetMapping(value = "/all", produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<Response<List<Property>>> getAllProperties() {
-        List<Property> properties = propertyService.getAllProperties();
-        Response<List<Property>> response = Response.success("Properties retrieved successfully", properties, HttpStatus.OK.value());
+    public ResponseEntity<Response<Map<String, Object>>> getAllProperties(
+            @RequestParam(value = "key", required = false) String key,
+            @RequestParam(value = "type", required = false) String type,
+            @RequestParam(value = "page", required = false, defaultValue = "1") int page,
+            @RequestParam(value = "size", required = false, defaultValue = "10") int size,
+            @RequestParam(value = "sort", required = false, defaultValue = "key") String sort,
+            @RequestParam(value = "order", required = false, defaultValue = "ASC") String order
+    ) {
+        List<Property> properties = propertyService.getProperties(key, type, page, size, sort, order);
+        int total = propertyService.countProperties(key, type);
+        int maxPage = (int) Math.ceil((double) total / size);
+        Map<String, Object> data = new java.util.HashMap<>();
+        data.put("properties", properties);
+        data.put("total", total);
+        data.put("page", page);
+        data.put("size", size);
+        data.put("maxPage", maxPage);
+        Response<Map<String, Object>> response = Response.success("Properties retrieved successfully", data, HttpStatus.OK.value());
         return ResponseEntity.ok(response);
     }
 
