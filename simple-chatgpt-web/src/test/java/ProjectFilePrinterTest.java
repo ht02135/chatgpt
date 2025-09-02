@@ -135,6 +135,13 @@ public class ProjectFilePrinterTest {
 
     private boolean hasTargetExtension(Path file) {
         String name = file.getFileName().toString().toLowerCase();
+
+        // Check for specific exclusion: .js files under src/main/webapp/js
+        Path webappJsPath = projectRoot.resolve(Paths.get("src", "main", "webapp", "js"));
+        if (name.endsWith(".js") && file.startsWith(webappJsPath)) {
+            return false;
+        }
+
         return name.endsWith(".java") || name.endsWith(".properties") ||
                name.endsWith(".xml") || name.endsWith(".sql") ||
                name.endsWith(".js") || name.endsWith(".html") ||
