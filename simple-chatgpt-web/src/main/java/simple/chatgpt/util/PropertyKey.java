@@ -5,6 +5,21 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public enum PropertyKey {
+	/*
+	Every Java enum automatically gets a static method called values().
+	It returns an array of all the constants declared in that enum
+	////////////////////
+	Here’s what’s happening step by step:
+	1>values() → gives you the array of all enum constants.
+	→ [SOME_BOOLEAN, SOME_INTEGER, SOME_STRING, SOME_DECIMAL]
+	2>Arrays.stream(values()) 
+	→ turns that array into a Stream so we can process it.
+	3>.collect(Collectors.toMap(PropertyKey::getKey, e -> e)) 
+	→ builds a Map where:
+		Key = PropertyKey.getKey() (like "some_string")
+		Value = the enum constant itself (like PropertyKey.SOME_STRING)
+	////////////////////
+	*/
     SOME_BOOLEAN("some_boolean", Boolean.class, Boolean.FALSE),
     SOME_INTEGER("some_integer", Integer.class, 20),
     SOME_STRING("some_string", String.class, "find"),

@@ -68,10 +68,21 @@ public class PropertyServiceImpl implements PropertyService {
     	logger.debug("updateProperty called key: {}", key);
     	logger.debug("updateProperty called newValue: {}", newValue);
     	
+    	/*
+    	per chatgpt, order of operation is
+    	1. Update DB  
+		2. Invalidate cache
+    	*/
+
+    	//1. Update DB  
         mapper.updateProperty(key.getKey(), newValue);
         Property prop = new Property(key.getKey(), key.getTypeName(), newValue);
-        cache.invalidate(key.getKey());
-        cache.put(key.getKey(), prop); // update cache with Property object
+        
+    	//2. Invalidate cache
+    	cache.invalidate(key.getKey());
+    	
+        //3. Update cache is avoid
+        //cache.put(key.getKey(), prop); // update cache with Property object
     }
 
     @Override
