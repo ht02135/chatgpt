@@ -75,7 +75,7 @@ public class PropertyController {
         logger.debug("updateProperty called value: {}", value);
         
         try {
-            PropertyKey propertyKey = PropertyKey.valueOf(key);
+            PropertyKey propertyKey = PropertyKey.fromKey("some_string");
             propertyService.updateProperty(propertyKey, value);
             Response<Void> response = Response.success("Property updated successfully", null, HttpStatus.OK.value());
             return ResponseEntity.ok(response);

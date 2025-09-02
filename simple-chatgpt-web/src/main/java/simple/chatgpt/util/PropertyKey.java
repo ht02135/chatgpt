@@ -1,5 +1,9 @@
 package simple.chatgpt.util;
 
+import java.util.Arrays;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 public enum PropertyKey {
     SOME_BOOLEAN("some_boolean", Boolean.class, Boolean.FALSE),
     SOME_INTEGER("some_integer", Integer.class, 20),
@@ -33,5 +37,18 @@ public enum PropertyKey {
         if (type == String.class) return "String";
         if (type == java.math.BigDecimal.class) return "BigDecimal";
         return type.getSimpleName();
+    }
+
+    // 🔑 Add a lookup Map for fast reverse lookup
+    private static final Map<String, PropertyKey> LOOKUP =
+        Arrays.stream(values()).collect(Collectors.toMap(PropertyKey::getKey, e -> e));
+
+    // 🔑 Public method to fetch enum by string key
+    public static PropertyKey fromKey(String key) {
+        PropertyKey pk = LOOKUP.get(key);
+        if (pk == null) {
+            throw new IllegalArgumentException("Unknown property key: " + key);
+        }
+        return pk;
     }
 }
