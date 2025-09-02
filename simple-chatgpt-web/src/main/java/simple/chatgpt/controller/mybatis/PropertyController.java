@@ -1,5 +1,7 @@
 package simple.chatgpt.controller.mybatis;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -17,6 +19,8 @@ import java.util.Map;
 @RestController
 @RequestMapping("/mybatis/properties")
 public class PropertyController {
+	private static final Logger logger = LogManager.getLogger(PropertyController.class);
+	
     private final PropertyService propertyService;
 
     @Autowired
@@ -63,8 +67,13 @@ public class PropertyController {
 
     @PostMapping(value = "/update", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Response<Void>> updateProperty(@RequestBody Map<String, String> payload) {
+    	logger.debug("updateProperty called payload: {}", payload);
+    	
         String key = payload.get("key");
         String value = payload.get("value");
+        logger.debug("updateProperty called key: {}", key);
+        logger.debug("updateProperty called value: {}", value);
+        
         try {
             PropertyKey propertyKey = PropertyKey.valueOf(key);
             propertyService.updateProperty(propertyKey, value);

@@ -1,5 +1,7 @@
 package simple.chatgpt.service.mybatis;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 import simple.chatgpt.mapper.PropertyMapper;
 import simple.chatgpt.pojo.mybatis.Property;
@@ -12,6 +14,8 @@ import javax.annotation.PostConstruct;
 
 @Service
 public class PropertyServiceImpl implements PropertyService {
+	private static final Logger logger = LogManager.getLogger(PropertyServiceImpl.class);
+	
     private final PropertyMapper mapper;
     private final GenericCache<String, Property> cache;
 
@@ -61,8 +65,12 @@ public class PropertyServiceImpl implements PropertyService {
 
     @Override
     public void updateProperty(PropertyKey key, String newValue) {
-        mapper.updateProperty(key.name(), newValue);
+    	logger.debug("updateProperty called key: {}", key);
+    	logger.debug("updateProperty called newValue: {}", newValue);
+    	
+        mapper.updateProperty(key.getKey(), newValue);
         Property prop = new Property(key.getKey(), key.getTypeName(), newValue);
+        cache.invalidate(key.getKey());
         cache.put(key.getKey(), prop); // update cache with Property object
     }
 

@@ -6,16 +6,25 @@
         </Console>
     </Appenders>
     <Loggers>
-        <Logger name="simple.chatgpt" level="debug" additivity="false">
+        <Logger name="simple.chatgpt" level="DEBUG" additivity="false">
             <AppenderRef ref="LogToConsole"/>
         </Logger>
-        <Logger name="org.mybatis" level="debug" additivity="false">
+        
+    	<!-- Log MyBatis SQL -->
+    	<Logger name="org.mybatis" level="DEBUG" additivity="false">
+      		<AppenderRef ref="LogToConsole"/>
+    	</Logger>
+
+    	<!-- Optional: log JDBC parameter binding -->
+    	<Logger name="java.sql" level="DEBUG" additivity="false">
+      		<AppenderRef ref="LogToConsole"/>
+    	</Logger>
+        
+        <Logger name="org.springframework" level="INFO" additivity="false">
             <AppenderRef ref="LogToConsole"/>
         </Logger>
-        <Logger name="org.springframework" level="info" additivity="false">
-            <AppenderRef ref="LogToConsole"/>
-        </Logger>
-        <Root level="debug">
+        
+        <Root level="DEBUG">
             <AppenderRef ref="LogToConsole"/>
         </Root>
     </Loggers>
