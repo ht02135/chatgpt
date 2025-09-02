@@ -12,8 +12,12 @@
 <h2>Edit Property</h2>
 <div id="editPropertyForm">
     <form data-bind="submit: done">
+		<!--
         <div>Key: <input type="text" data-bind="value: key" readonly /></div>
         <div>Type: <input type="text" data-bind="value: type" readonly /></div>
+		-->
+		<div>Key: <span data-bind="text: key"></span></div>
+		<div>Type: <span data-bind="text: type"></span></div>
         <div>Value: <input type="text" data-bind="value: value" /></div>
         <div>
             <button type="submit">Done</button>
