@@ -10,7 +10,7 @@ import java.util.stream.Stream;
 public class ProjectFilePrinterTest {
 
     private final Path projectRoot = Paths.get("C:\\worksplace\\sts\\chatgpt\\simple-chatgpt-web");
-    private final Path outputFilePath = Paths.get("C:\\temp\\simple-chatgpt-web.txt");
+    private final Path outputFilePath = Paths.get("C:\\worksplace\\sts\\chatgpt\\simple-chatgpt-web\\src\\main\\resources\\simple-chatgpt-web.txt");
 
     @Test
     void printProjectFiles() throws IOException {
