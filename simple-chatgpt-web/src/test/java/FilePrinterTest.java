@@ -118,6 +118,7 @@ class FilePrinterTest {
         String name = file.getFileName().toString().toLowerCase();
         return name.endsWith(".java") || name.endsWith(".properties") ||
                 name.endsWith(".xml") || name.endsWith(".sql") ||
-                name.endsWith(".js") || name.endsWith(".html") || name.endsWith(".jsp");
+                name.endsWith(".js") || name.endsWith(".html") || 
+                name.endsWith(".css") ||name.endsWith(".jsp");
     }
 }
