@@ -67,15 +67,15 @@ public class PropertyController {
 
     @PostMapping(value = "/update", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Response<Void>> updateProperty(@RequestBody Map<String, String> payload) {
-    	logger.debug("updateProperty called payload: {}", payload);
+    	logger.debug("updateProperty payload: {}", payload);
     	
         String key = payload.get("key");
         String value = payload.get("value");
-        logger.debug("updateProperty called key: {}", key);
-        logger.debug("updateProperty called value: {}", value);
+        logger.debug("updateProperty key: {}", key);
+        logger.debug("updateProperty value: {}", value);
         
         try {
-            PropertyKey propertyKey = PropertyKey.fromKey("some_string");
+            PropertyKey propertyKey = PropertyKey.fromKey(key);
             propertyService.updateProperty(propertyKey, value);
             Response<Void> response = Response.success("Property updated successfully", null, HttpStatus.OK.value());
             return ResponseEntity.ok(response);

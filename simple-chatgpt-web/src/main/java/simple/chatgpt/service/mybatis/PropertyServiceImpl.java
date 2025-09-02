@@ -10,16 +10,26 @@ import simple.chatgpt.util.PropertyKey;
 import simple.chatgpt.service.mybatis.PropertyService;
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Set;
 import javax.annotation.PostConstruct;
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
 
 @Service
 public class PropertyServiceImpl implements PropertyService {
 	private static final Logger logger = LogManager.getLogger(PropertyServiceImpl.class);
 	
+	private final Validator validator;
+	
     private final PropertyMapper mapper;
     private final GenericCache<String, Property> cache;
 
     public PropertyServiceImpl(PropertyMapper mapper) {
+    	ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
+        this.validator = factory.getValidator();
+        
         this.mapper = mapper;
         this.cache = GenericCache.getInstance(30, 1000);
         initDefaults();
@@ -65,23 +75,38 @@ public class PropertyServiceImpl implements PropertyService {
 
     @Override
     public void updateProperty(PropertyKey key, String newValue) {
-    	logger.debug("updateProperty called key: {}", key);
-    	logger.debug("updateProperty called newValue: {}", newValue);
+    	logger.debug("updateProperty key: {}", key);
+    	logger.debug("updateProperty newValue: {}", newValue);
     	
     	/*
     	per chatgpt, order of operation is
-    	1. Update DB  
-		2. Invalidate cache
+    	1. Validate
+    	2. Update DB  
+		3. Invalidate cache
     	*/
+    	
+    	//0. build prop
+    	Property prop = new Property(key.getKey(), key.getTypeName(), newValue);
+    	logger.debug("updateProperty prop: {}", prop);
+    	
+    	//1. Validate
+        Set<ConstraintViolation<Property>> violations = validator.validate(prop);
 
-    	//1. Update DB  
+        if (!violations.isEmpty()) {
+            // Handle validation errors
+            for (ConstraintViolation<Property> violation : violations) {
+            	logger.debug("Validation Error: {} for property value '{}'", violation.getMessage(), prop.getValue());
+            }
+            throw new IllegalArgumentException("Property validation failed.");
+        }
+
+    	//2. Update DB 
         mapper.updateProperty(key.getKey(), newValue);
-        Property prop = new Property(key.getKey(), key.getTypeName(), newValue);
         
-    	//2. Invalidate cache
+    	//3. Invalidate cache
     	cache.invalidate(key.getKey());
     	
-        //3. Update cache is avoid
+        //4. Update cache is avoid
         //cache.put(key.getKey(), prop); // update cache with Property object
     }
 

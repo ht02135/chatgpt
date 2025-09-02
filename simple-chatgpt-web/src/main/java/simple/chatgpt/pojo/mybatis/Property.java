@@ -1,5 +1,8 @@
 package simple.chatgpt.pojo.mybatis;
 
+import simple.chatgpt.validator.ValidProperty;
+
+@ValidProperty
 public class Property {
     private String key;
     private String type;
@@ -19,4 +22,13 @@ public class Property {
 
     public String getValue() { return value; }
     public void setValue(String value) { this.value = value; }
+    
+    @Override
+    public String toString() {
+        return "Property{" +
+                "key='" + key + '\'' +
+                ", type='" + type + '\'' +
+                ", value='" + value + '\'' +
+                '}';
+    }
 }
