@@ -4,8 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <title>Add User</title>
-    <script src="../../js/knockoutjs/knockout-latest.js"></script>
-    <link rel="stylesheet" href="../../css/user.css">
+    <script src="../../../js/knockout-latest.js"></script>
+    <link rel="stylesheet" href="../../../css/user.css">
     <script src="user.js"></script>
 </head>
 <body>

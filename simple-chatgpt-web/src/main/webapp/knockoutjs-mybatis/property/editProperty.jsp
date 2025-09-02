@@ -4,8 +4,8 @@
 <head>
     <title>Edit Property</title>
     <link rel="stylesheet" href="../css/property.css">
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="../js/knockoutjs/knockout-latest.js"></script>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script src="../../js/knockout-latest.js"></script>
     <script src="property.js"></script>
 </head>
 <body>

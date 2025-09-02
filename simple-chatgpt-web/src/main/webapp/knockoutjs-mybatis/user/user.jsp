@@ -4,8 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <title>User Management (Knockout.js)</title>
-    <script src="../js/knockoutjs/knockout-latest.js"></script>
-    <link rel="stylesheet" href="../css/user.css">
+    <script src="../../js/knockout-latest.js"></script>
+    <link rel="stylesheet" href="../../css/user.css">
     <!-- CSS moved to user.css -->
 </head>
 <body>
