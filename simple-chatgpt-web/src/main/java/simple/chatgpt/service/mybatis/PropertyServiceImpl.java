@@ -85,13 +85,13 @@ public class PropertyServiceImpl implements PropertyService {
 		3. Invalidate cache
     	*/
     	
-    	//0. build prop
-    	Property prop = new Property(key.getKey(), key.getTypeName(), newValue);
-    	logger.debug("updateProperty prop: {}", prop);
-    	
     	//1. Validate
+    	Property prop = new Property(key.getKey(), key.getTypeName(), newValue);
+    	logger.debug("#############");
+    	logger.debug("updateProperty prop: {}", prop);
+    	logger.debug("#############");
+    	
         Set<ConstraintViolation<Property>> violations = validator.validate(prop);
-
         if (!violations.isEmpty()) {
             // Handle validation errors
             for (ConstraintViolation<Property> violation : violations) {

@@ -4,7 +4,8 @@
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
        xmlns:aop="http://www.springframework.org/schema/aop"
        xsi:schemaLocation="
-           http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-3.0.xsd
+           http://www.springframework.org/schema/aop 
+           http://www.springframework.org/schema/aop/spring-aop-3.0.xsd
            http://www.springframework.org/schema/beans
            http://www.springframework.org/schema/beans/spring-beans.xsd
            http://www.springframework.org/schema/context
@@ -20,6 +21,9 @@
 
     <!-- Load properties file -->
     <context:property-placeholder location="classpath:database.properties"/>
+    
+    <!-- Enable @Aspect support -->
+	<aop:aspectj-autoproxy proxy-target-class="true"/>
 
     <!-- Data Source -->
     <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
@@ -93,28 +97,43 @@
     <tx:annotation-driven transaction-manager="transactionManager"/>
 
     <!-- AOP Transaction Advice for Hibernate -->
-    <aop:config>
-        <aop:pointcut id="hibernateServiceMethods" expression="execution(* simple.chatgpt.service.UserService.*(..))"/>
-        <aop:advisor pointcut-ref="hibernateServiceMethods" advice-ref="hibernateTxAdvice"/>
-    </aop:config>
-
     <tx:advice id="hibernateTxAdvice" transaction-manager="transactionManager">
         <tx:attributes>
             <tx:method name="get*" read-only="true"/>
             <tx:method name="*" propagation="REQUIRED"/>
         </tx:attributes>
     </tx:advice>
-
-    <!-- AOP Transaction Advice for MyBatis -->
+    
     <aop:config>
-        <aop:pointcut id="mybatisServiceMethods" expression="execution(* simple.chatgpt.service.mybatis.*Service.*(..))"/>
-        <aop:advisor pointcut-ref="mybatisServiceMethods" advice-ref="mybatisTxAdvice"/>
+        <aop:pointcut id="hibernateServiceMethods" expression="execution(* simple.chatgpt.service.UserService.*(..))"/>
+        <aop:advisor pointcut-ref="hibernateServiceMethods" advice-ref="hibernateTxAdvice"/>
     </aop:config>
 
+    <!-- AOP Transaction Advice for MyBatis -->
     <tx:advice id="mybatisTxAdvice" transaction-manager="mybatisTransactionManager">
         <tx:attributes>
             <tx:method name="get*" read-only="true"/>
             <tx:method name="*" propagation="REQUIRED"/>
         </tx:attributes>
     </tx:advice>
+    
+    <aop:config>
+        <aop:pointcut id="mybatisServiceMethods" expression="execution(* simple.chatgpt.service.mybatis.*Service.*(..))"/>
+        <aop:advisor pointcut-ref="mybatisServiceMethods" advice-ref="mybatisTxAdvice"/>
+    </aop:config>
+
+    <!-- XML-based AOP configuration -->
+    
+    <bean id="propertyValidationXMLAspect" class="simple.chatgpt.aop.PropertyValidationXMLAspect"/>
+
+	<aop:config>
+    	<!-- Pointcut for updateProperty in your service -->
+    	<aop:pointcut id="propertyUpdatePointcut" expression="execution(* simple.chatgpt.service.mybatis.PropertyServiceImpl.updateProperty(..))"/>
+    
+    	<!-- Advice runs before method execution -->
+    	<aop:aspect ref="propertyValidationXMLAspect">
+        	<aop:before method="validateProperty" pointcut-ref="propertyUpdatePointcut"/>
+    	</aop:aspect>
+	</aop:config>
+
 </beans>
