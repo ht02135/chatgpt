@@ -10,6 +10,8 @@ import simple.chatgpt.pojo.mybatis.MyBatisUserUser;
 
 import java.util.List;
 
+import javax.validation.Valid;
+
 @Service("mybatisUserService")
 @Transactional
 public class MyBatisUserServiceImpl implements MyBatisUserService {
@@ -19,7 +21,7 @@ public class MyBatisUserServiceImpl implements MyBatisUserService {
     private UserMapper userMapper;
 
     @Override
-    public MyBatisUserUser save(MyBatisUserUser user) {
+    public MyBatisUserUser save(@Valid MyBatisUserUser user) {
         logger.debug("MyBatis - Saving user: {}", user.getName());
 
         if (user.getId() > 0) {

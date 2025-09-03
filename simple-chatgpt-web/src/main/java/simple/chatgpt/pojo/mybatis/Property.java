@@ -1,6 +1,6 @@
 package simple.chatgpt.pojo.mybatis;
 
-import simple.chatgpt.validator.ValidProperty;
+import simple.chatgpt.validator.property.ValidProperty;
 
 @ValidProperty
 public class Property {

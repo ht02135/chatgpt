@@ -1,4 +1,4 @@
-package simple.chatgpt.validator;
+package simple.chatgpt.validator.property;
 
 import simple.chatgpt.pojo.mybatis.Property;
 import simple.chatgpt.service.mybatis.PropertyServiceImpl;

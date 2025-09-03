@@ -1,4 +1,4 @@
-package simple.chatgpt.validator;
+package simple.chatgpt.validator.property;
 
 import javax.validation.Constraint;
 import javax.validation.ConstraintValidator;

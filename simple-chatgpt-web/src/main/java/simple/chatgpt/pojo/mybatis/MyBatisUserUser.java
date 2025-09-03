@@ -1,12 +1,35 @@
 package simple.chatgpt.pojo.mybatis;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+
+import simple.chatgpt.validator.email.UserEmail;
+
+/*
+<hibernate.version>5.6.9.Final</hibernate.version> in pom.xml
+Older Hibernate Validator (≤ 6.x) uses javax.validation.*
+New Hibernate Validator (≥ 7.x / 8.x) uses jakarta.validation.*
+*/
+
 public class MyBatisUserUser {
     private int id;
     private String name;
+    
+	@NotBlank(message = "email must not be blank")
+	@UserEmail
     private String email;
+	
+	@NotBlank(message = "firstName must not be blank")
     private String firstName;
+	
+	@NotBlank(message = "lastName must not be blank")
     private String lastName;
-    private String password;
+	
+    @NotNull(message = "password must be between 4 to 20 characters")
+	@Size(min = 4, max = 20)
+	private String password;
+    
     private String addressLine1;
     private String addressLine2;
     private String city;

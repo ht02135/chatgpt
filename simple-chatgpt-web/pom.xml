@@ -160,6 +160,13 @@
             <version>6.2.5.Final</version>
         </dependency>
 
+		<!-- Expression Language support (needed for message interpolation) -->
+		<dependency>
+    		<groupId>org.glassfish</groupId>
+    		<artifactId>jakarta.el</artifactId>
+    		<version>4.0.2</version>
+		</dependency>
+
         <!-- Database Driver -->
         <dependency>
             <groupId>mysql</groupId>
