@@ -7,26 +7,35 @@ import javax.validation.ConstraintViolation;
 
 import java.util.Set;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
+import org.springframework.stereotype.Component;
+
+import simple.chatgpt.validator.user.ValidUser;
 
 @Aspect
-public class EmailValidationAspect {
+@Component
+public class UserValidationAnnotationAspect {
+	private static final Logger logger = LogManager.getLogger(UserValidationAnnotationAspect.class);
 
     private final Validator validator;
 
-    public EmailValidationAspect() {
+    public UserValidationAnnotationAspect() {
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
-        validator = factory.getValidator();
+        this.validator = factory.getValidator();
     }
 
     @Around("execution(* simple.chatgpt.service.mybatis.*.*(..))")
-    public Object validateMethod(ProceedingJoinPoint joinPoint) throws Throwable {
-        Object[] args = joinPoint.getArgs();
-
-        for (Object arg : args) {
-            if (arg != null) {
+    public Object validateUser(ProceedingJoinPoint joinPoint) throws Throwable {
+        for (Object arg : joinPoint.getArgs()) {
+            logger.debug("#############");
+            logger.debug("validateUser arg: {}", arg);
+            logger.debug("#############");
+            
+            if (arg != null && arg.getClass().isAnnotationPresent(ValidUser.class)) {
                 Set<ConstraintViolation<Object>> violations = validator.validate(arg);
                 if (!violations.isEmpty()) {
                     StringBuilder sb = new StringBuilder();
@@ -36,11 +45,10 @@ public class EmailValidationAspect {
                           .append(v.getMessage())
                           .append("\n");
                     }
-                    throw new RuntimeException("Validation failed:\n" + sb);
+                    throw new IllegalArgumentException("User validation failed:\n" + sb);
                 }
             }
         }
-
         return joinPoint.proceed();
     }
 }

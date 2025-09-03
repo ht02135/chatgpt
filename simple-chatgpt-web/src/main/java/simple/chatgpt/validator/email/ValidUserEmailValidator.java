@@ -15,8 +15,8 @@ import org.apache.logging.log4j.Logger;
 import java.math.BigDecimal;
 import java.util.List;
 
-public class UserEmailValidator implements ConstraintValidator<UserEmail, String> {
-	private static final Logger logger = LogManager.getLogger(UserEmailValidator.class);
+public class ValidUserEmailValidator implements ConstraintValidator<ValidUserEmail, String> {
+	private static final Logger logger = LogManager.getLogger(ValidUserEmailValidator.class);
 	
     private static List<String> validDomains;
 
@@ -38,6 +38,7 @@ public class UserEmailValidator implements ConstraintValidator<UserEmail, String
         logger.debug("#############");
         logger.debug("isValid PASS VALIDATION value: {}", value);
         logger.debug("#############");
+        
         return true;
     }
 }

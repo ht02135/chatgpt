@@ -10,8 +10,6 @@ import simple.chatgpt.pojo.mybatis.MyBatisUserUser;
 
 import java.util.List;
 
-import javax.validation.Valid;
-
 @Service("mybatisUserService")
 @Transactional
 public class MyBatisUserServiceImpl implements MyBatisUserService {
@@ -20,8 +18,19 @@ public class MyBatisUserServiceImpl implements MyBatisUserService {
     @Autowired
     private UserMapper userMapper;
 
+    /*
+    Field-level validation (like @NotBlank or @UserEmail)
+    1>@Valid triggers validation recursively:
+	For every field that has a constraint annotation (@NotBlank,
+		@UserEmail, etc.), its validator runs.
+	If any field fails validation, a ConstraintViolationException 
+		is thrown.
+	2>Timing: It’s triggered when the object is validated (usually 
+	at method entry, if you’re using Spring + @Valid on a method 
+	parameter, or if you manually call Validator.validate(user)).
+    */
     @Override
-    public MyBatisUserUser save(@Valid MyBatisUserUser user) {
+    public MyBatisUserUser save(MyBatisUserUser user) {
         logger.debug("MyBatis - Saving user: {}", user.getName());
 
         if (user.getId() > 0) {

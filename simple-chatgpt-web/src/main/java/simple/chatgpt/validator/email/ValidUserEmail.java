@@ -13,10 +13,10 @@ import static java.lang.annotation.ElementType.*;
 import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 @Documented
-@Constraint(validatedBy = UserEmailValidator.class)
+@Constraint(validatedBy = ValidUserEmailValidator.class)
 @Target({ FIELD, METHOD, PARAMETER })
 @Retention(RUNTIME)
-public @interface UserEmail {
+public @interface ValidUserEmail {
     String message() default "Email must be a company email";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};

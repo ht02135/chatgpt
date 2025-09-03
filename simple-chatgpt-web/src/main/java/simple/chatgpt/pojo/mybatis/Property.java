@@ -2,6 +2,14 @@ package simple.chatgpt.pojo.mybatis;
 
 import simple.chatgpt.validator.property.ValidProperty;
 
+/*
+Class-level validation (like @ValidProperty)
+1>If you put @ValidProperty on a class but never validate the 
+object (either manually or via @Valid in a service/controller), 
+it won’t run. 
+2>Class-level validators usually implement ConstraintValidator<ValidProperty, 
+Property> and can check multiple fields together.
+*/
 @ValidProperty
 public class Property {
     private String key;

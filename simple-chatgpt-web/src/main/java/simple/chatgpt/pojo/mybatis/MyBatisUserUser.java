@@ -4,7 +4,8 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
-import simple.chatgpt.validator.email.UserEmail;
+import simple.chatgpt.validator.email.ValidUserEmail;
+import simple.chatgpt.validator.user.ValidUser;
 
 /*
 <hibernate.version>5.6.9.Final</hibernate.version> in pom.xml
@@ -12,12 +13,23 @@ Older Hibernate Validator (≤ 6.x) uses javax.validation.*
 New Hibernate Validator (≥ 7.x / 8.x) uses jakarta.validation.*
 */
 
+/*
+you don’t really need a ConstraintValidator if your goal 
+is just to trigger validation via AOP.
+///////////////////
+///When the Aspect calls validator.validate(user):
+1>It sees name has @NotBlank → checks the value.
+2>It sees email has @UserEmail → runs that validator.
+3>Any violations are returned as ConstraintViolation objects.
+So all field-level annotations are triggered automatically.
+*/
+@ValidUser
 public class MyBatisUserUser {
     private int id;
     private String name;
     
 	@NotBlank(message = "email must not be blank")
-	@UserEmail
+	@ValidUserEmail
     private String email;
 	
 	@NotBlank(message = "firstName must not be blank")
