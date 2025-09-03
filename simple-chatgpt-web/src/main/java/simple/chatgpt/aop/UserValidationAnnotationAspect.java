@@ -28,11 +28,11 @@ public class UserValidationAnnotationAspect {
         this.validator = factory.getValidator();
     }
 
-    @Around("execution(* simple.chatgpt.service.mybatis.*.*(..))")
+    @Around("execution(* simple.chatgpt.service.mybatis.MyBatisUserServiceImpl.save(..))")
     public Object validateUser(ProceedingJoinPoint joinPoint) throws Throwable {
         for (Object arg : joinPoint.getArgs()) {
             logger.debug("#############");
-            logger.debug("validateUser arg: {}", arg);
+            logger.debug("validateUser arg: {}", arg != null ? arg.toString() : "null");
             logger.debug("#############");
             
             if (arg != null && arg.getClass().isAnnotationPresent(ValidUser.class)) {

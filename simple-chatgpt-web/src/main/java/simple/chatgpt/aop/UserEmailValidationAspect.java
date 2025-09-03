@@ -5,6 +5,7 @@ import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 import javax.validation.ConstraintViolation;
 
+import java.util.Arrays;
 import java.util.Set;
 
 import org.apache.logging.log4j.LogManager;
@@ -24,12 +25,12 @@ public class UserEmailValidationAspect {
         validator = factory.getValidator();
     }
 
-    @Around("execution(* simple.chatgpt.service.mybatis.*.*(..))")
+    @Around("execution(* simple.chatgpt.service.mybatis.MyBatisUserServiceImpl.save(..))")
     public Object validateUserEmail(ProceedingJoinPoint joinPoint) throws Throwable {
         Object[] args = joinPoint.getArgs();
         
         logger.debug("#############");
-        logger.debug("validateUserEmail args: {}", args);
+        logger.debug("validateUserEmail args: {}", Arrays.toString(args));
         logger.debug("#############");
 
         for (Object arg : args) {
