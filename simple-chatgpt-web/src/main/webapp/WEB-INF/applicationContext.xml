@@ -24,6 +24,17 @@
     
     <!-- Enable @Aspect support -->
 	<aop:aspectj-autoproxy proxy-target-class="true"/>
+	
+	<!-- ///////////////////////////////// -->
+	
+	<bean id="propertyCache" class="simple.chatgpt.util.GenericCache">
+    	<!-- Constructor argument for expireAfterMinutes -->
+    	<constructor-arg value="30" type="long"/>
+    	<!-- Constructor argument for maximumSize -->
+    	<constructor-arg value="1000" type="long"/>
+	</bean>
+	
+	<!-- ///////////////////////////////// -->
 
     <!-- Data Source -->
     <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
@@ -33,6 +44,8 @@
         <property name="password" value="${db.password}"/>
     </bean>
 
+	<!-- ///////////////////////////////// -->
+	
     <!-- Hibernate Session Factory -->
     <bean id="sessionFactory" class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
         <property name="dataSource" ref="dataSource"/>
@@ -46,6 +59,8 @@
             </props>
         </property>
     </bean>
+    
+	<!-- ///////////////////////////////// -->
 
     <!-- MyBatis SqlSessionFactory -->
     <bean id="mybatisSqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
@@ -58,14 +73,16 @@
             </props>
         </property>
     </bean>
-
+	
     <!-- MyBatis Mapper Scanner -->
     <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
         <property name="basePackage" value="simple.chatgpt.mapper"/>
         <property name="sqlSessionFactoryBeanName" value="mybatisSqlSessionFactory"/>
     </bean>
 
-    <!-- MyBatis SqlSessionFactory -->
+	<!-- ///////////////////////////////// -->
+	
+    <!-- SqlSessionFactory -->
     <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
         <property name="dataSource" ref="dataSource"/>
         <property name="typeAliasesPackage" value="simple.chatgpt.pojo"/>
@@ -77,20 +94,17 @@
         </property>
     </bean>
 
-    <!-- MyBatis Mapper Scanner -->
+    <!-- Mapper Scanner -->
     <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
         <property name="basePackage" value="simple.chatgpt.mapper"/>
         <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"/>
     </bean>
+	
+	<!-- ///////////////////////////////// -->
 
     <!-- Transaction Manager (Hibernate) -->
     <bean id="transactionManager" class="org.springframework.orm.hibernate5.HibernateTransactionManager">
         <property name="sessionFactory" ref="sessionFactory"/>
-    </bean>
-
-    <!-- MyBatis Transaction Manager (separate for MyBatis operations) -->
-    <bean id="mybatisTransactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
-        <property name="dataSource" ref="dataSource"/>
     </bean>
 
     <!-- Enable Transaction Management -->
@@ -108,7 +122,14 @@
         <aop:pointcut id="hibernateServiceMethods" expression="execution(* simple.chatgpt.service.UserService.*(..))"/>
         <aop:advisor pointcut-ref="hibernateServiceMethods" advice-ref="hibernateTxAdvice"/>
     </aop:config>
+	
+	<!-- ///////////////////////////////// -->
 
+    <!-- MyBatis Transaction Manager (separate for MyBatis operations) -->
+    <bean id="mybatisTransactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+	
     <!-- AOP Transaction Advice for MyBatis -->
     <tx:advice id="mybatisTxAdvice" transaction-manager="mybatisTransactionManager">
         <tx:attributes>
@@ -121,6 +142,8 @@
         <aop:pointcut id="mybatisServiceMethods" expression="execution(* simple.chatgpt.service.mybatis.*Service.*(..))"/>
         <aop:advisor pointcut-ref="mybatisServiceMethods" advice-ref="mybatisTxAdvice"/>
     </aop:config>
+	
+	<!-- ///////////////////////////////// -->
 
     <!-- XML-based AOP configuration -->
     

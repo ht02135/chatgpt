@@ -2,6 +2,7 @@ package simple.chatgpt.service.mybatis;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import simple.chatgpt.mapper.PropertyMapper;
 import simple.chatgpt.pojo.mybatis.Property;
@@ -26,12 +27,12 @@ public class PropertyServiceImpl implements PropertyService {
     private final PropertyMapper mapper;
     private final GenericCache<String, Property> cache;
 
-    public PropertyServiceImpl(PropertyMapper mapper) {
+    public PropertyServiceImpl(PropertyMapper mapper, @Qualifier("propertyCache") GenericCache<String, Property> propertyCache) {
     	ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
         this.validator = factory.getValidator();
         
         this.mapper = mapper;
-        this.cache = GenericCache.getInstance(30, 1000);
+        this.cache = propertyCache;
         initDefaults();
     }
 
