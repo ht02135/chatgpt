@@ -20,6 +20,8 @@ public enum PropertyKey {
 		Value = the enum constant itself (like PropertyKey.SOME_STRING)
 	////////////////////
 	*/
+	DISABLE_USER_SAVE("disable_user_save", Boolean.class, Boolean.FALSE),
+	
     SOME_BOOLEAN("some_boolean", Boolean.class, Boolean.FALSE),
     SOME_INTEGER("some_integer", Integer.class, 20),
     SOME_STRING("some_string", String.class, "find"),

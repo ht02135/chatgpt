@@ -17,6 +17,7 @@ import simple.chatgpt.mapper.UserMapper;
 import simple.chatgpt.pojo.mybatis.MyBatisUserUser;
 import simple.chatgpt.pojo.mybatis.Property;
 import simple.chatgpt.util.GenericCache;
+import simple.chatgpt.util.PropertyKey;
 
 @Service("mybatisUserService")
 @Transactional
@@ -53,7 +54,21 @@ public class MyBatisUserServiceImpl implements MyBatisUserService {
     @Override
     public MyBatisUserUser save(MyBatisUserUser user) {
         logger.debug("MyBatis - Saving user: {}", user.getName());
-
+        
+        //DISABLE_USER_SAVE
+        boolean disableUserSave = propertyService.getBoolean(PropertyKey.DISABLE_USER_SAVE);
+        if (disableUserSave) {
+            logger.debug("#############");
+            logger.debug("save disableUserSave: true");
+            logger.debug("#############");
+        	logger.warn("MyBatis - Failed to update user with ID: {}", user.getId());
+            throw new RuntimeException("Failed to update user");
+        } else {
+            logger.debug("#############");
+            logger.debug("save disableUserSave: false");
+            logger.debug("#############");
+        }
+        
         if (user.getId() > 0) {
             // Update existing user
             int result = userMapper.update(user);
