@@ -56,16 +56,26 @@ public class PropertyServiceImpl implements PropertyService {
         }
     }
 
+    /*
+    With Caffeine, the cache.get(key, mappingFunction) already stores 
+    the returned value in the cache. You don’t need to call cache.put 
+    manually inside the mapping function. In fact, doing so causes the 
+    Recursive update exception.
+	So the correct fix is simply to remove all cache.put(...) calls 
+	inside the mapping function. Caffeine will handle caching automatically.
+    */
     private Property getCachedProperty(PropertyKey key) {
         return cache.get(key.getKey(), k -> {
-        	logger.debug("getCachedProperty not in cache fetch from db k : {}", k);
+            logger.debug("getCachedProperty not in cache fetch from db k : {}", k);
+
+            // Fetch from DB
             Property prop = mapper.selectByKey(k);
             logger.debug("#############");
             logger.debug("getCachedProperty not in cache fetch from db prop : {}", prop);
             logger.debug("#############");
+
             if (prop != null) {
-                cache.put(k, prop);
-                return prop;
+                return prop;  // ✅ automatically cached by Caffeine
             }
             // Not found in DB, use enum default
             PropertyKey enumKey = null;
@@ -75,14 +85,15 @@ public class PropertyServiceImpl implements PropertyService {
                     break;
                 }
             }
+
             Property defaultProp = (enumKey == null)
                 ? new Property(k, "String", null)
                 : new Property(enumKey.getKey(), enumKey.getTypeName(), String.valueOf(enumKey.getDefaultValue()));
             logger.debug("#############");
             logger.debug("getCachedProperty not in db fetch from default defaultProp : {}", defaultProp);
             logger.debug("#############");
-            cache.put(k, defaultProp);
-            return defaultProp;
+
+            return defaultProp;  // ✅ automatically cached by Caffeine
         });
     }
 

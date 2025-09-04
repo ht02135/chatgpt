@@ -55,19 +55,21 @@ public class MyBatisUserServiceImpl implements MyBatisUserService {
     public MyBatisUserUser save(MyBatisUserUser user) {
         logger.debug("MyBatis - Saving user: {}", user.getName());
         
-        //DISABLE_USER_SAVE
-        boolean disableUserSave = propertyService.getBoolean(PropertyKey.DISABLE_USER_SAVE);
+        boolean disableUserSave = false;
+        try {
+            disableUserSave = propertyService.getBoolean(PropertyKey.DISABLE_USER_SAVE);
+            logger.debug("After propertyService.getBoolean: {}", disableUserSave);
+        } catch (Exception e) {
+            logger.error("Exception fetching property", e);
+            throw e;
+        }
+        logger.debug("#############");
+        logger.debug("save disableUserSave: {}", disableUserSave);
+        logger.debug("#############");
         if (disableUserSave) {
-            logger.debug("#############");
-            logger.debug("save disableUserSave: true");
-            logger.debug("#############");
         	logger.warn("MyBatis - Failed to update user with ID: {}", user.getId());
             throw new RuntimeException("Failed to update user");
-        } else {
-            logger.debug("#############");
-            logger.debug("save disableUserSave: false");
-            logger.debug("#############");
-        }
+        } 
         
         if (user.getId() > 0) {
             // Update existing user
