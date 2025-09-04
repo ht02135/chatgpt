@@ -10,6 +10,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import simple.chatgpt.dao.UserDao;
 import simple.chatgpt.pojo.User;
+import simple.chatgpt.service.mybatis.PropertyService;
 
 @Service
 @Transactional
@@ -18,6 +19,21 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private UserDao userDao;
+    
+    /*
+    In Spring, beans like UserService, PropertyService, UserDao, etc., 
+    are usually singletons. That means one instance is created at startup 
+    and shared across all threads.
+	Spring’s dependency injection happens once, during bean creation. After 
+	that, Spring doesn’t reassign the field.
+	//////////////
+	even if i do @Autowired at here
+	There’s no thread-safety issue.
+	The reference won’t change after injection, so multiple threads won’t 
+	see it “switching” to another instance.
+    */
+    @Autowired
+    private PropertyService propertyService;
 
     @Override
     public User save(User user) {

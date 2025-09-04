@@ -12,6 +12,7 @@ import javax.validation.ValidatorFactory;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
@@ -24,11 +25,18 @@ import simple.chatgpt.util.PropertyKey;
 public class PropertyServiceImpl implements PropertyService {
 	private static final Logger logger = LogManager.getLogger(PropertyServiceImpl.class);
 	
+	/*
+	Recommendation (best practice in Spring Boot 3 / modern apps):
+	1>Use constructor injection with final fields (your PropertyServiceImpl 
+	is already a good example).
+	2>Avoid field injection with @Autowired unless you’re wiring in test 
+	code or legacy beans.
+	*/
 	private final Validator validator;
-	
     private final PropertyMapper mapper;
     private final GenericCache<String, Property> cache;
 
+    @Autowired
     public PropertyServiceImpl(PropertyMapper mapper, @Qualifier("propertyCache") GenericCache<String, Property> propertyCache) {
     	ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
         this.validator = factory.getValidator();

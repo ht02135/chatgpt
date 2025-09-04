@@ -38,11 +38,12 @@ GET /chatgpt/api/mybatis/users/test → test
 public class MyBatisUserController {
     private static final Logger logger = LogManager.getLogger(MyBatisUserController.class);
 
-    @Autowired
-    private MyBatisUserService myBatisUserService;
+    private final MyBatisUserService myBatisUserService;
 
-    public MyBatisUserController() {
+    @Autowired
+    public MyBatisUserController(MyBatisUserService myBatisUserService) {
         logger.info("MyBatisUserController initialized!");
+        this.myBatisUserService = myBatisUserService;
     }
 
     //------------------------------

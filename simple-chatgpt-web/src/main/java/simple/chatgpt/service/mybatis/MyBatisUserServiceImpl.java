@@ -2,23 +2,43 @@ package simple.chatgpt.service.mybatis;
 
 import java.util.List;
 
+import javax.validation.Validation;
+import javax.validation.ValidatorFactory;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import simple.chatgpt.mapper.PropertyMapper;
 import simple.chatgpt.mapper.UserMapper;
 import simple.chatgpt.pojo.mybatis.MyBatisUserUser;
+import simple.chatgpt.pojo.mybatis.Property;
+import simple.chatgpt.util.GenericCache;
 
 @Service("mybatisUserService")
 @Transactional
 public class MyBatisUserServiceImpl implements MyBatisUserService {
     private static final Logger logger = LogManager.getLogger(MyBatisUserServiceImpl.class);
 
-    @Autowired
-    private UserMapper userMapper;
+	/*
+	Recommendation (best practice in Spring Boot 3 / modern apps):
+	1>Use constructor injection with final fields (your PropertyServiceImpl 
+	is already a good example).
+	2>Avoid field injection with @Autowired unless you’re wiring in test 
+	code or legacy beans.
+	*/
+    private final UserMapper userMapper;
+    private final PropertyService propertyService;
 
+    @Autowired
+    public MyBatisUserServiceImpl(UserMapper mapper, PropertyService propertyService) {  
+        this.userMapper = mapper;
+        this.propertyService = propertyService;
+    }
+    
     /*
     Field-level validation (like @NotBlank or @UserEmail)
     1>@Valid triggers validation recursively:

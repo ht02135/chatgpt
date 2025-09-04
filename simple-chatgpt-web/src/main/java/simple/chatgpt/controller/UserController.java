@@ -42,6 +42,24 @@ Perfect — that proves everything is wired correctly:
 public class UserController {
     private static final Logger logger = LogManager.getLogger(UserController.class);
 
+    /*
+    In Spring, beans like UserService, PropertyService, UserDao, etc., 
+    are usually singletons. That means one instance is created at startup 
+    and shared across all threads.
+	Spring’s dependency injection happens once, during bean creation. After 
+	that, Spring doesn’t reassign the field.
+	//////////////
+	even if i do @Autowired at here
+	There’s no thread-safety issue.
+	The reference won’t change after injection, so multiple threads won’t 
+	see it “switching” to another instance.
+	//////////////
+	Recommendation (best practice in Spring Boot 3 / modern apps):
+	1>Use constructor injection with final fields (your PropertyServiceImpl 
+	is already a good example).
+	2>Avoid field injection with @Autowired unless you’re wiring in test 
+	code or legacy beans.
+    */
     @Autowired
     private UserService userService;
 
