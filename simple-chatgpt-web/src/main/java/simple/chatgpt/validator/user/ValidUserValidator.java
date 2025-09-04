@@ -7,7 +7,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import simple.chatgpt.pojo.mybatis.MyBatisUserUser;
-import simple.chatgpt.validator.property.PropertyValidator;
 
 public class ValidUserValidator implements ConstraintValidator<ValidUser, MyBatisUserUser> {
 	private static final Logger logger = LogManager.getLogger(ValidUserValidator.class);

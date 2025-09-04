@@ -1,7 +1,8 @@
 package simple.chatgpt.dao;
 
-import simple.chatgpt.pojo.User;
 import java.util.List;
+
+import simple.chatgpt.pojo.User;
 
 public interface UserDao {
     User save(User user); // Return the saved User

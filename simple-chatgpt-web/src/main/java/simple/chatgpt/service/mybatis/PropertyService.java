@@ -1,12 +1,10 @@
 package simple.chatgpt.service.mybatis;
 
+import java.math.BigDecimal;
+import java.util.List;
+
 import simple.chatgpt.pojo.mybatis.Property;
 import simple.chatgpt.util.PropertyKey;
-
-import java.math.BigDecimal;
-import java.util.EnumMap;
-import java.util.List;
-import java.util.Map;
 
 public interface PropertyService {
     // Return all properties (cached or DB values)

@@ -1,8 +1,8 @@
 package simple.chatgpt.service;
 
-import simple.chatgpt.pojo.User;
-
 import java.util.List;
+
+import simple.chatgpt.pojo.User;
 
 public interface UserService {
     User save(User user);

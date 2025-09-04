@@ -1,14 +1,15 @@
 package simple.chatgpt.service;
 
+import java.util.List;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import simple.chatgpt.dao.UserDao;
 import simple.chatgpt.pojo.User;
-
-import java.util.List;
 
 @Service
 @Transactional

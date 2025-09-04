@@ -1,14 +1,18 @@
 package simple.chatgpt.aop;
 
+import java.util.Set;
+
+import javax.validation.ConstraintViolation;
+import javax.validation.Validation;
+import javax.validation.Validator;
+import javax.validation.ValidatorFactory;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.aspectj.lang.JoinPoint;
-import simple.chatgpt.pojo.mybatis.Property;
-import simple.chatgpt.service.mybatis.PropertyServiceImpl;
-import simple.chatgpt.util.PropertyKey;
 
-import javax.validation.*;
-import java.util.Set;
+import simple.chatgpt.pojo.mybatis.Property;
+import simple.chatgpt.util.PropertyKey;
 
 /*
 In Spring AOP, you have two styles of declaring advice:

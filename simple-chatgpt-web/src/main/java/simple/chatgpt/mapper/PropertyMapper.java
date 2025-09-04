@@ -1,10 +1,11 @@
 package simple.chatgpt.mapper;
 
+import java.util.List;
+
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-import simple.chatgpt.pojo.mybatis.Property;
 
-import java.util.List;
+import simple.chatgpt.pojo.mybatis.Property;
 
 @Mapper
 public interface PropertyMapper {

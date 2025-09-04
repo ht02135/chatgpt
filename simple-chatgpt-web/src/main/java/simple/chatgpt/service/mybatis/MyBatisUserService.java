@@ -1,7 +1,8 @@
 package simple.chatgpt.service.mybatis;
 
-import simple.chatgpt.pojo.mybatis.MyBatisUserUser;
 import java.util.List;
+
+import simple.chatgpt.pojo.mybatis.MyBatisUserUser;
 
 public interface MyBatisUserService {
 

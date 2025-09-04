@@ -1,10 +1,10 @@
 package simple.chatgpt.util;
 
-import com.github.benmanes.caffeine.cache.Cache;
-import com.github.benmanes.caffeine.cache.Caffeine;
-
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
+
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 
 /**
  * A generic, thread-safe cache wrapper using Caffeine.

@@ -1,17 +1,14 @@
 package simple.chatgpt.validator.property;
 
-import simple.chatgpt.pojo.mybatis.Property;
-import simple.chatgpt.service.mybatis.PropertyServiceImpl;
+import java.math.BigDecimal;
 
-import javax.validation.Constraint;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
-import javax.validation.Payload;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.math.BigDecimal;
+import simple.chatgpt.pojo.mybatis.Property;
 
 public class PropertyValidator implements ConstraintValidator<ValidProperty, Property> {
 	private static final Logger logger = LogManager.getLogger(PropertyValidator.class);

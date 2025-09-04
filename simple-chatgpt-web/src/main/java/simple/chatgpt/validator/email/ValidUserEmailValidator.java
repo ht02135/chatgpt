@@ -1,19 +1,12 @@
 package simple.chatgpt.validator.email;
 
-import simple.chatgpt.pojo.mybatis.Property;
-import simple.chatgpt.service.mybatis.PropertyServiceImpl;
-import simple.chatgpt.validator.property.PropertyValidator;
+import java.util.List;
 
-import javax.validation.Constraint;
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;
-import javax.validation.Payload;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import java.math.BigDecimal;
-import java.util.List;
 
 public class ValidUserEmailValidator implements ConstraintValidator<ValidUserEmail, String> {
 	private static final Logger logger = LogManager.getLogger(ValidUserEmailValidator.class);

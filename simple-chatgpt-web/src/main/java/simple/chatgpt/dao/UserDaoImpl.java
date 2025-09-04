@@ -1,14 +1,15 @@
 package simple.chatgpt.dao;
 
+import java.util.List;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
-import simple.chatgpt.pojo.User;
 
-import java.util.List;
+import simple.chatgpt.pojo.User;
 
 @Repository
 public class UserDaoImpl implements UserDao {

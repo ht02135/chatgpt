@@ -1,11 +1,11 @@
 package simple.chatgpt.aop;
 
+import java.util.Set;
+
+import javax.validation.ConstraintViolation;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
-import javax.validation.ConstraintViolation;
-
-import java.util.Set;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

@@ -1,14 +1,15 @@
 package simple.chatgpt.service.mybatis;
 
+import java.util.List;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import simple.chatgpt.mapper.UserMapper;
 import simple.chatgpt.pojo.mybatis.MyBatisUserUser;
-
-import java.util.List;
 
 @Service("mybatisUserService")
 @Transactional
