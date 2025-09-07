@@ -1,0 +1,593 @@
+
+🔹 1. Place your XML config
+
+/WEB-INF/config/userGrid.xml
+<grid id="users">
+    <column name="id" label="ID" visible="true" sortable="true" />
+    <column name="firstName" label="First Name" visible="true" sortable="true" />
+    <column name="lastName" label="Last Name" visible="true" sortable="true" />
+    <column name="email" label="Email" visible="true" sortable="true" />
+    <column name="actions" label="Actions" visible="true" sortable="false">
+        <link label="Edit" visible="true" />
+        <link label="Delete" visible="true" />
+    </column>
+</grid>
+
+////////////////////////
+
+2. Java model classes (for JSON serialization)
+
+// GridConfig.java
+package com.example.config;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class GridConfig {
+    private String id;
+    private List<ColumnConfig> columns = new ArrayList<>();
+
+    public GridConfig() {}
+
+    public GridConfig(String id) {
+        this.id = id;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public List<ColumnConfig> getColumns() {
+        return columns;
+    }
+
+    public void setColum
+
+////////////////////////
+
+// ColumnConfig.java
+package com.example.config;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class ColumnConfig {
+    private String name;
+    private String label;
+    private boolean visible;
+    private boolean sortable;
+    private List<LinkConfig> links = new ArrayList<>();
+
+    public ColumnConfig() {}
+
+    public ColumnConfig(String name, String label, boolean visible, boolean sortable) {
+        this.name = name;
+        this.label = label;
+        this.visible = visible;
+        this.sortable = sortable;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getLabel() {
+        return label;
+    }
+
+    public void setLabel(String label) {
+        this.label = label;
+    }
+
+    public boolean isVisible() {
+        return visible;
+    }
+
+    public void setVisible(boolean visible) {
+        this.visible = visible;
+    }
+
+    public boolean isSortable() {
+        return sortable;
+    }
+
+    public void setSortable(boolean sortable) {
+        this.sortable = sortable;
+    }
+
+    public List<LinkConfig> getLinks() {
+        return links;
+    }
+
+    public void setLinks(List<LinkConfig> links) {
+        this.links = links;
+    }
+
+    public void addLink(LinkConfig link) {
+        this.links.add(link);
+    }
+}
+
+
+////////////////////
+
+// LinkConfig.java
+package com.example.config;
+
+public class LinkConfig {
+    private String label;
+    private boolean visible;
+
+    public LinkConfig() {}
+
+    public LinkConfig(String label, boolean visible) {
+        this.label = label;
+        this.visible = visible;
+    }
+
+    public String getLabel() {
+        return label;
+    }
+
+    public void setLabel(String label) {
+        this.label = label;
+    }
+
+    public boolean isVisible() {
+        return visible;
+    }
+
+    public void setVisible(boolean visible) {
+        this.visible = visible;
+    }
+}
+
+
+//////////////////////////
+
+3. Service to parse XML
+
+You can use plain DOM (no Boot required):
+
+import org.w3c.dom.*;
+import javax.xml.parsers.*;
+import java.io.InputStream;
+
+public class GridConfigLoader {
+    public static GridConfig load(InputStream is) throws Exception {
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder = factory.newDocumentBuilder();
+        Document doc = builder.parse(is);
+
+        Element gridEl = doc.getDocumentElement();
+        GridConfig grid = new GridConfig();
+        grid.setId(gridEl.getAttribute("id"));
+
+        NodeList columnNodes = gridEl.getElementsByTagName("column");
+        for (int i = 0; i < columnNodes.getLength(); i++) {
+            Element colEl = (Element) columnNodes.item(i);
+            ColumnConfig col = new ColumnConfig();
+            col.setName(colEl.getAttribute("name"));
+            col.setLabel(colEl.getAttribute("label"));
+            col.setVisible(Boolean.parseBoolean(colEl.getAttribute("visible")));
+            col.setSortable(Boolean.parseBoolean(colEl.getAttribute("sortable")));
+
+            NodeList linkNodes = colEl.getElementsByTagName("link");
+            for (int j = 0; j < linkNodes.getLength(); j++) {
+                Element linkEl = (Element) linkNodes.item(j);
+                LinkConfig link = new LinkConfig();
+                link.setLabel(linkEl.getAttribute("label"));
+                link.setVisible(Boolean.parseBoolean(linkEl.getAttribute("visible")));
+                col.getLinks().add(link);
+            }
+            grid.getColumns().add(col);
+        }
+        return grid;
+    }
+}
+
+///////////////////
+
+4. Spring MVC Controller (non-Boot)
+
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.http.ResponseEntity;
+
+import javax.servlet.ServletContext;
+
+@Controller
+@RequestMapping("/config")
+public class ConfigController {
+
+    private final ServletContext servletContext;
+
+    public ConfigController(ServletContext servletContext) {
+        this.servletContext = servletContext;
+    }
+
+    @GetMapping("/userGrid")
+    @ResponseBody
+    public ResponseEntity<GridConfig> getUserGrid() {
+        try (InputStream is = servletContext.getResourceAsStream("/WEB-INF/config/userGrid.xml")) {
+            GridConfig config = GridConfigLoader.load(is);
+            return ResponseEntity.ok(config);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().build();
+        }
+    }
+}
+
+/////////////////////
+
+5. JSP (users.jsp) uses config dynamically
+
+<div class="container" data-bind="with: userVM">
+    <h1>Users List</h1>
+    <table>
+        <thead>
+            <tr data-bind="foreach: columns">
+                <th data-bind="
+                    visible: visible,
+                    text: label,
+                    click: sortable ? function(){ $root.setSort(name) } : null,
+                    style: { cursor: sortable ? 'pointer' : 'default' }">
+                </th>
+            </tr>
+        </thead>
+        <tbody data-bind="foreach: users">
+            <tr data-bind="foreach: $parent.columns">
+                <td data-bind="visible: visible">
+                    <!-- ko if: name === 'actions' -->
+                        <!-- ko foreach: links -->
+                            <!-- ko if: visible -->
+                                <a href="#" data-bind="text: label,
+                                    click: function() {
+                                        if (label === 'Edit') $parents[1].goEditUser($parentContext.$parent.id);
+                                        if (label === 'Delete') $parents[1].deleteUser($parentContext.$parent);
+                                    }"></a>
+                                &nbsp;
+                            <!-- /ko -->
+                        <!-- /ko -->
+                    <!-- /ko -->
+                    <!-- ko if: name !== 'actions' -->
+                        <span data-bind="text: $parent[name]"></span>
+                    <!-- /ko -->
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<script>
+(async function() {
+    const res = await fetch('<c:url value="/config/userGrid"/>');
+    const config = await res.json();
+    var userVM = new UserViewModel({ mode: 'list' }, config);
+    ko.applyBindings({ userVM: userVM });
+})();
+</script>
+
+//////////////////////////////////////
+
+3) user.js — Updated UserViewModel(params, config)
+
+This is the full viewmodel. Note how config is mapped into self.columns (with visible turned into observables for easy toggling).
+
+function User(data) {
+    data = data || {};
+    this.id = ko.observable(data.id || 0);
+    this.name = ko.observable(data.name || '');
+    this.email = ko.observable(data.email || '');
+    this.firstName = ko.observable(data.firstName || '');
+    this.lastName = ko.observable(data.lastName || '');
+    this.password = ko.observable(data.password || '');
+    this.addressLine1 = ko.observable(data.addressLine1 || '');
+    this.addressLine2 = ko.observable(data.addressLine2 || '');
+    this.city = ko.observable(data.city || '');
+    this.state = ko.observable(data.state || '');
+    this.postCode = ko.observable(data.postCode || '');
+    this.country = ko.observable(data.country || '');
+}
+
+function UserViewModel(params, config) {
+    var self = this;
+
+    // --- config-driven columns (map to nicer structure for KO)
+    config = config || { columns: [] };
+    self.columns = ko.observableArray((config.columns || []).map(function(c) {
+        return {
+            name: c.name,
+            label: c.label,
+            // make visible an observable so UI can toggle it if needed
+            visible: ko.observable(!!c.visible),
+            // keep sortable as boolean (used to decide if header is clickable)
+            sortable: !!c.sortable,
+            // links (action buttons) - link.visible -> observable
+            links: (c.links || []).map(function(l) {
+                return { label: l.label, visible: ko.observable(!!l.visible) };
+            })
+        };
+    }));
+
+    // --- existing state
+    self.users = ko.observableArray([]);
+    self.currentUser = ko.observable(new User({}));
+    self.page = ko.observable(1);
+    self.size = ko.observable(10);
+    self.total = ko.observable(0);
+    self.sortField = ko.observable('id');
+    self.sortOrder = ko.observable('ASC');
+    self.mode = (params && params.mode) || 'list';
+    const API_BASE = '/chatgpt/api/mybatis/users';
+
+    // search observables...
+    self.searchFirstName = ko.observable("");
+    self.searchLastName = ko.observable("");
+    self.searchEmail = ko.observable("");
+    self.searchAddressLine1 = ko.observable("");
+    self.searchAddressLine2 = ko.observable("");
+    self.searchCity = ko.observable("");
+    self.searchState = ko.observable("");
+    self.searchCountry = ko.observable("");
+
+    self.searchUsers = function() {
+        self.page(1);
+        self.loadUsers();
+    };
+    self.resetSearch = function() {
+        self.searchFirstName("");
+        self.searchLastName("");
+        self.searchEmail("");
+        self.searchAddressLine1("");
+        self.searchAddressLine2("");
+        self.searchCity("");
+        self.searchState("");
+        self.searchCountry("");
+        self.page(1);
+        self.loadUsers();
+    };
+
+    // loadUsers (paging, sorting, searching)
+    self.loadUsers = async function() {
+        try {
+            let url = `${API_BASE}/paged` +
+                `?page=${self.page()}&size=${self.size()}&sortField=${self.sortField()}&sortOrder=${self.sortOrder()}` +
+                `&firstName=${encodeURIComponent(self.searchFirstName() || '')}` +
+                `&lastName=${encodeURIComponent(self.searchLastName() || '')}` +
+                `&email=${encodeURIComponent(self.searchEmail() || '')}` +
+                `&addressLine1=${encodeURIComponent(self.searchAddressLine1() || '')}` +
+                `&addressLine2=${encodeURIComponent(self.searchAddressLine2() || '')}` +
+                `&city=${encodeURIComponent(self.searchCity() || '')}` +
+                `&state=${encodeURIComponent(self.searchState() || '')}` +
+                `&country=${encodeURIComponent(self.searchCountry() || '')}`;
+            const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
+            const data = await res.json();
+            if (data.status === 'SUCCESS') {
+                self.users((data.data.users || []).map(u => new User(u)));
+                self.total(data.data.total || 0);
+            } else {
+                self.users([]);
+                self.total(0);
+            }
+        } catch (err) {
+            console.error(err);
+            self.users([]);
+            self.total(0);
+        }
+    };
+
+    // Save / update
+    self.saveUser = async function() {
+        const u = self.currentUser();
+        const payload = {
+            id: u.id(),
+            name: u.name(),
+            email: u.email(),
+            firstName: u.firstName(),
+            lastName: u.lastName(),
+            password: u.password(),
+            addressLine1: u.addressLine1(),
+            addressLine2: u.addressLine2(),
+            city: u.city(),
+            state: u.state(),
+            postCode: u.postCode(),
+            country: u.country()
+        };
+
+        try {
+            let url = `${API_BASE}/add`;
+            let method = 'POST';
+            if (self.mode === 'edit' && u.id() > 0) {
+                url = `${API_BASE}/${u.id()}`;
+                method = 'PUT';
+            }
+            await fetch(url, {
+                method,
+                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            self.goUsers();
+        } catch (err) {
+            console.error('Save user error', err);
+        }
+    };
+
+    self.deleteUser = async function(user) {
+        if (!confirm('Are you sure you want to delete this user?')) return;
+        try {
+            await fetch(`${API_BASE}/${ko.unwrap(user.id)}`, { method: 'DELETE', headers: { 'Accept': 'application/json' } });
+            self.loadUsers();
+        } catch (err) {
+            console.error('Delete user error', err);
+        }
+    };
+
+    // navigation helpers
+    self.goUsers = function() { window.location.href = 'users.jsp?reload=' + new Date().getTime(); };
+    self.goAddUser = function() { window.location.href = 'addUser.jsp'; };
+    self.goEditUser = function(id) {
+        var realId = ko.unwrap(id);
+        localStorage.setItem('editUserId', realId);
+        window.location.href = 'editUser.jsp';
+    };
+
+    // paging / sorting
+    self.nextPage = function() { if (self.page() < self.maxPage()) { self.page(self.page() + 1); self.loadUsers(); } };
+    self.prevPage = function() { if (self.page() > 1) { self.page(self.page() - 1); self.loadUsers(); } };
+    self.maxPage = ko.computed(function() { return Math.ceil(self.total() / self.size()); });
+    self.setSort = function(field) {
+        if (self.sortField() === field) self.sortOrder(self.sortOrder() === 'ASC' ? 'DESC' : 'ASC');
+        else { self.sortField(field); self.sortOrder('ASC'); }
+        self.page(1);
+        self.loadUsers();
+    };
+    self.size.subscribe(function() { self.page(1); self.loadUsers(); });
+
+    // load single user for edit
+    self.loadUserById = async function(id) {
+        try {
+            const res = await fetch(`${API_BASE}/` + id, { headers: { 'Accept': 'application/json' } });
+            const data = await res.json();
+            if (data.status === 'SUCCESS' && data.data) {
+                self.currentUser(new User(data.data));
+            }
+        } catch (err) {
+            console.error('Load user error', err);
+        }
+    };
+
+    // init
+    if (self.mode === 'edit') {
+        var editId = localStorage.getItem('editUserId');
+        if (editId) { self.loadUserById(editId); }
+    } else if (self.mode === 'add') {
+        self.currentUser(new User({}));
+    } else {
+        self.loadUsers();
+    }
+}
+
+
+/////////////////////
+
+users.js
+
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Users List (Knockout.js + XML Config)</title>
+    <script src="../../../js/knockout-latest.js"></script>
+    <link rel="stylesheet" href="../../../css/user.css">
+    <script src="user.js"></script>
+</head>
+<body>
+<div class="container" data-bind="with: userVM">
+    <h1>Users List</h1>
+
+    <!-- Search Form Start -->
+    <div style="margin-bottom:20px; border:1px solid #ccc; padding:16px; max-width:600px;">
+        <form data-bind="submit: searchUsers">
+            <div class="form-columns">
+                <fieldset class="form-col">
+                    <legend>Core Section</legend>
+                    <div class="form-row"><label>First Name: <input type="text" data-bind="value: searchFirstName, valueUpdate: 'input'"></label></div>
+                    <div class="form-row"><label>Last Name: <input type="text" data-bind="value: searchLastName, valueUpdate: 'input'"></label></div>
+                    <div class="form-row"><label>Email: <input type="text" data-bind="value: searchEmail, valueUpdate: 'input'"></label></div>
+                </fieldset>
+                <fieldset class="form-col">
+                    <legend>Additional Address</legend>
+                    <div class="form-row"><label>Address Line 1: <input type="text" data-bind="value: searchAddressLine1, valueUpdate: 'input'"></label></div>
+                    <div class="form-row"><label>Address Line 2: <input type="text" data-bind="value: searchAddressLine2, valueUpdate: 'input'"></label></div>
+                    <div class="form-row"><label>City: <input type="text" data-bind="value: searchCity, valueUpdate: 'input'"></label></div>
+                    <div class="form-row"><label>State: <input type="text" data-bind="value: searchState, valueUpdate: 'input'"></label></div>
+                    <div class="form-row"><label>Country: <input type="text" data-bind="value: searchCountry, valueUpdate: 'input'"></label></div>
+                </fieldset>
+            </div>
+        </form>
+        <div class="form-actions">
+            <a href="#" data-bind="click: goAddUser">Create User</a>
+            <a href="#" data-bind="click: searchUsers" style="margin-left:20px;">Search</a>
+            <a href="#" data-bind="click: resetSearch" style="margin-left:20px;">Reset</a>
+        </div>
+    </div>
+    <!-- Search Form End -->
+
+    <!-- Dynamic Table Start -->
+    <table>
+        <thead>
+        <tr data-bind="foreach: columns">
+            <th data-bind="
+                    visible: visible,
+                    text: label,
+                    click: sortable ? function(){ $parent.setSort(name) } : null,
+                    style: { cursor: sortable ? 'pointer' : 'default' }">
+            </th>
+        </tr>
+        </thead>
+        <tbody data-bind="foreach: users">
+        <tr data-bind="foreach: $parent.columns">
+            <td data-bind="visible: visible">
+                <!-- actions column -->
+                <!-- ko if: name === 'actions' -->
+                    <!-- ko foreach: links -->
+                        <!-- ko if: visible -->
+                            <a href="#" data-bind="text: label,
+                                click: function() {
+                                    if (label === 'Edit') $parents[1].goEditUser($parentContext.$parent.id);
+                                    if (label === 'Delete') $parents[1].deleteUser($parentContext.$parent);
+                                }"></a>
+                            &nbsp;
+                        <!-- /ko -->
+                    <!-- /ko -->
+                <!-- /ko -->
+
+                <!-- normal fields -->
+                <!-- ko if: name !== 'actions' -->
+                    <span data-bind="text: ko.unwrap($parent[name])"></span>
+                <!-- /ko -->
+            </td>
+        </tr>
+        </tbody>
+    </table>
+    <!-- Dynamic Table End -->
+
+    <!-- Paging Controls -->
+    <div style="margin-top:20px; text-align:center;">
+        <button type="button" data-bind="click: prevPage, enable: page() > 1">Prev</button>
+        <span data-bind="text: page"></span> / <span data-bind="text: maxPage"></span>
+        <button type="button" data-bind="click: nextPage, enable: page() < maxPage()">Next</button>
+        <span style="margin-left:20px;">Page Size:
+            <input type="number" min="1" max="100" data-bind="value: size, valueUpdate: 'input'" style="width:50px;">
+        </span>
+        <span style="margin-left:20px;">Total: <span data-bind="text: total"></span></span>
+    </div>
+</div>
+
+<!-- Knockout Init -->
+<script>
+(async function() {
+    // If your backend returns JSON config
+    const res = await fetch('<c:url value="/config/userGrid"/>');
+    const config = await res.json();
+
+    var userVM = new UserViewModel({ mode: 'list' }, config);
+    ko.applyBindings({ userVM: userVM });
+})();
+</script>
+</body>
+</html>
+
+
+/////////////////
+
