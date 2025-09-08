@@ -10,18 +10,23 @@
     <table>
         <thead>
         <tr data-bind="foreach: gridConfig.columns">
-            <th data-bind="text: label, click: function() { $parent.setSort(name) }, style: { cursor: 'pointer' }"></th>
+            <th data-bind="text: label, 
+                           click: function() { if(name !== 'actions') $parent.setSort(name) }, 
+                           style: { cursor: name !== 'actions' ? 'pointer' : 'default' }"></th>
         </tr>
-        <th>Actions</th>
         </thead>
         <tbody data-bind="foreach: users">
         <tr data-bind="foreach: $parent.gridConfig.columns">
+            <!-- ko if: name === 'actions' -->
+            <td>
+                <a href="#" data-bind="click: function() { $parent.goEditUser($parent.id) }">Edit</a> |
+                <a href="#" data-bind="click: function() { $parent.deleteUser($parent) }">Delete</a>
+            </td>
+            <!-- /ko -->
+            <!-- ko if: name !== 'actions' -->
             <td data-bind="text: $parent[$data.name] ? $parent[$data.name]() : ''"></td>
+            <!-- /ko -->
         </tr>
-        <td>
-            <a href="#" data-bind="click: function() { $parent.goEditUser(id) }">Edit</a> |
-            <a href="#" data-bind="click: function() { $parent.deleteUser($data) }">Delete</a>
-        </td>
         </tbody>
     </table>
     <div>
@@ -44,7 +49,7 @@ fetch('/chatgpt/api/mybatis/config/all')
         try {
             const userVM = new UserViewModel({ mode: 'list' }, { grid: gridConfig });
             console.log("✅ UserViewModel created: ", userVM);
-            ko.applyBindings(userVM); // bind directly to UserViewModel instance
+            ko.applyBindings(userVM);
         } catch(e) {
             console.error("❌ Failed to load config: ", e);
         }
