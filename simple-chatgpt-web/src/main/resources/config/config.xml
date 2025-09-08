@@ -6,6 +6,17 @@
         <column name="email" label="Email" visible="true" sortable="true" />
         <column name="actions" label="Actions" visible="true" sortable="false" />
     </grid>
+    
+	<form id="searchUser">
+    	<field name="firstName" label="Updated First Name" visible="true" />
+    	<field name="lastName" label="Last Name" visible="true" />
+    	<field name="email" label="Email" visible="true" />
+    	<field name="addressLine1" label="Address Line 1" visible="true" />
+    	<field name="addressLine2" label="Address Line 2" visible="true" />
+    	<field name="city" label="City" visible="true" />
+    	<field name="state" label="State" visible="true" />
+    	<field name="country" label="Country" visible="true" />
+	</form>
 
     <form id="addUser">
         <field name="firstName" label="Updated First Name" visible="true" required="true" editable="true" />

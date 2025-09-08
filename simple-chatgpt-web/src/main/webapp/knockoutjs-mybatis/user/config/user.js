@@ -12,9 +12,18 @@ function UserViewModel(params, config) {
     self.mode = params.mode || 'list';
     self.gridConfig = config?.grid;
     self.formConfig = config?.form;
+    self.searchConfig = config?.search;
 
     self.users = ko.observableArray([]);
     self.currentUser = ko.observable(new User({}, self.formConfig?.fields || []));
+
+    // Search parameters - dynamically create based on search config
+    self.searchParams = {};
+    if (self.searchConfig && self.searchConfig.fields) {
+        self.searchConfig.fields.forEach(field => {
+            self.searchParams[field.name] = ko.observable('');
+        });
+    }
 
     // Pagination and sorting
     self.page = ko.observable(1);
@@ -25,13 +34,39 @@ function UserViewModel(params, config) {
 
     const API_BASE = '/chatgpt/api/mybatis/users';
 
+    // Build search query parameters
+    self.buildSearchQuery = function() {
+        const params = new URLSearchParams();
+        params.append('page', self.page());
+        params.append('size', self.size());
+        params.append('sortField', self.sortField());
+        params.append('sortOrder', self.sortOrder());
+
+        // Add search parameters if they have values
+        if (self.searchConfig && self.searchConfig.fields) {
+            self.searchConfig.fields.forEach(field => {
+                const value = self.searchParams[field.name]();
+                if (value && value.trim()) {
+                    params.append(field.name, value.trim());
+                }
+            });
+        }
+
+        return params.toString();
+    };
+
     // Load users for list page
     self.loadUsers = async function() {
         if (self.mode !== 'list') return;
         try {
-            let url = `${API_BASE}/paged?page=${self.page()}&size=${self.size()}&sortField=${self.sortField()}&sortOrder=${self.sortOrder()}`;
+            const queryString = self.buildSearchQuery();
+            let url = `${API_BASE}/paged?${queryString}`;
+            
+            console.log("➡ Loading users with URL: ", url);
+            
             const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
             const data = await res.json();
+            
             if (data.status === 'SUCCESS') {
                 self.users((data.data.users || []).map(u => new User(u, self.gridConfig?.columns.map(c => ({ name: c.name })) || [])));
                 self.total(data.data.total || 0);
@@ -44,6 +79,25 @@ function UserViewModel(params, config) {
             self.users([]);
             self.total(0);
         }
+    };
+
+    // Search users
+    self.searchUsers = function() {
+        console.log("➡ Performing search with params: ", ko.toJS(self.searchParams));
+        self.page(1); // Reset to first page when searching
+        self.loadUsers();
+    };
+
+    // Reset search
+    self.resetSearch = function() {
+        console.log("➡ Resetting search");
+        if (self.searchConfig && self.searchConfig.fields) {
+            self.searchConfig.fields.forEach(field => {
+                self.searchParams[field.name]('');
+            });
+        }
+        self.page(1);
+        self.loadUsers();
     };
 
     // Save or update user for add/edit pages
