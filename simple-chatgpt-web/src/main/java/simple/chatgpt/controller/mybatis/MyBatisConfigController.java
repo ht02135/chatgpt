@@ -14,30 +14,37 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import simple.chatgpt.config.ConfigLoader;
 import simple.chatgpt.config.FormConfig;
 import simple.chatgpt.config.GridConfig;
+import simple.chatgpt.util.Response;
 
 @Controller
 @RequestMapping("/mybatis/config")
 public class MyBatisConfigController {
-	private static final Logger logger = LogManager.getLogger(MyBatisConfigController.class);
+    private static final Logger logger = LogManager.getLogger(MyBatisConfigController.class);
 
     private final ConfigLoader loader = new ConfigLoader();
 
     @GetMapping("/all")
     @ResponseBody
-    public ResponseEntity<Map<String, Object>> getAllConfig() {
-    	logger.info("MyBatisConfigController getAllConfig");
-    	
+    public ResponseEntity<Response<Map<String, Object>>> getAllConfig() {
+        logger.info("MyBatisConfigController getAllConfig");
+
         try {
             List<GridConfig> grids = loader.loadGrids();
             List<FormConfig> forms = loader.loadForms();
 
-            return ResponseEntity.ok(Map.of(
-                    "grids", grids,
-                    "forms", forms
-            ));
+            Map<String, Object> configMap = Map.of(
+                "grids", grids,
+                "forms", forms
+            );
+
+            return ResponseEntity.ok(
+                Response.success("Loaded config", configMap, 200)
+            );
         } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.internalServerError().build();
+            logger.error("Failed to load config", e);
+            return ResponseEntity
+                .status(500)
+                .body(Response.error("Failed to load config", null, 500));
         }
     }
 }

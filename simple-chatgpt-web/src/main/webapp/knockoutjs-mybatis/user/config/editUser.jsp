@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <title>Edit User</title>
     <script src="../../../js/knockout-latest.js"></script>
-    <script src="../../../js/users.js"></script>
+    <script src="user.js"></script>
     <link rel="stylesheet" href="../../../css/user.css">
 </head>
 <body>
