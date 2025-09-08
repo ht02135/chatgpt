@@ -488,6 +488,16 @@ Yes ✅ — you can merge all your individual XMLs into a single config.xml. Tha
         <field name="email" label="Email" visible="true" required="true" editable="true" />
         <field name="password" label="Password" visible="true" required="true" editable="true" />
     </form>
+    
+	<validEmailDomains>
+    	<domain>@company.com</domain>
+    	<domain>@test.com</domain>
+    	<domain>@yahoo.com</domain>
+    	<domain>@example2.com</domain>
+    	<domain>@example4.com</domain>
+    	<domain>@ha.com</domain>
+	</validEmailDomains>
+
 </config>
 
 
