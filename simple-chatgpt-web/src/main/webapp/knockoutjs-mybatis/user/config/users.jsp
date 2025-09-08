@@ -19,8 +19,8 @@
         <tr data-bind="foreach: $parent.gridConfig.columns">
             <!-- ko if: name === 'actions' -->
             <td>
-                <a href="#" data-bind="click: function() { $parent.goEditUser($parent.id) }">Edit</a> |
-                <a href="#" data-bind="click: function() { $parent.deleteUser($parent) }">Delete</a>
+                <a href="#" data-bind="click: function() { $parents[1].goEditUser($parent.id) }">Edit</a> |
+                <a href="#" data-bind="click: function() { $parents[1].deleteUser($parent) }">Delete</a>
             </td>
             <!-- /ko -->
             <!-- ko if: name !== 'actions' -->
