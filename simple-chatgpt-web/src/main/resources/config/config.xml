@@ -1,0 +1,34 @@
+<config>
+    <grid id="users">
+        <column name="id" label="ID" visible="true" sortable="true" />
+        <column name="firstName" label="Updated First Name" visible="true" sortable="true" />
+        <column name="lastName" label="Last Name" visible="true" sortable="true" />
+        <column name="email" label="Email" visible="true" sortable="true" />
+        <column name="actions" label="Actions" visible="true" sortable="false" />
+    </grid>
+
+    <form id="addUser">
+        <field name="firstName" label="Updated First Name" visible="true" required="true" editable="true" />
+        <field name="lastName" label="Last Name" visible="true" required="true" editable="true" />
+        <field name="email" label="Email" visible="true" required="true" editable="true" />
+        <field name="password" label="Password" visible="true" required="true" editable="true" />
+    </form>
+
+    <form id="editUser">
+        <field name="id" label="ID" visible="true" required="true" editable="false" />
+        <field name="firstName" label="Updated First Name" visible="true" required="true" editable="true" />
+        <field name="lastName" label="Last Name" visible="true" required="true" editable="true" />
+        <field name="email" label="Email" visible="true" required="true" editable="true" />
+        <field name="password" label="Password" visible="true" required="true" editable="true" />
+    </form>
+    
+	<validEmailDomains>
+    	<domain>@company.com</domain>
+    	<domain>@test.com</domain>
+    	<domain>@yahoo.com</domain>
+    	<domain>@example2.com</domain>
+    	<domain>@example4.com</domain>
+    	<domain>@ha.com</domain>
+	</validEmailDomains>
+
+</config>
