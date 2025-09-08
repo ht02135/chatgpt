@@ -1,24 +1,15 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="UTF-8">
-    <title>Users List</title>
+<script src="../../../js/knockout-latest.js"></script>
+<link rel="stylesheet" href="../../../css/user.css">
+<script src="user.js"></script>
 
-	<script src="../../../js/knockout-latest.js"></script>
-	<link rel="stylesheet" href="../../../css/user.css">
-	<script src="user.js"></script>
-</head>
-<body>
-<div class="container" data-bind="with: userVM">
+<div class="container" data-bind="with: $root">
     <h1>Users List</h1>
     <div>
         <button data-bind="click: goAddUser">Add User</button>
     </div>
     <table>
         <thead>
-        <tr data-bind="foreach: userVM.gridConfig.columns">
+        <tr data-bind="foreach: gridConfig.columns">
             <th data-bind="text: label, click: function() { $parent.setSort(name) }, style: { cursor: 'pointer' }"></th>
         </tr>
         <th>Actions</th>
@@ -41,42 +32,22 @@
 </div>
 
 <script>
-    console.log("➡ Fetching config from /chatgpt/api/mybatis/config/all ...");
-
-    fetch('<c:url value="/api/mybatis/config/all"/>')
-        .then(res => {
-            console.log("➡ Config fetch response:", res);
-            return res.json();
-        })
-        .then(resp => {
-            console.log("✅ Wrapped config JSON:", resp);
-
-            if (resp.status !== "SUCCESS") {
-                console.error("❌ Config load failed:", resp.message);
-                return;
-            }
-
-            const cfg = resp.data;
-            console.log("➡ Extracted cfg.data:", cfg);
-
-            const gridConfig = cfg.grids.find(g => g.id === 'users');
-            console.log("➡ Selected gridConfig:", gridConfig);
-
-            if (!gridConfig) {
-                console.error("❌ No gridConfig found for id=users");
-                return;
-            }
-
-            // Create view model
+console.log("➡ Fetching config from /chatgpt/api/mybatis/config/all ...");
+fetch('/chatgpt/api/mybatis/config/all')
+    .then(res => res.json())
+    .then(cfg => {
+        console.log("✅ Wrapped config JSON: ", cfg);
+        const data = cfg.data;
+        console.log("➡ Extracted cfg.data: ", data);
+        const gridConfig = data.grids.find(g => g.id === 'users');
+        console.log("➡ Selected gridConfig: ", gridConfig);
+        try {
             const userVM = new UserViewModel({ mode: 'list' }, { grid: gridConfig });
-            console.log("✅ UserViewModel created:", userVM);
-
-            ko.applyBindings({ userVM });
-            console.log("✅ Knockout bindings applied.");
-        })
-        .catch(err => {
-            console.error("❌ Failed to load config:", err);
-        });
+            console.log("✅ UserViewModel created: ", userVM);
+            ko.applyBindings(userVM); // bind directly to UserViewModel instance
+        } catch(e) {
+            console.error("❌ Failed to load config: ", e);
+        }
+    })
+    .catch(err => console.error("❌ Fetch error: ", err));
 </script>
-</body>
-</html>
