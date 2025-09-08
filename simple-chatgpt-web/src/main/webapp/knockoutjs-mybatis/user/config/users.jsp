@@ -5,39 +5,47 @@
 <div class="container" data-bind="with: $root">
     <h1>Users List</h1>
     
-    <!-- Search Form Start -->
-    <div style="margin-bottom: 20px; border: 1px solid #ccc; padding: 16px; max-width: 600px;">
-        <form data-bind="submit: searchUsers">
-            <div class="form-columns">
-                <fieldset class="form-col">
-                    <legend>Core Section</legend>
-                    <!-- ko foreach: searchConfig.fields.slice(0, 3) -->
-                    <div class="form-row" data-bind="visible: visible">
-                        <label data-bind="text: label + ':'">
-                            <input type="text" data-bind="value: $parent.searchParams[name], valueUpdate: 'input'">
-                        </label>
-                    </div>
-                    <!-- /ko -->
-                </fieldset>
-                <fieldset class="form-col">
-                    <legend>Additional Address</legend>
-                    <!-- ko foreach: searchConfig.fields.slice(3) -->
-                    <div class="form-row" data-bind="visible: visible">
-                        <label data-bind="text: label + ':'">
-                            <input type="text" data-bind="value: $parent.searchParams[name], valueUpdate: 'input'">
-                        </label>
-                    </div>
-                    <!-- /ko -->
-                </fieldset>
-            </div>
-        </form>
-        <div class="form-actions">
-            <a href="#" data-bind="click: goAddUser">Create User</a>
-            <a href="#" data-bind="click: searchUsers" style="margin-left: 20px;">Search</a>
-            <a href="#" data-bind="click: resetSearch" style="margin-left: 20px;">Reset</a>
-        </div>
-    </div>
-    <!-- Search Form End -->
+	<!-- Search Form Start -->
+	<div style="margin-bottom: 20px; border: 1px solid #ccc; padding: 16px; max-width: 600px;">
+	    <form data-bind="submit: searchUsers">
+	        <div class="form-columns">
+
+	            <!-- Core Section -->
+	            <fieldset class="form-col">
+	                <legend>Core Section</legend>
+	                <!-- ko foreach: searchConfig.fields.slice(0, 3) -->
+	                <div class="form-row" data-bind="visible: visible">
+	                    <label>
+	                        <span data-bind="text: label + ':'"></span>
+	                        <input type="text" data-bind="value: $parent.searchParams[name], valueUpdate: 'input'">
+	                    </label>
+	                </div>
+	                <!-- /ko -->
+	            </fieldset>
+
+	            <!-- Additional Address Section -->
+	            <fieldset class="form-col">
+	                <legend>Additional Address</legend>
+	                <!-- ko foreach: searchConfig.fields.slice(3) -->
+	                <div class="form-row" data-bind="visible: visible">
+	                    <label>
+	                        <span data-bind="text: label + ':'"></span>
+	                        <input type="text" data-bind="value: $parent.searchParams[name], valueUpdate: 'input'">
+	                    </label>
+	                </div>
+	                <!-- /ko -->
+	            </fieldset>
+
+	        </div>
+	    </form>
+
+	    <div class="form-actions">
+	        <a href="#" data-bind="click: goAddUser">Create User</a>
+	        <a href="#" data-bind="click: searchUsers" style="margin-left: 20px;">Search</a>
+	        <a href="#" data-bind="click: resetSearch" style="margin-left: 20px;">Reset</a>
+	    </div>
+	</div>
+	<!-- Search Form End -->
     
     <table>
         <thead>
