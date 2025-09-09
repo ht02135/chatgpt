@@ -2,6 +2,13 @@
 <link rel="stylesheet" href="../../../css/user.css">
 <script src="user.js"></script>
 
+<!-- 
+1>In Knockout.js, $root always refers to the top-level view 
+model that you passed to ko.applyBindings(...).
+////////////
+2>so $root → userVM
+-->
+
 <div class="container" data-bind="with: $root">
     <h1>Users List</h1>
     
@@ -107,3 +114,22 @@ fetch('/chatgpt/api/mybatis/config/all')
     })
     .catch(err => console.error("❌ Fetch error: ", err));
 </script>
+
+<!-- 
+If you want to be extra safe:
+/////////////////////
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    fetch('/chatgpt/api/mybatis/config/all')
+        .then(res => res.json())
+        .then(cfg => {
+            const data = cfg.data;
+            const userVM = new UserViewModel({ mode: 'list' }, { 
+                grid: data.grids.find(g => g.id === 'users'),
+                search: data.forms.find(f => f.id === 'searchUser')
+            });
+            ko.applyBindings(userVM);
+        });
+});
+</script>
+-->
