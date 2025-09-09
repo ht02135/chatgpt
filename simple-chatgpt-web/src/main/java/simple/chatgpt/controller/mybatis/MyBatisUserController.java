@@ -55,7 +55,9 @@ public class MyBatisUserController {
             consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Response<MyBatisUserUser>> save(@RequestBody MyBatisUserUser user) {
-        logger.debug("MyBatis - Received save request for user: {}", user.getName());
+    	logger.debug("##########################");
+    	logger.debug("save user: {}", user);
+    	logger.debug("##########################");
 
         boolean isUpdate = user.getId() > 0;
         MyBatisUserUser savedUser = myBatisUserService.save(user);
@@ -82,8 +84,10 @@ public class MyBatisUserController {
 
     @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Response<MyBatisUserUser>> update(@PathVariable int id, @RequestBody MyBatisUserUser user) {
-        logger.debug("MyBatis - Received update request for user ID: {} with data: {}", id, user.getName());
-
+    	logger.debug("##########################");
+        logger.debug("update user ID: {} with user: {}", id, user);
+        logger.debug("##########################");
+        
         // Ensure the user ID matches the path variable
         user.setId(id);
 

@@ -53,7 +53,9 @@ public class MyBatisUserServiceImpl implements MyBatisUserService {
     */
     @Override
     public MyBatisUserUser save(MyBatisUserUser user) {
-        logger.debug("MyBatis - Saving user: {}", user.getName());
+    	logger.debug("#############");
+        logger.debug("MyBatis - Saving user: {}", user);
+        logger.debug("#############");
         
         boolean disableUserSave = false;
         try {

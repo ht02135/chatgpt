@@ -18,20 +18,34 @@
     	<field name="country" label="Country" visible="true" />
 	</form>
 
-    <form id="addUser">
-        <field name="firstName" label="Updated First Name" visible="true" required="true" editable="true" />
-        <field name="lastName" label="Last Name" visible="true" required="true" editable="true" />
-        <field name="email" label="Email" visible="true" required="true" editable="true" />
-        <field name="password" label="Password" visible="true" required="true" editable="true" />
-    </form>
+	<form id="addUser">
+    	<field name="name" label="Username" visible="true" required="true" editable="true" />
+    	<field name="firstName" label="Updated First Name" visible="true" required="true" editable="true" />
+    	<field name="lastName" label="Last Name" visible="true" required="true" editable="true" />
+    	<field name="email" label="Email" visible="true" required="true" editable="true" />
+    	<field name="password" label="Password" visible="true" required="true" editable="true" />
+    	<field name="addressLine1" label="Address Line 1" visible="true" editable="true" />
+    	<field name="addressLine2" label="Address Line 2" visible="true" editable="true" />
+    	<field name="city" label="City" visible="true" editable="true" />
+    	<field name="state" label="State" visible="true" editable="true" />
+    	<field name="postCode" label="Post Code" visible="true" editable="true" />
+    	<field name="country" label="Country" visible="true" editable="true" />
+	</form>
 
-    <form id="editUser">
-        <field name="id" label="ID" visible="true" required="true" editable="false" />
-        <field name="firstName" label="Updated First Name" visible="true" required="true" editable="true" />
-        <field name="lastName" label="Last Name" visible="true" required="true" editable="true" />
-        <field name="email" label="Email" visible="true" required="true" editable="true" />
-        <field name="password" label="Password" visible="true" required="true" editable="true" />
-    </form>
+	<form id="editUser">
+    	<field name="id" label="ID" visible="true" required="true" editable="false" />
+    	<field name="name" label="Username" visible="true" required="true" editable="true" />
+    	<field name="firstName" label="Updated First Name" visible="true" required="true" editable="true" />
+    	<field name="lastName" label="Last Name" visible="true" required="true" editable="true" />
+    	<field name="email" label="Email" visible="true" required="true" editable="true" />
+    	<field name="password" label="Password" visible="true" required="true" editable="true" />
+    	<field name="addressLine1" label="Address Line 1" visible="true" editable="true" />
+    	<field name="addressLine2" label="Address Line 2" visible="true" editable="true" />
+    	<field name="city" label="City" visible="true" editable="true" />
+    	<field name="state" label="State" visible="true" editable="true" />
+    	<field name="postCode" label="Post Code" visible="true" editable="true" />
+    	<field name="country" label="Country" visible="true" editable="true" />
+	</form>
     
 	<validEmailDomains>
     	<domain>@company.com</domain>
