@@ -14,7 +14,7 @@
     </style>
 </head>
 <body>
-<div class="container" data-bind="with: userVM">
+<div class="container" data-bind="with: addFormVM">
     <h1>Add User</h1>
     <form data-bind="submit: save">
         <div data-bind="foreach: formConfig.fields">
@@ -34,27 +34,20 @@
 
 <script>
 fetch('/chatgpt/api/mybatis/config/all')
-.then(res => res.json())
-.then(cfg => {
-    const data = cfg.data;
-    const formConfig = data.forms.find(f => f.id === 'addUser');
-    if (!formConfig) { console.error("❌ Form config 'addUser' not found!"); return; }
-
-    const regexMap = (data.regexes || []).reduce((m,r)=>{ m[r.id]=r; return m; }, {});
-
-    // Instantiate UserViewModel for saveUser
-    const userVM = new UserViewModel({ grid: null, form: formConfig });
-
-    // Attach validation VM
-    const formVM = new ConfigDrivenViewModel(formConfig, regexMap, {
-        onSave: (formData) => userVM.saveUser(formData),
-        onCancel: () => window.location.href='users.jsp'
-    });
-
-    // Merge formConfig and observables for KO
-    formVM.formConfig = formConfig;
-    ko.applyBindings({ userVM: formVM });
-});
+    .then(res => res.json())
+    .then(cfg => {
+        const data = cfg.data;
+        const formConfig = data.forms.find(f => f.id === 'addUser');
+        const regexMap = (data.regexes || []).reduce((map, r) => { map[r.id] = r; return map; }, {});
+        const userVM = new UserViewModel({ grid: null, form: formConfig, search: null });
+        const addFormVM = new ConfigDrivenViewModel(formConfig, regexMap, {
+            onSave: data => userVM.saveUser(data),
+            onCancel: () => userVM.goUsers()
+        });
+        window.addFormVM = addFormVM;
+        ko.applyBindings({ addFormVM });
+    })
+    .catch(err => console.error(err));
 </script>
 </body>
 </html>

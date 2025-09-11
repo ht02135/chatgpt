@@ -14,7 +14,7 @@
     </style>
 </head>
 <body>
-<div class="container" data-bind="with: userVM">
+<div class="container" data-bind="with: editFormVM">
     <h1>Edit User</h1>
     <form data-bind="submit: save">
         <div data-bind="foreach: formConfig.fields">
@@ -34,30 +34,34 @@
 
 <script>
 fetch('/chatgpt/api/mybatis/config/all')
-.then(res => res.json())
-.then(cfg => {
-    const data = cfg.data;
-    const formConfig = data.forms.find(f => f.id === 'editUser');
-    if (!formConfig) { console.error("❌ Form config 'editUser' not found!"); return; }
+    .then(res => res.json())
+    .then(cfg => {
+        const data = cfg.data;
+        const formConfig = data.forms.find(f => f.id === 'editUser');
+        const regexMap = (data.regexes || []).reduce((map, r) => { map[r.id] = r; return map; }, {});
+        const userVM = new UserViewModel({ grid: null, form: formConfig, search: null });
+        const editFormVM = new ConfigDrivenViewModel(formConfig, regexMap, {
+            onSave: data => userVM.saveUser(data),
+            onCancel: () => userVM.goUsers()
+        });
 
-    const regexMap = (data.regexes || []).reduce((m,r)=>{ m[r.id]=r; return m; }, {});
+        const editId = localStorage.getItem('editUserId');
+        if (editId) {
+            fetch(`/chatgpt/api/mybatis/users/${editId}`)
+                .then(res => res.json())
+                .then(resp => {
+                    if (resp.status === 'SUCCESS' && resp.data) {
+                        formConfig.fields.forEach(f => {
+                            editFormVM.currentData[f.name](resp.data[f.name] || '');
+                        });
+                    }
+                });
+        }
 
-    // Instantiate UserViewModel for saveUser
-    const userVM = new UserViewModel({ grid: null, form: formConfig });
-
-    // Load existing user data
-    const editId = localStorage.getItem('editUserId');
-    if (editId) userVM.loadUserById(editId);
-
-    // Attach validation VM
-    const formVM = new ConfigDrivenViewModel(formConfig, regexMap, {
-        onSave: (formData) => userVM.saveUser(formData),
-        onCancel: () => window.location.href='users.jsp'
-    });
-
-    formVM.formConfig = formConfig;
-    ko.applyBindings({ userVM: formVM });
-});
+        window.editFormVM = editFormVM;
+        ko.applyBindings({ editFormVM });
+    })
+    .catch(err => console.error(err));
 </script>
 </body>
 </html>

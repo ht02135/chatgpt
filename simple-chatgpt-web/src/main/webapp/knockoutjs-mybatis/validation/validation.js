@@ -11,6 +11,11 @@ function ConfigDrivenViewModel(formConfig, regexMap, options) {
 
     self.errorMessages = ko.observable({});
 
+    // Optional: link to external target VM (e.g., searchParams)
+    if (options && options.searchTargetVM) {
+        self.searchTargetVM = options.searchTargetVM;
+    }
+
     // Validate all fields
     self.validate = function () {
         const errors = {};
@@ -31,19 +36,34 @@ function ConfigDrivenViewModel(formConfig, regexMap, options) {
         return Object.keys(errors).length === 0;
     };
 
-    // Save handler (uses options if provided)
+    // Save handler
     self.save = function () {
         if (!self.validate()) {
             console.warn("❌ Validation failed", self.errorMessages());
             return;
         }
-        console.log("✅ Valid form data:", ko.toJS(self.currentData));
+
+        // If searchTargetVM is linked, propagate values automatically
+        if (self.searchTargetVM) {
+            Object.keys(self.currentData).forEach(k => {
+                if (self.searchTargetVM[k]) self.searchTargetVM[k](self.currentData[k]());
+            });
+        }
+
         if (options && typeof options.onSave === 'function') {
             options.onSave(ko.toJS(self.currentData));
         }
     };
 
+    // Cancel handler
     self.cancel = function () {
+        // Reset linked target VM if present
+        if (self.searchTargetVM) {
+            Object.keys(self.currentData).forEach(k => {
+                if (self.searchTargetVM[k]) self.searchTargetVM[k]('');
+            });
+        }
+
         if (options && typeof options.onCancel === 'function') {
             options.onCancel();
         }
