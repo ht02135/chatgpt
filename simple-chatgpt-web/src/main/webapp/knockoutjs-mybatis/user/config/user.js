@@ -1,4 +1,4 @@
-// users.js
+// user.js
 function User(data, fields) {
     var self = this;
     fields.forEach(f => {

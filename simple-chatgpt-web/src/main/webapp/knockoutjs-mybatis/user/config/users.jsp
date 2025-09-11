@@ -1,6 +1,11 @@
-<script src="../../../js/knockout-latest.js"></script>
-<link rel="stylesheet" href="../../../css/user.css">
-<script src="user.js"></script>
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Users</title>
+	<script src="../../../js/knockout-latest.js"></script>
+	<link rel="stylesheet" href="../../../css/user.css">
+	<script src="user.js"></script>
 
 <!-- 
 1>In Knockout.js, $root always refers to the top-level view 
@@ -114,6 +119,8 @@ fetch('/chatgpt/api/mybatis/config/all')
     })
     .catch(err => console.error("❌ Fetch error: ", err));
 </script>
+</body>
+</html>
 
 <!-- 
 If you want to be extra safe:

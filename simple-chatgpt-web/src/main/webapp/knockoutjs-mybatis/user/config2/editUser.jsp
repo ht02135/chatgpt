@@ -1,42 +1,42 @@
-<!DOCTYPE html>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<!DOCTYPE html>
 <html>
 <head>
-    <title>Edit User</title>
-    <script src="../../../js/knockout-latest.js"></script>
-    <script src="configLoader.js"></script>
-    <script src="user.js"></script>
-    <script src="../../validation/validation.js"></script>
-    <link rel="stylesheet" href="../../../css/user.css">
-    <style>
-        .invalid { border: 1px solid red; }
-        .error-message { color: red; font-size: 0.9em; }
-    </style>
+<meta charset="UTF-8">
+<title data-bind="text: mode==='add'?'Add User':'Edit User'">Add/Edit User</title>
+<script src="../../../js/knockout-latest.js"></script>
+<script src="configLoader.js"></script>
+<script src="../../validation/validation.js"></script>
+<script src="user.js"></script>
+<link rel="stylesheet" href="../../../css/user.css">
+<style>.error-message{color:red;font-size:0.9em;}</style>
 </head>
 <body>
-<h2>Edit User</h2>
-
-<form data-bind="submit: $root.saveUser.bind($root, currentUser)">
-    <div data-bind="foreach: $root.editFormConfig.fields">
-        <div data-bind="if: visible">
-            <label data-bind="text: label"></label>
-            <input type="text" data-bind="value: $root.currentUser()[name], css: { invalid: $root.errors()[name] }, disable: !editable"/>
-            <div class="error-message" data-bind="text: $root.errors()[name]"></div>
+<div class="container" data-bind="with: userVM">
+    <h1 data-bind="text: mode==='add'?'Add User':'Edit User'"></h1>
+    <form data-bind="submit: saveUser">
+        <div data-bind="foreach: formConfig.fields">
+            <div class="form-row" data-bind="visible: visible">
+                <label data-bind="text: label+':'"></label>
+                <input data-bind="value: $parent.currentUser()[name], enable: editable">
+                <div class="error-message" data-bind="text: $parent.errors()[name], visible: $parent.errors()[name]"></div>
+            </div>
         </div>
-    </div>
-    <button type="submit">Save</button>
-    <button type="button" data-bind="click: () => window.location.href='users.jsp'">Cancel</button>
-</form>
+        <button type="submit">Save</button>
+        <button type="button" data-bind="click: goUsers">Cancel</button>
+    </form>
+</div>
 
 <script>
 (async function(){
-    const config = await loadConfig();
-    const vm = new UserViewModel(config);
-    ko.applyBindings(vm);
+    const cfg = await loadConfig();
+    const formConfig = cfg.forms.find(f=>f.id=== (window.location.href.includes('edit')?'editUser':'addUser'));
+    const regexes = cfg.regex;
+    const mode = window.location.href.includes('edit')?'edit':'add';
 
-    // Load user by ID from localStorage
-    const editId = localStorage.getItem('editUserId');
-    if (editId) await vm.loadUserById(editId);
+    const userVM = new UserViewModel({mode}, {form: formConfig}, regexes);
+    window.userVM = userVM;
+    ko.applyBindings({userVM});
 })();
 </script>
 </body>
