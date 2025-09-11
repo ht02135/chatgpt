@@ -1,4 +1,5 @@
-// users.js
+// user.js
+
 function User(data, fields) {
     const self = this;
     fields.forEach(f => {
@@ -10,16 +11,12 @@ function UserViewModel(config) {
     const self = this;
 
     self.gridConfig = config.grid;
-    self.formConfig = config.form;
+    self.formConfig = config.form; // Add/Edit form
     self.searchConfig = config.search;
 
-    // Users list
     self.users = ko.observableArray([]);
-
-    // Add/Edit form
     self.currentUser = ko.observable(new User({}, self.formConfig?.fields || []));
 
-    // Search form observables
     self.searchParams = {};
     if (self.searchConfig?.fields) {
         self.searchConfig.fields.forEach(f => {
@@ -27,7 +24,6 @@ function UserViewModel(config) {
         });
     }
 
-    // Pagination & sorting
     self.page = ko.observable(1);
     self.size = ko.observable(10);
     self.total = ko.observable(0);
@@ -36,6 +32,7 @@ function UserViewModel(config) {
 
     const API_BASE = '/chatgpt/api/mybatis/users';
 
+    // --- Users List ---
     self.buildSearchQuery = function() {
         const params = new URLSearchParams();
         params.append('page', self.page());
@@ -73,14 +70,9 @@ function UserViewModel(config) {
         }
     };
 
-    // Search
     self.searchUsers = function() {
-        if (self.searchValidator?.validate()) {
-            self.page(1);
-            self.loadUsers();
-        } else {
-            console.warn("Search validation failed", ko.toJS(self.searchValidator.errorMessages()));
-        }
+        self.page(1);
+        self.loadUsers();
     };
 
     self.resetSearch = function() {
@@ -91,7 +83,7 @@ function UserViewModel(config) {
         self.loadUsers();
     };
 
-    // Add/Edit
+    // --- Add/Edit ---
     self.saveUser = async function(formData) {
         try {
             let url = `${API_BASE}/add`;
@@ -122,14 +114,15 @@ function UserViewModel(config) {
     };
 
     self.goAddUser = function() { window.location.href = 'addUser.jsp'; };
-    self.goEditUser = function(id) { 
+    self.goUsers = function() { window.location.href = 'users.jsp'; };
+    self.goEditUser = function(id) {
         localStorage.setItem('editUserId', ko.unwrap(id));
-        window.location.href = 'editUser.jsp'; 
+        window.location.href = 'editUser.jsp';
     };
 
-    // Pagination
-    self.nextPage = function() { if (self.page() < self.maxPage()) self.page(self.page() + 1); self.loadUsers(); };
-    self.prevPage = function() { if (self.page() > 1) self.page(self.page() - 1); self.loadUsers(); };
+    // --- Pagination & Sorting ---
+    self.nextPage = function() { if (self.page() < self.maxPage()) self.page(self.page()+1); self.loadUsers(); };
+    self.prevPage = function() { if (self.page() > 1) self.page(self.page()-1); self.loadUsers(); };
     self.maxPage = ko.computed(() => Math.ceil(self.total() / self.size()));
     self.setSort = function(field) {
         if (self.sortField() === field) self.sortOrder(self.sortOrder() === 'ASC' ? 'DESC' : 'ASC');
@@ -138,7 +131,7 @@ function UserViewModel(config) {
     };
     self.size.subscribe(() => { self.page(1); self.loadUsers(); });
 
-    // Load for edit
+    // --- Load user for edit ---
     self.loadUserById = async function(id) {
         try {
             const res = await fetch(`${API_BASE}/${id}`, { headers: { 'Accept': 'application/json' } });

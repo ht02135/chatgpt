@@ -17,7 +17,6 @@
 <div class="container" data-bind="with: $root">
     <h1>Edit User</h1>
 
-    <!-- Edit Form -->
     <div data-bind="if: editFormVM">
         <form data-bind="submit: editFormVM.save">
             <div data-bind="foreach: editFormVM.formConfig.fields">
@@ -26,7 +25,8 @@
                     <input type="text" data-bind="
                         value: $parent.editFormVM.currentData[name],
                         css: { invalid: $parent.editFormVM.errorMessages()[name] },
-                        valueUpdate: 'input'
+                        valueUpdate: 'input',
+                        enable: editable
                     " />
                     <span class="error-message" data-bind="text: $parent.editFormVM.errorMessages()[name]"></span>
                 </div>
@@ -44,27 +44,24 @@ fetch('/chatgpt/api/mybatis/config/all')
         const data = cfg.data;
         const formConfig = data.forms.find(f => f.id === 'editUser');
 
-        // Main UserViewModel instance
         const userVM = new UserViewModel({
             grid: null,
             form: formConfig,
             search: null
         });
 
-        // Link editFormVM to currentUser observables
         userVM.editFormVM = new ConfigDrivenViewModel(formConfig, {}, {
             onSave: data => userVM.saveUser(data),
             onCancel: () => userVM.goUsers(),
-            searchTargetVM: userVM.currentUser // <- important!
+            searchTargetVM: userVM.currentUser
         });
 
-        // Load user by ID into currentUser
+        // Load the edit ID from localStorage
         const editId = localStorage.getItem('editUserId');
         if (editId) {
             userVM.loadUserById(editId);
         }
 
-        // Apply bindings
         ko.applyBindings(userVM);
     })
     .catch(err => console.error("❌ Fetch error:", err));

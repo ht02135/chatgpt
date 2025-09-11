@@ -14,22 +14,26 @@
     </style>
 </head>
 <body>
-<div class="container" data-bind="with: addFormVM">
+<div class="container" data-bind="with: $root">
     <h1>Add User</h1>
-    <form data-bind="submit: save">
-        <div data-bind="foreach: formConfig.fields">
-            <div class="form-row" data-bind="visible: visible">
-                <label data-bind="text: label + ':'"></label>
-                <input data-bind="
-                    value: currentData[name],
-                    css: { invalid: errorMessages()[name] }
-                " required />
-                <span class="error-message" data-bind="text: errorMessages()[name]"></span>
+
+    <div data-bind="if: addFormVM">
+        <form data-bind="submit: addFormVM.save">
+            <div data-bind="foreach: addFormVM.formConfig.fields">
+                <div class="form-row">
+                    <label data-bind="text: label + ':'"></label>
+                    <input type="text" data-bind="
+                        value: $parent.addFormVM.currentData[name],
+                        css: { invalid: $parent.addFormVM.errorMessages()[name] },
+                        valueUpdate: 'input'
+                    " />
+                    <span class="error-message" data-bind="text: $parent.addFormVM.errorMessages()[name]"></span>
+                </div>
             </div>
-        </div>
-        <button type="submit">Save</button>
-        <button type="button" data-bind="click: cancel">Cancel</button>
-    </form>
+            <button type="submit">Save</button>
+            <button type="button" data-bind="click: addFormVM.cancel">Cancel</button>
+        </form>
+    </div>
 </div>
 
 <script>
@@ -38,16 +42,23 @@ fetch('/chatgpt/api/mybatis/config/all')
     .then(cfg => {
         const data = cfg.data;
         const formConfig = data.forms.find(f => f.id === 'addUser');
-        const regexMap = (data.regexes || []).reduce((map, r) => { map[r.id] = r; return map; }, {});
-        const userVM = new UserViewModel({ grid: null, form: formConfig, search: null });
-        const addFormVM = new ConfigDrivenViewModel(formConfig, regexMap, {
-            onSave: data => userVM.saveUser(data),
-            onCancel: () => userVM.goUsers()
+
+        const userVM = new UserViewModel({
+            grid: null,
+            form: formConfig,
+            search: null
         });
-        window.addFormVM = addFormVM;
-        ko.applyBindings({ addFormVM });
+
+        // Link addFormVM to currentUser observables and validations
+        userVM.addFormVM = new ConfigDrivenViewModel(formConfig, {}, {
+            onSave: data => userVM.saveUser(data),
+            onCancel: () => userVM.goUsers(),
+            searchTargetVM: userVM.currentUser
+        });
+
+        ko.applyBindings(userVM);
     })
-    .catch(err => console.error(err));
+    .catch(err => console.error("❌ Fetch error:", err));
 </script>
 </body>
 </html>
