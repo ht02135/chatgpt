@@ -1,24 +1,32 @@
 // validation.js
-function ConfigDrivenViewModel(formConfig, regexMap, options) {
+
+/**
+ * ConfigDrivenViewModel
+ * 
+ * @param {Object} formConfig - Form configuration (fields array)
+ * @param {Object} regexMap - Optional regex validation map (can be empty)
+ * @param {Object} options - Optional handlers: { onSave, onCancel, searchTargetVM }
+ */
+function ConfigDrivenViewModel(formConfig, regexMap = {}, options = {}) {
     const self = this;
     self.formConfig = formConfig;
     self.currentData = {};
+    self.errorMessages = ko.observable({});
 
-    // Create KO observables for each field
+    // Initialize observables for each field
     formConfig.fields.forEach(f => {
         self.currentData[f.name] = ko.observable('');
     });
 
-    self.errorMessages = ko.observable({});
-
     // Optional: link to external target VM (e.g., searchParams)
-    if (options && options.searchTargetVM) {
+    if (options.searchTargetVM) {
         self.searchTargetVM = options.searchTargetVM;
     }
 
     // Validate all fields
     self.validate = function () {
         const errors = {};
+
         formConfig.fields.forEach(f => {
             const value = self.currentData[f.name]();
 
@@ -32,6 +40,7 @@ function ConfigDrivenViewModel(formConfig, regexMap, options) {
                 }
             }
         });
+
         self.errorMessages(errors);
         return Object.keys(errors).length === 0;
     };
@@ -39,7 +48,7 @@ function ConfigDrivenViewModel(formConfig, regexMap, options) {
     // Save handler
     self.save = function () {
         if (!self.validate()) {
-            console.warn("❌ Validation failed", self.errorMessages());
+            console.warn("❌ Validation failed", ko.toJS(self.errorMessages));
             return;
         }
 
@@ -50,12 +59,12 @@ function ConfigDrivenViewModel(formConfig, regexMap, options) {
             });
         }
 
-        if (options && typeof options.onSave === 'function') {
+        if (typeof options.onSave === 'function') {
             options.onSave(ko.toJS(self.currentData));
         }
     };
 
-    // Cancel handler
+    // Cancel / Reset handler
     self.cancel = function () {
         // Reset linked target VM if present
         if (self.searchTargetVM) {
@@ -64,7 +73,10 @@ function ConfigDrivenViewModel(formConfig, regexMap, options) {
             });
         }
 
-        if (options && typeof options.onCancel === 'function') {
+        // Reset local currentData observables
+        Object.keys(self.currentData).forEach(k => self.currentData[k](''));
+
+        if (typeof options.onCancel === 'function') {
             options.onCancel();
         }
     };
