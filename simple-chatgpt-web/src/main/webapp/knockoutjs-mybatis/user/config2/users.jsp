@@ -16,7 +16,7 @@
 
     <!-- 🔍 Search Form -->
     <div class="search-container">
-        <form data-bind="submit: searchUsers">
+        <form data-bind="submit: searchUsers" style="margin-bottom: 20px; border: 1px solid #ccc; padding: 16px; max-width: 600px;">
             <div class="form-columns">
                 <!-- Core Section -->
                 <fieldset class="form-col">

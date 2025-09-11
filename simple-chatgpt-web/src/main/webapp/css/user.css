@@ -55,7 +55,8 @@ button {
 #cancelBtn {
     background-color: #ff9800;
     color: white;
-    display: none;
+    display: inline-block; /* <- changed from none */
+    margin-left: 12px;
 }
 table {
     width: 100%;
