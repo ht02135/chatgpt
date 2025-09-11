@@ -287,3 +287,14 @@ tbody tr:hover {
     background-color: #ccc;
     cursor: not-allowed;
 }
+/* Align buttons horizontally for vertical forms */
+.form-vertical .form-actions {
+    display: flex;
+    gap: 12px;           /* space between buttons */
+    justify-content: flex-start; /* align left */
+    margin-top: 16px;    /* spacing from last input */
+}
+
+.form-vertical .form-actions button {
+    flex: 0 0 auto;      /* buttons do not stretch */
+}

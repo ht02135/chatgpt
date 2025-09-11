@@ -2,27 +2,29 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
-<title>Edit User</title>
-<script src="../../../js/knockout-latest.js"></script>
-<script src="../../validation/validation.js"></script>
-<script src="user.js"></script>
-<script src="configLoader.js"></script>
-<link rel="stylesheet" href="../../../css/user.css">
+    <meta charset="UTF-8">
+    <title>Edit User</title>
+    <script src="../../../js/knockout-latest.js"></script>
+    <script src="../../validation/validation.js"></script>
+    <script src="configLoader.js"></script>
+    <script src="user.js"></script>
+    <link rel="stylesheet" href="../../../css/user.css">
 </head>
 <body>
-<div class="container">
+<div class="container" data-bind="with: userVM">
     <h1>Edit User</h1>
-    <form class="form-vertical" data-bind="submit: saveUser, visible: currentUser">
-        <div data-bind="foreach: formConfig.fields">
+    <form data-bind="submit: saveUser">
+        <div class="form-vertical" data-bind="foreach: formConfig.fields">
             <div class="form-row">
-                <label data-bind="text: label+':'"></label>
-                <input type="text" data-bind="value: $parent.currentUser()[name], enable: editable"/>
-                <div class="error-message" data-bind="text: $parent.errors()[name], visible:$parent.errors()[name]"></div>
+                <label data-bind="text: label + ':'"></label>
+                <input type="text" data-bind="value: $parent.currentUser()[name], enable: editable" />
+                <div class="error-message" data-bind="text: $parent.errors()[name], visible: $parent.errors()[name]"></div>
             </div>
         </div>
-        <button type="submit">Save</button>
-        <button type="button" data-bind="click: goUsers">Cancel</button>
+        <div class="form-actions">
+            <button type="submit" id="submitBtn">Save</button>
+            <button type="button" id="cancelBtn" data-bind="click: goUsers">Cancel</button>
+        </div>
     </form>
 </div>
 
@@ -32,16 +34,17 @@
         const formConfig = await configLoader.getFormConfig('editUser');
         const regexConfig = await configLoader.getRegexConfig();
 
-        const userVM = new UserViewModel({mode:'edit'}, {form:formConfig});
+        const userVM = new UserViewModel({ mode: 'edit' }, { form: formConfig });
         userVM.validator = new Validator(regexConfig);
         userVM.errors = ko.observable({});
 
+        // Load user data by ID stored in localStorage
         const editId = localStorage.getItem('editUserId');
         if(editId) await userVM.loadUserById(editId);
 
-        ko.applyBindings(userVM);
-    } catch(e){
-        console.error("❌ Edit User init error:", e);
+        ko.applyBindings({ userVM });
+    } catch(e) {
+        console.error("❌ Edit User page init error:", e);
     }
 })();
 </script>

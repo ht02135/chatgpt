@@ -1,3 +1,5 @@
+// /simple-chatgpt-web/src/main/webapp/knockoutjs-mybatis/user/config2/configLoader.js
+
 const API_BASE = '/chatgpt/api/mybatis/config';
 
 const configLoader = {

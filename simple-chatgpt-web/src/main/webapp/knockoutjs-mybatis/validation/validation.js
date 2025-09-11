@@ -1,37 +1,28 @@
-// validation.js
-function Validator(regexArray = []) {
-    this.regexArray = regexArray;
+// /simple-chatgpt-web/src/main/webapp/knockoutjs-mybatis/validation/validation.js
 
-    this.validateField = function(value, regexId) {
-        const val = ko.isObservable(value) ? value() : value;
-        if (!val) return false;
-        const r = this.regexArray.find(r => r.id === regexId);
-        if (!r) return true; // no regex, assume valid
-        try {
-            const regex = new RegExp(r.validRegexExpression);
-            return regex.test(val);
-        } catch (e) {
-            console.error('Invalid regex:', r, e);
-            return false;
+class Validator {
+    constructor(regexConfig = {}) {
+        this.regexConfig = regexConfig;
+    }
+
+    validateField(fieldName, value) {
+        if (typeof value !== 'string') value = '' + value;
+        const regex = this.regexConfig[fieldName];
+        if (regex && !new RegExp(regex).test(value)) {
+            return `${fieldName} is invalid`;
         }
-    };
+        if (!value.trim()) return `${fieldName} cannot be empty`;
+        return '';
+    }
 
-    this.validateForm = function(obj, fields) {
+    validateForm(user) {
         const errors = {};
-        let isValid = true;
-
-        fields.forEach(f => {
-            const val = ko.isObservable(obj[f.name]) ? obj[f.name]() : obj[f.name];
-            if (f.required && (!val || val.toString().trim() === '')) {
-                errors[f.name] = f.label + ' is required';
-                isValid = false;
-            } else if (f.regexId && !this.validateField(val, f.regexId)) {
-                const r = this.regexArray.find(r => r.id === f.regexId);
-                errors[f.name] = r ? r.errorMessage : f.label + ' invalid';
-                isValid = false;
+        for (const key in user) {
+            if (ko.isObservable(user[key])) {
+                const err = this.validateField(key, user[key]());
+                if (err) errors[key] = err;
             }
-        });
-
-        return { isValid, errors };
-    };
+        }
+        return errors;
+    }
 }
