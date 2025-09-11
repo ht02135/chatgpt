@@ -3,23 +3,23 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title data-bind="text: mode==='add'?'Add User':'Edit User'">Add/Edit User</title>
+<title>Add User</title>
 <script src="../../../js/knockout-latest.js"></script>
-<script src="configLoader.js"></script>
 <script src="../../validation/validation.js"></script>
 <script src="user.js"></script>
+<script src="configLoader.js"></script>
 <link rel="stylesheet" href="../../../css/user.css">
-<style>.error-message{color:red;font-size:0.9em;}</style>
 </head>
 <body>
-<div class="container" data-bind="with: userVM">
-    <h1 data-bind="text: mode==='add'?'Add User':'Edit User'"></h1>
-    <form data-bind="submit: saveUser">
+<div class="container">
+    <h1>Add User</h1>
+    <form class="form-vertical" data-bind="submit: saveUser">
+        <!-- Fields injected dynamically -->
         <div data-bind="foreach: formConfig.fields">
-            <div class="form-row" data-bind="visible: visible">
+            <div class="form-row">
                 <label data-bind="text: label+':'"></label>
-                <input data-bind="value: $parent.currentUser()[name], enable: editable">
-                <div class="error-message" data-bind="text: $parent.errors()[name], visible: $parent.errors()[name]"></div>
+                <input type="text" data-bind="value: $parent.currentUser()[name], enable: editable"/>
+                <div class="error-message" data-bind="text: $parent.errors()[name], visible:$parent.errors()[name]"></div>
             </div>
         </div>
         <button type="submit">Save</button>
@@ -29,14 +29,17 @@
 
 <script>
 (async function(){
-    const cfg = await loadConfig();
-    const formConfig = cfg.forms.find(f=>f.id=== (window.location.href.includes('edit')?'editUser':'addUser'));
-    const regexes = cfg.regex;
-    const mode = window.location.href.includes('edit')?'edit':'add';
+    try {
+        const formConfig = await configLoader.getFormConfig('addUser');
+        const regexConfig = await configLoader.getRegexConfig();
 
-    const userVM = new UserViewModel({mode}, {form: formConfig}, regexes);
-    window.userVM = userVM;
-    ko.applyBindings({userVM});
+        const userVM = new UserViewModel({mode:'add'}, {form:formConfig});
+        userVM.validator = new Validator(regexConfig);
+        userVM.errors = ko.observable({});
+        ko.applyBindings(userVM);
+    } catch(e){
+        console.error("❌ Add User init error:", e);
+    }
 })();
 </script>
 </body>
