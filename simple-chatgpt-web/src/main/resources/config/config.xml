@@ -1,4 +1,25 @@
 <config>
+
+    <regex id="emailValidation"
+           vaildRegexExpression="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
+           errorMessage="wrong email format" />
+
+    <regex id="postalCodeValidation"
+           vaildRegexExpression="^\d{5}(?:[-\s]\d{4})?$"
+           errorMessage="wrong postal code format" />
+
+	<!-- 
+	Minimum length: Usually 8 characters or more.
+	At least one uppercase letter.
+	At least one lowercase letter.
+	At least one digit.
+	At least one special character.
+	No whitespace characters.
+	-->
+    <regex id="passwordValidation"
+           vaildRegexExpression="^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9\s])(?!.*\s).{8,}$"
+           errorMessage="wrong password format" />
+           
     <grid id="users">
         <column name="id" label="ID" visible="true" sortable="true" />
         <column name="firstName" label="Updated First Name" visible="true" sortable="true" />
@@ -10,11 +31,12 @@
 	<form id="searchUser">
     	<field name="firstName" label="Updated First Name" visible="true" />
     	<field name="lastName" label="Last Name" visible="true" />
-    	<field name="email" label="Email" visible="true" />
+    	<field name="email" label="Email" regex="emailValidation" visible="true" />
     	<field name="addressLine1" label="Address Line 1" visible="true" />
     	<field name="addressLine2" label="Address Line 2" visible="true" />
     	<field name="city" label="City" visible="true" />
     	<field name="state" label="State" visible="true" />
+    	<field name="postCode" label="Post Code" regex="postalCodeValidation" visible="true" />
     	<field name="country" label="Country" visible="true" />
 	</form>
 
@@ -22,13 +44,13 @@
     	<field name="name" label="Username" visible="true" required="true" editable="true" />
     	<field name="firstName" label="Updated First Name" visible="true" required="true" editable="true" />
     	<field name="lastName" label="Last Name" visible="true" required="true" editable="true" />
-    	<field name="email" label="Email" visible="true" required="true" editable="true" />
-    	<field name="password" label="Password" visible="true" required="true" editable="true" />
+    	<field name="email" label="Email" regex="emailValidation" visible="true" required="true" editable="true" />
+    	<field name="password" label="Password" regex="passwordValidation" visible="true" required="true" editable="true" />
     	<field name="addressLine1" label="Address Line 1" visible="true" editable="true" />
     	<field name="addressLine2" label="Address Line 2" visible="true" editable="true" />
     	<field name="city" label="City" visible="true" editable="true" />
     	<field name="state" label="State" visible="true" editable="true" />
-    	<field name="postCode" label="Post Code" visible="true" editable="true" />
+    	<field name="postCode" label="Post Code" regex="postalCodeValidation" visible="true" editable="true" />
     	<field name="country" label="Country" visible="true" editable="true" />
 	</form>
 
@@ -37,13 +59,13 @@
     	<field name="name" label="Username" visible="true" required="true" editable="true" />
     	<field name="firstName" label="Updated First Name" visible="true" required="true" editable="true" />
     	<field name="lastName" label="Last Name" visible="true" required="true" editable="true" />
-    	<field name="email" label="Email" visible="true" required="true" editable="true" />
-    	<field name="password" label="Password" visible="true" required="true" editable="true" />
+    	<field name="email" label="Email" regex="emailValidation" visible="true" required="true" editable="true" />
+    	<field name="password" label="Password" regex="passwordValidation" visible="true" required="true" editable="true" />
     	<field name="addressLine1" label="Address Line 1" visible="true" editable="true" />
     	<field name="addressLine2" label="Address Line 2" visible="true" editable="true" />
     	<field name="city" label="City" visible="true" editable="true" />
     	<field name="state" label="State" visible="true" editable="true" />
-    	<field name="postCode" label="Post Code" visible="true" editable="true" />
+    	<field name="postCode" label="Post Code" regex="postalCodeValidation" visible="true" editable="true" />
     	<field name="country" label="Country" visible="true" editable="true" />
 	</form>
     

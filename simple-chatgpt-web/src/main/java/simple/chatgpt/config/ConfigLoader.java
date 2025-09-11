@@ -71,4 +71,19 @@ public class ConfigLoader {
         }
         return forms;
     }
+    
+    public List<RegexConfig> loadRegexes() throws Exception {
+        Document doc = loadDocument();
+        NodeList regexNodes = doc.getElementsByTagName("regex");
+        List<RegexConfig> regexes = new ArrayList<>();
+        for (int i = 0; i < regexNodes.getLength(); i++) {
+            Element r = (Element) regexNodes.item(i);
+            regexes.add(new RegexConfig(
+                    r.getAttribute("id"),
+                    r.getAttribute("vaildRegexExpression"),
+                    r.getAttribute("errorMessage")
+            ));
+        }
+        return regexes;
+    }
 }

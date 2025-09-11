@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import simple.chatgpt.config.ConfigLoader;
 import simple.chatgpt.config.FormConfig;
 import simple.chatgpt.config.GridConfig;
+import simple.chatgpt.config.RegexConfig;
 import simple.chatgpt.util.Response;
 
 @Controller
@@ -31,10 +32,12 @@ public class MyBatisConfigController {
         try {
             List<GridConfig> grids = loader.loadGrids();
             List<FormConfig> forms = loader.loadForms();
+            List<RegexConfig> regexes = loader.loadRegexes(); // ✅ add this
 
             Map<String, Object> configMap = Map.of(
                 "grids", grids,
-                "forms", forms
+                "forms", forms,
+                "regex", regexes // ✅ include regex in API response
             );
 
             return ResponseEntity.ok(
