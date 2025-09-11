@@ -14,22 +14,27 @@
     </style>
 </head>
 <body>
-<div class="container" data-bind="with: editFormVM">
+<div class="container" data-bind="with: $root">
     <h1>Edit User</h1>
-    <form data-bind="submit: save">
-        <div data-bind="foreach: formConfig.fields">
-            <div class="form-row" data-bind="visible: visible">
-                <label data-bind="text: label + ':'"></label>
-                <input data-bind="
-                    value: currentData[name],
-                    css: { invalid: errorMessages()[name] }
-                " required />
-                <span class="error-message" data-bind="text: errorMessages()[name]"></span>
+
+    <!-- Edit Form -->
+    <div data-bind="if: editFormVM">
+        <form data-bind="submit: editFormVM.save">
+            <div data-bind="foreach: editFormVM.formConfig.fields">
+                <div class="form-row">
+                    <label data-bind="text: label + ':'"></label>
+                    <input type="text" data-bind="
+                        value: $parent.editFormVM.currentData[name],
+                        css: { invalid: $parent.editFormVM.errorMessages()[name] },
+                        valueUpdate: 'input'
+                    " />
+                    <span class="error-message" data-bind="text: $parent.editFormVM.errorMessages()[name]"></span>
+                </div>
             </div>
-        </div>
-        <button type="submit">Save</button>
-        <button type="button" data-bind="click: cancel">Cancel</button>
-    </form>
+            <button type="submit">Save</button>
+            <button type="button" data-bind="click: editFormVM.cancel">Cancel</button>
+        </form>
+    </div>
 </div>
 
 <script>
@@ -38,30 +43,31 @@ fetch('/chatgpt/api/mybatis/config/all')
     .then(cfg => {
         const data = cfg.data;
         const formConfig = data.forms.find(f => f.id === 'editUser');
-        const regexMap = (data.regexes || []).reduce((map, r) => { map[r.id] = r; return map; }, {});
-        const userVM = new UserViewModel({ grid: null, form: formConfig, search: null });
-        const editFormVM = new ConfigDrivenViewModel(formConfig, regexMap, {
-            onSave: data => userVM.saveUser(data),
-            onCancel: () => userVM.goUsers()
+
+        // Main UserViewModel instance
+        const userVM = new UserViewModel({
+            grid: null,
+            form: formConfig,
+            search: null
         });
 
+        // Link editFormVM to currentUser observables
+        userVM.editFormVM = new ConfigDrivenViewModel(formConfig, {}, {
+            onSave: data => userVM.saveUser(data),
+            onCancel: () => userVM.goUsers(),
+            searchTargetVM: userVM.currentUser // <- important!
+        });
+
+        // Load user by ID into currentUser
         const editId = localStorage.getItem('editUserId');
         if (editId) {
-            fetch(`/chatgpt/api/mybatis/users/${editId}`)
-                .then(res => res.json())
-                .then(resp => {
-                    if (resp.status === 'SUCCESS' && resp.data) {
-                        formConfig.fields.forEach(f => {
-                            editFormVM.currentData[f.name](resp.data[f.name] || '');
-                        });
-                    }
-                });
+            userVM.loadUserById(editId);
         }
 
-        window.editFormVM = editFormVM;
-        ko.applyBindings({ editFormVM });
+        // Apply bindings
+        ko.applyBindings(userVM);
     })
-    .catch(err => console.error(err));
+    .catch(err => console.error("❌ Fetch error:", err));
 </script>
 </body>
 </html>
