@@ -15,7 +15,7 @@
     <h1>User Management</h1>
 
     <!-- 🔍 Search Form -->
-    <div class="search-container">
+    <div class="search-container" style="margin-bottom: 20px; border: 1px solid #ccc; padding: 16px; max-width: 600px;">
         <form data-bind="submit: searchUsers" style="margin-bottom: 20px; border: 1px solid #ccc; padding: 16px; max-width: 600px;">
             <div class="form-columns">
                 <!-- Core Section -->
