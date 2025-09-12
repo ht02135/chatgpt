@@ -152,7 +152,7 @@ function UserViewModel(params, config) {
         self.formConfig.fields.forEach(f => {
             if (self.currentUser()[f.name]) {
                 self.currentUser()[f.name].subscribe(val => {
-                    console.log("currentUser()[f.name].subscribe:", f.name, val);
+                    console.log("user.js -> subscribe callback:", f.name, val);
                     const err = self.validateField(f.name, val);
                     const allErrors = { ...self.errors() };
                     if (err) allErrors[f.name] = err;

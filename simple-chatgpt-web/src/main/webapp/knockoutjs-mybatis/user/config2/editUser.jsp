@@ -46,7 +46,8 @@
     // Validate on typing
     formConfig.fields.forEach(f => {
         if(userVM.currentUser()[f.name]) {
-            userVM.currentUser()[f.name].subscribe(() => {
+            userVM.currentUser()[f.name].subscribe(val => {
+				console.log("editUser.js -> subscribe callback:", f.name, val);
                 const errs = userVM.validator.validateForm(userVM.currentUser(), formConfig.fields);
                 userVM.errors(errs);
             });
