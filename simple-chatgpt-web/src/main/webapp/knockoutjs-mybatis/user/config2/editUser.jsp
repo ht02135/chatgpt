@@ -43,16 +43,20 @@
     const editId = localStorage.getItem('editUserId');
     if(editId) await userVM.loadUserById(editId);
 
-    // Validate on typing
-    formConfig.fields.forEach(f => {
-        if(userVM.currentUser()[f.name]) {
-            userVM.currentUser()[f.name].subscribe(val => {
-				console.log("editUser.js -> subscribe callback:", f.name, val);
-                const errs = userVM.validator.validateForm(userVM.currentUser(), formConfig.fields);
-                userVM.errors(errs);
-            });
-        }
-    });
+	// Validate on typing
+	formConfig.fields.forEach(f => {
+	    if(userVM.currentUser()[f.name]) {
+	        userVM.currentUser()[f.name].subscribe(val => {
+	            console.log("editUser.js -> subscribe callback:", f.name, val);
+	            // Only validate this field if it has a regex
+	            const err = f.regex ? userVM.validator.validateField(f.regex, val) : '';
+	            const allErrors = { ...userVM.errors() };
+	            if (err) allErrors[f.name] = err;
+	            else delete allErrors[f.name];
+	            userVM.errors(allErrors);
+	        });
+	    }
+	});
 
     ko.applyBindings({ userVM });
 })();

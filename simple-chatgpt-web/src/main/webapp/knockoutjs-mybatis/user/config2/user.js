@@ -135,33 +135,33 @@ function UserViewModel(params, config) {
         return self.validator.validateField(fieldName, value);
     };
 
-    self.validateForm = function(userObj, fieldsConfig) {
-        console.log("user.js -> validateForm:", userObj, fieldsConfig);
-        if (!self.validator || !fieldsConfig) return {};
-        const errors = {};
-        fieldsConfig.forEach(f => {
-            const val = ko.unwrap(userObj[f.name]);
-            const err = self.validator.validateField(f.name, val);
-            if (err) errors[f.name] = err;
-        });
-        return errors;
-    };
+	self.validateForm = function(userObj, fieldsConfig) {
+	    console.log("user.js -> validateForm:", userObj, fieldsConfig);
+	    if (!self.validator || !fieldsConfig) return {};
+	    const errors = {};
+	    fieldsConfig.forEach(f => {
+	        const val = ko.unwrap(userObj[f.name]);
+	        // Only call validateField if the field has a regex
+	        const err = f.regex ? self.validator.validateField(f.regex, val) : '';
+	        if (err) errors[f.name] = err;
+	    });
+	    return errors;
+	};
 
     // Live Validation: subscribe to each field
-    if (self.formConfig?.fields) {
-        self.formConfig.fields.forEach(f => {
-            if (self.currentUser()[f.name]) {
-                self.currentUser()[f.name].subscribe(val => {
-                    console.log("user.js -> subscribe callback:", f.name, val);
-                    const err = self.validateField(f.name, val);
-                    const allErrors = { ...self.errors() };
-                    if (err) allErrors[f.name] = err;
-                    else delete allErrors[f.name];
-                    self.errors(allErrors);
-                });
-            }
-        });
-    }
+	self.formConfig?.fields.forEach(f => {
+	    if (self.currentUser()[f.name]) {
+	        self.currentUser()[f.name].subscribe(val => {
+	            console.log("user.js -> subscribe callback:", f.name, val);
+	            // Only validate if the field has a regex
+	            const err = f.regex ? self.validateField(f.regex, val) : '';
+	            const allErrors = { ...self.errors() };
+	            if (err) allErrors[f.name] = err;
+	            else delete allErrors[f.name];
+	            self.errors(allErrors);
+	        });
+	    }
+	});
 
     // Save User
     self.saveUser = async function() {
@@ -170,10 +170,14 @@ function UserViewModel(params, config) {
 
         self.errors({});
         const errs = self.validateForm(self.currentUser(), self.formConfig.fields);
+		console.log("user.js ##########");
+		console.log("user.js -> saveUser: errs=", errs);
         if (Object.keys(errs).length > 0) {
             self.errors(errs);
+			console.log("user.js -> saveUser: return");
             return;
         }
+		console.log("user.js ##########");
 
         const payload = {};
         self.formConfig.fields.forEach(f => payload[f.name] = self.currentUser()[f.name]());
