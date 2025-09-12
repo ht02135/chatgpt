@@ -1,11 +1,11 @@
 <config>
 
     <regex id="emailValidation"
-           vaildRegexExpression="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
+           validRegexExpression="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
            errorMessage="wrong email format" />
 
     <regex id="postalCodeValidation"
-           vaildRegexExpression="^\d{5}(?:[-\s]\d{4})?$"
+           validRegexExpression="^\d{5}(?:[-\s]\d{4})?$"
            errorMessage="wrong postal code format" />
 
 	<!-- 
@@ -17,7 +17,7 @@
 	No whitespace characters.
 	-->
     <regex id="passwordValidation"
-           vaildRegexExpression="^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9\s])(?!.*\s).{8,}$"
+           validRegexExpression="^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9\s])(?!.*\s).{8,}$"
            errorMessage="wrong password format" />
            
     <grid id="users">

@@ -7,9 +7,11 @@ class Validator {
     }
 
     validateField(fieldName, value) {
-        console.log("validation.js -> validateField:", { fieldName, value });
+        console.log("validation.js -> validateField: fieldName", fieldName);
+		console.log("validation.js -> validateField: value", value);
         if (typeof value !== 'string') value = '' + value;
         const regex = this.regexConfig[fieldName];
+		console.log("validation.js -> validateField: regex", regex); // now prints the correct pattern
         if (regex && !new RegExp(regex).test(value)) {
             return `${fieldName} is invalid`;
         }
@@ -21,10 +23,11 @@ class Validator {
 	    const errors = {};
 	    
 	    fieldsConfig.forEach(f => {
+			console.log("validation.js -> validateForm: f=", f);
+			
 	        const value = userObj[f.name] ? ko.unwrap(userObj[f.name]) : null;
 	        const err = this.validateField(f.regex || '', value);
-
-	        console.log("validation.js -> validateForm: f=", f);
+	        
 	        console.log("validation.js -> validateForm: value=", value);
 	        console.log("validation.js -> validateForm: err=", err);
 

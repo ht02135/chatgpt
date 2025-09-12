@@ -81,7 +81,7 @@ public class ConfigLoader {
             Element r = (Element) regexNodes.item(i);
             regexes.add(new RegexConfig(
                     r.getAttribute("id"),
-                    r.getAttribute("vaildRegexExpression"),
+                    r.getAttribute("validRegexExpression"),
                     r.getAttribute("errorMessage")
             ));
         }
