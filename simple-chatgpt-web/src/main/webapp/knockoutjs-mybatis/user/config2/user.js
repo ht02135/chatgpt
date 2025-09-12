@@ -1,9 +1,7 @@
-// =========================
 // user.js
-// Knockout.js ViewModel for Users
-// =========================
 
 function User(data, fields) {
+    console.log("User: called");
     const self = this;
     fields.forEach(f => {
         self[f.name] = ko.observable(data && data[f.name] || '');
@@ -11,6 +9,7 @@ function User(data, fields) {
 }
 
 function UserViewModel(params, config) {
+    console.log("UserViewModel: params=" + params + ", config=" + config);
     const self = this;
 
     self.mode = params.mode || 'list';
@@ -37,6 +36,7 @@ function UserViewModel(params, config) {
 
     // Build URLSearchParams for search
     self.buildSearchQuery = function() {
+        console.log("buildSearchQuery: called");
         const params = new URLSearchParams();
         params.append('page', self.page());
         params.append('size', self.size());
@@ -55,6 +55,7 @@ function UserViewModel(params, config) {
 
     // Load Users for Grid
     self.loadUsers = async function() {
+        console.log("loadUsers: called");
         if (self.mode !== 'list') return;
 
         try {
@@ -74,45 +75,68 @@ function UserViewModel(params, config) {
     };
 
     // Search & Reset
-    self.searchUsers = function() { self.page(1); self.loadUsers(); };
+    self.searchUsers = function() {
+        console.log("searchUsers: called");
+        self.page(1); self.loadUsers();
+    };
     self.resetSearch = function() {
+        console.log("resetSearch: called");
         Object.keys(self.searchParams).forEach(k => self.searchParams[k](''));
         self.page(1);
         self.loadUsers();
     };
 
     // Pagination
-    self.nextPage = function() { if (self.page() < self.maxPage()) { self.page(self.page()+1); self.loadUsers(); } };
-    self.prevPage = function() { if (self.page() > 1) { self.page(self.page()-1); self.loadUsers(); } };
+    self.nextPage = function() {
+        console.log("nextPage: called");
+        if (self.page() < self.maxPage()) { self.page(self.page() + 1); self.loadUsers(); }
+    };
+    self.prevPage = function() {
+        console.log("prevPage: called");
+        if (self.page() > 1) { self.page(self.page() - 1); self.loadUsers(); }
+    };
     self.maxPage = ko.computed(() => Math.ceil(self.total() / self.size()));
 
     // Sorting
     self.setSort = function(field) {
-        if(self.sortField() === field) self.sortOrder(self.sortOrder() === 'ASC' ? 'DESC' : 'ASC');
+        console.log("setSort: field=" + field);
+        if (self.sortField() === field) self.sortOrder(self.sortOrder() === 'ASC' ? 'DESC' : 'ASC');
         else { self.sortField(field); self.sortOrder('ASC'); }
         self.page(1);
         self.loadUsers();
     };
 
-    self.size.subscribe(() => { self.page(1); self.loadUsers(); });
+    self.size.subscribe(() => {
+        console.log("size.subscribe: called");
+        self.page(1); self.loadUsers();
+    });
 
     // Navigation
-    self.goUsers = function(){ window.location.href='users.jsp?reload='+new Date().getTime(); };
-    self.goAddUser = function(){ window.location.href='addUser.jsp'; };
-    self.goEditUser = function(id){ 
-        localStorage.setItem('editUserId', ko.unwrap(id)); 
-        window.location.href='editUser.jsp'; 
+    self.goUsers = function() {
+        console.log("goUsers: called");
+        window.location.href = 'users.jsp?reload=' + new Date().getTime();
+    };
+    self.goAddUser = function() {
+        console.log("goAddUser: called");
+        window.location.href = 'addUser.jsp';
+    };
+    self.goEditUser = function(id) {
+        console.log("goEditUser: id=" + ko.unwrap(id));
+        localStorage.setItem('editUserId', ko.unwrap(id));
+        window.location.href = 'editUser.jsp';
     };
 
     // ========================
     // Validation Helpers
     // ========================
     self.validateField = function(fieldName, value) {
+        console.log("validateField: fieldName=" + fieldName + ", value=" + value);
         if (!self.validator) return '';
         return self.validator.validateField(fieldName, value);
     };
 
     self.validateForm = function(userObj, fieldsConfig) {
+        console.log("validateForm: userObj=" + userObj + ", fieldsConfig=" + fieldsConfig);
         if (!self.validator || !fieldsConfig) return {};
         const errors = {};
         fieldsConfig.forEach(f => {
@@ -128,6 +152,7 @@ function UserViewModel(params, config) {
         self.formConfig.fields.forEach(f => {
             if (self.currentUser()[f.name]) {
                 self.currentUser()[f.name].subscribe(val => {
+                    console.log("currentUser()[f.name].subscribe: val=" + val);
                     const err = self.validateField(f.name, val);
                     const allErrors = { ...self.errors() };
                     if (err) allErrors[f.name] = err;
@@ -140,6 +165,7 @@ function UserViewModel(params, config) {
 
     // Save User
     self.saveUser = async function() {
+        console.log("saveUser: called");
         if (!self.formConfig) return;
 
         self.errors({});
@@ -154,41 +180,44 @@ function UserViewModel(params, config) {
 
         try {
             let url = `${API_USER}/add`, method = 'POST';
-            if (self.mode==='edit' && self.currentUser().id && self.currentUser().id()) { 
-                url = `${API_USER}/${self.currentUser().id()}`; 
-                method = 'PUT'; 
+            if (self.mode === 'edit' && self.currentUser().id && self.currentUser().id()) {
+                url = `${API_USER}/${self.currentUser().id()}`;
+                method = 'PUT';
             }
-            await fetch(url, { method, headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload) });
+            await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
             self.goUsers();
-        } catch(err){ console.error('Save user error:', err); }
+        } catch (err) { console.error('Save user error:', err); }
     };
 
     // Delete User
-    self.deleteUser = async function(user){
-        if(!confirm('Are you sure?')) return;
-        try { 
-            await fetch(`${API_USER}/${ko.unwrap(user.id)}`, { method:'DELETE', headers:{'Accept':'application/json'} }); 
-            self.loadUsers(); 
-        } catch(err){ console.error('Delete user error:', err); }
+    self.deleteUser = async function(user) {
+        console.log("deleteUser: user=" + user);
+        if (!confirm('Are you sure?')) return;
+        try {
+            await fetch(`${API_USER}/${ko.unwrap(user.id)}`, { method: 'DELETE', headers: { 'Accept': 'application/json' } });
+            self.loadUsers();
+        } catch (err) { console.error('Delete user error:', err); }
     };
 
     // Load User by ID
-    self.loadUserById = async function(id){
-        try{
-            const res = await fetch(`${API_USER}/${id}`, { headers:{'Accept':'application/json'} });
+    self.loadUserById = async function(id) {
+        console.log("loadUserById: id=" + id);
+        try {
+            const res = await fetch(`${API_USER}/${id}`, { headers: { 'Accept': 'application/json' } });
             const data = await res.json();
-            if(data.status==='SUCCESS' && data.data) self.currentUser(new User(data.data, self.formConfig?.fields||[]));
-        } catch(err){ console.error('Load user error:', err); }
+            if (data.status === 'SUCCESS' && data.data) self.currentUser(new User(data.data, self.formConfig?.fields || []));
+        } catch (err) { console.error('Load user error:', err); }
     };
 
     // ========================
     // Initialization
     // ========================
-    if(self.mode==='edit'){
+    console.log("Initialization block: called");
+    if (self.mode === 'edit') {
         const id = localStorage.getItem('editUserId');
-        if(id) self.loadUserById(id);
-    } else if(self.mode==='add') {
-        self.currentUser(new User({}, self.formConfig?.fields||[]));
+        if (id) self.loadUserById(id);
+    } else if (self.mode === 'add') {
+        self.currentUser(new User({}, self.formConfig?.fields || []));
     } else {
         self.loadUsers();
     }
