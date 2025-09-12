@@ -4,7 +4,7 @@ const API_BASE = '/chatgpt/api/mybatis/config';
 
 const configLoader = {
     async loadAll() {
-        console.log("loadAll: called");
+        console.log("configLoader.js -> loadAll: called");
         try {
             const res = await fetch(`${API_BASE}/all`);
             const json = await res.json();
@@ -17,19 +17,19 @@ const configLoader = {
     },
 
     async getFormConfig(formId) {
-        console.log("getFormConfig: formId=" + formId);
+        console.log("configLoader.js -> getFormConfig: formId=" + formId);
         const data = await this.loadAll();
         return data?.forms.find(f => f.id === formId) || null;
     },
 
     async getGridConfig(gridId) {
-        console.log("getGridConfig: gridId=" + gridId);
+        console.log("configLoader.js -> getGridConfig: gridId=" + gridId);
         const data = await this.loadAll();
         return data?.grids.find(g => g.id === gridId) || null;
     },
 
     async getRegexConfig() {
-        console.log("getRegexConfig: called");
+        console.log("configLoader.js -> getRegexConfig: called");
         const data = await this.loadAll();
         return data?.regex || {};
     }

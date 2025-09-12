@@ -2,12 +2,12 @@
 
 class Validator {
     constructor(regexConfig = {}) {
-        console.log("constructor: regexConfig=" + regexConfig);
+        console.log("validation.js -> constructor: regexConfig=" + regexConfig);
         this.regexConfig = regexConfig;
     }
 
     validateField(fieldName, value) {
-        console.log("validateField: fieldName=" + fieldName + ", value=" + value);
+        console.log("validation.js -> validateField: fieldName=" + fieldName + ", value=" + value);
         if (typeof value !== 'string') value = '' + value;
         const regex = this.regexConfig[fieldName];
         if (regex && !new RegExp(regex).test(value)) {
@@ -17,7 +17,7 @@ class Validator {
     }
 
     validateForm(userObj, fieldsConfig) {
-        console.log("validateForm: userObj=" + userObj + ", fieldsConfig=" + fieldsConfig);
+        console.log("validation.js -> validateForm: userObj=" + userObj + ", fieldsConfig=" + fieldsConfig);
         const errors = {};
         fieldsConfig.forEach(f => {
             const value = userObj[f.name] ? ko.unwrap(userObj[f.name]) : '';
