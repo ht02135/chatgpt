@@ -33,7 +33,7 @@
 <script>
 (async function(){
     const formConfig = await configLoader.getFormConfig('editUser');
-    const regexConfig = await configLoader.getRegexConfig();
+    const regexConfig = await configLoader.getRegexMapConfig();
 
     const userVM = new UserViewModel({ mode: 'edit' }, { form: formConfig });
     userVM.validator = new Validator(regexConfig);

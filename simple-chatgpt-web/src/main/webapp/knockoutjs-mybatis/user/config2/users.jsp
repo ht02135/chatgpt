@@ -91,7 +91,7 @@
 (async function(){
     const gridConfig = await configLoader.getGridConfig('users');
     const searchConfig = await configLoader.getFormConfig('searchUser');
-    const regexConfig = await configLoader.getRegexConfig();
+    const regexConfig = await configLoader.getRegexMapConfig();
 
     const userVM = new UserViewModel({ mode: 'list' }, { grid: gridConfig, search: searchConfig });
     userVM.validator = new Validator(regexConfig);

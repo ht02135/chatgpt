@@ -13,7 +13,7 @@ const configLoader = {
 			console.log("configLoader.js -> loadAll: json.data=", json.data);
             return json.data;
         } catch (err) {
-            console.error("❌ Config load error:", err);
+            console.error("configLoader.js -> loadAll: ❌ Config load error:", err);
             return null;
         }
     },
@@ -23,7 +23,7 @@ const configLoader = {
 	    const data = await this.loadAll();
 	    const result = data?.forms.find(f => f.id === formId) || null;
 	    //console.log("getFormConfig: result=" + result);
-		console.log("getFormConfig: result=", result);
+		console.log("configLoader.js -> getFormConfig: result=", result);
 	    return result;
 	},
 
@@ -31,7 +31,7 @@ const configLoader = {
 	    console.log("configLoader.js -> getGridConfig: gridId=", gridId);
 	    const data = await this.loadAll();
 	    const result = data?.grids.find(g => g.id === gridId) || null;
-		console.log("getGridConfig: result=", result);
+		console.log("configLoader.js -> getGridConfig: result=", result);
 	    return result;
 	},
 
@@ -39,7 +39,19 @@ const configLoader = {
 	    console.log("configLoader.js -> getRegexConfig: called");
 	    const data = await this.loadAll();
 	    const result = data?.regex || {};
-		console.log("getRegexConfig: result=", result);
+		console.log("configLoader.js -> getRegexConfig: result=", result);
 	    return result;
+	},
+	
+	// ✅ New wrapper to convert array to map
+	async getRegexMapConfig() {
+		console.log("configLoader.js -> getRegexMapConfig: called");
+	    const regexArray = await this.getRegexConfig(); // Step 1: get list
+	    const regexMap = {};                              // Step 2: build map
+	    regexArray.forEach(r => {
+	        regexMap[r.id] = r.expression;               // map id → expression
+	    });
+	    console.log("configLoader.js -> getRegexMapConfig: regexMap=", regexMap); // Step 3: log for debugging
+	    return regexMap;                                 // Step 4: return map
 	}
 };
