@@ -64,7 +64,8 @@ public class ConfigLoader {
                         f.getAttribute("label"),
                         Boolean.parseBoolean(f.getAttribute("visible")),
                         Boolean.parseBoolean(f.getAttribute("required")),
-                        Boolean.parseBoolean(f.getAttribute("editable"))
+                        Boolean.parseBoolean(f.getAttribute("editable")),
+                        f.getAttribute("regex") // ✅ add this
                 ));
             }
             forms.add(form);
