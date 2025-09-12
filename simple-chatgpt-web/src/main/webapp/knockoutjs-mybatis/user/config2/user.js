@@ -1,5 +1,3 @@
-// /simple-chatgpt-web/src/main/webapp/knockoutjs-mybatis/user/config2/user.js
-
 function User(data, fields) {
     const self = this;
     fields.forEach(f => {
@@ -7,7 +5,7 @@ function User(data, fields) {
     });
 }
 
-function UserViewModel(params, config) {
+function UserViewModel(params, config, validator) {
     const self = this;
 
     self.mode = params.mode || 'list';
@@ -16,22 +14,52 @@ function UserViewModel(params, config) {
     self.searchConfig = config?.search;
 
     self.users = ko.observableArray([]);
-    self.currentUser = ko.observable(new User({}, self.formConfig?.fields || []));
     self.errors = ko.observable({});
 
-    self.searchParams = {};
-    if (self.searchConfig && self.searchConfig.fields) {
-        self.searchConfig.fields.forEach(f => self.searchParams[f.name] = ko.observable(''));
+    // --- Initialize currentUser FIRST ---
+    const initialUser = new User({}, self.formConfig?.fields || []);
+    self.currentUser = ko.observable(initialUser);
+
+    // Attach live validation AFTER currentUser is ready
+    if(self.formConfig?.fields && validator) {
+        self.formConfig.fields.forEach(f => {
+            const obs = self.currentUser()[f.name];
+            if(obs) {
+                obs.subscribe(val => {
+                    const err = validator.validateField(f, val);
+                    const currentErrors = Object.assign({}, self.errors());
+                    if (err) currentErrors[f.name] = err;
+                    else delete currentErrors[f.name];
+                    self.errors(currentErrors);
+                });
+            }
+        });
     }
 
+    self.validator = validator;
+
+    // --- Pagination & Sorting ---
     self.page = ko.observable(1);
     self.size = ko.observable(10);
     self.total = ko.observable(0);
     self.sortField = ko.observable('id');
     self.sortOrder = ko.observable('ASC');
+    self.maxPage = ko.computed(() => Math.ceil(self.total() / self.size()));
+    self.setSort = function(field) {
+        if(self.sortField()===field) self.sortOrder(self.sortOrder()==='ASC'?'DESC':'ASC');
+        else { self.sortField(field); self.sortOrder('ASC'); }
+        self.page(1);
+        self.loadUsers();
+    };
 
+    // --- Search Params ---
+    self.searchParams = {};
+    if(self.searchConfig?.fields) {
+        self.searchConfig.fields.forEach(f => self.searchParams[f.name] = ko.observable(''));
+    }
+
+    // --- API ---
     const API_USER = '/chatgpt/api/mybatis/users';
-
     self.buildSearchQuery = function() {
         const params = new URLSearchParams();
         params.append('page', self.page());
@@ -67,29 +95,25 @@ function UserViewModel(params, config) {
     self.resetSearch = function() { Object.keys(self.searchParams).forEach(k => self.searchParams[k]('')); self.page(1); self.loadUsers(); };
     self.nextPage = function() { if (self.page() < self.maxPage()) { self.page(self.page()+1); self.loadUsers(); } };
     self.prevPage = function() { if (self.page() > 1) { self.page(self.page()-1); self.loadUsers(); } };
-    self.maxPage = ko.computed(() => Math.ceil(self.total() / self.size()));
-    self.setSort = function(field) { if(self.sortField()===field) self.sortOrder(self.sortOrder()==='ASC'?'DESC':'ASC'); else { self.sortField(field); self.sortOrder('ASC'); } self.page(1); self.loadUsers(); };
     self.size.subscribe(() => { self.page(1); self.loadUsers(); });
 
+    // --- Navigation ---
     self.goUsers = function(){ window.location.href='users.jsp?reload='+new Date().getTime(); };
     self.goAddUser = function(){ window.location.href='addUser.jsp'; };
     self.goEditUser = function(id){ localStorage.setItem('editUserId', ko.unwrap(id)); window.location.href='editUser.jsp'; };
 
+    // --- Save with validation ---
     self.saveUser = async function() {
-        if (!self.formConfig) return;
-        self.errors({});
-        if (self.validator) {
-            const errs = self.validator.validateForm(self.currentUser());
-            if (Object.keys(errs).length>0) { self.errors(errs); return; }
-        }
+        if (!self.validator) return;
+        const errs = self.validator.validateForm(self.currentUser(), self.formConfig.fields);
+        if (Object.keys(errs).length > 0) { self.errors(errs); return; }
 
-        const u = self.currentUser();
         const payload = {};
-        self.formConfig.fields.forEach(f => payload[f.name] = u[f.name]());
+        self.formConfig.fields.forEach(f => payload[f.name] = self.currentUser()[f.name]());
 
         try {
             let url = `${API_USER}/add`, method = 'POST';
-            if (self.mode==='edit' && u.id && u.id()) { url = `${API_USER}/${u.id()}`; method='PUT'; }
+            if (self.mode==='edit' && self.currentUser().id && self.currentUser().id()) { url = `${API_USER}/${self.currentUser().id()}`; method='PUT'; }
             await fetch(url, { method, headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload) });
             self.goUsers();
         } catch(err){ console.error('Save user error:', err); }
@@ -105,13 +129,17 @@ function UserViewModel(params, config) {
         try{
             const res = await fetch(`${API_USER}/${id}`, { headers:{'Accept':'application/json'} });
             const data = await res.json();
-            if(data.status==='SUCCESS' && data.data) self.currentUser(new User(data.data, self.formConfig?.fields||[]));
+            if(data.status==='SUCCESS' && data.data) {
+                self.currentUser(new User(data.data, self.formConfig.fields));
+            }
         } catch(err){ console.error('Load user error:', err); }
     };
 
+    // --- Init based on mode ---
     if(self.mode==='edit'){
         const id = localStorage.getItem('editUserId');
         if(id) self.loadUserById(id);
-    } else if(self.mode==='add') self.currentUser(new User({}, self.formConfig?.fields||[]));
-    else self.loadUsers();
+    } else if(self.mode==='add') {
+        self.currentUser(new User({}, self.formConfig.fields));
+    } else self.loadUsers();
 }

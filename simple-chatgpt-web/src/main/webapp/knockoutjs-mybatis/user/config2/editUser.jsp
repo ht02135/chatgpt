@@ -5,10 +5,10 @@
     <meta charset="UTF-8">
     <title>Edit User</title>
     <script src="../../../js/knockout-latest.js"></script>
-    <script src="../../validation/validation.js"></script>
+    <script src="validation.js"></script>
     <script src="configLoader.js"></script>
     <script src="user.js"></script>
-    <link rel="stylesheet" href="../../../css/user.css">
+    <link rel="stylesheet" href="user.css">
 </head>
 <body>
 <div class="container" data-bind="with: userVM">
@@ -30,22 +30,15 @@
 
 <script>
 (async function(){
-    try {
-        const formConfig = await configLoader.getFormConfig('editUser');
-        const regexConfig = await configLoader.getRegexConfig();
+    const formConfig = await configLoader.getFormConfig('editUser');
+    const regexConfig = await configLoader.getRegexConfig();
+    const validator = new Validator(regexConfig);
 
-        const userVM = new UserViewModel({ mode: 'edit' }, { form: formConfig });
-        userVM.validator = new Validator(regexConfig);
-        userVM.errors = ko.observable({});
+    const userVM = new UserViewModel({ mode: 'edit' }, { form: formConfig }, validator);
+    const editId = localStorage.getItem('editUserId');
+    if(editId) await userVM.loadUserById(editId);
 
-        // Load user data by ID stored in localStorage
-        const editId = localStorage.getItem('editUserId');
-        if(editId) await userVM.loadUserById(editId);
-
-        ko.applyBindings({ userVM });
-    } catch(e) {
-        console.error("❌ Edit User page init error:", e);
-    }
+    ko.applyBindings({ userVM });
 })();
 </script>
 </body>

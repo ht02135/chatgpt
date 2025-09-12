@@ -5,41 +5,37 @@
     <meta charset="UTF-8">
     <title>User Management</title>
     <script src="../../../js/knockout-latest.js"></script>
-    <script src="../../validation/validation.js"></script>
+    <script src="validation.js"></script>
     <script src="configLoader.js"></script>
     <script src="user.js"></script>
-    <link rel="stylesheet" href="../../../css/user.css">
+    <link rel="stylesheet" href="user.css">
 </head>
 <body>
 <div class="container" data-bind="with: userVM">
     <h1>User Management</h1>
 
-    <!-- 🔍 Search Form -->
     <div class="search-container" style="margin-bottom: 20px; border: 1px solid #ccc; padding: 16px; max-width: 600px;">
-        <form data-bind="submit: searchUsers" style="margin-bottom: 20px; border: 1px solid #ccc; padding: 16px; max-width: 600px;">
+        <form data-bind="submit: searchUsers">
             <div class="form-columns">
-                <!-- Core Section -->
                 <fieldset class="form-col">
                     <legend>Core Section</legend>
-                    <!-- ko foreach: searchConfig.fields.slice(0, 3) -->
+                    <!-- ko foreach: searchConfig.fields.slice(0,3) -->
                     <div class="form-row" data-bind="visible: visible">
                         <label>
                             <span data-bind="text: label + ':'"></span>
-                            <input type="text" data-bind="value: $parent.searchParams[name], valueUpdate: 'input'">
+                            <input type="text" data-bind="value: $parent.searchParams[name], valueUpdate: 'input'" />
                         </label>
                         <div class="error-message" data-bind="text: $parent.errors()[name], visible: $parent.errors()[name]"></div>
                     </div>
                     <!-- /ko -->
                 </fieldset>
-
-                <!-- Additional Address Section -->
                 <fieldset class="form-col">
                     <legend>Additional Address</legend>
                     <!-- ko foreach: searchConfig.fields.slice(3) -->
                     <div class="form-row" data-bind="visible: visible">
                         <label>
                             <span data-bind="text: label + ':'"></span>
-                            <input type="text" data-bind="value: $parent.searchParams[name], valueUpdate: 'input'">
+                            <input type="text" data-bind="value: $parent.searchParams[name], valueUpdate: 'input'" />
                         </label>
                         <div class="error-message" data-bind="text: $parent.errors()[name], visible: $parent.errors()[name]"></div>
                     </div>
@@ -55,7 +51,6 @@
         </div>
     </div>
 
-    <!-- 📋 Users Grid -->
     <table>
         <thead>
         <tr data-bind="foreach: gridConfig.columns">
@@ -79,7 +74,6 @@
         </tbody>
     </table>
 
-    <!-- Pagination -->
     <div class="pagination">
         <button data-bind="click: prevPage, enable: page() > 1">Prev</button>
         <span data-bind="text: page"></span> / <span data-bind="text: maxPage"></span>
@@ -89,20 +83,13 @@
 
 <script>
 (async function(){
-    try {
-        const gridConfig = await configLoader.getGridConfig('users');
-        const searchConfig = await configLoader.getFormConfig('searchUser');
-        const regexConfig = await configLoader.getRegexConfig();
+    const gridConfig = await configLoader.getGridConfig('users');
+    const searchConfig = await configLoader.getFormConfig('searchUser');
+    const regexConfig = await configLoader.getRegexConfig();
 
-        const userVM = new UserViewModel({ mode: 'list' }, { grid: gridConfig, search: searchConfig });
-        userVM.validator = new Validator(regexConfig);
-        userVM.errors = ko.observable({});
-        ko.applyBindings({ userVM });
-
-        await userVM.loadUsers();
-    } catch(e) {
-        console.error("❌ Users page init error:", e);
-    }
+    const validator = new Validator(regexConfig);
+    const userVM = new UserViewModel({ mode: 'list' }, { grid: gridConfig, search: searchConfig }, validator);
+    ko.applyBindings({ userVM });
 })();
 </script>
 </body>
