@@ -16,18 +16,29 @@ class Validator {
         return '';
     }
 
-    validateForm(userObj, fieldsConfig) {
-        console.log("validation.js -> validateForm:", { userObj, fieldsConfig });
-        const errors = {};
-        fieldsConfig.forEach(f => {
-            const value = userObj[f.name] ? ko.unwrap(userObj[f.name]) : '';
-            const err = this.validateField(f.regex || '', value);
-            if (f.required && !value.trim()) {
-                errors[f.name] = `${f.label} is required`;
-            } else if (err) {
-                errors[f.name] = f.errorMessage || err;
-            }
-        });
-        return errors;
-    }
+	validateForm(userObj, fieldsConfig) {
+	    console.log("validation.js -> validateForm:", { userObj, fieldsConfig });
+	    const errors = {};
+	    
+	    fieldsConfig.forEach(f => {
+	        const value = userObj[f.name] ? ko.unwrap(userObj[f.name]) : null;
+	        const err = this.validateField(f.regex || '', value);
+
+	        console.log("validation.js -> validateForm: f=", f);
+	        console.log("validation.js -> validateForm: value=", value);
+	        console.log("validation.js -> validateForm: err=", err);
+
+	        // Instead of trim(), check if value is "empty"
+	        const isEmpty = value === null || value === undefined || value === '';
+
+	        if (f.required && isEmpty) {
+	            errors[f.name] = `${f.label} is required`;
+	        } else if (err) {
+	            errors[f.name] = f.errorMessage || err;
+	        }
+	    });
+
+	    return errors;
+	}
+
 }
