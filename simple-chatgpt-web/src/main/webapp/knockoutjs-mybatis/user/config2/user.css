@@ -1,9 +1,13 @@
-/* User Management (Knockout.js) styles extracted from user.jsp */
+/* =========================
+   User Management Styles
+   ========================= */
+
 body {
     font-family: Arial, sans-serif;
     margin: 20px;
     background-color: #f5f5f5;
 }
+
 .container {
     max-width: 800px;
     margin: 0 auto;
@@ -12,11 +16,16 @@ body {
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
+
 h1 {
     color: #333;
     text-align: center;
     margin-bottom: 30px;
 }
+
+/* =========================
+   Forms
+   ========================= */
 form {
     margin-bottom: 30px;
     padding: 20px;
@@ -24,12 +33,14 @@ form {
     border-radius: 8px;
     background-color: #fafafa;
 }
+
 label {
     display: block;
     margin-bottom: 5px;
     font-weight: bold;
     color: #333;
 }
+
 input[type="text"], input[type="email"] {
     width: 100%;
     max-width: 300px;
@@ -39,6 +50,7 @@ input[type="text"], input[type="email"] {
     border-radius: 4px;
     font-size: 14px;
 }
+
 button {
     padding: 10px 20px;
     margin: 5px;
@@ -48,43 +60,55 @@ button {
     font-size: 14px;
     font-weight: bold;
 }
+
 #submitBtn {
     background-color: #4CAF50;
     color: white;
 }
+
 #cancelBtn {
     background-color: #ff9800;
     color: white;
-    display: inline-block; /* <- changed from none */
+    display: inline-block;
     margin-left: 12px;
 }
+
+/* =========================
+   Table / Grid
+   ========================= */
 table {
     width: 100%;
     border-collapse: collapse;
     margin-top: 20px;
 }
+
 th, td {
     border: 1px solid #ddd;
     padding: 12px;
     text-align: left;
 }
+
 th {
     background-color: #f2f2f2;
     font-weight: bold;
     color: #333;
 }
+
 tbody tr:nth-child(even) {
     background-color: #f9f9f9;
 }
+
 tbody tr:hover {
     background-color: #f0f8ff;
 }
+
 .editUser {
     background-color: #2196F3;
     color: white;
     padding: 6px 12px;
     font-size: 12px;
 }
+
 .deleteUser {
     background-color: #f44336;
     color: white;
@@ -92,33 +116,15 @@ tbody tr:hover {
     font-size: 12px;
 }
 
-/* Horizontal form row for search fields */
-.form-row-horizontal {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-    align-items: flex-end;
-    border: none;
-    padding: 0;
-    margin-bottom: 16px;
-}
-.form-row-horizontal > div {
-    flex: 1 1 180px;
-    min-width: 150px;
-    margin-bottom: 0;
-}
-.form-row-horizontal label {
-    display: flex;
-    flex-direction: column;
-    font-weight: normal;
-}
-
-/* Two-column layout for search form */
+/* =========================
+   Horizontal Form Layout (users.jsp)
+   ========================= */
 .form-columns {
     display: flex;
     gap: 32px;
     justify-content: flex-start;
 }
+
 .form-col {
     flex: 1 1 220px;
     min-width: 180px;
@@ -126,67 +132,40 @@ tbody tr:hover {
     padding: 0;
     margin: 0;
 }
+
 .form-col legend {
     font-weight: bold;
     margin-bottom: 8px;
 }
-.form-col > div {
+
+.form-col .form-row {
+    display: flex;
+    align-items: center;
     margin-bottom: 12px;
 }
-.form-actions {
-    margin-top: 18px;
-    text-align: left;
-}
-/* Form action links should look like links, not buttons */
-.form-actions a {
-    text-decoration: underline;
-    color: #2196F3;
+
+.form-col .form-row label {
+    min-width: 120px;
     font-weight: normal;
     margin-right: 12px;
-    padding: 0;
-    cursor: pointer;
 }
 
-.form-actions a:hover {
-    color: #1976D2;
-}
-
-@media (max-width: 700px) {
-    .form-columns {
-        flex-direction: column;
-        gap: 0;
-    }
-    .form-actions {
-        text-align: center;
-    }
-}
-.form-row {
-    display: flex;
-    align-items: center;
-    margin-bottom: 12px;
-}
-.form-row label {
-    display: flex;
-    align-items: center;
-    font-weight: normal;
-    width: 100%;
-}
-.form-row input[type="text"] {
+.form-col .form-row input[type="text"] {
     flex: 1 1 auto;
     max-width: 220px;
-    margin-left: 10px;
-    padding-right: 24px;
-}
-.form-col .form-row input[type="text"] {
+    margin-left: 0;
     padding-right: 32px;
 }
 
-/* VERTICAL FORM LAYOUT (for addUser.jsp, editUser.jsp) */
+/* =========================
+   Vertical Form Layout (addUser.jsp / editUser.jsp)
+   ========================= */
 .form-vertical {
     display: flex;
     flex-direction: column;
     gap: 24px;
 }
+
 .form-vertical fieldset {
     border: 1px solid #bbb;
     border-radius: 6px;
@@ -194,22 +173,26 @@ tbody tr:hover {
     margin-bottom: 18px;
     background: #fafbfc;
 }
+
 .form-vertical legend {
     font-weight: bold;
     margin-bottom: 8px;
     padding: 0 8px;
     color: #333;
 }
+
 .form-vertical .form-row {
     display: flex;
     align-items: center;
     margin-bottom: 12px;
 }
+
 .form-vertical .form-row label {
     min-width: 120px;
     font-weight: normal;
     margin-right: 12px;
 }
+
 .form-vertical .form-row input[type="text"] {
     flex: 1 1 auto;
     max-width: 320px;
@@ -217,66 +200,33 @@ tbody tr:hover {
     padding-right: 0;
 }
 
-/* HORIZONTAL FORM LAYOUT (for users.jsp) */
-.form-columns {
+.form-vertical .form-actions {
     display: flex;
-    gap: 32px;
+    gap: 12px;
     justify-content: flex-start;
-}
-.form-col {
-    flex: 1 1 220px;
-    min-width: 180px;
-    border: none;
-    padding: 0;
-    margin: 0;
-}
-.form-col legend {
-    font-weight: bold;
-    margin-bottom: 8px;
-}
-.form-col .form-row {
-    display: flex;
-    align-items: center;
-    margin-bottom: 12px;
-}
-.form-col .form-row label {
-    min-width: 120px;
-    font-weight: normal;
-    margin-right: 12px;
-}
-.form-col .form-row input[type="text"] {
-    flex: 1 1 auto;
-    max-width: 220px;
-    margin-left: 0;
-    padding-right: 32px;
-}
-.form-actions {
-    margin-top: 18px;
-    text-align: left;
-}
-@media (max-width: 700px) {
-    .form-columns {
-        flex-direction: column;
-        gap: 0;
-    }
-    .form-actions {
-        text-align: center;
-    }
+    margin-top: 16px;
 }
 
-/* ===== NEW STYLES ===== */
+.form-vertical .form-actions button {
+    flex: 0 0 auto;
+}
 
-/* Validation error messages */
-.form-col .error-message {
+/* =========================
+   Validation Error
+   ========================= */
+.error-message {
     color: red;
     font-size: 0.85em;
     margin-top: 2px;
 }
 
-/* Pagination buttons */
+/* =========================
+   Pagination
+   ========================= */
 .pagination {
     margin-top: 16px;
 }
+
 .pagination button {
     padding: 6px 12px;
     margin-right: 8px;
@@ -284,23 +234,16 @@ tbody tr:hover {
     border: none;
     cursor: pointer;
 }
+
 .pagination button:disabled {
     background-color: #ccc;
     cursor: not-allowed;
 }
-/* Align buttons horizontally for vertical forms */
-.form-vertical .form-actions {
-    display: flex;
-    gap: 12px;           /* space between buttons */
-    justify-content: flex-start; /* align left */
-    margin-top: 16px;    /* spacing from last input */
-}
 
-.form-vertical .form-actions button {
-    flex: 0 0 auto;      /* buttons do not stretch */
-}
-/* ===== Search Box Styles (for users.jsp) ===== */
-.search-box {
+/* =========================
+   Search Box (users.jsp)
+   ========================= */
+.search-container {
     margin-bottom: 20px;
     border: 1px solid #ccc;
     padding: 16px;
@@ -309,28 +252,42 @@ tbody tr:hover {
     border-radius: 6px;
 }
 
-.search-box .form-row {
+.search-container .form-actions {
+    margin-top: 16px;
+    text-align: left;
+}
+
+.search-container .form-actions a {
+    display: inline-block;
+    margin-right: 20px;
+    text-decoration: underline;
+    color: #2196F3;
+    cursor: pointer;
+    font-weight: normal;
+}
+
+.search-container .form-actions a:hover {
+    color: #1976D2;
+}
+
+.search-container .form-row {
     margin-bottom: 10px;
 }
 
-.search-box label {
+.search-container label {
     display: inline-block;
     min-width: 120px;
     font-weight: bold;
 }
 
-.search-box input[type="text"] {
+.search-container input[type="text"] {
     padding: 6px;
     border: 1px solid #bbb;
     border-radius: 4px;
     width: calc(100% - 130px);
 }
 
-.search-box .form-actions {
-    margin-top: 12px;
-}
-
-.search-box button {
+.search-container button {
     margin-right: 10px;
     padding: 6px 12px;
     border: none;
@@ -341,6 +298,16 @@ tbody tr:hover {
     font-size: 14px;
 }
 
-.search-box button:hover {
+.search-container button:hover {
     background: #005fa3;
+}
+
+@media (max-width: 700px) {
+    .form-columns {
+        flex-direction: column;
+        gap: 0;
+    }
+    .form-actions {
+        text-align: center;
+    }
 }

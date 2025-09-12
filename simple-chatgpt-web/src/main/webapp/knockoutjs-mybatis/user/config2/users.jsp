@@ -14,7 +14,8 @@
 <div class="container" data-bind="with: userVM">
     <h1>User Management</h1>
 
-    <div class="search-container" style="margin-bottom: 20px; border: 1px solid #ccc; padding: 16px; max-width: 600px;">
+    <!-- Search Form -->
+    <div class="search-container">
         <form data-bind="submit: searchUsers">
             <div class="form-columns">
                 <fieldset class="form-col">
@@ -25,7 +26,9 @@
                             <span data-bind="text: label + ':'"></span>
                             <input type="text" data-bind="value: $parent.searchParams[name], valueUpdate: 'input'" />
                         </label>
-                        <div class="error-message" data-bind="text: $parent.errors()[name], visible: $parent.errors()[name]"></div>
+                        <div class="error-message" 
+                             data-bind="text: $root.userVM.errors()[name], 
+                                        visible: $root.userVM.errors()[name]"></div>
                     </div>
                     <!-- /ko -->
                 </fieldset>
@@ -37,7 +40,9 @@
                             <span data-bind="text: label + ':'"></span>
                             <input type="text" data-bind="value: $parent.searchParams[name], valueUpdate: 'input'" />
                         </label>
-                        <div class="error-message" data-bind="text: $parent.errors()[name], visible: $parent.errors()[name]"></div>
+                        <div class="error-message" 
+                             data-bind="text: $root.userVM.errors()[name], 
+                                        visible: $root.userVM.errors()[name]"></div>
                     </div>
                     <!-- /ko -->
                 </fieldset>
@@ -46,11 +51,12 @@
 
         <div class="form-actions">
             <a href="#" data-bind="click: goAddUser">Create User</a>
-            <a href="#" data-bind="click: searchUsers" style="margin-left: 20px;">Search</a>
-            <a href="#" data-bind="click: resetSearch" style="margin-left: 20px;">Reset</a>
+            <a href="#" data-bind="click: searchUsers">Search</a>
+            <a href="#" data-bind="click: resetSearch">Reset</a>
         </div>
     </div>
 
+    <!-- Users Grid -->
     <table>
         <thead>
         <tr data-bind="foreach: gridConfig.columns">
@@ -87,9 +93,11 @@
     const searchConfig = await configLoader.getFormConfig('searchUser');
     const regexConfig = await configLoader.getRegexConfig();
 
-    const validator = new Validator(regexConfig);
-    const userVM = new UserViewModel({ mode: 'list' }, { grid: gridConfig, search: searchConfig }, validator);
+    const userVM = new UserViewModel({ mode: 'list' }, { grid: gridConfig, search: searchConfig });
+    userVM.validator = new Validator(regexConfig);
+    userVM.errors = ko.observable({});
     ko.applyBindings({ userVM });
+    await userVM.loadUsers();
 })();
 </script>
 </body>

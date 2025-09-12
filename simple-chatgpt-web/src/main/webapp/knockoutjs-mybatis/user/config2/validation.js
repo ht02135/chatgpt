@@ -1,41 +1,28 @@
 // validation.js
 class Validator {
-    constructor(regexConfig = []) {
-        this.regexMap = {};
-        regexConfig.forEach(r => {
-            this.regexMap[r.id] = {
-                pattern: r.vaildRegexExpression,
-                message: r.errorMessage
-            };
-        });
+    constructor(regexConfig = {}) {
+        this.regexConfig = regexConfig;
     }
 
-    validateField(fieldConfig, value) {
+    validateField(fieldName, value) {
         if (typeof value !== 'string') value = '' + value;
-
-        // Required check
-        if (fieldConfig.required && value.trim() === '') {
-            return `${fieldConfig.label} cannot be empty`;
+        const regex = this.regexConfig[fieldName];
+        if (regex && !new RegExp(regex).test(value)) {
+            return `${fieldName} is invalid`;
         }
-
-        // Regex check
-        if (fieldConfig.regex && value.trim() !== '') {
-            const regexObj = this.regexMap[fieldConfig.regex];
-            if (regexObj) {
-                const re = new RegExp(regexObj.pattern);
-                if (!re.test(value)) return regexObj.message;
-            }
-        }
-
         return '';
     }
 
-    validateForm(obj, fieldsConfig) {
+    validateForm(userObj, fieldsConfig) {
         const errors = {};
         fieldsConfig.forEach(f => {
-            const val = ko.unwrap(obj[f.name]);
-            const err = this.validateField(f, val);
-            if (err) errors[f.name] = err;
+            const value = userObj[f.name] ? ko.unwrap(userObj[f.name]) : '';
+            const err = this.validateField(f.regex || '', value);
+            if (f.required && !value.trim()) {
+                errors[f.name] = `${f.label} is required`;
+            } else if (err) {
+                errors[f.name] = f.errorMessage || err;
+            }
         });
         return errors;
     }

@@ -17,8 +17,10 @@
         <div class="form-vertical" data-bind="foreach: formConfig.fields">
             <div class="form-row">
                 <label data-bind="text: label + ':'"></label>
-                <input type="text" data-bind="value: $parent.currentUser()[name], enable: editable" />
-                <div class="error-message" data-bind="text: $parent.errors()[name], visible: $parent.errors()[name]"></div>
+                <input type="text" data-bind="value: $parent.currentUser()[name], enable: editable, valueUpdate: 'input'" />
+                <div class="error-message" 
+                     data-bind="text: $root.userVM.errors()[name], 
+                                visible: $root.userVM.errors()[name]"></div>
             </div>
         </div>
         <div class="form-actions">
@@ -32,10 +34,24 @@
 (async function(){
     const formConfig = await configLoader.getFormConfig('addUser');
     const regexConfig = await configLoader.getRegexConfig();
-    const validator = new Validator(regexConfig);
 
-    const userVM = new UserViewModel({ mode: 'add' }, { form: formConfig }, validator);
-    userVM.currentUser(new User({}, formConfig.fields)); // initialize
+    const userVM = new UserViewModel({ mode: 'add' }, { form: formConfig });
+    userVM.validator = new Validator(regexConfig);
+    userVM.errors = ko.observable({});
+
+    // Initialize currentUser
+    userVM.currentUser(new User({}, formConfig.fields));
+
+    // Validate on typing
+    formConfig.fields.forEach(f => {
+        if(userVM.currentUser()[f.name]) {
+            userVM.currentUser()[f.name].subscribe(() => {
+                const errs = userVM.validator.validateForm(userVM.currentUser(), formConfig.fields);
+                userVM.errors(errs);
+            });
+        }
+    });
+
     ko.applyBindings({ userVM });
 })();
 </script>
