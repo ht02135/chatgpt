@@ -9,7 +9,7 @@ function User(data, fields) {
 }
 
 function UserViewModel(params, config) {
-    console.log("user.js -> UserViewModel: params=" + params + ", config=" + config);
+    console.log("user.js -> UserViewModel:", params, config);
     const self = this;
 
     self.mode = params.mode || 'list';
@@ -99,7 +99,7 @@ function UserViewModel(params, config) {
 
     // Sorting
     self.setSort = function(field) {
-        console.log("user.js -> setSort: field=" + field);
+        console.log("user.js -> setSort: field=", field);
         if (self.sortField() === field) self.sortOrder(self.sortOrder() === 'ASC' ? 'DESC' : 'ASC');
         else { self.sortField(field); self.sortOrder('ASC'); }
         self.page(1);
@@ -121,7 +121,7 @@ function UserViewModel(params, config) {
         window.location.href = 'addUser.jsp';
     };
     self.goEditUser = function(id) {
-        console.log("user.js -> goEditUser: id=" + ko.unwrap(id));
+        console.log("user.js -> goEditUser: id=", ko.unwrap(id));
         localStorage.setItem('editUserId', ko.unwrap(id));
         window.location.href = 'editUser.jsp';
     };
@@ -130,13 +130,13 @@ function UserViewModel(params, config) {
     // Validation Helpers
     // ========================
     self.validateField = function(fieldName, value) {
-        console.log("user.js -> validateField: fieldName=" + fieldName + ", value=" + value);
+        console.log("user.js -> validateField:", fieldName, value);
         if (!self.validator) return '';
         return self.validator.validateField(fieldName, value);
     };
 
     self.validateForm = function(userObj, fieldsConfig) {
-        console.log("user.js -> validateForm: userObj=" + userObj + ", fieldsConfig=" + fieldsConfig);
+        console.log("user.js -> validateForm:", userObj, fieldsConfig);
         if (!self.validator || !fieldsConfig) return {};
         const errors = {};
         fieldsConfig.forEach(f => {
@@ -152,7 +152,7 @@ function UserViewModel(params, config) {
         self.formConfig.fields.forEach(f => {
             if (self.currentUser()[f.name]) {
                 self.currentUser()[f.name].subscribe(val => {
-                    console.log("currentUser()[f.name].subscribe: val=" + val);
+                    console.log("currentUser()[f.name].subscribe:", f.name, val);
                     const err = self.validateField(f.name, val);
                     const allErrors = { ...self.errors() };
                     if (err) allErrors[f.name] = err;
@@ -191,7 +191,7 @@ function UserViewModel(params, config) {
 
     // Delete User
     self.deleteUser = async function(user) {
-        console.log("user.js -> deleteUser: user=" + user);
+        console.log("user.js -> deleteUser: user=", user);
         if (!confirm('Are you sure?')) return;
         try {
             await fetch(`${API_USER}/${ko.unwrap(user.id)}`, { method: 'DELETE', headers: { 'Accept': 'application/json' } });
@@ -201,7 +201,7 @@ function UserViewModel(params, config) {
 
     // Load User by ID
     self.loadUserById = async function(id) {
-        console.log("user.js -> loadUserById: id=" + id);
+        console.log("user.js -> loadUserById: id=", id);
         try {
             const res = await fetch(`${API_USER}/${id}`, { headers: { 'Accept': 'application/json' } });
             const data = await res.json();
