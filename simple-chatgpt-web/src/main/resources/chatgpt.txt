@@ -1,0 +1,69 @@
+
+1. Create field-component.js
+
+// field-component.js
+ko.components.register("field-component", {
+    viewModel: function(params) {
+        this.field = params.field;
+        this.currentUser = params.currentUser;
+        this.errors = params.errors;
+    },
+    template: `
+        <div class="form-row">
+            <label data-bind="text: field.label + ':'"></label>
+            <input type="text" 
+                   data-bind="value: currentUser()[field.name], 
+                              enable: field.editable, 
+                              valueUpdate: 'input'" />
+            <div class="error-message"
+                 data-bind="text: errors()[field.name], 
+                            visible: errors()[field.name]"></div>
+        </div>
+    `
+});
+
+//////////////////////
+
+2. Use it in your JSPs
+
+addUser.jsp
+
+<script src="knockout.js"></script>
+<script src="field-component.js"></script>
+
+<form data-bind="submit: saveUser">
+    <div class="form-vertical" data-bind="foreach: formConfig.fields">
+        <field-component params="field: $data, 
+                                 currentUser: $parent.currentUser, 
+                                 errors: $root.userVM.errors">
+        </field-component>
+    </div>
+</form>
+
+/////////////////
+
+editUser.jsp (same idea, reuses the component)
+
+<script src="knockout.js"></script>
+<script src="field-component.js"></script>
+
+<form data-bind="submit: saveUser">
+    <div class="form-vertical" data-bind="foreach: formConfig.fields">
+        <field-component params="field: $data, 
+                                 currentUser: $parent.currentUser, 
+                                 errors: $root.userVM.errors">
+        </field-component>
+    </div>
+</form>
+
+///////////////////
+
+3. Benefits
+
+No duplication: You don’t have to copy-paste the <div class="form-row"> markup in multiple JSPs.
+
+Reusable: field-component can be dropped into any form where you’re looping over formConfig.fields.
+
+Maintainable: If you change validation or input type, update it in one place (field-component.js).
+
+

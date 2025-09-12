@@ -1,0 +1,127 @@
+
+There are two primary ways to define a template:
+
+In-line template: This is a simple, common approach where you define the template directly in an HTML script tag. The script tag's id is then used to reference it.
+
+External template: You can load templates from a separate file or a string using a template engine.
+    
+//////////////
+
+Key Concepts and Bindings
+
+Several bindings are used in conjunction with templates:
+
+    template binding: This is the primary binding for rendering a template. It takes a value that specifies the template to be used (e.g., 'my-template'). It can also take an object with properties like name for the template ID, and data for the data to be rendered.
+
+    foreach binding: A common use case for templates is to render a list of items. The foreach binding iterates over an observable array, applying a template to each item in the array. This is what makes a list dynamically update as items are added, removed, or reordered.
+
+    if and ifnot bindings: These bindings conditionally render a template based on whether a boolean observable is true or false.
+    
+//////////////////
+
+HTML
+
+This HTML defines an in-line template and uses the foreach binding to render a list of products.
+
+<div id="products-list">
+  <h2>Products</h2>
+  <ul data-bind="foreach: products">
+    <li data-bind="template: { name: 'product-template', data: $data }"></li>
+  </ul>
+</div>
+
+<script type="text/html" id="product-template">
+  <div class="product">
+    <h3 data-bind="text: name"></h3>
+    <p>Price: $<span data-bind="text: price"></span></p>
+    <p>In Stock: <span data-bind="text: inStock"></span></p>
+  </div>
+</script>
+
+//////////////////
+
+JavaScript (ViewModel)
+
+This JavaScript defines a view model with an observable array of products. When you add a new product to the products array, Knockout will automatically render a new <li> element using the template.
+
+// Product data model
+function Product(name, price, inStock) {
+  this.name = ko.observable(name);
+  this.price = ko.observable(price);
+  this.inStock = ko.observable(inStock);
+}
+
+// View Model
+function ProductsViewModel() {
+  this.products = ko.observableArray([
+    new Product("Laptop", 1200, true),
+    new Product("Mouse", 25, false),
+    new Product("Keyboard", 75, true)
+  ]);
+}
+
+// Apply the bindings to the HTML element
+ko.applyBindings(new ProductsViewModel(), document.getElementById("products-list"));
+
+//////////////////////
+
+template can be external
+product-template.html
+
+<div class="product">
+  <h3 data-bind="text: name"></h3>
+  <p>Price: $<span data-bind="text: price"></span></p>
+  <p>In Stock: <span data-bind="text: inStock"></span></p>
+</div>
+
+///////////////////////
+
+Load the Template: You need to load this external file's content into your main HTML page so Knockout can access it. Since Knockout doesn't have a built-in mechanism for loading external files, you'll need a third-party template engine or a library like RequireJS or jQuery. A common and simple approach is to use a custom template engine.
+
+/////////////////////////
+
+Create a Custom Template Engine: You can write a small bit of JavaScript that fetches the template's content and makes it available to Knockout. Here's a simplified example of how this might work using jQuery's $.ajax method.
+
+// A simple custom template engine
+// This is not a complete, production-ready solution, but demonstrates the concept
+ko.compositeTemplateEngine = function() {
+  var loadedTemplates = {};
+
+  this.get\'TemplateNodes\' = function(templateId) {
+    var template = loadedTemplates[templateId];
+    if (template) {
+      return ko.utils.parseHtmlFragment(template);
+    } else {
+      // You could add logic here to load the template via AJAX
+      return [];
+    }
+  };
+
+  // Method to load a template from an external file
+  this.loadTemplate = function(templateId, filePath) {
+    $.ajax({
+      url: filePath,
+      async: false, // For simplicity in this example
+      success: function(templateHtml) {
+        loadedTemplates[templateId] = templateHtml;
+      }
+    });
+  };
+};
+
+// Set Knockout to use our new template engine
+ko.setTemplateEngine(new ko.compositeTemplateEngine());
+
+///////////////////
+
+so knockoutjs template is a joke
+1>because the word template -> reusability
+2>but knockoutjs lack mechanics to load template as easy as script tag
+for .js or link tag for .css
+3>but gemni mentioned there is hope -> knockoutjs component
+
+/////////////
+
+
+
+
