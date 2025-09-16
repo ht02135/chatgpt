@@ -5,7 +5,6 @@
     <meta charset="UTF-8">
     <title>User Management</title>
     <script src="../../../js/knockout-latest.js"></script>
-    <script src="../../../js/validation.js"></script>
     <script src="../../../js/configLoader.js"></script>
     <script src="user.js"></script>
     <script src="../../../js/genericComponents.js"></script>
@@ -53,7 +52,7 @@
 </div>
 
 <script type="module">
-import Validator from "./validation.js";
+import Validator from "../../../js/validation.js"; // correct relative path
 
 (async function () {
     // ✅ Load grid and search configs

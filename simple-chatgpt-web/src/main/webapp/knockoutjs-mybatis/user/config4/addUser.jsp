@@ -5,15 +5,8 @@
     <meta charset="UTF-8">
     <title>Add User</title>
     <script src="../../../js/knockout-latest.js"></script>
-    <script src="../../../js/validation.js"></script>
     <script src="../../../js/configLoader.js"></script>
     <script src="user.js"></script>
-	<!--
-	<script src="genericFormTitleComponent.js"></script>
-	<script src="genericFormFieldsComponent.js"></script>
-	<script src="genericFormActionsComponent.js"></script>
-    <script src="genericComposedFormComponent.js"></script>
-	-->
 	<script src="../../../js/genericComponents.js"></script>
     <link rel="stylesheet" href="user.css">
 </head>
@@ -22,7 +15,7 @@
     <generic-composed-form params="vm: userVM"></generic-composed-form>
 
 	<script type="module">
-	import Validator from "./validation.js";
+	import Validator from "../../../js/validation.js"; // correct relative path
 
 	(async function () {
 	    // ✅ Load form config
