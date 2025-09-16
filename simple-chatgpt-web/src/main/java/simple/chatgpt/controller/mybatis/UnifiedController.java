@@ -276,10 +276,10 @@ public class UnifiedController {
     // 6) Get Paged
     @GetMapping(value = "/paged", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> getPagedFiltered(@RequestParam String type,
-                                              @RequestParam(defaultValue = "1") int page,
-                                              @RequestParam(defaultValue = "10") int size,
-                                              @RequestParam(defaultValue = "id") String sortField,
-                                              @RequestParam(defaultValue = "ASC") String sortOrder,
+                                              @RequestParam(required = false, defaultValue = "1") int page,
+                                              @RequestParam(required = false, defaultValue = "10") int size,
+                                              @RequestParam(required = false, defaultValue = "id") String sortField,
+                                              @RequestParam(required = false, defaultValue = "ASC") String sortOrder,
                                               @RequestParam(required = false) String firstName,
                                               @RequestParam(required = false) String lastName,
                                               @RequestParam(required = false) String email,
