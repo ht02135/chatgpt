@@ -1,0 +1,128 @@
+
+he demo involves three files:
+
+1>index.html: The main page that will use the component.
+
+2>product-list-viewmodel.js: The ViewModel for the main page.
+
+3>product-item-component.js: The file that registers our 
+custom component, including its template and ViewModel.
+    
+////////////////
+
+1. The Component File
+
+This file, product-item-component.js, defines and registers 
+a component named product-item. It contains the component's 
+ViewModel and its template as a string.
+
+// A component definition with an in-line template and a ViewModel.
+// This is an example, in a real application the template might be
+// a separate file loaded via a build tool.
+ko.components.register('product-item', {
+    viewModel: function(params) {
+        this.name = params.product.name;
+        this.price = params.product.price;
+        this.inStock = params.product.inStock;
+    },
+    template:
+        '<div>' +
+        '<h3 data-bind="text: name"></h3>' +
+        '<p>Price: $<span data-bind="text: price"></span></p>' +
+        '<p>In Stock: <span data-bind="text: inStock"></span></p>' +
+        '</div>'
+});
+
+-------------
+
+ko.components.register('product-item', { ... }): This is the key 
+function that tells Knockout how to create and manage the component. 
+We give it a name ('product-item').
+
+viewModel: This is the component's own ViewModel. It receives data 
+from its parent (in this case, the product object from the foreach 
+loop) via the params object.
+
+template: This is the HTML for the component's UI. For simplicity, 
+we define it as an in-line JavaScript string, but in a real app, 
+a build tool would convert an external HTML file into this string.
+
+//////////////////
+
+2. The Main ViewModel
+
+This file, product-list-viewmodel.js, holds the data for our page, 
+just like in previous examples. It's the parent ViewModel that will 
+use our component.
+
+// product-list-viewmodel.js
+
+// Product data model
+function Product(name, price, inStock) {
+    this.name = ko.observable(name);
+    this.price = ko.observable(price);
+    this.inStock = ko.observable(inStock);
+}
+
+// Main ViewModel for the page
+function ProductListViewModel() {
+    this.products = ko.observableArray([
+        new Product("Laptop", 1200, true),
+        new Product("Mouse", 25, false),
+        new Product("Keyboard", 75, true)
+    ]);
+}
+
+//////////////////////
+
+3. The HTML Page
+
+This file, index.html, is where everything comes together. Notice 
+that we don't have a <script type="text/html"> tag. Instead, we 
+include all our JavaScript files and use the component as a 
+custom element.
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Knockout Components Demo</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.5.1/knockout-latest.js"></script>
+</head>
+<body>
+
+    <div id="app">
+        <h2>Our Products</h2>
+        <ul data-bind="foreach: products">
+            <li>
+                <product-item params="product: $data"></product-item>
+            </li>
+        </ul>
+    </div>
+
+    <script src="product-item-component.js"></script>
+    <script src="product-list-viewmodel.js"></script>
+    <script>
+        // Once everything is loaded, apply the bindings.
+        ko.applyBindings(new ProductListViewModel(), document.getElementById('app'));
+    </script>
+</body>
+</html>
+
+----------------
+
+<product-item>: This is the custom element that Knockout recognizes as our component.
+
+params="product: $data": This is how we pass data from the parent ViewModel (ProductListViewModel) to the component's ViewModel. The product parameter on the component's ViewModel will be set to the current item ($data) from the foreach loop.
+
+///////////////////////
+
+
+
+
+
+
+
+
+
+
+

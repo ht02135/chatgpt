@@ -1,0 +1,28 @@
+<web-app xmlns="http://xmlns.jcp.org/xml/ns/javaee" version="3.1">
+    <display-name>Simple ChatGPT Web</display-name>
+
+    <!-- Spring Context Listener -->
+    <listener>
+        <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+    </listener>
+
+    <!-- Spring MVC Dispatcher Servlet -->
+    <servlet>
+        <servlet-name>api</servlet-name>
+        <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+
+    <!--
+    it seem, because i use api, then system looks for api-servlet.xml
+    -->
+    <servlet-mapping>
+        <servlet-name>api</servlet-name>
+        <url-pattern>/api/*</url-pattern>
+    </servlet-mapping>
+
+    <!-- Welcome File -->
+    <welcome-file-list>
+        <welcome-file>index.html</welcome-file>
+    </welcome-file-list>
+</web-app>

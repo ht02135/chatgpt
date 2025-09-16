@@ -1,0 +1,137 @@
+<config>
+
+    <regex id="emailValidation"
+           validRegexExpression="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
+           errorMessage="wrong email format" />
+
+    <regex id="postalCodeValidation"
+           validRegexExpression="^\d{5}(?:[-\s]\d{4})?$"
+           errorMessage="wrong postal code format" />
+
+	<!-- 
+	Minimum length: Usually 8 characters or more.
+	At least one uppercase letter.
+	At least one lowercase letter.
+	At least one digit.
+	At least one special character.
+	No whitespace characters.
+	-->
+    <regex id="passwordValidation"
+           validRegexExpression="^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9\s])(?!.*\s).{8,}$"
+           errorMessage="wrong password format" />
+           
+	<actions id="user-actions">
+    	<action name="Edit" label="Edit" visible="true" jsMethod="goEditUser" />
+    	<action name="Delete" label="Delete" visible="true" jsMethod="deleteUser" />
+	</actions>
+	
+	<actions id="xyz-actions">
+    	<action name="Edit" label="Edit" visible="true" jsMethod="goEditXYZ" />
+    	<action name="Delete" label="Delete" visible="true" jsMethod="deleteXYZ" />
+	</actions>
+           
+    <grid id="users">
+        <column name="id" label="ID" visible="true" sortable="true" />
+        <column name="firstName" label="Updated First Name" visible="true" sortable="true" />
+        <column name="lastName" label="Last Name" visible="true" sortable="true" />
+        <column name="email" label="Email" visible="true" sortable="true" />
+        <column name="actions" label="Actions" actions="user-actions" visible="true" sortable="false" />
+    </grid>
+    
+	<form id="searchUser">
+    	<field name="firstName" label="Updated First Name" visible="true" />
+    	<field name="lastName" label="Last Name" visible="true" />
+    	<field name="email" label="Email" regex="emailValidation" visible="true" />
+    	<field name="addressLine1" label="Address Line 1" visible="true" />
+    	<field name="addressLine2" label="Address Line 2" visible="true" />
+    	<field name="city" label="City" visible="true" />
+    	<field name="state" label="State" visible="true" />
+    	<field name="postCode" label="Post Code" regex="postalCodeValidation" visible="true" />
+    	<field name="country" label="Country" visible="true" />
+	</form>
+
+	<form id="addUser">
+    	<field name="name" label="Username" visible="true" required="true" editable="true" />
+    	<field name="firstName" label="Updated First Name" visible="true" required="true" editable="true" />
+    	<field name="lastName" label="Last Name" visible="true" required="true" editable="true" />
+    	<field name="email" label="Email" regex="emailValidation" visible="true" required="true" editable="true" />
+    	<field name="password" label="Password" regex="passwordValidation" visible="true" required="true" editable="true" />
+    	<field name="addressLine1" label="Address Line 1" visible="true" editable="true" />
+    	<field name="addressLine2" label="Address Line 2" visible="true" editable="true" />
+    	<field name="city" label="City" visible="true" editable="true" />
+    	<field name="state" label="State" visible="true" editable="true" />
+    	<field name="postCode" label="Post Code" regex="postalCodeValidation" visible="true" editable="true" />
+    	<field name="country" label="Country" visible="true" editable="true" />
+	</form>
+
+	<form id="editUser">
+    	<field name="id" label="ID" visible="true" required="true" editable="false" />
+    	<field name="name" label="Username" visible="true" required="true" editable="true" />
+    	<field name="firstName" label="Updated First Name" visible="true" required="true" editable="true" />
+    	<field name="lastName" label="Last Name" visible="true" required="true" editable="true" />
+    	<field name="email" label="Email" regex="emailValidation" visible="true" required="true" editable="true" />
+    	<field name="password" label="Password" regex="passwordValidation" visible="true" required="true" editable="true" />
+    	<field name="addressLine1" label="Address Line 1" visible="true" editable="true" />
+    	<field name="addressLine2" label="Address Line 2" visible="true" editable="true" />
+    	<field name="city" label="City" visible="true" editable="true" />
+    	<field name="state" label="State" visible="true" editable="true" />
+    	<field name="postCode" label="Post Code" regex="postalCodeValidation" visible="true" editable="true" />
+    	<field name="country" label="Country" visible="true" editable="true" />
+	</form>
+
+    <!-- ========================= -->
+    <!-- Validators -->
+    <!-- ========================= -->
+	<validators id="multiple-validators">
+    	<validator type="boolean" validRegexExpression="^(true|false)$" errorMessage="wrong boolean format" />
+    	<validator type="integer" validRegexExpression="^\d+$" errorMessage="wrong integer format" />
+    	<validator type="decimal" validRegexExpression="^[+-]?\d*\.?\d+$" errorMessage="wrong decimal format" />
+    	<validator type="string" validRegexExpression=".*" errorMessage="wrong string format" />
+	</validators>
+
+    <validators id="varieties-validators">
+        <validator type="abc" validRegexExpression=".*" errorMessage="wrong abc format" />
+        <validator type="xyz" validRegexExpression=".*" errorMessage="wrong xyz format" />
+    </validators>
+
+    <!-- ========================= -->
+    <!-- Actions -->
+    <!-- ========================= -->
+    <actions id="property-actions">
+        <action name="Edit" label="Edit" visible="true" jsMethod="goEditProperty" />
+    </actions>
+
+    <!-- ========================= -->
+    <!-- Grids -->
+    <!-- ========================= -->
+    <grid id="properties">
+        <column name="key" label="Key" visible="true" sortable="true" />
+        <column name="type" label="Type" visible="true" sortable="true" />
+        <column name="value" label="Value" visible="true" sortable="true" />
+        <column name="actions" label="Actions" actions="property-actions" visible="true" sortable="false" />
+    </grid>
+
+    <!-- ========================= -->
+    <!-- Forms -->
+    <!-- ========================= -->
+    <form id="searchProperty">
+        <field name="key" label="Key" visible="true" required="true" editable="true" />
+        <field name="type" label="Type" visible="true" required="true" editable="true" />
+    </form>
+
+    <form id="editProperty">
+        <field name="key" label="Key" visible="true" required="true" editable="false" />
+        <field name="type" label="Type" visible="true" required="true" editable="true" />
+        <field name="value" label="Value" visible="true" required="true" editable="true" validators="multiple-validators" />
+    </form>
+        
+	<validEmailDomains>
+    	<domain>@company.com</domain>
+    	<domain>@test.com</domain>
+    	<domain>@yahoo.com</domain>
+    	<domain>@example2.com</domain>
+    	<domain>@example4.com</domain>
+    	<domain>@ha.com</domain>
+	</validEmailDomains>
+
+</config>
