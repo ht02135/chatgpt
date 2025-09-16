@@ -5,9 +5,9 @@
     <meta charset="UTF-8">
     <title>User Management</title>
     <script src="../../../js/knockout-latest.js"></script>
-    <script src="../../../js/configLoader.js"></script>
+    <script src="configLoader.js"></script>
     <script src="user.js"></script>
-    <script src="../../../js/genericComponents.js"></script>
+    <script src="genericComponents.js"></script>
     <link rel="stylesheet" href="user.css">
 </head>
 <body>
@@ -52,7 +52,7 @@
 </div>
 
 <script type="module">
-import Validator from "../../../js/validation.js"; // correct relative path
+import Validator from "validation.js"; // correct relative path
 
 (async function () {
     // ✅ Load grid and search configs
