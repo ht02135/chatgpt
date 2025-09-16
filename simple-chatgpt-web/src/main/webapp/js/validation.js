@@ -1,63 +1,109 @@
 // validation.js
+// validation.js
 
 class Validator {
-    constructor(regexConfig = {}) {
-        console.log("validation.js -> constructor: regexConfig=", regexConfig);
-        this.regexConfig = regexConfig;
+    constructor(regexConfig = {}, validatorGroups = {}) {
+        console.log("validation.js -> constructor:");
+        console.log("  regexConfig=", regexConfig);
+        console.log("  validatorGroups=", validatorGroups);
+
+        this.regexConfig = regexConfig;     // merged config
+        this.validatorGroups = validatorGroups;
     }
 
-	validateField(fieldName, value) {
-	    console.log("validation.js -> validateField: fieldName=", fieldName);
-	    console.log("validation.js -> validateField: value=", value);
+    // -----------------------------
+    // Static async builder
+    // -----------------------------
+    static async build(configLoader, validatorGroupsMap = null) {
+        // Always load regex map (used in user forms)
+        const regexConfig = await configLoader.getRegexMapConfig();
 
-	    if (typeof value !== 'string') value = '' + value;
+        let mergedConfig = { ...regexConfig };
 
-	    let regexStr = this.regexConfig[fieldName];
-	    console.log("validation.js -> validateField: regexStr=", regexStr);
+        // If validatorGroupsMap is provided, merge validatorRegexConfig
+        if (validatorGroupsMap) {
+            const validatorRegexConfig =
+                await configLoader.buildValidatorRegexConfig(validatorGroupsMap);
 
-	    if (regexStr) {
-	        // Apply case-insensitive flag for boolean type
-	        const flags = fieldName.toLowerCase() === 'boolean' ? 'i' : '';
-	        const regex = new RegExp(regexStr, flags);
+            mergedConfig = {
+                ...mergedConfig,           // user regexes
+                ...validatorRegexConfig    // property regexes (override if same key)
+            };
+        }
 
-	        if (!regex.test(value)) {
-	            console.log("validation.js ##########");
-	            console.log("validation.js -> validateField: is invalid");
-	            console.log("validation.js -> validateField: fieldName=", fieldName);
-	            console.log("validation.js -> validateField: regex=", regex);
-	            console.log("validation.js ##########");
-	            return `${fieldName} is invalid`;
-	        }
-	    }
+        return new Validator(mergedConfig, validatorGroupsMap || {});
+    }
 
-	    return '';
-	}
+    // -----------------------------
+    // Resolve which regex key to use
+    // -----------------------------
+    getFieldName(f, obj) {
+        if (f.regex) {
+            return f.regex; // direct regex (user form style)
+        }
 
-	validateForm(userObj, fieldsConfig) {
-	    console.log("validation.js -> validateForm: userObj=", userObj);
-		console.log("validation.js -> validateForm: fieldsConfig=", fieldsConfig);
-	    const errors = {};
-	    
-	    fieldsConfig.forEach(f => {
-			console.log("validation.js -> validateForm: f=", f);
-			
-	        const value = userObj[f.name] ? ko.unwrap(userObj[f.name]) : null;
-	        const err = this.validateField(f.regex || '', value);
-	        
-	        console.log("validation.js -> validateForm: value=", value);
-	        console.log("validation.js -> validateForm: err=", err);
+        if (f.validatorsId && this.validatorGroups) {
+            const validatorGroup = this.validatorGroups[f.validatorsId];
+            if (validatorGroup) {
+                const type = ko.unwrap(obj["type"]);
+                const typeKey = type ? type.toLowerCase() : null;
 
-	        // Instead of trim(), check if value is "empty"
-	        const isEmpty = value === null || value === undefined || value === '';
+                if (typeKey) {
+                    const v = validatorGroup.find(
+                        v => v.type.toLowerCase() === typeKey
+                    );
+                    if (v) {
+                        return v.type.toLowerCase();
+                    }
+                }
+            }
+        }
 
-	        if (f.required && isEmpty) {
-	            errors[f.name] = `${f.label} is required`;
-	        } else if (err) {
-	            errors[f.name] = f.errorMessage || err;
-	        }
-	    });
+        return null;
+    }
 
-	    return errors;
-	}
+    // -----------------------------
+    // Validate a single field
+    // -----------------------------
+    validateField(fieldName, value, customMessage) {
+        if (typeof value !== "string") value = "" + value;
 
+        const regexStr = this.regexConfig[fieldName];
+        if (regexStr) {
+            const flags = fieldName.toLowerCase() === "boolean" ? "i" : "";
+            const regex = new RegExp(regexStr, flags);
+
+            if (!regex.test(value)) {
+                return customMessage || `${fieldName} is invalid`;
+            }
+        }
+        return "";
+    }
+
+    // -----------------------------
+    // Validate the entire form
+    // -----------------------------
+    validateForm(obj, fieldsConfig) {
+        const errors = {};
+
+        fieldsConfig.forEach(f => {
+            const fieldName = this.getFieldName(f, obj);
+            const value = obj[f.name] ? ko.unwrap(obj[f.name]) : null;
+
+            let err = "";
+            const isEmpty = value === null || value === undefined || value === "";
+
+            if (f.required && isEmpty) {
+                err = `${f.label || f.name} is required`;
+            } else if (fieldName) {
+                err = this.validateField(fieldName, value, f.errorMessage);
+            }
+
+            if (err) errors[f.name] = err;
+        });
+
+        return errors;
+    }
 }
+
+export default Validator;

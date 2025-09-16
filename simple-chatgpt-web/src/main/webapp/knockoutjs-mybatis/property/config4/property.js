@@ -26,7 +26,6 @@ function PropertyViewModel(params, config) {
     self.formConfig = config?.form;
     self.searchConfig = config?.search;
     self.actionGroupMap = config?.actionGroups || {};
-	self.validatorGroups = config?.validatorGroups || {};
 
     self.properties = ko.observableArray([]);
     self.currentProperty = ko.observable(new Property({}, self.formConfig?.fields || []));
@@ -188,111 +187,15 @@ function PropertyViewModel(params, config) {
         }
     };
 
-    // ========================
-    // Validation Helpers
-    // ========================
-    self.validateField = function(fieldName, value) {
-        console.log("property.js -> validateField: fieldName=", fieldName);
-		console.log("property.js -> validateField: value=", value);
-        if (!self.validator) return '';
-        return self.validator.validateField(fieldName, value);
-    };
-
-	self.validateForm = function(propObj, fieldsConfig) {
-	    console.log("property.js ##########");
-	    console.log("property.js -> validateForm: propObj=", propObj);
-	    console.log("property.js -> validateForm: fieldsConfig=", fieldsConfig);
-	    console.log("property.js -> validateForm: self.validator=", self.validator);
-	    console.log("property.js -> validateForm: fieldsConfig=", fieldsConfig);
-	    console.log("property.js ##########");
-
-	    if (!self.validator || !fieldsConfig) return {};
-
-	    const errors = {};
-
-	    fieldsConfig.forEach(f => {
-	        const val = ko.unwrap(propObj[f.name]);
-	        let err = '';
-
-	        console.log("property.js ##########");
-	        console.log("property.js -> validateForm: f=", f);
-	        console.log("property.js -> validateForm: val=", val);
-	        console.log("property.js -> validateForm: f.validatorsId=", f.validatorsId);
-	        console.log("property.js -> validateForm: self.validatorGroups=", self.validatorGroups);
-	        console.log("property.js -> validatorGroups JSON=", JSON.stringify(self.validatorGroups, null, 2));
-	        console.log("property.js ##########");
-
-	        if (f.validatorsId && self.validatorGroups) {
-	            const validatorGroup = self.validatorGroups[f.validatorsId];
-	            console.log("property.js -> validateForm: validatorGroup=", validatorGroup);
-
-	            if (validatorGroup) {
-	                const type = ko.unwrap(propObj['type']);
-	                console.log("property.js -> validateForm: type=", type);
-
-	                if (type) {
-	                    const typeKey = type.toLowerCase();
-	                    console.log("property.js -> validateForm: typeKey=", typeKey);
-
-	                    const v = validatorGroup.find(v => v.type.toLowerCase() === typeKey);
-	                    if (v) {
-	                        err = self.validator.validateField(v.type.toLowerCase(), val, v.errorMessage);
-	                    }
-	                }
-	            }
-	        }
-
-	        if (err) errors[f.name] = err;
-	    });
-
-	    return errors;
+	// ========================
+	// Validation Helpers
+	// ========================
+	self.validateForm = function (propObj, fieldsConfig) {
+	    console.log("property.js -> calling Validator.validateForm");
+	    return self.validator
+	        ? self.validator.validateForm(propObj, fieldsConfig)
+	        : {};
 	};
-
-	// ==============================
-	// Setup live validation for property fields
-	// ==============================
-	self.setupLiveValidation = function() {
-	    if (!self.formConfig?.fields || !self.currentProperty()) return;
-
-	    self.formConfig.fields.forEach(f => {
-	        const fieldObs = self.currentProperty()[f.name];
-	        if (!fieldObs || !fieldObs.subscribe) return;
-
-	        fieldObs.subscribe(val => {
-	            console.log("property.js -> live validation callback:", f.name, val);
-
-	            let err = '';
-
-	            // 1️⃣ Generic validation using self.validateForm
-	            const genericErr = self.validateForm(self.currentProperty(), [f])[f.name];
-	            if (genericErr) err = genericErr;
-
-	            // 2️⃣ Type-specific validation if no generic error
-	            if (!err && f.validatorsId && self.validatorGroups) {
-	                const validatorGroup = self.validatorGroups[f.validatorsId];
-	                if (validatorGroup) {
-	                    const type = ko.unwrap(self.currentProperty()['type']);
-	                    if (type) {
-	                        const typeKey = type.toLowerCase();
-	                        const v = validatorGroup.find(v => v.type.toLowerCase() === typeKey);
-	                        if (v) {
-	                            err = self.validator.validateField(v.type.toLowerCase(), val, v.errorMessage);
-	                        }
-	                    }
-	                }
-	            }
-
-	            // 3️⃣ Update errors observable
-	            const allErrors = { ...self.errors() };
-	            if (err) allErrors[f.name] = err;
-	            else delete allErrors[f.name];
-	            self.errors(allErrors);
-	        });
-	    });
-	};
-	// ✅ Call this after initializing self.currentProperty() and self.formConfig
-	self.setupLiveValidation();
-
 
     // ========================
     // Save Property

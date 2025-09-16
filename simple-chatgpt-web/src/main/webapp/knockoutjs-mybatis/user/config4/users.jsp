@@ -52,24 +52,34 @@
     </generic-grid-pagination>
 </div>
 
-<script>
-(async function(){
-    const gridConfig   = await configLoader.getGridConfig('users');
-    const searchConfig = await configLoader.getFormConfig('searchUser');
-    const regexConfig  = await configLoader.getRegexMapConfig();
+<script type="module">
+import Validator from "./validation.js";
+
+(async function () {
+    // ✅ Load grid and search configs
+    const gridConfig   = await configLoader.getGridConfig("users");
+    const searchConfig = await configLoader.getFormConfig("searchUser");
     const actionGroupMap = await configLoader.getActionGroupMap();
 
-    // rename to objectVM (generic)
+    // ✅ Initialize ViewModel
     const objectVM = new UserViewModel(
-        { mode: 'list' }, 
+        { mode: "list" },
         { grid: gridConfig, search: searchConfig, actionGroups: actionGroupMap }
     );
 
-    objectVM.validator = new Validator(regexConfig);
+    // ✅ Build Validator (loads regexConfig internally)
+    objectVM.validator = await Validator.build(configLoader);
+
+    // ✅ Initialize observable for errors
     objectVM.errors = ko.observable({});
+
+    // ✅ Apply Knockout bindings
     ko.applyBindings({ objectVM });
+
+    // ✅ Initial load of users
     await objectVM.loadUsers();
 })();
 </script>
+
 </body>
 </html>

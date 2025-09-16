@@ -164,60 +164,15 @@ function UserViewModel(params, config) {
         }
     };
 
-    // ========================
-    // Validation Helpers
-    // ========================
-    self.validateField = function(fieldName, value) {
-        console.log("user.js -> validateField:", fieldName, value);
-        if (!self.validator) return '';
-        return self.validator.validateField(fieldName, value);
-    };
-
-    self.validateForm = function(userObj, fieldsConfig) {
-        console.log("user.js -> validateForm:", userObj, fieldsConfig);
-        if (!self.validator || !fieldsConfig) return {};
-        const errors = {};
-        fieldsConfig.forEach(f => {
-            const val = ko.unwrap(userObj[f.name]);
-            const err = f.regex ? self.validator.validateField(f.regex, val) : '';
-            if (err) errors[f.name] = err;
-        });
-        return errors;
-    };
-
-	// ==============================
-	// Live Field Validation (all forms)
-	// ==============================
-	self.setupLiveValidation = function() {
-	    if (!self.formConfig?.fields) return;
-
-	    self.formConfig.fields.forEach(f => {
-	        const observableField = self.currentUser()[f.name];
-	        if (!observableField || !observableField.subscribe) return;
-
-	        observableField.subscribe(val => {
-	            console.log("user.js -> live validation callback:", f.name, val);
-
-	            // Use validator instance if available, else fallback to f.regex
-	            let err = '';
-	            if (self.validator) {
-	                err = f.validatorsId 
-	                    ? self.validator.validateField(f.validatorsId.toLowerCase(), val)
-	                    : (f.regex ? self.validator.validateField(f.regex, val) : '');
-	            } else if (f.regex) {
-	                err = self.validateField(f.regex, val);
-	            }
-
-	            // Update errors observable
-	            const allErrors = { ...self.errors() };
-	            if (err) allErrors[f.name] = err;
-	            else delete allErrors[f.name];
-	            self.errors(allErrors);
-	        });
-	    });
+	// ========================
+	// Validation Helpers
+	// ========================
+	self.validateForm = function (userObj, fieldsConfig) {
+	    console.log("user.js -> calling Validator.validateForm");
+	    return self.validator
+	        ? self.validator.validateForm(userObj, fieldsConfig)
+	        : {};
 	};
-	// Call this after initializing self.currentUser() and self.formConfig
-	self.setupLiveValidation();
 
     // Save User
     self.saveUser = async function() {

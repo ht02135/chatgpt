@@ -21,20 +21,32 @@
     <!-- Use the reusable component -->
     <generic-composed-form params="vm: userVM"></generic-composed-form>
 
-<script>
-(async function(){
-    const formConfig = await configLoader.getFormConfig('addUser');
-    const regexConfig = await configLoader.getRegexMapConfig();
+	<script type="module">
+	import Validator from "./validation.js";
 
-    const userVM = new UserViewModel({ mode: 'add' }, { form: formConfig });
-    userVM.validator = new Validator(regexConfig);
-    userVM.errors = ko.observable({});
+	(async function () {
+	    // ✅ Load form config
+	    const formConfig = await configLoader.getFormConfig("addUser");
 
-    // Initialize currentUser
-    userVM.currentUser(new User({}, formConfig.fields));
+	    // ✅ Initialize ViewModel
+	    const userVM = new UserViewModel(
+	        { mode: "add" },
+	        { form: formConfig }
+	    );
 
-    ko.applyBindings({ userVM });
-})();
-</script>
+	    // ✅ Build Validator (loads regexConfig internally)
+	    userVM.validator = await Validator.build(configLoader);
+
+	    // ✅ Initialize observable for errors
+	    userVM.errors = ko.observable({});
+
+	    // ✅ Initialize currentUser
+	    userVM.currentUser(new User({}, formConfig.fields));
+
+	    // ✅ Apply Knockout bindings
+	    ko.applyBindings({ userVM });
+	})();
+	</script>
+
 </body>
 </html>

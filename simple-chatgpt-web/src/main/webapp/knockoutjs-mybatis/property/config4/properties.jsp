@@ -52,33 +52,31 @@
     </generic-grid-pagination>
 </div>
 
-<script>
-(async function(){
-    const gridConfig      = await configLoader.getGridConfig('properties');
-    const searchConfig    = await configLoader.getFormConfig('searchProperty');
+<script type="module">
+import Validator from "./validation.js";
+
+(async function () {
+    const gridConfig   = await configLoader.getGridConfig("properties");
+    const searchConfig = await configLoader.getFormConfig("searchProperty");
     const validatorGroups = await configLoader.getValidatorGroupMap();
-	console.log("properties.jsp ##########");
-	console.log("properties.jsp -> validatorGroups=", validatorGroups);
-	console.log("properties.jsp -> validatorGroups JSON=", JSON.stringify(validatorGroups, null, 2));
-	console.log("properties.jsp ##########");
     const actionGroupMap  = await configLoader.getActionGroupMap();
 
-    // rename to objectVM (generic)
     const objectVM = new PropertyViewModel(
-        { mode: 'list' }, 
-        { grid: gridConfig, search: searchConfig, actionGroups: actionGroupMap, validatorGroups: validatorGroups }
+        { mode: "list" },
+        { grid: gridConfig, search: searchConfig, actionGroups: actionGroupMap }
     );
 
-    objectVM.validator = new Validator(validatorGroups); // use type-based validators
+    // Validator now builds merged regex config + validatorGroups internally
+    objectVM.validator = await Validator.build(configLoader, validatorGroups);
+
     objectVM.errors = ko.observable({});
 
     ko.applyBindings({ objectVM });
 
-    // initial load
+    // Initial load
     await objectVM.loadProperties();
 })();
 </script>
-
 
 </body>
 </html>

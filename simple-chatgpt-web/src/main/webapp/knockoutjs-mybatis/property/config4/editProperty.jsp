@@ -15,11 +15,13 @@
     <!-- Use the reusable generic form -->
     <generic-composed-form params="vm: propertyVM"></generic-composed-form>
 
-	<script>
-	(async function() {
+	<script type="module">
+	import Validator from "./validation.js";
+
+	(async function () {
 	    // ✅ Load form config
-	    const formConfig = await configLoader.getFormConfig('editProperty');
-	    
+	    const formConfig = await configLoader.getFormConfig("editProperty");
+
 	    // ✅ Load validator groups map
 	    const validatorGroupsMap = await configLoader.getValidatorGroupMap();
 
@@ -28,22 +30,20 @@
 	    console.log("editProperty.jsp -> validatorGroupsMap JSON=", JSON.stringify(validatorGroupsMap, null, 2));
 	    console.log("editProperty.jsp ##########");
 
-	    // ✅ Build regexConfig from validatorGroupsMap
-		const regexConfig = await configLoader.buildValidatorRegexConfig(validatorGroupsMap);
-	    console.log("editProperty.jsp -> regexConfig=", regexConfig);
-
-	    // ✅ Initialize ViewModel with form config and validatorGroupsMap
+	    // ✅ Initialize ViewModel with form config (no validatorGroups needed)
 	    const propertyVM = new PropertyViewModel(
-	        { mode: 'edit' },
-	        { form: formConfig, validatorGroups: validatorGroupsMap }
+	        { mode: "edit" },
+	        { form: formConfig }
 	    );
 
-	    // ✅ Initialize Validator with regexConfig
-	    propertyVM.validator = new Validator(regexConfig);
+	    // ✅ Build Validator (merges regexConfig + validatorRegexConfig internally)
+	    propertyVM.validator = await Validator.build(configLoader, validatorGroupsMap);
+
+	    // ✅ Initialize observable for errors
 	    propertyVM.errors = ko.observable({});
 
 	    // ✅ Load property by ID (from localStorage)
-	    const editId = localStorage.getItem('editPropertyId');
+	    const editId = localStorage.getItem("editPropertyId");
 	    if (editId) {
 	        await propertyVM.loadPropertyById(editId);
 	    }

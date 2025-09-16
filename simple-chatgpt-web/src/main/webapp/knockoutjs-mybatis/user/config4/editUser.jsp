@@ -15,24 +15,35 @@
 	<!-- Use the reusable component -->
 	<generic-composed-form params="vm: userVM"></generic-composed-form>
 
-    <script>
-    (async function(){
-        const formConfig = await configLoader.getFormConfig('editUser');
-        const regexConfig = await configLoader.getRegexMapConfig();
+	<script type="module">
+	import Validator from "./validation.js";
 
-        const userVM = new UserViewModel(
-			{ mode: 'edit' }, 
-			{ form: formConfig }
-		);
-        userVM.validator = new Validator(regexConfig);
-        userVM.errors = ko.observable({});
+	(async function () {
+	    // ✅ Load form config
+	    const formConfig = await configLoader.getFormConfig("editUser");
 
-        // Load user by ID
-        const editId = localStorage.getItem('editUserId');
-        if(editId) await userVM.loadUserById(editId);
+	    // ✅ Initialize ViewModel
+	    const userVM = new UserViewModel(
+	        { mode: "edit" },
+	        { form: formConfig }
+	    );
 
-        ko.applyBindings({ userVM });
-    })();
-    </script>
+	    // ✅ Build Validator (loads regexConfig internally)
+	    userVM.validator = await Validator.build(configLoader);
+
+	    // ✅ Initialize observable for errors
+	    userVM.errors = ko.observable({});
+
+	    // ✅ Load user by ID from localStorage
+	    const editId = localStorage.getItem("editUserId");
+	    if (editId) {
+	        await userVM.loadUserById(editId);
+	    }
+
+	    // ✅ Apply Knockout bindings
+	    ko.applyBindings({ userVM });
+	})();
+	</script>
+
 </body>
 </html>
