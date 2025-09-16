@@ -2,15 +2,21 @@
 
 const API_BASE = '/chatgpt/api/mybatis/config';
 
+let _cache = null;
+let _cacheTimestamp = 0;
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
 const configLoader = {
+    // ---------------------------
+    // Core fetch
+    // ---------------------------
     async loadAll() {
         console.log("configLoader.js -> loadAll: called");
         try {
             const res = await fetch(`${API_BASE}/all`);
             const json = await res.json();
             if (json.status !== 'SUCCESS') throw new Error('Failed to load config');
-			//console.log("configLoader.js -> loadAll: json.data=" + json.data);
-			console.log("configLoader.js -> loadAll: json.data=", json.data);
+            console.log("configLoader.js -> loadAll: json.data=", json.data);
             return json.data;
         } catch (err) {
             console.error("configLoader.js -> loadAll: ❌ Config load error:", err);
@@ -18,119 +24,126 @@ const configLoader = {
         }
     },
 
-	async getFormConfig(formId) {
-	    console.log("configLoader.js -> getFormConfig: formId=", formId);
-	    const data = await this.loadAll();
-	    const result = data?.forms.find(f => f.id === formId) || null;
-	    //console.log("getFormConfig: result=" + result);
-		console.log("configLoader.js -> getFormConfig: result=", result);
-	    return result;
-	},
+    async loadAllCached() {
+        const now = Date.now();
+        if (_cache && (now - _cacheTimestamp) < CACHE_TTL) {
+            console.log("configLoader.js -> loadAllCached: using cache");
+            return _cache;
+        }
+        console.log("configLoader.js -> loadAllCached: fetching fresh data");
+        const data = await this.loadAll();
+        if (data) {
+            _cache = data;
+            _cacheTimestamp = now;
+        }
+        return data;
+    },
 
-	async getGridConfig(gridId) {
-	    console.log("configLoader.js -> getGridConfig: gridId=", gridId);
-	    const data = await this.loadAll();
-	    const result = data?.grids.find(g => g.id === gridId) || null;
-		console.log("configLoader.js -> getGridConfig: result=", result);
-	    return result;
-	},
+    invalidateCache() {
+        console.log("configLoader.js -> invalidateCache: cache cleared");
+        _cache = null;
+        _cacheTimestamp = 0;
+    },
 
-	async getRegexConfig() {
-	    console.log("configLoader.js -> getRegexConfig: called");
-	    const data = await this.loadAll();
-	    const result = data?.regex || {};
-		console.log("configLoader.js -> getRegexConfig: result=", result);
-	    return result;
-	},
-	
-	// ✅ New wrapper to convert array to map
-	async getRegexMapConfig() {
-		console.log("configLoader.js -> getRegexMapConfig: called");
-	    const regexArray = await this.getRegexConfig(); // Step 1: get list
-	    const regexMap = {};                              // Step 2: build map
-	    regexArray.forEach(r => {
-	        regexMap[r.id] = r.expression;               // map id → expression
-	    });
-	    console.log("configLoader.js -> getRegexMapConfig: regexMap=", regexMap); // Step 3: log for debugging
-	    return regexMap;                                 // Step 4: return map
-	},
-	
-	async getActionGroups() {
-	    console.log("configLoader.js -> getActionGroups: called");
-	    const data = await this.loadAll();
-	    const result = data?.actions || [];
-	    console.log("configLoader.js -> getActionGroups: result=", result);
-	    return result;
-	},
+    // ---------------------------
+    // Form / Grid / Regex Configs
+    // ---------------------------
+    async getFormConfig(formId) {
+        const data = await this.loadAllCached();
+        const result = data?.forms.find(f => f.id === formId) || null;
+        console.log("configLoader.js -> getFormConfig: formId=", formId, "result=", result);
+        return result;
+    },
 
-	async getActionGroup(actionGroupId) {
-	    console.log("configLoader.js -> getActionGroup: actionGroupId=", actionGroupId);
-	    const actionGroups = await this.getActionGroups();
-	    const actionGroup = actionGroups.find(g => g.id === actionGroupId) || null;
+    async getGridConfig(gridId) {
+        const data = await this.loadAllCached();
+        const result = data?.grids.find(g => g.id === gridId) || null;
+        console.log("configLoader.js -> getGridConfig: gridId=", gridId, "result=", result);
+        return result;
+    },
 
-	    if (actionGroup) {
-	        // keep only visible actions
-	        actionGroup.actions = actionGroup.actions.filter(a => a.visible);
-	    }
+    async getRegexConfig() {
+        const data = await this.loadAllCached();
+        const result = data?.regex || {};
+        console.log("configLoader.js -> getRegexConfig: result=", result);
+        return result;
+    },
 
-	    console.log("configLoader.js -> getActionGroup: result=", actionGroup);
-	    return actionGroup;
-	},
+    async getRegexMapConfig() {
+        const regexArray = await this.getRegexConfig();
+        const regexMap = {};
+        regexArray.forEach(r => {
+            regexMap[r.id] = r.expression;
+        });
+        console.log("configLoader.js -> getRegexMapConfig: regexMap=", regexMap);
+        return regexMap;
+    },
 
-	async getActionGroupMap() {
-	    console.log("configLoader.js -> getActionGroupMap: called");
-	    const actionGroups = await this.getActionGroups();
-	    const map = {};
-	    actionGroups.forEach(actionGroup => {
-	        // key = groupId, value = only visible actions
-	        map[actionGroup.id] = actionGroup.actions.filter(a => a.visible);
-	    });
-	    console.log("configLoader.js -> getActionGroupMap: map=", map);
-	    return map;
-	},
-	
-	// -------------------------------------------
-	// -------------------------------------------
+    // ---------------------------
+    // Action Groups
+    // ---------------------------
+    async getActionGroups() {
+        const data = await this.loadAllCached();
+        const result = data?.actions || [];
+        console.log("configLoader.js -> getActionGroups: result=", result);
+        return result;
+    },
 
-	// ✅ Load all validator groups
-	async getValidatorGroups() {
-	    console.log("configLoader.js -> getValidatorGroups: called");
-	    const data = await this.loadAll(); // data = json.data
-	    const validatorGroups = data?.validators || [];
-	    console.log("configLoader.js -> getValidatorGroups: validatorGroups=", validatorGroups);
-	    return validatorGroups;
-	},
+    async getActionGroup(actionGroupId) {
+        const actionGroups = await this.getActionGroups();
+        const actionGroup = actionGroups.find(g => g.id === actionGroupId) || null;
+        if (actionGroup) {
+            actionGroup.actions = actionGroup.actions.filter(a => a.visible);
+        }
+        console.log("configLoader.js -> getActionGroup: actionGroupId=", actionGroupId, "result=", actionGroup);
+        return actionGroup;
+    },
 
-	// ✅ Get one validator group by ID
-	async getValidatorGroup(validatorGroupId) {
-	    console.log("configLoader.js -> getValidatorGroup: validatorGroupId=", validatorGroupId);
-	    const validatorGroups = await this.getValidatorGroups();
-	    const validatorGroup = validatorGroups.find(g => g.id === validatorGroupId) || null;
-	    console.log("configLoader.js -> getValidatorGroup: result=", validatorGroup);
-	    return validatorGroup;
-	},
+    async getActionGroupMap() {
+        const actionGroups = await this.getActionGroups();
+        const map = {};
+        actionGroups.forEach(group => {
+            map[group.id] = group.actions.filter(a => a.visible);
+        });
+        console.log("configLoader.js -> getActionGroupMap: map=", map);
+        return map;
+    },
 
-	// ✅ Convert validator groups into a map: { groupId → validators[] }
-	async getValidatorGroupMap() {
-	    console.log("configLoader.js -> getValidatorGroupMap: called");
-	    const validatorGroups = await this.getValidatorGroups();
-	    const map = {};
-	    validatorGroups.forEach(group => {
-	        map[group.id] = group.validators; // keep full list
-	    });
-	    console.log("configLoader.js -> getValidatorGroupMap: map=", map);
-	    return map;
-	},
+    // ---------------------------
+    // Validator Groups
+    // ---------------------------
+    async getValidatorGroups() {
+        const data = await this.loadAllCached();
+        const validatorGroups = data?.validators || [];
+        console.log("configLoader.js -> getValidatorGroups: validatorGroups=", validatorGroups);
+        return validatorGroups;
+    },
 
-	// ✅ Optional: build regexConfig from validatorGroupsMap
-	async buildValidatorRegexConfig(validatorGroupsMap) {
-	    const regexConfig = {};
-	    Object.values(validatorGroupsMap).forEach(group => {
-	        group.forEach(v => {
-	            regexConfig[v.type.toLowerCase()] = v.validRegexExpression;
-	        });
-	    });
-	    console.log("configLoader.js -> buildValidatorRegexConfig: regexConfig=", regexConfig);
-	    return regexConfig;
-	}
+    async getValidatorGroup(validatorGroupId) {
+        const validatorGroups = await this.getValidatorGroups();
+        const validatorGroup = validatorGroups.find(g => g.id === validatorGroupId) || null;
+        console.log("configLoader.js -> getValidatorGroup: validatorGroupId=", validatorGroupId, "result=", validatorGroup);
+        return validatorGroup;
+    },
+
+    async getValidatorGroupMap() {
+        const validatorGroups = await this.getValidatorGroups();
+        const map = {};
+        validatorGroups.forEach(group => {
+            map[group.id] = group.validators;
+        });
+        console.log("configLoader.js -> getValidatorGroupMap: map=", map);
+        return map;
+    },
+
+    async buildValidatorRegexConfig(validatorGroupsMap) {
+        const regexConfig = {};
+        Object.values(validatorGroupsMap).forEach(group => {
+            group.forEach(v => {
+                regexConfig[v.type.toLowerCase()] = v.validRegexExpression;
+            });
+        });
+        console.log("configLoader.js -> buildValidatorRegexConfig: regexConfig=", regexConfig);
+        return regexConfig;
+    }
 };
