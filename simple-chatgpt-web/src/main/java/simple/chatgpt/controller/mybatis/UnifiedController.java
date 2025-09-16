@@ -66,6 +66,7 @@ public class UnifiedController {
                 }
 
             case "property":
+            	// property definitely not support /add by design
                 return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED)
                         .body(Response.error("Add not implemented for property", null, HttpStatus.NOT_IMPLEMENTED.value()));
 
@@ -96,6 +97,7 @@ public class UnifiedController {
                 return ResponseEntity.ok(Response.success("User updated successfully", updatedUser, HttpStatus.OK.value()));
 
             case "property":
+            	// property definitely not support update by /{id} by design
                 return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED)
                         .body(Response.error("Update by ID not implemented for property", null, HttpStatus.NOT_IMPLEMENTED.value()));
 
@@ -125,6 +127,7 @@ public class UnifiedController {
                 }
 
             case "user":
+            	// user definitely not support update by key by design
                 return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED)
                         .body(Response.error("Update (POST /update) not implemented for user", null, HttpStatus.NOT_IMPLEMENTED.value()));
 
@@ -149,6 +152,7 @@ public class UnifiedController {
                 return ResponseEntity.ok(Response.success("User deleted successfully", null, HttpStatus.OK.value()));
 
             case "property":
+            	// user definitely not support delete by design
                 return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED)
                         .body(Response.error("Delete not implemented for property", null, HttpStatus.NOT_IMPLEMENTED.value()));
 
@@ -176,6 +180,7 @@ public class UnifiedController {
                 return ResponseEntity.ok(Response.success("User retrieved successfully", user, HttpStatus.OK.value()));
 
             case "property":
+            	// property definitely not support get by /{id} by design
                 return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED)
                         .body(Response.error("Get by ID not implemented for property (use /by-key)", null, HttpStatus.NOT_IMPLEMENTED.value()));
 
@@ -204,6 +209,7 @@ public class UnifiedController {
                 return ResponseEntity.ok(Response.success("Property retrieved", property, HttpStatus.OK.value()));
 
             case "user":
+            	// user definitely not support get by /by-key/{key} by design
                 return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED)
                         .body(Response.error("Get by key not implemented for user", null, HttpStatus.NOT_IMPLEMENTED.value()));
 
@@ -220,20 +226,21 @@ public class UnifiedController {
     // 5) Get All
     @GetMapping("/all")
     public ResponseEntity<?> getAll(@RequestParam String type,
+            						@RequestParam(value = "page", required = false, defaultValue = "1") int page,
+            						@RequestParam(value = "size", required = false, defaultValue = "10") int size,
+            						@RequestParam(value = "sort", required = false, defaultValue = "key") String sort,
+            						@RequestParam(value = "order", required = false, defaultValue = "ASC") String order,
                                     @RequestParam(value = "key", required = false) String key,
-                                    @RequestParam(value = "type", required = false) String propertyType,
-                                    @RequestParam(value = "page", required = false, defaultValue = "1") int page,
-                                    @RequestParam(value = "size", required = false, defaultValue = "10") int size,
-                                    @RequestParam(value = "sort", required = false, defaultValue = "key") String sort,
-                                    @RequestParam(value = "order", required = false, defaultValue = "ASC") String order) {
+                                    @RequestParam(value = "type", required = false) String propertyType) {
         logger.debug("getAll: type={}", type);
 
         switch (type.toLowerCase()) {
             case "user":
                 List<MyBatisUserUser> users = myBatisUserService.getAll();
                 return ResponseEntity.ok(Response.success("Users retrieved successfully", users, HttpStatus.OK.value()));
-
+            
             case "property":
+            	// this has key and type specifically for property
                 List<Property> properties = propertyService.getProperties(key, propertyType, page, size, sort, order);
                 int total = propertyService.countProperties(key, propertyType);
                 int maxPage = (int) Math.ceil((double) total / size);
@@ -259,7 +266,7 @@ public class UnifiedController {
                     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                             .body(Response.error("Failed to load config", null, HttpStatus.INTERNAL_SERVER_ERROR.value()));
                 }
-
+                
             default:
                 return ResponseEntity.badRequest().body(Response.error("Unknown type", null, HttpStatus.BAD_REQUEST.value()));
         }
@@ -285,6 +292,7 @@ public class UnifiedController {
 
         switch (type.toLowerCase()) {
             case "user":
+            	// this has firstname blabla specifically for user
                 List<MyBatisUserUser> users = myBatisUserService.getUsersPagedFiltered(
                         page, size, sortField, sortOrder,
                         firstName, lastName, email,
@@ -296,12 +304,23 @@ public class UnifiedController {
                 return ResponseEntity.ok(Response.success("Paged users fetched", data, HttpStatus.OK.value()));
 
             case "property":
-                return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED)
-                        .body(Response.error("Paged fetch not implemented for property", null, HttpStatus.NOT_IMPLEMENTED.value()));
+                List<Property> properties = propertyService.getAllProperties();
+                return ResponseEntity.ok(Response.success("Users retrieved successfully", properties, HttpStatus.OK.value()));
 
             case "config":
-                return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED)
-                        .body(Response.error("Paged fetch not implemented for config", null, HttpStatus.NOT_IMPLEMENTED.value()));
+                try {
+                    Map<String, Object> configMap = Map.of(
+                            "grids", configLoader.loadGrids(),
+                            "forms", configLoader.loadForms(),
+                            "regex", configLoader.loadRegexes(),
+                            "actions", configLoader.loadActionGroups(),
+                            "validators", configLoader.loadValidators()
+                    );
+                    return ResponseEntity.ok(Response.success("Config loaded", configMap, HttpStatus.OK.value()));
+                } catch (Exception e) {
+                    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                            .body(Response.error("Failed to load config", null, HttpStatus.INTERNAL_SERVER_ERROR.value()));
+                }
 
             default:
                 return ResponseEntity.badRequest().body(Response.error("Unknown type", null, HttpStatus.BAD_REQUEST.value()));
