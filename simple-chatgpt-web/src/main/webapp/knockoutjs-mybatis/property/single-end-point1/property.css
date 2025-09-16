@@ -1,0 +1,78 @@
+/* property.css - styling for property management pages */
+.container {
+    max-width: 800px;
+    margin: 0 auto;
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 16px;
+}
+th, td {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    text-align: left;
+}
+th {
+    background: #f0f0f0;
+    cursor: pointer;
+}
+.form-actions {
+    margin-top: 12px;
+}
+input[type="text"], input[type="email"], input[type="number"] {
+    width: 100%;
+    max-width: 300px;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+}
+button {
+    padding: 10px 20px;
+    margin: 5px;
+    cursor: pointer;
+    border: none;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: bold;
+    background: #007bff;
+    color: #fff;
+}
+button:disabled {
+    background: #aaa;
+}
+.form-columns {
+    display: flex;
+    gap: 24px;
+}
+.form-col {
+    flex: 1;
+    min-width: 220px;
+    border: none;
+    padding: 0;
+}
+.form-row {
+    margin-bottom: 12px;
+}
+label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #333;
+}
+table tr:hover {
+    background: #f5f5f5;
+}
+a {
+    color: #007bff;
+    text-decoration: none;
+}
+a:hover {
+    text-decoration: underline;
+}
