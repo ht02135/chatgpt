@@ -1,5 +1,24 @@
 package simple.chatgpt.controller.management;
 
+import java.util.Map;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import simple.chatgpt.pojo.management.UserManagementPojo;
+import simple.chatgpt.service.management.UserManagementService;
+import simple.chatgpt.util.PagedResult;
+import simple.chatgpt.util.Response;
+
 @RestController
 @RequestMapping(value = "/users", produces = MediaType.APPLICATION_JSON_VALUE)
 public class UserManagementController {
@@ -25,7 +44,7 @@ public class UserManagementController {
         params.put("sortDirection", params.getOrDefault("sortDirection", "asc"));
 
         PagedResult<UserManagementPojo> users = userManagementService.searchUsers(params);
-        return ResponseEntity.ok(new Response<>(users, "Fetched successfully"));
+        return ResponseEntity.ok(Response.success("Fetched successfully", users, HttpStatus.OK.value()));
     }
 
     // 📖 READ (Flexible key)
@@ -35,17 +54,21 @@ public class UserManagementController {
             @RequestParam(required = false) String userName,
             @RequestParam(required = false) String userKey
     ) {
-        UserManagementPojo user;
+        UserManagementPojo user = null;
+
         if (id != null) {
             user = userManagementService.getUserById(id);
         } else if (userName != null) {
             user = userManagementService.getByUserName(userName);
         } else if (userKey != null) {
             user = userManagementService.getByUserKey(userKey);
-        } else {
-            throw new IllegalArgumentException("At least one key must be provided");
         }
-        return ResponseEntity.ok(new Response<>(user, "Fetched successfully"));
+
+        if (user == null) {
+            return ResponseEntity.ok(Response.error("User not found", null, HttpStatus.NOT_FOUND.value()));
+        }
+
+        return ResponseEntity.ok(Response.success("Fetched successfully", user, HttpStatus.OK.value()));
     }
 
     // ➕ CREATE
@@ -54,7 +77,7 @@ public class UserManagementController {
         UserManagementPojo created = userManagementService.createUser(user);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
-                .body(new Response<>(created, "User created successfully"));
+                .body(Response.success("User created successfully", created, HttpStatus.CREATED.value()));
     }
 
     // ✏️ UPDATE (Flexible key)
@@ -65,7 +88,8 @@ public class UserManagementController {
             @RequestParam(required = false) String userKey,
             @RequestBody UserManagementPojo user
     ) {
-        UserManagementPojo updated;
+        UserManagementPojo updated = null;
+
         if (id != null) {
             updated = userManagementService.updateUserById(id, user);
         } else if (userName != null) {
@@ -73,9 +97,10 @@ public class UserManagementController {
         } else if (userKey != null) {
             updated = userManagementService.updateUserByUserKey(userKey, user);
         } else {
-            throw new IllegalArgumentException("At least one key must be provided for update");
+            return ResponseEntity.ok(Response.error("At least one key must be provided for update", null, HttpStatus.BAD_REQUEST.value()));
         }
-        return ResponseEntity.ok(new Response<>(updated, "User updated successfully"));
+
+        return ResponseEntity.ok(Response.success("User updated successfully", updated, HttpStatus.OK.value()));
     }
 
     // 🗑 DELETE (Flexible key)
@@ -92,8 +117,9 @@ public class UserManagementController {
         } else if (userKey != null) {
             userManagementService.deleteUserByUserKey(userKey);
         } else {
-            throw new IllegalArgumentException("At least one key must be provided for delete");
+            return ResponseEntity.ok(Response.error("At least one key must be provided for delete", null, HttpStatus.BAD_REQUEST.value()));
         }
-        return ResponseEntity.ok(new Response<>(null, "User deleted successfully"));
+
+        return ResponseEntity.ok(Response.success("User deleted successfully", null, HttpStatus.OK.value()));
     }
 }

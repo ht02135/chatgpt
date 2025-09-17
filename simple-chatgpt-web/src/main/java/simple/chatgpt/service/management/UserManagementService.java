@@ -1,5 +1,10 @@
 package simple.chatgpt.service.management;
 
+import java.util.Map;
+
+import simple.chatgpt.pojo.management.UserManagementPojo;
+import simple.chatgpt.util.PagedResult;
+
 public interface UserManagementService {
 
     // 🔎 LIST / SEARCH
