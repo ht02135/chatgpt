@@ -20,7 +20,7 @@ import simple.chatgpt.util.PagedResult;
 import simple.chatgpt.util.Response;
 
 @RestController
-@RequestMapping(value = "/users", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/management/users", produces = MediaType.APPLICATION_JSON_VALUE)
 public class UserManagementController {
 
     private final UserManagementService userManagementService;
