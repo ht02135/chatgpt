@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.mapper.UserManagementMapper">
+
+    <!-- 🔎 SEARCH / LIST -->
+    <select id="findUsers" resultType="com.example.pojo.UserManagementPojo">
+        SELECT * FROM user_management
+        <where>
+            <if test="firstName != null and firstName != ''">
+                AND first_name LIKE CONCAT('%', #{firstName}, '%')
+            </if>
+            <if test="lastName != null and lastName != ''">
+                AND last_name LIKE CONCAT('%', #{lastName}, '%')
+            </if>
+            <if test="email != null and email != ''">
+                AND email LIKE CONCAT('%', #{email}, '%')
+            </if>
+        </where>
+        ORDER BY ${sortField} ${sortDirection}
+        LIMIT #{offset}, #{limit}
+    </select>
+
+    <select id="countUsers" resultType="long">
+        SELECT COUNT(*) FROM user_management
+        <where>
+            <if test="firstName != null and firstName != ''">
+                AND first_name LIKE CONCAT('%', #{firstName}, '%')
+            </if>
+            <if test="lastName != null and lastName != ''">
+                AND last_name LIKE CONCAT('%', #{lastName}, '%')
+            </if>
+            <if test="email != null and email != ''">
+                AND email LIKE CONCAT('%', #{email}, '%')
+            </if>
+        </where>
+    </select>
+
+    <!-- 📖 READ -->
+    <select id="findById" resultType="com.example.pojo.UserManagementPojo">
+        SELECT * FROM user_management WHERE id = #{id}
+    </select>
+
+    <select id="findByUserName" resultType="com.example.pojo.UserManagementPojo">
+        SELECT * FROM user_management WHERE user_name = #{userName}
+    </select>
+
+    <select id="findByUserKey" resultType="com.example.pojo.UserManagementPojo">
+        SELECT * FROM user_management WHERE user_key = #{userKey}
+    </select>
+
+    <!-- ➕ CREATE -->
+    <insert id="insertUser" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO user_management
+        (user_name, user_key, password, first_name, last_name, email, address_line_1,
+         address_line_2, city, state, post_code, country)
+        VALUES
+        (#{userName}, #{userKey}, #{password}, #{firstName}, #{lastName}, #{email}, #{addressLine1},
+         #{addressLine2}, #{city}, #{state}, #{postCode}, #{country})
+    </insert>
+
+    <!-- ✏️ UPDATE -->
+    <update id="updateUser">
+        UPDATE user_management
+        <set>
+            <if test="userName != null">user_name = #{userName},</if>
+            <if test="userKey != null">user_key = #{userKey},</if>
+            <if test="password != null">password = #{password},</if>
+            <if test="firstName != null">first_name = #{firstName},</if>
+            <if test="lastName != null">last_name = #{lastName},</if>
+            <if test="email != null">email = #{email},</if>
+            <if test="addressLine1 != null">address_line_1 = #{addressLine1},</if>
+            <if test="addressLine2 != null">address_line_2 = #{addressLine2},</if>
+            <if test="city != null">city = #{city},</if>
+            <if test="state != null">state = #{state},</if>
+            <if test="postCode != null">post_code = #{postCode},</if>
+            <if test="country != null">country = #{country},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <update id="updateUserByUserName">
+        UPDATE user_management
+        <set>
+            <if test="userKey != null">user_key = #{userKey},</if>
+            <if test="password != null">password = #{password},</if>
+            <if test="firstName != null">first_name = #{firstName},</if>
+            <if test="lastName != null">last_name = #{lastName},</if>
+            <if test="email != null">email = #{email},</if>
+            <if test="addressLine1 != null">address_line_1 = #{addressLine1},</if>
+            <if test="addressLine2 != null">address_line_2 = #{addressLine2},</if>
+            <if test="city != null">city = #{city},</if>
+            <if test="state != null">state = #{state},</if>
+            <if test="postCode != null">post_code = #{postCode},</if>
+            <if test="country != null">country = #{country},</if>
+        </set>
+        WHERE user_name = #{userName}
+    </update>
+
+    <update id="updateUserByUserKey">
+        UPDATE user_management
+        <set>
+            <if test="userName != null">user_name = #{userName},</if>
+            <if test="password != null">password = #{password},</if>
+            <if test="firstName != null">first_name = #{firstName},</if>
+            <if test="lastName != null">last_name = #{lastName},</if>
+            <if test="email != null">email = #{email},</if>
+            <if test="addressLine1 != null">address_line_1 = #{addressLine1},</if>
+            <if test="addressLine2 != null">address_line_2 = #{addressLine2},</if>
+            <if test="city != null">city = #{city},</if>
+            <if test="state != null">state = #{state},</if>
+            <if test="postCode != null">post_code = #{postCode},</if>
+            <if test="country != null">country = #{country},</if>
+        </set>
+        WHERE user_key = #{userKey}
+    </update>
+
+    <!-- 🗑 DELETE -->
+    <delete id="deleteById">DELETE FROM user_management WHERE id = #{id}</delete>
+
+    <delete id="deleteByUserName">DELETE FROM user_management WHERE user_name = #{userName}</delete>
+
+    <delete id="deleteByUserKey">DELETE FROM user_management WHERE user_key = #{userKey}</delete>
+
+</mapper>

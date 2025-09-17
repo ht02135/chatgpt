@@ -1,0 +1,352 @@
+
+A DB CRUD operation refers to the four basic functions of Create, Read, Update, and Delete in database management. These are the fundamental operations for interacting with and manipulating data stored in a database.
+
+What Each Operation Means
+
+    Create: This operation involves adding new data to the database. In SQL, this is typically done using the INSERT statement. For example, creating a new user record in a 'users' table.
+
+    Read: This is the operation of retrieving data from the database. It doesn't modify the data. In SQL, the SELECT statement is used for this purpose. This is the most frequently used operation, as it's how you query and display information.
+
+    Update: This operation is used to modify existing data in a database. The UPDATE statement in SQL allows you to change the values of one or more records. For instance, updating a user's email address.
+
+    Delete: This operation removes data from the database. The SQL statement for this is DELETE. You can delete specific records or, in some cases, all records from a table.
+    
+/////////////////////////////////
+/////////////////////////////////
+
+Common Additions to Controllers
+
+List / Search / Filter
+Example: GET /users?page=1&size=20&sort=name
+Not just a single read, but a paginated and filtered retrieval of multiple records.
+Often includes advanced querying (search by keyword, filter by fields, sort, etc.).
+
+Bulk Operations
+Example:
+POST /users/bulk (create multiple at once)
+DELETE /users/bulk (delete multiple at once)
+
+Useful in admin panels or APIs managing large datasets.
+Patch / Partial Update
+Example: PATCH /users/{id} with only 1–2 fields in payload.
+Different from PUT, which usually replaces the entire resource.
+
+Soft Delete / Restore / Archive
+Instead of permanently deleting, mark as inactive or archived.
+Example:
+DELETE /users/{id} → soft delete
+POST /users/{id}/restore → bring back
+
+Status / State Change
+Domain-specific actions that don’t fit neatly into CRUD.
+Example:
+POST /orders/{id}/approve
+POST /orders/{id}/cancel
+POST /users/{id}/activate
+
+Validation / Preview
+Sometimes you want to check if something is valid before creating it.
+Example: POST /users/validate
+
+Export / Import
+Example:
+GET /reports/export?format=csv
+POST /users/import with file upload
+
+Authentication / Authorization Actions
+
+If controller deals with users:
+POST /login
+POST /logout
+POST /users/{id}/reset-password
+
+Utility / Meta Operations
+Example:
+GET /users/meta → fetch dropdown options, enums, constraints, etc.
+HEAD /users/{id} → check if exists
+
+Health / Ping (system-level controllers)
+Example: GET /health or GET /ping
+
+/////////////////////////////////
+/////////////////////////////////
+
+	<form id="searchUser">
+    	<field name="firstName" label="Updated First Name" visible="true" />
+    	<field name="lastName" label="Last Name" visible="true" />
+	</form>
+
+List / Search / Filter
+Example: GET /users?page=1&size=20&sort=name
+Not just a single read, but a paginated and filtered retrieval of multiple records.
+Often includes advanced querying (search by keyword, filter by fields, sort, etc.).
+
+--------------------------------
+
+Controller Method (still fine in Spring MVC + MyBatis)
+
+@GetMapping(value = "/users", produces = MediaType.APPLICATION_JSON_VALUE)
+public ResponseEntity<Response<PagedResult<UserDto>>> searchUsers(
+        @RequestParam(required = false) String firstName,
+        @RequestParam(required = false) String lastName,
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "20") int size,
+        @RequestParam(defaultValue = "id") String sortField,
+        @RequestParam(defaultValue = "asc") String sortDirection
+) {
+    // calculate offset for MyBatis
+    int offset = page * size;
+
+    // build parameter object or map
+    Map<String, Object> params = new HashMap<>();
+    params.put("firstName", firstName);
+    params.put("lastName", lastName);
+    params.put("offset", offset);
+    params.put("limit", size);
+    params.put("sortField", sortField);
+    params.put("sortDirection", sortDirection);
+
+    // delegate to service
+    PagedResult<UserDto> users = userService.searchUsers(params);
+
+    // wrap in response
+    Response<PagedResult<UserDto>> response =
+            new Response<>(users, "Fetched successfully");
+
+    return ResponseEntity.ok(response);
+}
+
+/////////////////////////////////
+/////////////////////////////////
+
+1. Use @RequestParam Map<String, String>
+
+Most flexible, the controller accepts any query params without explicitly declaring them:
+
+@GetMapping(value = "/users", produces = MediaType.APPLICATION_JSON_VALUE)
+public ResponseEntity<Response<PagedResult<UserPojo>>> searchUsers(
+        @RequestParam Map<String, String> params
+) {
+    // pagination defaults
+    int page = Integer.parseInt(params.getOrDefault("page", "0"));
+    int size = Integer.parseInt(params.getOrDefault("size", "20"));
+    int offset = page * size;
+
+    // inject pagination into params map
+    params.put("offset", String.valueOf(offset));
+    params.put("limit", String.valueOf(size));
+
+    // sorting defaults (short form)
+    params.put("sortField", params.getOrDefault("sortField", "id"));
+    params.put("sortDirection", params.getOrDefault("sortDirection", "asc"));
+
+    // delegate to service
+    PagedResult<UserPojo> users = userService.searchUsers(params);
+
+    // wrap in response
+    return ResponseEntity.ok(new Response<>(users, "Fetched successfully"));
+}
+
+/////////////////////////////////
+/////////////////////////////////
+
+@RestController
+@RequestMapping(value = "/users", produces = MediaType.APPLICATION_JSON_VALUE)
+public class UserController {
+
+    private final UserService userService;
+
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
+
+    // 🔎 LIST / SEARCH (with filters, paging, sorting)
+    @GetMapping
+    public ResponseEntity<Response<PagedResult<UserPojo>>> searchUsers(
+            @RequestParam Map<String, String> params
+    ) {
+        int page = Integer.parseInt(params.getOrDefault("page", "0"));
+        int size = Integer.parseInt(params.getOrDefault("size", "20"));
+        int offset = page * size;
+
+        params.put("offset", String.valueOf(offset));
+        params.put("limit", String.valueOf(size));
+        params.put("sortField", params.getOrDefault("sortField", "id"));
+        params.put("sortDirection", params.getOrDefault("sortDirection", "asc"));
+
+        PagedResult<UserPojo> users = userService.searchUsers(params);
+        return ResponseEntity.ok(new Response<>(users, "Fetched successfully"));
+    }
+
+    // 📖 READ (single by ID)
+    @GetMapping("/{id}")
+    public ResponseEntity<Response<UserPojo>> getUserById(@PathVariable("id") Long id) {
+        UserPojo user = userService.getUserById(id);
+        return ResponseEntity.ok(new Response<>(user, "Fetched successfully"));
+    }
+
+    // ➕ CREATE
+    @PostMapping
+    public ResponseEntity<Response<UserPojo>> createUser(@RequestBody UserPojo user) {
+        UserPojo created = userService.createUser(user);
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(new Response<>(created, "User created successfully"));
+    }
+
+    // ✏️ UPDATE (replace or modify full entity)
+    @PutMapping("/{id}")
+    public ResponseEntity<Response<UserPojo>> updateUser(
+            @PathVariable("id") Long id,
+            @RequestBody UserPojo user
+    ) {
+        user.setId(id); // ensure path id overrides body
+        UserPojo updated = userService.updateUser(user);
+        return ResponseEntity.ok(new Response<>(updated, "User updated successfully"));
+    }
+
+    // 🗑 DELETE
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Response<Void>> deleteUser(@PathVariable("id") Long id) {
+        userService.deleteUser(id);
+        return ResponseEntity.ok(new Response<>(null, "User deleted successfully"));
+    }
+}
+
+/////////////////////////////////
+/////////////////////////////////
+
+Option 2: Single Endpoint with Flexible Key Parameter
+
+You can accept a query param to specify which key to use:
+
+@GetMapping("/get")
+public ResponseEntity<Response<UserPojo>> getUser(
+        @RequestParam(required = false) Long id,
+        @RequestParam(required = false) String userName,
+        @RequestParam(required = false) String userKey
+) {
+    UserPojo user = null;
+
+    if (id != null) {
+        user = userService.getUserById(id);
+    } else if (userName != null) {
+        user = userService.getByUserName(userName);
+    } else if (userKey != null) {
+        user = userService.getByUserKey(userKey);
+    } else {
+        throw new IllegalArgumentException("At least one key must be provided");
+    }
+
+    return ResponseEntity.ok(new Response<>(user, "Fetched successfully"));
+}
+
+/////////////////////////////////
+/////////////////////////////////
+
+@RestController
+@RequestMapping(value = "/users", produces = MediaType.APPLICATION_JSON_VALUE)
+public class UserController {
+
+    private final UserService userService;
+
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
+
+    // 🔎 LIST / SEARCH
+    @GetMapping
+    public ResponseEntity<Response<PagedResult<UserPojo>>> searchUsers(
+            @RequestParam Map<String, String> params
+    ) {
+        int page = Integer.parseInt(params.getOrDefault("page", "0"));
+        int size = Integer.parseInt(params.getOrDefault("size", "20"));
+        int offset = page * size;
+
+        params.put("offset", String.valueOf(offset));
+        params.put("limit", String.valueOf(size));
+        params.put("sortField", params.getOrDefault("sortField", "id"));
+        params.put("sortDirection", params.getOrDefault("sortDirection", "asc"));
+
+        PagedResult<UserPojo> users = userService.searchUsers(params);
+        return ResponseEntity.ok(new Response<>(users, "Fetched successfully"));
+    }
+
+    // 📖 READ (Flexible key)
+    @GetMapping("/get")
+    public ResponseEntity<Response<UserPojo>> getUser(
+            @RequestParam(required = false) Long id,
+            @RequestParam(required = false) String userName,
+            @RequestParam(required = false) String userKey
+    ) {
+        UserPojo user;
+        if (id != null) {
+            user = userService.getUserById(id);
+        } else if (userName != null) {
+            user = userService.getByUserName(userName);
+        } else if (userKey != null) {
+            user = userService.getByUserKey(userKey);
+        } else {
+            throw new IllegalArgumentException("At least one key must be provided");
+        }
+        return ResponseEntity.ok(new Response<>(user, "Fetched successfully"));
+    }
+
+    // ➕ CREATE
+    @PostMapping("/create")
+    public ResponseEntity<Response<UserPojo>> createUser(@RequestBody UserPojo user) {
+        UserPojo created = userService.createUser(user);
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(new Response<>(created, "User created successfully"));
+    }
+
+    // ✏️ UPDATE (Flexible key)
+    @PutMapping("/update")
+    public ResponseEntity<Response<UserPojo>> updateUser(
+            @RequestParam(required = false) Long id,
+            @RequestParam(required = false) String userName,
+            @RequestParam(required = false) String userKey,
+            @RequestBody UserPojo user
+    ) {
+        UserPojo updated;
+        if (id != null) {
+            updated = userService.updateUserById(id, user);
+        } else if (userName != null) {
+            updated = userService.updateUserByUserName(userName, user);
+        } else if (userKey != null) {
+            updated = userService.updateUserByUserKey(userKey, user);
+        } else {
+            throw new IllegalArgumentException("At least one key must be provided for update");
+        }
+        return ResponseEntity.ok(new Response<>(updated, "User updated successfully"));
+    }
+
+    // 🗑 DELETE (Flexible key)
+    @DeleteMapping("/delete")
+    public ResponseEntity<Response<Void>> deleteUser(
+            @RequestParam(required = false) Long id,
+            @RequestParam(required = false) String userName,
+            @RequestParam(required = false) String userKey
+    ) {
+        if (id != null) {
+            userService.deleteUserById(id);
+        } else if (userName != null) {
+            userService.deleteUserByUserName(userName);
+        } else if (userKey != null) {
+            userService.deleteUserByUserKey(userKey);
+        } else {
+            throw new IllegalArgumentException("At least one key must be provided for delete");
+        }
+        return ResponseEntity.ok(new Response<>(null, "User deleted successfully"));
+    }
+}
+
+/////////////////////
+
+Layer	Name	Notes
+POJO	UserManagementPojo	Used for controller input/output and MyBatis mapping
+Controller	UserManagementController	Handles all CRUD + search operations
+Service	UserManagementService	Encapsulates business logic and delegates to mapper
+MyBatis Mapper	UserManagementMapper	Performs DB queries, maps results to UserManagementPojo
+
