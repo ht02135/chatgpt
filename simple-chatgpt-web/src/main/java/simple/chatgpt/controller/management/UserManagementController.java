@@ -30,6 +30,14 @@ public class UserManagementController {
     }
 
     // 🔎 LIST / SEARCH
+    /*
+    1>Simple pagination request:
+	GET /users?page=0&size=20
+	2>With filters:
+	GET /users?firstName=John&city=New+York&page=1&size=10
+	3>With sorting:
+	GET /users?sortField=last_name&sortDirection=desc
+    */
     @GetMapping
     public ResponseEntity<Response<PagedResult<UserManagementPojo>>> searchUsers(
             @RequestParam Map<String, String> params
