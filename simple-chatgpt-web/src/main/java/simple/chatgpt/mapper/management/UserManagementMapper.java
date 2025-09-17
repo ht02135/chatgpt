@@ -1,4 +1,4 @@
-package simple.chatgpt.mapper;
+package simple.chatgpt.mapper.management;
 
 import java.util.List;
 import java.util.Map;

@@ -5,7 +5,7 @@ import java.util.Map;
 
 import org.springframework.stereotype.Service;
 
-import simple.chatgpt.mapper.UserManagementMapper;
+import simple.chatgpt.mapper.management.UserManagementMapper;
 import simple.chatgpt.pojo.management.UserManagementPojo;
 import simple.chatgpt.util.PagedResult;
 

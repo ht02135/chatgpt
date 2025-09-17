@@ -1,0 +1,11 @@
+
+next steps
+
+1>run new user sql
+2>run test config and test user jsp
+3>create load config .js
+3>create users.jsp addUser.jsp editUser.jsp user.js
+
+///////////
+
+once that is done, then property
