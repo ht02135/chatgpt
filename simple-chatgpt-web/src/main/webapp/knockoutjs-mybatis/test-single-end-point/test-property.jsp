@@ -12,7 +12,7 @@
 
 <script>
 const output = document.getElementById("output");
-const API_DATA = '/mybatis/data';
+const API_DATA = '/chatgpt/api/mybatis/data';
 const TYPE_PROPERTY = 'property';
 
 async function testProperty() {

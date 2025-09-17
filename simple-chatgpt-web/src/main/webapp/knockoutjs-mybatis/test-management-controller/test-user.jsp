@@ -13,7 +13,7 @@
 <script>
 const output = document.getElementById("output");
 // Base API path from your controller
-const API_BASE = '/management/users';
+const API_BASE = '/chatgpt/api/management/users';
 
 async function testUserAPI() {
     const tests = [
