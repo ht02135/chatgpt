@@ -5,7 +5,6 @@
     <meta charset="UTF-8">
     <title>Edit Property</title>
     <script src="../../../js/knockout-latest.js"></script>
-    <script src="configLoader.js"></script>
     <script src="property.js"></script>
     <script src="genericComponents.js"></script>
     <link rel="stylesheet" href="property.css">
@@ -15,7 +14,8 @@
     <generic-composed-form params="vm: propertyVM"></generic-composed-form>
 
 	<script type="module">
-	import Validator from "validation.js"; // correct relative path
+	import configLoader from "./configLoader.js";
+	import Validator from "./validation.js";
 
 	(async function () {
 	    // ✅ Load form config

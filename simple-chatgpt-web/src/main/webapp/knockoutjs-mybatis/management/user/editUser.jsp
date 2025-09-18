@@ -5,7 +5,6 @@
     <meta charset="UTF-8">
     <title>Edit User</title>
     <script src="../../../js/knockout-latest.js"></script>
-    <script src="configLoader.js"></script>
     <script src="user.js"></script>
     <script src="genericComponents.js"></script>
     <link rel="stylesheet" href="user.css">
@@ -15,7 +14,8 @@
 	<generic-composed-form params="vm: userVM"></generic-composed-form>
 
 	<script type="module">
-	import Validator from "validation.js"; // correct relative path
+	import configLoader from "./configLoader.js";
+	import Validator from "./validation.js";
 
 	(async function () {
 	    // ✅ Load form config
