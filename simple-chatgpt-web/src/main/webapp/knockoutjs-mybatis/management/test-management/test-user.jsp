@@ -16,12 +16,13 @@
 
 <script>
 const output = document.getElementById("output");
-// ✅ Correct API path
 const API_BASE = '/chatgpt/api/management/users';
 
 async function testUserAPI() {
     const tests = [
-        { name: 'List Users', url: `${API_BASE}?page=0&size=5`, options: { method: 'GET' } },
+        // 🔎 Search / List users
+        { name: 'List Users (pagination)', url: `${API_BASE}?page=0&size=5`, options: { method: 'GET' } },
+        // ➕ Create a user
         { name: 'Create User', url: `${API_BASE}/create`, options: {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -33,33 +34,49 @@ async function testUserAPI() {
                 email: "john@example.com"
             })
         }},
-        { name: 'Get User', url: `${API_BASE}/get?userName=john_doe`, options: { method: 'GET' } },
-        { name: 'Update User', url: `${API_BASE}/update?userName=john_doe`, options: {
+        // 📖 Get by userName
+        { name: 'Get User by userName', url: `${API_BASE}/get?userName=john_doe`, options: { method: 'GET' } },
+        // ✏️ Update by userName
+        { name: 'Update User by userName', url: `${API_BASE}/update?userName=john_doe`, options: {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ firstName: "Johnny", email: "johnny@example.com" })
         }},
-        { name: 'Delete User', url: `${API_BASE}/delete?userName=john_doe`, options: { method: 'DELETE' } }
+        // 🗑 Delete by userName
+        { name: 'Delete User by userName', url: `${API_BASE}/delete?userName=john_doe`, options: { method: 'DELETE' } }
     ];
 
     for (const t of tests) {
+        console.group(`Preparing test: ${t.name}`);
+        console.log("URL to call:", t.url);
+        console.log("Options to use:", t.options);
+        console.groupEnd();
+
+        output.innerHTML += `\nPreparing test: ${t.name}\nURL: ${t.url}\nOptions: ${JSON.stringify(t.options, null, 2)}\n\n`;
+
         try {
             const res = await fetch(t.url, t.options);
+
+            // Broken-down logging for response status
+            console.log("Response status: res.status =", res.status);
+            console.log("Response status: res.statusText =", res.statusText);
+
             if (!res.ok) {
-                output.innerHTML += `Error calling ${t.name}: HTTP ${res.status}\n\n`;
-                continue;
+                throw new Error(`HTTP error! status: ${res.status}`);
             }
+
             const json = await res.json();
-            output.innerHTML += `#############\n`;
-            output.innerHTML += `Test = ${t.name}\n`;
-            output.innerHTML += `URL = ${t.url}\n`;
-            output.innerHTML += `Options = ${JSON.stringify(t.options, null, 2)}\n`;
-            output.innerHTML += `Response = ${JSON.stringify(json, null, 2)}\n`;
-            output.innerHTML += `#############\n\n`;
+
+            // Detailed JSON logging
+            console.log("Response JSON:", json);
+
+            output.innerHTML += `Response:\n${JSON.stringify(json, null, 2)}\n`;
         } catch (err) {
-            output.innerHTML += `Error calling ${t.name}: ${err}\n\n`;
             console.error(`Error calling ${t.name}:`, err);
+            output.innerHTML += `Error calling ${t.name}: ${err}\n`;
         }
+
+        console.log("---------- End of test ----------\n");
     }
 }
 
