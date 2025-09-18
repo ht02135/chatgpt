@@ -169,13 +169,13 @@ ko.components.register('generic-search-form', {
 
 ko.components.register('generic-search-actions', {
   viewModel: function(params) {
-    this.goAddObject = params.goAddObject;   // add handler
+    this.addObject = params.addObject;   // add handler
     this.searchObjects = params.searchObjects;
     this.resetSearch = params.resetSearch;
   },
   template: `
     <div class="form-actions">
-      <a href="#" data-bind="click: goAddObject">Create</a>
+      <a href="#" data-bind="click: addObject">Create</a>
       <a href="#" data-bind="click: searchObjects">Search</a>
       <a href="#" data-bind="click: resetSearch">Reset</a>
     </div>

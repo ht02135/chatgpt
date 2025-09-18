@@ -24,7 +24,7 @@
 
     <!-- Generic Search Actions -->
     <generic-search-actions 
-        params="goAddObject: goAddObject, 
+        params="addObject: addObject, 
                 searchObjects: searchObjects, 
                 resetSearch: resetSearch">
     </generic-search-actions>

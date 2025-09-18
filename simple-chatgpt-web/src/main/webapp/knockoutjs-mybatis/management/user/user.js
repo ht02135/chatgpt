@@ -130,13 +130,13 @@ function UserViewModel(params, config) {
         window.location.href = 'users.jsp?reload=' + new Date().getTime();
     };
 
-    self.goAddUser = function() {
-        console.log("user.js -> goAddUser: called");
+    self.addUser = function() {
+        console.log("user.js -> addUser: called");
         window.location.href = 'addUser.jsp';
     };
 
-    self.goEditUser = function(id) {
-        console.log("user.js -> goEditUser: id=", ko.unwrap(id));
+    self.editUser = function(id) {
+        console.log("user.js -> editUser: id=", ko.unwrap(id));
         localStorage.setItem('editUserId', ko.unwrap(id));
         window.location.href = 'editUser.jsp';
     };
@@ -153,7 +153,7 @@ function UserViewModel(params, config) {
 		console.log("user.js -> invokeAction: action=", action);
 		console.log("user.js -> invokeAction: row=", row);
         if (action && action.jsMethod && typeof self[action.jsMethod] === 'function') {
-            if (action.jsMethod === "goEditUser") {
+            if (action.jsMethod === "editUser") {
                 console.log("user.js -> invokeAction: ko.unwrap(row.id)=", ko.unwrap(row.id));
                 self[action.jsMethod](ko.unwrap(row.id));
             } else {
@@ -254,9 +254,9 @@ function UserViewModel(params, config) {
         return self.saveUser();
     };
 
-    self.goAddObject = function() {
-        console.log("user.js Wrapper -> goAddObject called");
-        return self.goAddUser();
+    self.addObject = function() {
+        console.log("user.js Wrapper -> addObject called");
+        return self.addUser();
     };
 
     self.objects = self.users;
