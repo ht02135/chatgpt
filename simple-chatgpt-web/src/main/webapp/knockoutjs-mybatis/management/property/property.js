@@ -47,8 +47,7 @@ function PropertyViewModel(params, config) {
     self.total = ko.observable(0);
     self.sortField = ko.observable('key');
     self.sortOrder = ko.observable('ASC');
-    //self.maxPage = ko.computed(() => Math.ceil(self.total() / self.size()));
-	self.maxPage = ko.observable(1);
+    self.maxPage = ko.observable(1);
 
     // ========================
     // Build Query
@@ -56,10 +55,10 @@ function PropertyViewModel(params, config) {
     self.buildSearchQuery = function() {
         console.log("property.js -> buildSearchQuery: called");
         const params = new URLSearchParams();
-        params.append('page', self.page());
+        params.append('page', self.page() - 1); // backend expects 0-based
         params.append('size', self.size());
         params.append('sortField', self.sortField());
-        params.append('sortOrder', self.sortOrder());
+        params.append('sortDirection', self.sortOrder());
 
         if (self.searchConfig?.fields) {
             self.searchConfig.fields.forEach(f => {
@@ -68,34 +67,28 @@ function PropertyViewModel(params, config) {
             });
         }
 
+        if (self.searchKey()) params.append('key', self.searchKey());
+        if (self.searchType()) params.append('type', self.searchType());
+
         return params.toString();
     };
 
     // ========================
-    // Load Properties (Old Simplified Style)
+    // Load Properties
     // ========================
     self.loadProperties = async function() {
         console.log("property.js -> loadProperties: called");
 
-        const params = {
-            key: self.searchKey(),
-            type: self.searchType(),
-            page: self.page(),
-            size: self.size(),
-            sort: self.sortField(),
-            order: self.sortOrder()
-        };
-
-        const qs = new URLSearchParams(params).toString();
-        const url = API_PROPERTY + "/all?" + qs;
+        const qs = self.buildSearchQuery();
+        const url = API_PROPERTY + "?" + qs;
 
         try {
             const res = await fetch(url, { headers: { 'Accept': 'application/json' } });
             const resp = await res.json();
             if (resp && resp.data) {
-                const arr = resp.data.properties || [];
+                const arr = resp.data.items || [];
                 self.properties(arr.map(p => new Property(p)));
-                self.total(resp.data.total || arr.length);
+                self.total(resp.data.totalCount || arr.length);
                 self.maxPage(resp.data.maxPage || 1);
             }
         } catch (err) {
@@ -215,9 +208,9 @@ function PropertyViewModel(params, config) {
         self.formConfig.fields.forEach(f => payload[f.name] = self.currentProperty()[f.name]());
 
         try {
-            let url = `${API_PROPERTY}/add`, method = 'POST';
+            let url = `${API_PROPERTY}/create`, method = 'POST';
             if (self.mode === 'edit' && self.currentProperty().key && self.currentProperty().key()) {
-                url = `${API_PROPERTY}/${self.currentProperty().key()}`;
+                url = `${API_PROPERTY}/update?propertyKey=${self.currentProperty().key()}`;
                 method = 'PUT';
             }
             await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
@@ -231,7 +224,7 @@ function PropertyViewModel(params, config) {
     self.loadPropertyById = async function(id) {
         console.log("property.js -> loadPropertyById: id=", id);
         try {
-            const res = await fetch(`${API_PROPERTY}/${id}`, { headers: { 'Accept': 'application/json' } });
+            const res = await fetch(`${API_PROPERTY}/get?propertyKey=${id}`, { headers: { 'Accept': 'application/json' } });
             const data = await res.json();
             if (data.status === 'SUCCESS' && data.data) self.currentProperty(new Property(data.data, self.formConfig?.fields || []));
         } catch (err) { console.error('Load property error:', err); }
