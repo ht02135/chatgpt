@@ -2,6 +2,8 @@ package simple.chatgpt.controller.management;
 
 import java.util.Map;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +24,7 @@ import simple.chatgpt.util.Response;
 @RestController
 @RequestMapping(value = "/management/users", produces = MediaType.APPLICATION_JSON_VALUE)
 public class UserManagementController {
+    private static final Logger logger = LogManager.getLogger(UserManagementController.class);
 
     private final UserManagementService userManagementService;
 
@@ -42,6 +45,8 @@ public class UserManagementController {
     public ResponseEntity<Response<PagedResult<UserManagementPojo>>> searchUsers(
             @RequestParam Map<String, String> params
     ) {
+        logger.debug("searchUsers called with params={}", params);
+
         int page = Integer.parseInt(params.getOrDefault("page", "0"));
         int size = Integer.parseInt(params.getOrDefault("size", "20"));
         int offset = page * size;
@@ -62,6 +67,8 @@ public class UserManagementController {
             @RequestParam(required = false) String userName,
             @RequestParam(required = false) String userKey
     ) {
+        logger.debug("getUser called with id={}, userName={}, userKey={}", id, userName, userKey);
+
         UserManagementPojo user = null;
 
         if (id != null) {
@@ -82,6 +89,8 @@ public class UserManagementController {
     // ➕ CREATE
     @PostMapping("/create")
     public ResponseEntity<Response<UserManagementPojo>> createUser(@RequestBody UserManagementPojo user) {
+        logger.debug("createUser called with user={}", user);
+
         UserManagementPojo created = userManagementService.createUser(user);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -96,6 +105,8 @@ public class UserManagementController {
             @RequestParam(required = false) String userKey,
             @RequestBody UserManagementPojo user
     ) {
+        logger.debug("updateUser called with id={}, userName={}, userKey={}, user={}", id, userName, userKey, user);
+
         UserManagementPojo updated = null;
 
         if (id != null) {
@@ -118,6 +129,8 @@ public class UserManagementController {
             @RequestParam(required = false) String userName,
             @RequestParam(required = false) String userKey
     ) {
+        logger.debug("deleteUser called with id={}, userName={}, userKey={}", id, userName, userKey);
+
         if (id != null) {
             userManagementService.deleteUserById(id);
         } else if (userName != null) {
