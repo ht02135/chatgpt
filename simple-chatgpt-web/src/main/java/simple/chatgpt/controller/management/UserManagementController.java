@@ -89,9 +89,12 @@ public class UserManagementController {
     // ➕ CREATE
     @PostMapping("/create")
     public ResponseEntity<Response<UserManagementPojo>> createUser(@RequestBody UserManagementPojo user) {
-        logger.debug("createUser called with user={}", user);
+    	logger.debug("#############");
+    	logger.debug("createUser called with user={}", user);
 
         UserManagementPojo created = userManagementService.createUser(user);
+        logger.debug("createUser called with created={}", created);
+        logger.debug("#############");
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(Response.success("User created successfully", created, HttpStatus.CREATED.value()));
@@ -109,6 +112,7 @@ public class UserManagementController {
 
         UserManagementPojo updated = null;
 
+        logger.debug("#############");
         if (id != null) {
             updated = userManagementService.updateUserById(id, user);
         } else if (userName != null) {
@@ -118,6 +122,8 @@ public class UserManagementController {
         } else {
             return ResponseEntity.ok(Response.error("At least one key must be provided for update", null, HttpStatus.BAD_REQUEST.value()));
         }
+        logger.debug("updateUser called with updated=", updated);
+        logger.debug("#############");
 
         return ResponseEntity.ok(Response.success("User updated successfully", updated, HttpStatus.OK.value()));
     }

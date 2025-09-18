@@ -79,37 +79,45 @@ public class UserManagementServiceImpl implements UserManagementService {
     // ➕ CREATE
     @Override
     public UserManagementPojo createUser(UserManagementPojo user) {
+    	logger.debug("#############");
         logger.debug("createUser called with user={}", user);
         userManagementMapper.insertUser(user);
         logger.debug("createUser result={}", user);
+        logger.debug("#############");
         return user;
     }
 
     // ✏️ UPDATE
     @Override
     public UserManagementPojo updateUserById(Long id, UserManagementPojo user) {
+    	logger.debug("#############");
         logger.debug("updateUserById called with id={}, user={}", id, user);
         user.setId(id);
         userManagementMapper.updateUser(user);
         logger.debug("updateUserById result={}", user);
+        logger.debug("#############");
         return user;
     }
 
     @Override
     public UserManagementPojo updateUserByUserName(String userName, UserManagementPojo user) {
+    	logger.debug("#############");
         logger.debug("updateUserByUserName called with userName={}, user={}", userName, user);
         user.setUserName(userName);
         userManagementMapper.updateUserByUserName(user);
         logger.debug("updateUserByUserName result={}", user);
+        logger.debug("#############");
         return user;
     }
 
     @Override
     public UserManagementPojo updateUserByUserKey(String userKey, UserManagementPojo user) {
+    	logger.debug("#############");
         logger.debug("updateUserByUserKey called with userKey={}, user={}", userKey, user);
         user.setUserKey(userKey);
         userManagementMapper.updateUserByUserKey(user);
         logger.debug("updateUserByUserKey result={}", user);
+        logger.debug("#############");
         return user;
     }
 

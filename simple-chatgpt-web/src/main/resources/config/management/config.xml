@@ -68,7 +68,7 @@
 
     <form id="addUser">
         <field name="userName" label="Username" visible="true" required="true" editable="true" />
-        <field name="userKey" label="User Key" visible="true" required="false" editable="false" />
+        <field name="userKey" label="User Key" visible="true" required="true" editable="true" />
         <field name="firstName" label="First Name" visible="true" required="true" editable="true" />
         <field name="lastName" label="Last Name" visible="true" required="true" editable="true" />
         <field name="email" label="Email" regex="emailValidation" visible="true" required="true" editable="true" />
@@ -84,7 +84,7 @@
     <form id="editUser">
         <field name="id" label="ID" visible="true" required="true" editable="false" />
         <field name="userName" label="Username" visible="true" required="true" editable="true" />
-        <field name="userKey" label="User Key" visible="true" required="false" editable="false" />
+        <field name="userKey" label="User Key" visible="true" required="true" editable="true" />
         <field name="firstName" label="First Name" visible="true" required="true" editable="true" />
         <field name="lastName" label="Last Name" visible="true" required="true" editable="true" />
         <field name="email" label="Email" regex="emailValidation" visible="true" required="true" editable="true" />
