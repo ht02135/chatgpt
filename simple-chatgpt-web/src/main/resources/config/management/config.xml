@@ -1,5 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" ?>
 <config>
 
+    <!-- ========================= -->
+    <!-- Regex Validators -->
+    <!-- ========================= -->
     <regex id="emailValidation"
            validRegexExpression="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
            errorMessage="wrong email format" />
@@ -20,11 +24,17 @@
            validRegexExpression="^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9\s])(?!.*\s).{8,}$"
            errorMessage="wrong password format" />
 
+    <!-- ========================= -->
+    <!-- User Actions -->
+    <!-- ========================= -->
     <actions id="user-actions">
         <action name="Edit" label="Edit" visible="true" jsMethod="editUser" />
         <action name="Delete" label="Delete" visible="true" jsMethod="deleteUser" />
     </actions>
 
+    <!-- ========================= -->
+    <!-- User Grid -->
+    <!-- ========================= -->
     <grid id="users">
         <column name="id" label="ID" visible="true" sortable="true" />
         <column name="userName" label="Username" visible="true" sortable="true" />
@@ -39,6 +49,9 @@
         <column name="actions" label="Actions" actions="user-actions" visible="true" sortable="false" />
     </grid>
 
+    <!-- ========================= -->
+    <!-- User Forms -->
+    <!-- ========================= -->
     <form id="searchUser">
         <field name="userName" label="Username" visible="true" />
         <field name="userKey" label="User Key" visible="true" />
@@ -84,6 +97,51 @@
         <field name="country" label="Country" visible="true" editable="true" />
         <field name="createdAt" label="Created At" visible="true" editable="false" />
         <field name="updatedAt" label="Updated At" visible="true" editable="false" />
+    </form>
+
+    <!-- ========================= -->
+    <!-- Property Validators -->
+    <!-- ========================= -->
+    <validators id="multiple-validators">
+        <validator type="boolean" validRegexExpression="^(true|false)$" errorMessage="wrong boolean format" />
+        <validator type="integer" validRegexExpression="^\d+$" errorMessage="wrong integer format" />
+        <validator type="decimal" validRegexExpression="^[+-]?\d*\.?\d+$" errorMessage="wrong decimal format" />
+        <validator type="string" validRegexExpression=".*" errorMessage="wrong string format" />
+    </validators>
+
+    <!-- ========================= -->
+    <!-- Property Actions -->
+    <!-- ========================= -->
+    <actions id="property-actions">
+        <action name="Edit" label="Edit" visible="true" jsMethod="editProperty" />
+    </actions>
+
+    <!-- ========================= -->
+    <!-- Property Grid -->
+    <!-- ========================= -->
+    <grid id="properties">
+        <column name="id" label="ID" visible="true" sortable="true" />
+        <column name="propertyName" label="Name" visible="true" sortable="true" />
+        <column name="propertyKey" label="Key" visible="false" sortable="true" />
+        <column name="type" label="Type" visible="true" sortable="true" />
+        <column name="value" label="Value" visible="true" sortable="true" />
+        <column name="actions" label="Actions" actions="property-actions" visible="true" sortable="false" />
+    </grid>
+
+    <!-- ========================= -->
+    <!-- Property Forms -->
+    <!-- ========================= -->
+    <form id="searchProperty">
+        <field name="propertyName" label="Name" visible="true" required="true" editable="true" />
+        <field name="propertyKey" label="Key" visible="false" required="true" editable="true" />
+        <field name="type" label="Type" visible="true" required="true" editable="true" />
+    </form>
+
+    <form id="editProperty">
+        <field name="propertyName" label="Name" visible="true" required="true" editable="false" />
+        <field name="propertyKey" label="Key" visible="false" required="true" editable="false" />
+        <field name="type" label="Type" visible="true" required="true" editable="true" />
+        <field name="value" label="Value" visible="true" required="true" editable="true" validators="multiple-validators" />
     </form>
 
 </config>
