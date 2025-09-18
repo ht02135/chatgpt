@@ -1,5 +1,4 @@
 // validation.js
-// validation.js
 
 class Validator {
     constructor(regexConfig = {}, validatorGroups = {}) {

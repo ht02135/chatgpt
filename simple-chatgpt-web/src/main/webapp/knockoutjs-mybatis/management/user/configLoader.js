@@ -1,6 +1,6 @@
 // configLoader.js
 
-const API_BASE = '/chatgpt/api/mybatis/config';
+const API_CONFIG = '/chatgpt/api/management/config';
 
 let _cache = null;
 let _cacheTimestamp = 0;
@@ -13,7 +13,7 @@ const configLoader = {
     async loadAll() {
         console.log("configLoader.js -> loadAll: called");
         try {
-            const res = await fetch(`${API_BASE}/all`);
+            const res = await fetch(API_CONFIG);
             const json = await res.json();
             if (json.status !== 'SUCCESS') throw new Error('Failed to load config');
             console.log("configLoader.js -> loadAll: json.data=", json.data);
@@ -147,3 +147,5 @@ const configLoader = {
         return regexConfig;
     }
 };
+
+export default configLoader;
