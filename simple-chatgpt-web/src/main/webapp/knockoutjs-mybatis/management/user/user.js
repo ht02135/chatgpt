@@ -1,5 +1,3 @@
-// user.js
-
 const API_USER = '/chatgpt/api/management/users';
 
 function User(data, fields) {
@@ -30,18 +28,18 @@ function UserViewModel(params, config) {
     }
 
     // Pagination state
-	//This is the current page number the user sees in the UI.
-    self.page = ko.observable(1); 	
-	//This is the page size = how many items are shown per page.	
+    //This is the current page number the user sees in the UI.
+    self.page = ko.observable(1);    
+    //This is the page size = how many items are shown per page.    
     self.size = ko.observable(10);
-	//This is the total number of items available in the dataset.
+    //This is the total number of items available in the dataset.
     self.total = ko.observable(0);
-	//This is the total number of pages. Calculated as ceil(total / size).
-	self.maxPage = ko.computed(() => {
-	    const total = self.total() || 0;
-	    const size = self.size() || 1;
-	    return Math.max(1, Math.ceil(total / size));
-	});
+    //This is the total number of pages. Calculated as ceil(total / size).
+    self.maxPage = ko.computed(() => {
+        const total = self.total() || 0;
+        const size = self.size() || 1;
+        return Math.max(1, Math.ceil(total / size));
+    });
     self.sortField = ko.observable('id');
     self.sortOrder = ko.observable('ASC');
 
@@ -83,7 +81,7 @@ function UserViewModel(params, config) {
                 self.users(paged.items.map(u => new User(u, self.gridConfig?.columns.map(c => ({ name: c.name })) || [])));
 
                 console.log("user.js -> loadUsers: update pagination");
-				paged.totalCount && self.total() !== paged.totalCount ? self.total(paged.totalCount) : null;
+                paged.totalCount && self.total() !== paged.totalCount ? self.total(paged.totalCount) : null;
             } else {
                 console.log("user.js -> loadUsers: empty result");
                 self.users([]);
@@ -218,9 +216,12 @@ function UserViewModel(params, config) {
         console.log("user.js -> saveUser: payload=", payload);
 
         try {
-            let url = `${API_USER}/add`, method = 'POST';
+            // <-- fixed: use controller's /create and /update endpoints (keep method variable)
+            let url = `${API_USER}/create`, method = 'POST';
             if (self.mode === 'edit' && self.currentUser().id && self.currentUser().id()) {
-                url = `${API_USER}/${self.currentUser().id()}`;
+                const idVal = self.currentUser().id();
+                // update uses query param id=...
+                url = `${API_USER}/update?id=${encodeURIComponent(idVal)}`;
                 method = 'PUT';
             }
             console.log("user.js -> saveUser: url=", url, "method=", method);
@@ -235,7 +236,9 @@ function UserViewModel(params, config) {
         if (!confirm('Are you sure?')) return;
         try {
             console.log("user.js -> deleteUser: id=", ko.unwrap(user.id));
-            await fetch(`${API_USER}/${ko.unwrap(user.id)}`, { method: 'DELETE', headers: { 'Accept': 'application/json' } });
+            const idVal = ko.unwrap(user.id);
+            // <-- fixed: call controller's delete endpoint with query param
+            await fetch(`${API_USER}/delete?id=${encodeURIComponent(idVal)}`, { method: 'DELETE', headers: { 'Accept': 'application/json' } });
             self.loadUsers();
         } catch (err) { console.error('Delete user error:', err); }
     };
@@ -244,7 +247,8 @@ function UserViewModel(params, config) {
     self.loadUserById = async function(id) {
         console.log("user.js -> loadUserById: id=", id);
         try {
-            const res = await fetch(`${API_USER}/${id}`, { headers: { 'Accept': 'application/json' } });
+            // <-- fixed: call /get?id=...
+            const res = await fetch(`${API_USER}/get?id=${encodeURIComponent(id)}`, { headers: { 'Accept': 'application/json' } });
             const data = await res.json();
             console.log("user.js -> loadUserById: response=", data);
             if (data.status === 'SUCCESS' && data.data) self.currentUser(new User(data.data, self.formConfig?.fields || []));
