@@ -1,5 +1,7 @@
 // user.js
 
+const API_USER = '/chatgpt/api/management/users';
+
 function User(data, fields) {
     console.log("user.js -> User: called");
     const self = this;
@@ -33,8 +35,6 @@ function UserViewModel(params, config) {
     self.sortField = ko.observable('id');
     self.sortOrder = ko.observable('ASC');
     self.maxPage = ko.computed(() => Math.ceil(self.total() / self.size()));
-
-    const API_USER = '/chatgpt/api/mybatis/users';
 
     // Build URLSearchParams for search
     self.buildSearchQuery = function() {
