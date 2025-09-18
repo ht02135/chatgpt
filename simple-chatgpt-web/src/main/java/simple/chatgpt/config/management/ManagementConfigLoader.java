@@ -22,7 +22,7 @@ import simple.chatgpt.config.ValidatorGroupConfig;
 
 public class ManagementConfigLoader {
 
-    private static final String CONFIG_FILE = "/management/config/config.xml";
+    private static final String CONFIG_FILE = "/config/management/config.xml";
 
     private Document loadDocument() throws Exception {
         try (InputStream is = ManagementConfigLoader.class.getResourceAsStream(CONFIG_FILE)) {
