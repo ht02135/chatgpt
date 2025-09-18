@@ -98,7 +98,7 @@ public class PropertyManagementServiceImpl implements PropertyManagementService 
 
     @Override
     public int getInteger(PropertyKey key) {
-    	logger.debug("#############");
+        logger.debug("#############");
         PropertyManagementPojo prop = getCachedProperty(key);
         logger.debug("getInteger key={}", key);
         logger.debug("getInteger prop={}", prop);
@@ -116,7 +116,7 @@ public class PropertyManagementServiceImpl implements PropertyManagementService 
 
     @Override
     public BigDecimal getDecimal(PropertyKey key) {
-    	logger.debug("#############");
+        logger.debug("#############");
         PropertyManagementPojo prop = getCachedProperty(key);
         logger.debug("getDecimal key={}", key);
         logger.debug("getDecimal prop={}", prop);
@@ -134,12 +134,12 @@ public class PropertyManagementServiceImpl implements PropertyManagementService 
 
     @Override
     public String getString(PropertyKey key) {
-    	logger.debug("#############");
+        logger.debug("#############");
         PropertyManagementPojo prop = getCachedProperty(key);
         logger.debug("getString key={}", key);
         logger.debug("getString prop={}", prop);
         logger.debug("#############");
-        
+
         logger.debug("getString key={} -> {}", key.getKey(), prop.getValue());
         return prop.getValue();
     }
@@ -147,7 +147,7 @@ public class PropertyManagementServiceImpl implements PropertyManagementService 
     // ---------------- Update Property ----------------
     @Override
     public void updateProperty(PropertyKey key, String newValue) {
-    	logger.debug("#############");
+        logger.debug("#############");
         logger.debug("updateProperty key={} newValue={}", key.getKey(), newValue);
 
         PropertyManagementPojo prop = new PropertyManagementPojo();
@@ -280,6 +280,12 @@ public class PropertyManagementServiceImpl implements PropertyManagementService 
         sqlParams.put("offset", offset);
         sqlParams.put("limit", size);
 
+        // Resolve sortField
+        String sortField = resolveSortField(params.get("sortField"));
+        String sortDirection = params.getOrDefault("sortDirection", "ASC").toUpperCase();
+        sqlParams.put("sortField", sortField);
+        sqlParams.put("sortDirection", sortDirection);
+
         logger.debug("searchProperties sqlParams={}", sqlParams);
 
         List<PropertyManagementPojo> items = null;
@@ -300,6 +306,26 @@ public class PropertyManagementServiceImpl implements PropertyManagementService 
         logger.debug("#############");
 
         return result;
+    }
+
+    // ---------------- Helper Method ----------------
+    private String resolveSortField(String frontEndField) {
+        Map<String, String> sortFieldMap = Map.of(
+            "propertyName", "property_name",
+            "propertyKey", "property_key",
+            "type", "type",
+            "value", "value",
+            "id", "id"
+        );
+
+        String dbColumn = sortFieldMap.get(frontEndField);
+        if (dbColumn == null) {
+            logger.debug("Invalid sortField '{}', defaulting to 'id'", frontEndField);
+            dbColumn = "id";
+        } else {
+            logger.debug("Resolved sortField '{}' -> '{}'", frontEndField, dbColumn);
+        }
+        return dbColumn;
     }
 
 }

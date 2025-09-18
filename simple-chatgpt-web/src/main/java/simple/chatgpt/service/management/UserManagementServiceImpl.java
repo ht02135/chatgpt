@@ -29,26 +29,76 @@ public class UserManagementServiceImpl implements UserManagementService {
         logger.debug("searchUsers called with params={}", params);
 
         // Convert page and size to integers
-        int page = Integer.parseInt(params.getOrDefault("page", "0"));
-        int size = Integer.parseInt(params.getOrDefault("size", "20"));
+        int page = 0;
+        int size = 20;
+        try {
+            page = Integer.parseInt(params.getOrDefault("page", "0"));
+        } catch (NumberFormatException e) {
+            logger.warn("Invalid page parameter: {}, defaulting to 0", params.get("page"), e);
+        }
+        try {
+            size = Integer.parseInt(params.getOrDefault("size", "20"));
+        } catch (NumberFormatException e) {
+            logger.warn("Invalid size parameter: {}, defaulting to 20", params.get("size"), e);
+        }
         int offset = page * size;
 
         // Copy params into a Map<String, Object> for MyBatis
         Map<String, Object> sqlParams = new HashMap<>();
         sqlParams.putAll(params);  // copy filters like firstName, city, etc.
-        sqlParams.put("offset", offset);  // int
-        sqlParams.put("limit", size);     // int
+        sqlParams.put("offset", offset);
+        sqlParams.put("limit", size);
+
+        // Resolve sortField
+        String sortField = resolveSortField(params.get("sortField"));
+        String sortDirection = params.getOrDefault("sortDirection", "ASC").toUpperCase();
+        sqlParams.put("sortField", sortField);
+        sqlParams.put("sortDirection", sortDirection);
 
         logger.debug("searchUsers sqlParams={}", sqlParams);
 
-        // Call mapper with integer-safe params
-        List<UserManagementPojo> items = userManagementMapper.findUsers(sqlParams);
-        long totalCount = userManagementMapper.countUsers(sqlParams);
+        List<UserManagementPojo> items = null;
+        long totalCount = 0;
+
+        try {
+            items = userManagementMapper.findUsers(sqlParams);
+            totalCount = userManagementMapper.countUsers(sqlParams);
+            logger.debug("searchUsers items={}", items);
+            logger.debug("searchUsers totalCount={}", totalCount);
+        } catch (Exception e) {
+            logger.error("Error executing searchUsers query with params={}", sqlParams, e);
+            throw new RuntimeException("Database error during searchUsers", e);
+        }
 
         PagedResult<UserManagementPojo> result = new PagedResult<>(items, totalCount, page, size);
         logger.debug("searchUsers result={}", result);
 
         return result;
+    }
+
+    // ---------------- Helper Method ----------------
+    private String resolveSortField(String frontEndField) {
+        Map<String, String> sortFieldMap = Map.of(
+            "id", "id",
+            "userName", "user_name",
+            "userKey", "user_key",
+            "firstName", "first_name",
+            "lastName", "last_name",
+            "email", "email",
+            "city", "city",
+            "country", "country",
+            "createdAt", "created_at",
+            "updatedAt", "updated_at"
+        );
+
+        String dbColumn = sortFieldMap.get(frontEndField);
+        if (dbColumn == null) {
+            logger.debug("Invalid sortField '{}', defaulting to 'id'", frontEndField);
+            dbColumn = "id";
+        } else {
+            logger.debug("Resolved sortField '{}' -> '{}'", frontEndField, dbColumn);
+        }
+        return dbColumn;
     }
 
     // 📖 READ
@@ -79,7 +129,7 @@ public class UserManagementServiceImpl implements UserManagementService {
     // ➕ CREATE
     @Override
     public UserManagementPojo createUser(UserManagementPojo user) {
-    	logger.debug("#############");
+        logger.debug("#############");
         logger.debug("createUser called with user={}", user);
         userManagementMapper.insertUser(user);
         logger.debug("createUser result={}", user);
@@ -90,7 +140,7 @@ public class UserManagementServiceImpl implements UserManagementService {
     // ✏️ UPDATE
     @Override
     public UserManagementPojo updateUserById(Long id, UserManagementPojo user) {
-    	logger.debug("#############");
+        logger.debug("#############");
         logger.debug("updateUserById called with id={}, user={}", id, user);
         user.setId(id);
         userManagementMapper.updateUser(user);
@@ -101,7 +151,7 @@ public class UserManagementServiceImpl implements UserManagementService {
 
     @Override
     public UserManagementPojo updateUserByUserName(String userName, UserManagementPojo user) {
-    	logger.debug("#############");
+        logger.debug("#############");
         logger.debug("updateUserByUserName called with userName={}, user={}", userName, user);
         user.setUserName(userName);
         userManagementMapper.updateUserByUserName(user);
@@ -112,7 +162,7 @@ public class UserManagementServiceImpl implements UserManagementService {
 
     @Override
     public UserManagementPojo updateUserByUserKey(String userKey, UserManagementPojo user) {
-    	logger.debug("#############");
+        logger.debug("#############");
         logger.debug("updateUserByUserKey called with userKey={}, user={}", userKey, user);
         user.setUserKey(userKey);
         userManagementMapper.updateUserByUserKey(user);
