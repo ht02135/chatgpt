@@ -30,11 +30,18 @@ function UserViewModel(params, config) {
     }
 
     // Pagination state
-    self.page = ko.observable(1); // UI uses 1-based
+	//This is the current page number the user sees in the UI.
+    self.page = ko.observable(1); 	
+	//This is the page size = how many items are shown per page.	
     self.size = ko.observable(10);
+	//This is the total number of items available in the dataset.
     self.total = ko.observable(0);
-    self.maxPage = ko.observable(1);
-
+	//This is the total number of pages. Calculated as ceil(total / size).
+	self.maxPage = ko.computed(() => {
+	    const total = self.total() || 0;
+	    const size = self.size() || 1;
+	    return Math.max(1, Math.ceil(total / size));
+	});
     self.sortField = ko.observable('id');
     self.sortOrder = ko.observable('ASC');
 
@@ -76,22 +83,16 @@ function UserViewModel(params, config) {
                 self.users(paged.items.map(u => new User(u, self.gridConfig?.columns.map(c => ({ name: c.name })) || [])));
 
                 console.log("user.js -> loadUsers: update pagination");
-                self.total(paged.totalCount || 0);
-                self.page((paged.page || 0) + 1);   // backend gives 0-based, UI uses 1-based
-                self.size(paged.size || 10);
-                self.maxPage(paged.maxPage || 1);
-
+				paged.totalCount && self.total() !== paged.totalCount ? self.total(paged.totalCount) : null;
             } else {
                 console.log("user.js -> loadUsers: empty result");
                 self.users([]);
                 self.total(0);
-                self.maxPage(1);
             }
         } catch (err) {
             console.error('Load users error:', err);
             self.users([]);
             self.total(0);
-            self.maxPage(1);
         }
     };
 

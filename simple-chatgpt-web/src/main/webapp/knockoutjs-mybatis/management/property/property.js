@@ -40,14 +40,22 @@ function PropertyViewModel(params, config) {
 
     self.searchKey = ko.observable('');
     self.searchType = ko.observable('');
-
-    // Pagination
-    self.page = ko.observable(1);
-    self.size = ko.observable(10);
-    self.total = ko.observable(0);
-    self.sortField = ko.observable('key');
-    self.sortOrder = ko.observable('ASC');
-    self.maxPage = ko.observable(1);
+	
+	// Pagination state
+	//This is the current page number the user sees in the UI.
+	self.page = ko.observable(1); 	
+	//This is the page size = how many items are shown per page.	
+	self.size = ko.observable(10);
+	//This is the total number of items available in the dataset.
+	self.total = ko.observable(0);
+	//This is the total number of pages. Calculated as ceil(total / size).
+	self.maxPage = ko.computed(() => {
+	    const total = self.total() || 0;
+	    const size = self.size() || 1;
+	    return Math.max(1, Math.ceil(total / size));
+	});
+	self.sortField = ko.observable('key');
+	self.sortOrder = ko.observable('ASC');
 
     // ========================
     // Build Query
@@ -88,14 +96,12 @@ function PropertyViewModel(params, config) {
             if (resp && resp.data) {
                 const arr = resp.data.items || [];
                 self.properties(arr.map(p => new Property(p)));
-                self.total(resp.data.totalCount || arr.length);
-                self.maxPage(resp.data.maxPage || 1);
+				resp.data.totalCount && self.total() !== resp.data.totalCount ? self.total(resp.data.totalCount) : null;
             }
         } catch (err) {
             console.error('Load properties error:', err);
             self.properties([]);
             self.total(0);
-            self.maxPage(1);
         }
     };
 
