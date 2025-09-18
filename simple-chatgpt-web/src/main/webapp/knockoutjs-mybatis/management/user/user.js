@@ -29,21 +29,23 @@ function UserViewModel(params, config) {
         self.searchConfig.fields.forEach(f => self.searchParams[f.name] = ko.observable(''));
     }
 
-    self.page = ko.observable(1);
+    // Pagination state
+    self.page = ko.observable(1); // UI uses 1-based
     self.size = ko.observable(10);
     self.total = ko.observable(0);
+    self.maxPage = ko.observable(1);
+
     self.sortField = ko.observable('id');
     self.sortOrder = ko.observable('ASC');
-    self.maxPage = ko.computed(() => Math.ceil(self.total() / self.size()));
 
     // Build URLSearchParams for search
     self.buildSearchQuery = function() {
         console.log("user.js -> buildSearchQuery: called");
         const params = new URLSearchParams();
-        params.append('page', self.page());
+        params.append('page', self.page() - 1); // backend is 0-based
         params.append('size', self.size());
         params.append('sortField', self.sortField());
-        params.append('sortOrder', self.sortOrder());
+        params.append('sortDirection', self.sortOrder());
 
         if (self.searchConfig?.fields) {
             self.searchConfig.fields.forEach(f => {
@@ -62,19 +64,34 @@ function UserViewModel(params, config) {
 
         try {
             const qs = self.buildSearchQuery();
-            const res = await fetch(`${API_USER}/paged?${qs}`, { headers: { 'Accept': 'application/json' } });
+            console.log("user.js -> loadUsers: qs=", qs);
+            const res = await fetch(`${API_USER}?${qs}`, { headers: { 'Accept': 'application/json' } });
             const data = await res.json();
             console.log("user.js -> loadUsers: response=", data);
 
-            if (data.status === 'SUCCESS') {
-                self.users(data.data.users.map(u => new User(u, self.gridConfig?.columns.map(c => ({ name: c.name })) || [])));
-                self.total(data.data.total || 0);
+            if (data.status === 'SUCCESS' && data.data) {
+                const paged = data.data;
+
+                console.log("user.js -> loadUsers: mapping items");
+                self.users(paged.items.map(u => new User(u, self.gridConfig?.columns.map(c => ({ name: c.name })) || [])));
+
+                console.log("user.js -> loadUsers: update pagination");
+                self.total(paged.totalCount || 0);
+                self.page((paged.page || 0) + 1);   // backend gives 0-based, UI uses 1-based
+                self.size(paged.size || 10);
+                self.maxPage(paged.maxPage || 1);
+
             } else {
+                console.log("user.js -> loadUsers: empty result");
                 self.users([]);
+                self.total(0);
+                self.maxPage(1);
             }
         } catch (err) {
             console.error('Load users error:', err);
             self.users([]);
+            self.total(0);
+            self.maxPage(1);
         }
     };
 
@@ -95,22 +112,22 @@ function UserViewModel(params, config) {
     // Pagination
     self.nextPage = function() {
         console.log("user.js -> nextPage: called");
-        if (self.page() < self.maxPage()) { 
-            self.page(self.page() + 1); 
-            self.loadUsers(); 
+        if (self.page() < self.maxPage()) {
+            self.page(self.page() + 1);
+            self.loadUsers();
         }
     };
 
     self.prevPage = function() {
         console.log("user.js -> prevPage: called");
-        if (self.page() > 1) { 
-            self.page(self.page() - 1); 
-            self.loadUsers(); 
+        if (self.page() > 1) {
+            self.page(self.page() - 1);
+            self.loadUsers();
         }
     };
 
     self.size.subscribe(() => {
-        console.log("size.subscribe: called");
+        console.log("user.js -> size.subscribe: called");
         self.page(1);
         self.loadUsers();
     });
@@ -124,7 +141,9 @@ function UserViewModel(params, config) {
         self.loadUsers();
     };
 
+    // ========================
     // Navigation
+    // ========================
     self.goUsers = function() {
         console.log("user.js -> goUsers: called");
         window.location.href = 'users.jsp?reload=' + new Date().getTime();
@@ -141,8 +160,11 @@ function UserViewModel(params, config) {
         window.location.href = 'editUser.jsp';
     };
 
+    // ========================
     // Actions Resolver
+    // ========================
     self.getActionsForColumn = function(column) {
+        console.log("user.js -> getActionsForColumn: column=", column);
         if (!column.actions) return [];
         const actionGroup = self.actionGroupMap[column.actions];
         return Array.isArray(actionGroup) ? actionGroup.filter(a => a.visible !== false) : [];
@@ -150,8 +172,8 @@ function UserViewModel(params, config) {
 
     self.invokeAction = function(action, row) {
         console.log("user.js -> invokeAction called");
-		console.log("user.js -> invokeAction: action=", action);
-		console.log("user.js -> invokeAction: row=", row);
+        console.log("user.js -> invokeAction: action=", action);
+        console.log("user.js -> invokeAction: row=", row);
         if (action && action.jsMethod && typeof self[action.jsMethod] === 'function') {
             if (action.jsMethod === "editUser") {
                 console.log("user.js -> invokeAction: ko.unwrap(row.id)=", ko.unwrap(row.id));
@@ -164,15 +186,15 @@ function UserViewModel(params, config) {
         }
     };
 
-	// ========================
-	// Validation Helpers
-	// ========================
-	self.validateForm = function (userObj, fieldsConfig) {
-	    console.log("user.js -> calling Validator.validateForm");
-	    return self.validator
-	        ? self.validator.validateForm(userObj, fieldsConfig)
-	        : {};
-	};
+    // ========================
+    // Validation Helpers
+    // ========================
+    self.validateForm = function (userObj, fieldsConfig) {
+        console.log("user.js -> calling Validator.validateForm");
+        return self.validator
+            ? self.validator.validateForm(userObj, fieldsConfig)
+            : {};
+    };
 
     // Save User
     self.saveUser = async function() {
@@ -192,6 +214,7 @@ function UserViewModel(params, config) {
 
         const payload = {};
         self.formConfig.fields.forEach(f => payload[f.name] = self.currentUser()[f.name]());
+        console.log("user.js -> saveUser: payload=", payload);
 
         try {
             let url = `${API_USER}/add`, method = 'POST';
@@ -199,6 +222,7 @@ function UserViewModel(params, config) {
                 url = `${API_USER}/${self.currentUser().id()}`;
                 method = 'PUT';
             }
+            console.log("user.js -> saveUser: url=", url, "method=", method);
             await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
             self.goUsers();
         } catch (err) { console.error('Save user error:', err); }
@@ -209,6 +233,7 @@ function UserViewModel(params, config) {
         console.log("user.js -> deleteUser: user=", user);
         if (!confirm('Are you sure?')) return;
         try {
+            console.log("user.js -> deleteUser: id=", ko.unwrap(user.id));
             await fetch(`${API_USER}/${ko.unwrap(user.id)}`, { method: 'DELETE', headers: { 'Accept': 'application/json' } });
             self.loadUsers();
         } catch (err) { console.error('Delete user error:', err); }
@@ -220,6 +245,7 @@ function UserViewModel(params, config) {
         try {
             const res = await fetch(`${API_USER}/${id}`, { headers: { 'Accept': 'application/json' } });
             const data = await res.json();
+            console.log("user.js -> loadUserById: response=", data);
             if (data.status === 'SUCCESS' && data.data) self.currentUser(new User(data.data, self.formConfig?.fields || []));
         } catch (err) { console.error('Load user error:', err); }
     };
@@ -227,13 +253,16 @@ function UserViewModel(params, config) {
     // ========================
     // Initialization
     // ========================
-    console.log("Initialization block: called");
+    console.log("user.js -> Initialization block: called");
     if (self.mode === 'edit') {
         const id = localStorage.getItem('editUserId');
+        console.log("user.js -> Initialization: edit id=", id);
         if (id) self.loadUserById(id);
     } else if (self.mode === 'add') {
+        console.log("user.js -> Initialization: add mode");
         self.currentUser(new User({}, self.formConfig?.fields || []));
     } else {
+        console.log("user.js -> Initialization: list mode -> loadUsers");
         self.loadUsers();
     }
 
