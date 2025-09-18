@@ -12,9 +12,9 @@ import simple.chatgpt.pojo.management.UserManagementPojo;
 public interface UserManagementMapper {
 
     // 🔎 SEARCH / LIST
-    List<UserManagementPojo> findUsers(Map<String, String> params);
+    List<UserManagementPojo> findUsers(Map<String, Object> params);
 
-    long countUsers(Map<String, String> params);
+    long countUsers(Map<String, Object> params);
 
     // 📖 READ
     UserManagementPojo findById(@Param("id") Long id);

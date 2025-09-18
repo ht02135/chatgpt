@@ -1,5 +1,6 @@
 package simple.chatgpt.service.management;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -27,13 +28,26 @@ public class UserManagementServiceImpl implements UserManagementService {
     public PagedResult<UserManagementPojo> searchUsers(Map<String, String> params) {
         logger.debug("searchUsers called with params={}", params);
 
-        List<UserManagementPojo> items = userManagementMapper.findUsers(params);
-        long totalCount = userManagementMapper.countUsers(params);
+        // Convert page and size to integers
         int page = Integer.parseInt(params.getOrDefault("page", "0"));
         int size = Integer.parseInt(params.getOrDefault("size", "20"));
+        int offset = page * size;
+
+        // Copy params into a Map<String, Object> for MyBatis
+        Map<String, Object> sqlParams = new HashMap<>();
+        sqlParams.putAll(params);  // copy filters like firstName, city, etc.
+        sqlParams.put("offset", offset);  // int
+        sqlParams.put("limit", size);     // int
+
+        logger.debug("searchUsers sqlParams={}", sqlParams);
+
+        // Call mapper with integer-safe params
+        List<UserManagementPojo> items = userManagementMapper.findUsers(sqlParams);
+        long totalCount = userManagementMapper.countUsers(sqlParams);
 
         PagedResult<UserManagementPojo> result = new PagedResult<>(items, totalCount, page, size);
         logger.debug("searchUsers result={}", result);
+
         return result;
     }
 

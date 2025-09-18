@@ -12,9 +12,9 @@ import simple.chatgpt.pojo.management.PropertyManagementPojo;
 public interface PropertyManagementMapper {
 
     // 🔎 SEARCH / LIST
-    List<PropertyManagementPojo> findProperties(Map<String, String> params);
+    List<PropertyManagementPojo> findProperties(Map<String, Object> params);
 
-    long countProperties(Map<String, String> params);
+    long countProperties(Map<String, Object> params);
 
     // 📖 READ
     PropertyManagementPojo findById(@Param("id") Long id);

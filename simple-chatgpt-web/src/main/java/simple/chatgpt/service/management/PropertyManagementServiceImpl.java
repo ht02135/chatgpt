@@ -1,6 +1,7 @@
 package simple.chatgpt.service.management;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -45,6 +46,7 @@ public class PropertyManagementServiceImpl implements PropertyManagementService 
 
     @PostConstruct
     private void initDefaults() {
+        logger.debug("Initializing default properties...");
         for (PropertyKey key : PropertyKey.values()) {
             PropertyManagementPojo existing = mapper.findByPropertyKey(key.getKey());
             if (existing == null) {
@@ -54,6 +56,7 @@ public class PropertyManagementServiceImpl implements PropertyManagementService 
                 prop.setType(key.getTypeName());
                 prop.setValue(String.valueOf(key.getDefaultValue()));
                 mapper.insertProperty(prop);
+                logger.debug("Inserted default property: {}", prop);
             }
         }
     }
@@ -62,7 +65,10 @@ public class PropertyManagementServiceImpl implements PropertyManagementService 
         return cache.get(key.getKey(), k -> {
             logger.debug("getCachedProperty not in cache, fetching from DB: {}", k);
             PropertyManagementPojo prop = mapper.findByPropertyKey(k);
-            if (prop != null) return prop;
+            if (prop != null) {
+                logger.debug("Found property in DB: {}", prop);
+                return prop;
+            }
 
             // Fallback to default
             for (PropertyKey pk : PropertyKey.values()) {
@@ -72,9 +78,11 @@ public class PropertyManagementServiceImpl implements PropertyManagementService 
                     defaultProp.setPropertyName(pk.getKey());
                     defaultProp.setType(pk.getTypeName());
                     defaultProp.setValue(String.valueOf(pk.getDefaultValue()));
+                    logger.debug("Returning default property: {}", defaultProp);
                     return defaultProp;
                 }
             }
+            logger.debug("Property key {} not found and no default available", k);
             return null;
         });
     }
@@ -83,38 +91,51 @@ public class PropertyManagementServiceImpl implements PropertyManagementService 
     @Override
     public boolean getBoolean(PropertyKey key) {
         PropertyManagementPojo prop = getCachedProperty(key);
-        return Boolean.parseBoolean(prop.getValue());
+        boolean value = Boolean.parseBoolean(prop.getValue());
+        logger.debug("getBoolean key={} -> {}", key.getKey(), value);
+        return value;
     }
 
     @Override
     public int getInteger(PropertyKey key) {
         PropertyManagementPojo prop = getCachedProperty(key);
+        int value;
         try {
-            return Integer.parseInt(prop.getValue());
+            value = Integer.parseInt(prop.getValue());
         } catch (Exception e) {
-            return 0;
+            logger.debug("Invalid integer for key={} value='{}', defaulting to 0", key.getKey(), prop.getValue());
+            value = 0;
         }
+        logger.debug("getInteger key={} -> {}", key.getKey(), value);
+        return value;
     }
 
     @Override
     public BigDecimal getDecimal(PropertyKey key) {
         PropertyManagementPojo prop = getCachedProperty(key);
+        BigDecimal value;
         try {
-            return new BigDecimal(prop.getValue());
+            value = new BigDecimal(prop.getValue());
         } catch (Exception e) {
-            return BigDecimal.ZERO;
+            logger.debug("Invalid decimal for key={} value='{}', defaulting to 0", key.getKey(), prop.getValue());
+            value = BigDecimal.ZERO;
         }
+        logger.debug("getDecimal key={} -> {}", key.getKey(), value);
+        return value;
     }
 
     @Override
     public String getString(PropertyKey key) {
         PropertyManagementPojo prop = getCachedProperty(key);
+        logger.debug("getString key={} -> {}", key.getKey(), prop.getValue());
         return prop.getValue();
     }
 
     // ---------------- Update Property ----------------
     @Override
     public void updateProperty(PropertyKey key, String newValue) {
+        logger.debug("updateProperty key={} newValue={}", key.getKey(), newValue);
+
         PropertyManagementPojo prop = new PropertyManagementPojo();
         prop.setPropertyKey(key.getKey());
         prop.setType(key.getTypeName());
@@ -131,73 +152,126 @@ public class PropertyManagementServiceImpl implements PropertyManagementService 
 
         // 2. Update DB
         mapper.updatePropertyByPropertyKey(prop);
+        logger.debug("Property updated in DB: {}", prop);
 
         // 3. Invalidate cache
         cache.invalidate(key.getKey());
+        logger.debug("Cache invalidated for key={}", key.getKey());
     }
 
     // ---------------- CRUD Operations ----------------
     @Override
     public PropertyManagementPojo getPropertyById(Long id) {
-        return mapper.findById(id);
+        logger.debug("getPropertyById id={}", id);
+        PropertyManagementPojo prop = mapper.findById(id);
+        logger.debug("Result: {}", prop);
+        return prop;
     }
 
     @Override
     public PropertyManagementPojo getByPropertyName(String propertyName) {
-        return mapper.findByPropertyName(propertyName);
+        logger.debug("getByPropertyName propertyName={}", propertyName);
+        PropertyManagementPojo prop = mapper.findByPropertyName(propertyName);
+        logger.debug("Result: {}", prop);
+        return prop;
     }
 
     @Override
     public PropertyManagementPojo getByPropertyKey(String propertyKey) {
-        return mapper.findByPropertyKey(propertyKey);
+        logger.debug("getByPropertyKey propertyKey={}", propertyKey);
+        PropertyManagementPojo prop = mapper.findByPropertyKey(propertyKey);
+        logger.debug("Result: {}", prop);
+        return prop;
     }
 
     @Override
     public PropertyManagementPojo createProperty(PropertyManagementPojo property) {
+        logger.debug("createProperty: {}", property);
         mapper.insertProperty(property);
+        logger.debug("Property inserted with ID: {}", property.getId());
         return property;
     }
 
     @Override
     public PropertyManagementPojo updatePropertyById(Long id, PropertyManagementPojo property) {
+        logger.debug("updatePropertyById id={} property={}", id, property);
         property.setId(id);
         mapper.updateProperty(property);
+        logger.debug("Property updated by ID: {}", id);
         return property;
     }
 
     @Override
     public PropertyManagementPojo updatePropertyByPropertyName(String propertyName, PropertyManagementPojo property) {
+        logger.debug("updatePropertyByPropertyName propertyName={} property={}", propertyName, property);
         property.setPropertyName(propertyName);
         mapper.updatePropertyByPropertyName(property);
+        logger.debug("Property updated by propertyName: {}", propertyName);
         return property;
     }
 
     @Override
     public PropertyManagementPojo updatePropertyByPropertyKey(String propertyKey, PropertyManagementPojo property) {
+        logger.debug("updatePropertyByPropertyKey propertyKey={} property={}", propertyKey, property);
         property.setPropertyKey(propertyKey);
         mapper.updatePropertyByPropertyKey(property);
+        logger.debug("Property updated by propertyKey: {}", propertyKey);
         return property;
     }
 
     @Override
     public void deletePropertyById(Long id) {
+        logger.debug("deletePropertyById id={}", id);
         mapper.deleteById(id);
+        logger.debug("Property deleted by ID: {}", id);
     }
 
     @Override
     public void deletePropertyByPropertyName(String propertyName) {
+        logger.debug("deletePropertyByPropertyName propertyName={}", propertyName);
         mapper.deleteByPropertyName(propertyName);
+        logger.debug("Property deleted by propertyName: {}", propertyName);
     }
 
     @Override
     public void deletePropertyByPropertyKey(String propertyKey) {
+        logger.debug("deletePropertyByPropertyKey propertyKey={}", propertyKey);
         mapper.deleteByPropertyKey(propertyKey);
+        logger.debug("Property deleted by propertyKey: {}", propertyKey);
     }
 
+    // ---------------- SEARCH / LIST ----------------
     @Override
     public PagedResult<PropertyManagementPojo> searchProperties(Map<String, String> params) {
-        // Example: implement pagination using mapper.findProperties and mapper.countProperties
-        // Customize according to your PagedResult implementation
-        return null;
+        logger.debug("searchProperties called with params={}", params);
+
+        int page = 0;
+        int size = 20;
+        try {
+            page = Integer.parseInt(params.getOrDefault("page", "0"));
+        } catch (NumberFormatException e) {
+            logger.debug("Invalid page parameter: {}, defaulting to 0", params.get("page"));
+        }
+        try {
+            size = Integer.parseInt(params.getOrDefault("size", "20"));
+        } catch (NumberFormatException e) {
+            logger.debug("Invalid size parameter: {}, defaulting to 20", params.get("size"));
+        }
+        int offset = page * size;
+
+        Map<String, Object> sqlParams = new java.util.HashMap<>();
+        sqlParams.putAll(params); // filters
+        sqlParams.put("offset", offset);
+        sqlParams.put("limit", size);
+
+        logger.debug("searchProperties sqlParams={}", sqlParams);
+
+        List<PropertyManagementPojo> items = mapper.findProperties(sqlParams);
+        long totalCount = mapper.countProperties(sqlParams);
+
+        PagedResult<PropertyManagementPojo> result = new PagedResult<>(items, totalCount, page, size);
+        logger.debug("searchProperties result={}", result);
+
+        return result;
     }
 }
