@@ -54,7 +54,7 @@ function PropertyViewModel(params, config) {
 	    const size = self.size() || 1;
 	    return Math.max(1, Math.ceil(total / size));
 	});
-	self.sortField = ko.observable('key');
+	self.sortField = ko.observable('id');
 	self.sortOrder = ko.observable('ASC');
 
     // ========================

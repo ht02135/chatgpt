@@ -98,7 +98,11 @@ public class PropertyManagementServiceImpl implements PropertyManagementService 
 
     @Override
     public int getInteger(PropertyKey key) {
+    	logger.debug("#############");
         PropertyManagementPojo prop = getCachedProperty(key);
+        logger.debug("getInteger key={}", key);
+        logger.debug("getInteger prop={}", prop);
+        logger.debug("#############");
         int value;
         try {
             value = Integer.parseInt(prop.getValue());
@@ -112,7 +116,11 @@ public class PropertyManagementServiceImpl implements PropertyManagementService 
 
     @Override
     public BigDecimal getDecimal(PropertyKey key) {
+    	logger.debug("#############");
         PropertyManagementPojo prop = getCachedProperty(key);
+        logger.debug("getDecimal key={}", key);
+        logger.debug("getDecimal prop={}", prop);
+        logger.debug("#############");
         BigDecimal value;
         try {
             value = new BigDecimal(prop.getValue());
@@ -126,7 +134,12 @@ public class PropertyManagementServiceImpl implements PropertyManagementService 
 
     @Override
     public String getString(PropertyKey key) {
+    	logger.debug("#############");
         PropertyManagementPojo prop = getCachedProperty(key);
+        logger.debug("getString key={}", key);
+        logger.debug("getString prop={}", prop);
+        logger.debug("#############");
+        
         logger.debug("getString key={} -> {}", key.getKey(), prop.getValue());
         return prop.getValue();
     }
@@ -134,6 +147,7 @@ public class PropertyManagementServiceImpl implements PropertyManagementService 
     // ---------------- Update Property ----------------
     @Override
     public void updateProperty(PropertyKey key, String newValue) {
+    	logger.debug("#############");
         logger.debug("updateProperty key={} newValue={}", key.getKey(), newValue);
 
         PropertyManagementPojo prop = new PropertyManagementPojo();
@@ -157,6 +171,7 @@ public class PropertyManagementServiceImpl implements PropertyManagementService 
         // 3. Invalidate cache
         cache.invalidate(key.getKey());
         logger.debug("Cache invalidated for key={}", key.getKey());
+        logger.debug("#############");
     }
 
     // ---------------- CRUD Operations ----------------
@@ -243,6 +258,7 @@ public class PropertyManagementServiceImpl implements PropertyManagementService 
     // ---------------- SEARCH / LIST ----------------
     @Override
     public PagedResult<PropertyManagementPojo> searchProperties(Map<String, String> params) {
+        logger.debug("#############");
         logger.debug("searchProperties called with params={}", params);
 
         int page = 0;
@@ -250,28 +266,40 @@ public class PropertyManagementServiceImpl implements PropertyManagementService 
         try {
             page = Integer.parseInt(params.getOrDefault("page", "0"));
         } catch (NumberFormatException e) {
-            logger.debug("Invalid page parameter: {}, defaulting to 0", params.get("page"));
+            logger.warn("Invalid page parameter: {}, defaulting to 0", params.get("page"), e);
         }
         try {
             size = Integer.parseInt(params.getOrDefault("size", "20"));
         } catch (NumberFormatException e) {
-            logger.debug("Invalid size parameter: {}, defaulting to 20", params.get("size"));
+            logger.warn("Invalid size parameter: {}, defaulting to 20", params.get("size"), e);
         }
         int offset = page * size;
 
         Map<String, Object> sqlParams = new java.util.HashMap<>();
-        sqlParams.putAll(params); // filters
+        sqlParams.putAll(params);
         sqlParams.put("offset", offset);
         sqlParams.put("limit", size);
 
         logger.debug("searchProperties sqlParams={}", sqlParams);
 
-        List<PropertyManagementPojo> items = mapper.findProperties(sqlParams);
-        long totalCount = mapper.countProperties(sqlParams);
+        List<PropertyManagementPojo> items = null;
+        long totalCount = 0;
+
+        try {
+            items = mapper.findProperties(sqlParams);
+            logger.debug("searchProperties items={}", items);
+            totalCount = mapper.countProperties(sqlParams);
+            logger.debug("searchProperties totalCount={}", totalCount);
+        } catch (Exception e) {
+            logger.error("Error executing searchProperties query with params={}", sqlParams, e);
+            throw new RuntimeException("Database error during searchProperties", e);
+        }
 
         PagedResult<PropertyManagementPojo> result = new PagedResult<>(items, totalCount, page, size);
         logger.debug("searchProperties result={}", result);
+        logger.debug("#############");
 
         return result;
     }
+
 }

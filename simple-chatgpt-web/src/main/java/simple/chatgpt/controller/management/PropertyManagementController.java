@@ -2,6 +2,8 @@ package simple.chatgpt.controller.management;
 
 import java.util.Map;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +24,7 @@ import simple.chatgpt.util.Response;
 @RestController
 @RequestMapping(value = "/management/properties", produces = MediaType.APPLICATION_JSON_VALUE)
 public class PropertyManagementController {
+    private static final Logger logger = LogManager.getLogger(PropertyManagementController.class);
 
     private final PropertyManagementService propertyService;
 
@@ -34,16 +37,20 @@ public class PropertyManagementController {
     public ResponseEntity<Response<PagedResult<PropertyManagementPojo>>> searchProperties(
             @RequestParam Map<String, String> params
     ) {
+        logger.debug("searchProperties called with params={}", params);
+
         int page = Integer.parseInt(params.getOrDefault("page", "0"));
         int size = Integer.parseInt(params.getOrDefault("size", "20"));
         int offset = page * size;
 
         params.put("offset", String.valueOf(offset));
         params.put("limit", String.valueOf(size));
-        params.put("sortField", params.getOrDefault("sortField", "id"));
+        params.put("sortField", params.getOrDefault("sortField", "key"));
         params.put("sortDirection", params.getOrDefault("sortDirection", "asc"));
 
         PagedResult<PropertyManagementPojo> result = propertyService.searchProperties(params);
+        logger.debug("searchProperties result={}", result);
+
         return ResponseEntity.ok(Response.success("Fetched successfully", result, HttpStatus.OK.value()));
     }
 
@@ -54,8 +61,9 @@ public class PropertyManagementController {
             @RequestParam(required = false) String propertyName,
             @RequestParam(required = false) String propertyKey
     ) {
-        PropertyManagementPojo property = null;
+        logger.debug("getProperty called with id={}, propertyName={}, propertyKey={}", id, propertyName, propertyKey);
 
+        PropertyManagementPojo property = null;
         if (id != null) {
             property = propertyService.getPropertyById(id);
         } else if (propertyName != null) {
@@ -65,16 +73,25 @@ public class PropertyManagementController {
         }
 
         if (property == null) {
+            logger.debug("getProperty: Property not found");
             return ResponseEntity.ok(Response.error("Property not found", null, HttpStatus.NOT_FOUND.value()));
         }
 
+        logger.debug("getProperty result={}", property);
         return ResponseEntity.ok(Response.success("Fetched successfully", property, HttpStatus.OK.value()));
     }
 
     // ➕ CREATE
     @PostMapping("/create")
     public ResponseEntity<Response<PropertyManagementPojo>> createProperty(@RequestBody PropertyManagementPojo property) {
+        logger.debug("#############");
+        logger.debug("createProperty called with property={}", property);
+
         PropertyManagementPojo created = propertyService.createProperty(property);
+
+        logger.debug("createProperty result={}", created);
+        logger.debug("#############");
+
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(Response.success("Property created successfully", created, HttpStatus.CREATED.value()));
@@ -88,8 +105,10 @@ public class PropertyManagementController {
             @RequestParam(required = false) String propertyKey,
             @RequestBody PropertyManagementPojo property
     ) {
-        PropertyManagementPojo updated = null;
+        logger.debug("updateProperty called with id={}, propertyName={}, propertyKey={}, property={}", id, propertyName, propertyKey, property);
 
+        PropertyManagementPojo updated = null;
+        logger.debug("#############");
         if (id != null) {
             updated = propertyService.updatePropertyById(id, property);
         } else if (propertyName != null) {
@@ -97,9 +116,11 @@ public class PropertyManagementController {
         } else if (propertyKey != null) {
             updated = propertyService.updatePropertyByPropertyKey(propertyKey, property);
         } else {
-            return ResponseEntity.ok(Response.error(
-                    "At least one key must be provided for update", null, HttpStatus.BAD_REQUEST.value()));
+            logger.debug("updateProperty: No key provided");
+            return ResponseEntity.ok(Response.error("At least one key must be provided for update", null, HttpStatus.BAD_REQUEST.value()));
         }
+        logger.debug("updateProperty result={}", updated);
+        logger.debug("#############");
 
         return ResponseEntity.ok(Response.success("Property updated successfully", updated, HttpStatus.OK.value()));
     }
@@ -111,6 +132,8 @@ public class PropertyManagementController {
             @RequestParam(required = false) String propertyName,
             @RequestParam(required = false) String propertyKey
     ) {
+        logger.debug("deleteProperty called with id={}, propertyName={}, propertyKey={}", id, propertyName, propertyKey);
+
         if (id != null) {
             propertyService.deletePropertyById(id);
         } else if (propertyName != null) {
@@ -118,10 +141,12 @@ public class PropertyManagementController {
         } else if (propertyKey != null) {
             propertyService.deletePropertyByPropertyKey(propertyKey);
         } else {
-            return ResponseEntity.ok(Response.error(
-                    "At least one key must be provided for delete", null, HttpStatus.BAD_REQUEST.value()));
+            logger.debug("deleteProperty: No key provided");
+            return ResponseEntity.ok(Response.error("At least one key must be provided for delete", null, HttpStatus.BAD_REQUEST.value()));
         }
 
+        logger.debug("deleteProperty: success");
         return ResponseEntity.ok(Response.success("Property deleted successfully", null, HttpStatus.OK.value()));
     }
 }
+
