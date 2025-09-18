@@ -66,7 +66,7 @@
     <bean id="mybatisSqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
         <property name="dataSource" ref="dataSource"/>
         <property name="typeAliasesPackage" value="simple.chatgpt.pojo"/>
-        <property name="mapperLocations" value="classpath:mapper/*.xml"/>
+        <property name="mapperLocations" value="classpath*:mapper/**/*.xml"/>
         <property name="configurationProperties">
             <props>
                 <prop key="mapUnderscoreToCamelCase">true</prop>
@@ -86,7 +86,7 @@
     <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
         <property name="dataSource" ref="dataSource"/>
         <property name="typeAliasesPackage" value="simple.chatgpt.pojo"/>
-        <property name="mapperLocations" value="classpath:mapper/*.xml"/>
+        <property name="mapperLocations" value="classpath*:mapper/**/*.xml"/>
         <property name="configurationProperties">
             <props>
                 <prop key="mapUnderscoreToCamelCase">true</prop>
