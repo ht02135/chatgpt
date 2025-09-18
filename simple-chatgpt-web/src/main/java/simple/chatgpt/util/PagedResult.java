@@ -8,12 +8,14 @@ public class PagedResult<T> {
     private long totalCount;
     private int page;
     private int size;
+    private int maxPage; // 👈 new field
 
     public PagedResult(List<T> items, long totalCount, int page, int size) {
         this.items = items;
         this.totalCount = totalCount;
         this.page = page;
         this.size = size;
+        this.maxPage = (int) Math.ceil((double) totalCount / size); // 👈 calculate here
     }
 
     // ---------------------
@@ -33,6 +35,7 @@ public class PagedResult<T> {
 
     public void setTotalCount(long totalCount) {
         this.totalCount = totalCount;
+        this.maxPage = (int) Math.ceil((double) totalCount / this.size); // keep in sync
     }
 
     public int getPage() {
@@ -49,5 +52,10 @@ public class PagedResult<T> {
 
     public void setSize(int size) {
         this.size = size;
+        this.maxPage = (int) Math.ceil((double) this.totalCount / size); // keep in sync
+    }
+
+    public int getMaxPage() {
+        return maxPage;
     }
 }
