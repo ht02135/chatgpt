@@ -43,6 +43,14 @@ function UserViewModel(params, config) {
     self.sortField = ko.observable('id');
     self.sortOrder = ko.observable('ASC');
 
+	// ========================
+	// Helper: resolve sortField -> dbField
+	// ========================
+	self.resolveDbField = function(uiField) {
+	    const col = self.gridConfig?.columns?.find(c => c.name === uiField);
+	    return col?.dbField || uiField; // fallback to uiField if no mapping
+	};
+	
     // Build URLSearchParams for search
     self.buildSearchQuery = function() {
         console.log("user.js -> buildSearchQuery: called");
@@ -270,14 +278,6 @@ function UserViewModel(params, config) {
         console.log("user.js -> Initialization: list mode -> loadUsers");
         self.loadUsers();
     }
-
-	// ========================
-	// Helper: resolve sortField -> dbField
-	// ========================
-	self.resolveDbField = function(uiField) {
-	    const col = self.gridConfig?.columns?.find(c => c.name === uiField);
-	    return col?.dbField || uiField; // fallback to uiField if no mapping
-	};
 	
     // ========================
     // WRAPPER: MUST BE AT BOTTOM

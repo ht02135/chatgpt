@@ -57,6 +57,14 @@ function PropertyViewModel(params, config) {
 	self.sortField = ko.observable('id');
 	self.sortOrder = ko.observable('ASC');
 
+	// ========================
+	// Helper: resolve sortField -> dbField
+	// ========================
+	self.resolveDbField = function(uiField) {
+	    const col = self.gridConfig?.columns?.find(c => c.name === uiField);
+	    return col?.dbField || uiField; // fallback to uiField if no mapping
+	};
+	
     // ========================
     // Build Query
     // ========================
@@ -248,14 +256,6 @@ function PropertyViewModel(params, config) {
     } else {
         self.loadProperties();
     }
-
-	// ========================
-	// Helper: resolve sortField -> dbField
-	// ========================
-	self.resolveDbField = function(uiField) {
-	    const col = self.gridConfig?.columns?.find(c => c.name === uiField);
-	    return col?.dbField || uiField; // fallback to uiField if no mapping
-	};
 	
     // ========================
     // WRAPPER: MUST BE AT BOTTOM
