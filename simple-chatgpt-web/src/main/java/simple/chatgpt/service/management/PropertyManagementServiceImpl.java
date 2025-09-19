@@ -155,6 +155,8 @@ public class PropertyManagementServiceImpl implements PropertyManagementService 
       manual like this.
     3>also we have to do manual validation here, because we dont have 
       PropertyManagementPojo with proper annotation as input.
+    4>also this is probably legacy code that will never get called
+      from new controller. but i leave it...
     */
     @Override
     public void updateProperty(PropertyKey key, String newValue) {

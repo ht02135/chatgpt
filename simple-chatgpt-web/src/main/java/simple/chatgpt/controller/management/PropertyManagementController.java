@@ -2,6 +2,8 @@ package simple.chatgpt.controller.management;
 
 import java.util.Map;
 
+import javax.validation.Valid;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpStatus;
@@ -20,6 +22,17 @@ import simple.chatgpt.pojo.management.PropertyManagementPojo;
 import simple.chatgpt.service.management.PropertyManagementService;
 import simple.chatgpt.util.PagedResult;
 import simple.chatgpt.util.Response;
+
+/*
+1>Entity/DTO validation (@RequestBody) → just @Valid on the 
+method parameter.
+2>Parameter validation (@RequestParam, @PathVariable, etc.) 
+→ requires @Validated on the controller (or service) class.
+
+So unless you’re going to validate query params like @NotBlank
+or  @NotNull String propertyKey, you don’t need @Validated on 
+your controller right now.
+*/
 
 @RestController
 @RequestMapping(value = "/management/properties", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -83,7 +96,9 @@ public class PropertyManagementController {
 
     // ➕ CREATE
     @PostMapping("/create")
-    public ResponseEntity<Response<PropertyManagementPojo>> createProperty(@RequestBody PropertyManagementPojo property) {
+    public ResponseEntity<Response<PropertyManagementPojo>> createProperty(
+            @Valid @RequestBody PropertyManagementPojo property
+    ) {
         logger.debug("#############");
         logger.debug("createProperty called with property={}", property);
 
@@ -103,7 +118,7 @@ public class PropertyManagementController {
             @RequestParam(required = false) Long id,
             @RequestParam(required = false) String propertyName,
             @RequestParam(required = false) String propertyKey,
-            @RequestBody PropertyManagementPojo property
+            @Valid @RequestBody PropertyManagementPojo property
     ) {
         logger.debug("updateProperty called with id={}, propertyName={}, propertyKey={}, property={}", id, propertyName, propertyKey, property);
 
@@ -149,4 +164,3 @@ public class PropertyManagementController {
         return ResponseEntity.ok(Response.success("Property deleted successfully", null, HttpStatus.OK.value()));
     }
 }
-
