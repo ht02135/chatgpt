@@ -1,5 +1,8 @@
 package simple.chatgpt.pojo.management;
 
+import simple.chatgpt.validator.management.user.ValidManagementUser;
+
+@ValidManagementUser
 public class UserManagementPojo {
 
     private Long id;

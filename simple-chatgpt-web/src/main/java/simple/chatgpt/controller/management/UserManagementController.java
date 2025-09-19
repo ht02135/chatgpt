@@ -2,6 +2,8 @@ package simple.chatgpt.controller.management;
 
 import java.util.Map;
 
+import javax.validation.Valid;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.http.HttpStatus;
@@ -88,13 +90,16 @@ public class UserManagementController {
 
     // ➕ CREATE
     @PostMapping("/create")
-    public ResponseEntity<Response<UserManagementPojo>> createUser(@RequestBody UserManagementPojo user) {
-    	logger.debug("#############");
-    	logger.debug("createUser called with user={}", user);
+    public ResponseEntity<Response<UserManagementPojo>> createUser(
+            @Valid @RequestBody UserManagementPojo user) {
+
+        logger.debug("#############");
+        logger.debug("createUser called with user={}", user);
 
         UserManagementPojo created = userManagementService.createUser(user);
-        logger.debug("createUser called with created={}", created);
+        logger.debug("createUser created={}", created);
         logger.debug("#############");
+
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .body(Response.success("User created successfully", created, HttpStatus.CREATED.value()));
@@ -106,7 +111,7 @@ public class UserManagementController {
             @RequestParam(required = false) Long id,
             @RequestParam(required = false) String userName,
             @RequestParam(required = false) String userKey,
-            @RequestBody UserManagementPojo user
+            @Valid @RequestBody UserManagementPojo user
     ) {
         logger.debug("updateUser called with id={}, userName={}, userKey={}, user={}", id, userName, userKey, user);
 
@@ -122,7 +127,7 @@ public class UserManagementController {
         } else {
             return ResponseEntity.ok(Response.error("At least one key must be provided for update", null, HttpStatus.BAD_REQUEST.value()));
         }
-        logger.debug("updateUser called with updated=", updated);
+        logger.debug("updateUser updated={}", updated);
         logger.debug("#############");
 
         return ResponseEntity.ok(Response.success("User updated successfully", updated, HttpStatus.OK.value()));
