@@ -1,4 +1,4 @@
-// genericComponents.js
+// genericComponents-2.0.js
 
 //-----------------------------------
 // genericFormTitleComponent.js
@@ -193,7 +193,7 @@ ko.components.register('generic-search-actions', {
 ko.components.register('generic-grid', {
   viewModel: function(params) {
     this.gridConfig = params.gridConfig;
-    this.items = params.items;
+    this.items = params.items;               // list of objects
     this.sortField = params.sortField;
     this.sortOrder = params.sortOrder;
     this.setSort = params.setSort;
@@ -203,7 +203,7 @@ ko.components.register('generic-grid', {
   template: `
     <table>
       <thead>
-        <tr data-bind="foreach: $component.gridConfig.columns">
+        <tr data-bind="foreach: $component.gridConfig.columns.filter(c => c.visible)">
           <th data-bind="
             click: function() { if(name !== 'actions') $component.setSort(name) },
             style: { cursor: name !== 'actions' ? 'pointer' : 'default' }">
@@ -217,15 +217,15 @@ ko.components.register('generic-grid', {
         </tr>
       </thead>
       <tbody data-bind="foreach: $component.items">
-        <tr data-bind="foreach: $parent.gridConfig.columns">
+        <tr data-bind="foreach: $parent.gridConfig.columns.filter(c => c.visible)">
+          
           <!-- Actions -->
           <!-- ko if: name === 'actions' -->
           <td data-bind="foreach: $component.getActionsForColumn($data)">
             <a href="#"
                data-bind="
                  text: label,
-                 click: function() { $component.invokeAction($data, $parentContext.$parent) }
-               "></a>
+                 click: function() { $component.invokeAction($data, $parentContext.$parent) }"></a>
             <!-- separator -->
             <!-- ko if: $index() < $parentContext.$data.length - 1 --> | <!-- /ko -->
           </td>
@@ -235,6 +235,7 @@ ko.components.register('generic-grid', {
           <!-- ko if: name !== 'actions' -->
           <td data-bind="text: $parent[$data.name] ? $parent[$data.name]() : ''"></td>
           <!-- /ko -->
+
         </tr>
       </tbody>
     </table>

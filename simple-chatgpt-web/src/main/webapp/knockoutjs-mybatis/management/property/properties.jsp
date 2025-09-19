@@ -6,7 +6,7 @@
     <title>Property Management</title>
     <script src="../../../js/knockout-latest.js"></script>
     <script src="property.js"></script>
-    <script src="genericComponents2.js"></script>
+    <script src="genericComponents-2.0.js"></script>
     <link rel="stylesheet" href="property.css">
 </head>
 <body>

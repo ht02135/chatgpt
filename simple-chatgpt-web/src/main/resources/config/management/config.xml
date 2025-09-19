@@ -38,14 +38,14 @@
 	<grid id="users">
     	<column name="id" label="ID" visible="true" sortable="true" dbField="id" />
     	<column name="userName" label="Username" visible="true" sortable="true" dbField="user_name" />
-    	<column name="userKey" label="User Key" visible="true" sortable="true" dbField="user_key" />
+    	<column name="userKey" label="User Key" visible="false" sortable="true" dbField="user_key" />
     	<column name="firstName" label="First Name" visible="true" sortable="true" dbField="first_name" />
     	<column name="lastName" label="Last Name" visible="true" sortable="true" dbField="last_name" />
     	<column name="email" label="Email" visible="true" sortable="true" dbField="email" />
-    	<column name="city" label="City" visible="true" sortable="true" dbField="city" />
-    	<column name="country" label="Country" visible="true" sortable="true" dbField="country" />
-    	<column name="createdAt" label="Created At" visible="true" sortable="true" dbField="created_at" />
-    	<column name="updatedAt" label="Updated At" visible="true" sortable="true" dbField="updated_at" />
+    	<column name="city" label="City" visible="false" sortable="true" dbField="city" />
+    	<column name="country" label="Country" visible="false" sortable="true" dbField="country" />
+    	<column name="createdAt" label="Created At" visible="false" sortable="true" dbField="created_at" />
+    	<column name="updatedAt" label="Updated At" visible="false" sortable="true" dbField="updated_at" />
     	<column name="actions" label="Actions" actions="user-actions" visible="true" sortable="false" />
 	</grid>
 
