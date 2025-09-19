@@ -49,7 +49,7 @@ function UserViewModel(params, config) {
         const params = new URLSearchParams();
         params.append('page', self.page() - 1); // backend is 0-based
         params.append('size', self.size());
-        params.append('sortField', self.sortField());
+		params.append('sortField', self.resolveDbField(self.sortField()));
         params.append('sortDirection', self.sortOrder());
 
         if (self.searchConfig?.fields) {
@@ -271,6 +271,14 @@ function UserViewModel(params, config) {
         self.loadUsers();
     }
 
+	// ========================
+	// Helper: resolve sortField -> dbField
+	// ========================
+	self.resolveDbField = function(uiField) {
+	    const col = self.gridConfig?.columns?.find(c => c.name === uiField);
+	    return col?.dbField || uiField; // fallback to uiField if no mapping
+	};
+	
     // ========================
     // WRAPPER: MUST BE AT BOTTOM
     // ========================

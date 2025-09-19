@@ -281,7 +281,8 @@ public class PropertyManagementServiceImpl implements PropertyManagementService 
         sqlParams.put("limit", size);
 
         // Resolve sortField
-        String sortField = resolveSortField(params.get("sortField"));
+        // String sortField = resolveSortField(params.get("sortField"));
+        String sortField = params.get("sortField");
         String sortDirection = params.getOrDefault("sortDirection", "ASC").toUpperCase();
         sqlParams.put("sortField", sortField);
         sqlParams.put("sortDirection", sortDirection);
