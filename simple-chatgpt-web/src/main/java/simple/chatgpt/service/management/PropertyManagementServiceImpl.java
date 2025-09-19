@@ -7,7 +7,6 @@ import java.util.Set;
 
 import javax.annotation.PostConstruct;
 import javax.validation.ConstraintViolation;
-import javax.validation.Valid;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
@@ -17,7 +16,6 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import org.springframework.validation.annotation.Validated;
 
 import simple.chatgpt.mapper.management.PropertyManagementMapper;
 import simple.chatgpt.pojo.management.PropertyManagementPojo;
@@ -26,7 +24,6 @@ import simple.chatgpt.util.PagedResult;
 import simple.chatgpt.util.PropertyKey;
 
 @Service
-@Validated
 public class PropertyManagementServiceImpl implements PropertyManagementService {
 
     private static final Logger logger = LogManager.getLogger(PropertyManagementServiceImpl.class);
@@ -149,8 +146,15 @@ public class PropertyManagementServiceImpl implements PropertyManagementService 
     // ---------------- Update Property ----------------
     
     /*
-    note to myself, here i use manual validation, becaise i dont have
-    PropertyManagementPojo with proper annotation as input
+    note to myself
+    1>Majority of validation (~70–80%) is done in controllers.
+      Service-level validation (~20–30%) is mainly for extra safety, 
+      internal rules, or objects not coming from controllers.
+    2>so we will add @Validated and @Valid to controller.  also you 
+      cant do annotation at service level.  service level only allows 
+      manual like this.
+    3>also we have to do manual validation here, because we dont have 
+      PropertyManagementPojo with proper annotation as input.
     */
     @Override
     public void updateProperty(PropertyKey key, String newValue) {
@@ -206,34 +210,29 @@ public class PropertyManagementServiceImpl implements PropertyManagementService 
         return prop;
     }
 
-    /*
-    note to myself, here i use @Valid to aop wire method validation, because
-    PropertyManagementPojo has proper annotation
-    */
     @Override
-    public PropertyManagementPojo createProperty(@Valid PropertyManagementPojo property) {
+    public PropertyManagementPojo createProperty(PropertyManagementPojo property) {
         logger.debug("createProperty: {}", property);
-        // Reuse helper: pass a Runnable for insert instead of update
         updateDbAndInvalidateCache("createProperty", property, () -> mapper.insertProperty(property));
         return property;
     }
 
     @Override
-    public PropertyManagementPojo updatePropertyById(Long id, @Valid PropertyManagementPojo property) {
+    public PropertyManagementPojo updatePropertyById(Long id, PropertyManagementPojo property) {
         property.setId(id);
         updateDbAndInvalidateCache("updatePropertyById", property, () -> mapper.updateProperty(property));
         return property;
     }
 
     @Override
-    public PropertyManagementPojo updatePropertyByPropertyName(String propertyName, @Valid PropertyManagementPojo property) {
+    public PropertyManagementPojo updatePropertyByPropertyName(String propertyName, PropertyManagementPojo property) {
         property.setPropertyName(propertyName);
         updateDbAndInvalidateCache("updatePropertyByPropertyName", property, () -> mapper.updatePropertyByPropertyName(property));
         return property;
     }
 
     @Override
-    public PropertyManagementPojo updatePropertyByPropertyKey(String propertyKey, @Valid PropertyManagementPojo property) {
+    public PropertyManagementPojo updatePropertyByPropertyKey(String propertyKey, PropertyManagementPojo property) {
         property.setPropertyKey(propertyKey);
         updateDbAndInvalidateCache("updatePropertyByPropertyKey", property, () -> mapper.updatePropertyByPropertyKey(property));
         return property;
