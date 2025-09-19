@@ -8,7 +8,7 @@ ko.components.register('generic-form-title', {
     this.formTitle = params.formTitle;
   },
   template: `
-    <h1 data-bind="text: formTitle"></h1>
+    <h1 data-bind="text: $component.formTitle"></h1>
   `
 });
 
@@ -22,18 +22,18 @@ ko.components.register('generic-form-fields', {
     this.errors = params.errors;
   },
   template: `
-    <div class="form-vertical" data-bind="foreach: fields">
+    <div class="form-vertical" data-bind="foreach: $component.fields">
       <div class="form-row">
         <label data-bind="text: label + ':'"></label>
         
         <input type="text"
-               data-bind="value: $parent.currentObject()[name], 
+               data-bind="value: $component.currentObject()[name], 
                           enable: editable, 
                           valueUpdate: 'input'" />
         
         <div class="error-message"
-             data-bind="text: $parent.errors()[name],
-                        visible: $parent.errors()[name]"></div>
+             data-bind="text: $component.errors()[name],
+                        visible: $component.errors()[name]"></div>
       </div>
     </div>
   `
@@ -44,13 +44,13 @@ ko.components.register('generic-form-fields', {
 
 ko.components.register('generic-form-actions', {
   viewModel: function(params) {
-    this.saveObject = params.save;
+    this.saveObject = params.saveObject;
     this.goBack = params.goBack;
   },
   template: `
     <div class="form-actions">
-      <button type="submit" data-bind="click: saveObject">Save</button>
-      <button type="button" data-bind="click: goBack">Cancel</button>
+      <button type="submit" data-bind="click: $component.saveObject">Save</button>
+      <button type="button" data-bind="click: $component.goBack">Cancel</button>
     </div>
   `
 });
@@ -63,7 +63,7 @@ ko.components.register('generic-composed-form', {
     this.vm = params.vm; 
   },
   template: `
-    <div class="container" data-bind="with: vm">
+    <div class="container" data-bind="with: $component.vm">
       <generic-form-title params="formTitle: formTitle"></generic-form-title>
       
       <form data-bind="submit: saveObject">
@@ -82,9 +82,8 @@ ko.components.register('generic-form', {
     viewModel: function(params) {
         this.vm = params.vm; // no normalization, VM must provide everything
     },
-
     template: `
-        <div class="container" data-bind="with: vm">
+        <div class="container" data-bind="with: $component.vm">
             <h1 data-bind="text: formTitle"></h1>
             
             <form data-bind="submit: saveObject">
@@ -93,19 +92,19 @@ ko.components.register('generic-form', {
                         <label data-bind="text: label + ':'"></label>
                         
                         <input type="text"
-                               data-bind="value: $parent.currentObject()[name], 
+                               data-bind="value: $component.currentObject()[name], 
                                           enable: editable, 
                                           valueUpdate: 'input'" />
                         
                         <div class="error-message"
-                             data-bind="text: $parent.errors()[name],
-                                        visible: $parent.errors()[name]"></div>
+                             data-bind="text: $component.errors()[name],
+                                        visible: $component.errors()[name]"></div>
                     </div>
                 </div>
                 
                 <div class="form-actions">
                     <button type="submit">Save</button>
-                    <button type="button" data-bind="click: goBack">Cancel</button>
+                    <button type="button" data-bind="click: $component.goBack">Cancel</button>
                 </div>
             </form>
         </div>
@@ -113,35 +112,35 @@ ko.components.register('generic-form', {
 });
 
 //-----------------------------------
-//-----------------------------------
 // genericSearchFormComponent.js
 
 ko.components.register('generic-search-form', {
   viewModel: function(params) {
-    this.searchConfig   = params.searchConfig;   // config for fields
-    this.searchParams   = params.searchParams;   // observable params
-    this.errors         = params.errors;         // validation errors
-    this.searchObjects  = params.searchObjects;  // function to trigger search
-    
-    // configurable number of "core" fields
-    this.coreCount      = ko.unwrap(params.coreCount) || 3;  
+    this.searchConfig   = params.searchConfig;
+    this.searchParams   = params.searchParams;
+    this.errors         = params.errors;
+    this.searchObjects  = params.searchObjects;
+    this.coreCount      = ko.unwrap(params.coreCount) || 3;
   },
   template: `
     <div class="search-container">
-      <form data-bind="submit: searchObjects">
+      <form data-bind="submit: $component.searchObjects">
         <div class="form-columns">
           
           <!-- Core Section -->
           <fieldset class="form-col">
             <legend>Core Section</legend>
             <!-- First N fields -->
-            <!-- ko foreach: searchConfig.fields.slice(0, $component.coreCount) -->
+            <!-- ko foreach: $component.searchConfig.fields.slice(0, $component.coreCount) -->
               <div class="form-row" data-bind="visible: visible">
                 <label data-bind="text: label + ':', attr: { for: name }"></label>
                 <input type="text"
-                       data-bind="value: $parent.searchParams[name], valueUpdate: 'input', attr: { id: name, name: name }" />
+                       data-bind="value: $component.searchParams[name], 
+                                  valueUpdate: 'input', 
+                                  attr: { id: name, name: name }" />
                 <div class="error-message"
-                     data-bind="text: $parent.errors()[name], visible: $parent.errors()[name]"></div>
+                     data-bind="text: $component.errors()[name], 
+                                visible: $component.errors()[name]"></div>
               </div>
             <!-- /ko -->
           </fieldset>
@@ -150,13 +149,16 @@ ko.components.register('generic-search-form', {
           <fieldset class="form-col">
             <legend>Additional Section</legend>
             <!-- Remaining fields -->
-            <!-- ko foreach: searchConfig.fields.slice($component.coreCount) -->
+            <!-- ko foreach: $component.searchConfig.fields.slice($component.coreCount) -->
               <div class="form-row" data-bind="visible: visible">
                 <label data-bind="text: label + ':', attr: { for: name }"></label>
                 <input type="text"
-                       data-bind="value: $parent.searchParams[name], valueUpdate: 'input', attr: { id: name, name: name }" />
+                       data-bind="value: $component.searchParams[name], 
+                                  valueUpdate: 'input', 
+                                  attr: { id: name, name: name }" />
                 <div class="error-message"
-                     data-bind="text: $parent.errors()[name], visible: $parent.errors()[name]"></div>
+                     data-bind="text: $component.errors()[name], 
+                                visible: $component.errors()[name]"></div>
               </div>
             <!-- /ko -->
           </fieldset>
@@ -172,15 +174,15 @@ ko.components.register('generic-search-form', {
 
 ko.components.register('generic-search-actions', {
   viewModel: function(params) {
-    this.addObject = params.addObject;   // add handler
+    this.addObject = params.addObject;
     this.searchObjects = params.searchObjects;
     this.resetSearch = params.resetSearch;
   },
   template: `
     <div class="form-actions">
-      <a href="#" data-bind="click: addObject">Create</a>
-      <a href="#" data-bind="click: searchObjects">Search</a>
-      <a href="#" data-bind="click: resetSearch">Reset</a>
+      <a href="#" data-bind="click: $component.addObject">Create</a>
+      <a href="#" data-bind="click: $component.searchObjects">Search</a>
+      <a href="#" data-bind="click: $component.resetSearch">Reset</a>
     </div>
   `
 });
@@ -191,7 +193,7 @@ ko.components.register('generic-search-actions', {
 ko.components.register('generic-grid', {
   viewModel: function(params) {
     this.gridConfig = params.gridConfig;
-    this.items = params.items;               // generic list (objects, users, properties…)
+    this.items = params.items;
     this.sortField = params.sortField;
     this.sortOrder = params.sortOrder;
     this.setSort = params.setSort;
@@ -201,20 +203,20 @@ ko.components.register('generic-grid', {
   template: `
     <table>
       <thead>
-        <tr data-bind="foreach: gridConfig.columns">
+        <tr data-bind="foreach: $component.gridConfig.columns">
           <th data-bind="
-            click: function() { if(name !== 'actions') $parent.setSort(name) },
+            click: function() { if(name !== 'actions') $component.setSort(name) },
             style: { cursor: name !== 'actions' ? 'pointer' : 'default' }">
             <span>
               <span data-bind="text: label"></span>
-              <!-- ko if: name !== 'actions' && $parent.sortField() === name -->
-                <span data-bind="text: $parent.sortOrder() === 'ASC' ? ' ▲' : ' ▼'"></span>
+              <!-- ko if: name !== 'actions' && $component.sortField() === name -->
+                <span data-bind="text: $component.sortOrder() === 'ASC' ? ' ▲' : ' ▼'"></span>
               <!-- /ko -->
             </span>
           </th>
         </tr>
       </thead>
-      <tbody data-bind="foreach: items">
+      <tbody data-bind="foreach: $component.items">
         <tr data-bind="foreach: $parent.gridConfig.columns">
           <!-- Actions -->
           <!-- ko if: name === 'actions' -->
@@ -253,13 +255,13 @@ ko.components.register('generic-grid-pagination', {
   },
   template: `
     <div class="pagination" style="display: flex; align-items: center; gap: 15px; flex-wrap: nowrap;">
-      <button data-bind="click: prevPage, enable: page() > 1">Prev</button>
-      <span data-bind="text: page"></span> / <span data-bind="text: maxPage"></span>
-      <button data-bind="click: nextPage, enable: page() < maxPage()">Next</button>
+      <button data-bind="click: $component.prevPage, enable: $component.page() > 1">Prev</button>
+      <span data-bind="text: $component.page"></span> / <span data-bind="text: $component.maxPage"></span>
+      <button data-bind="click: $component.nextPage, enable: $component.page() < $component.maxPage()">Next</button>
 
       <label>
         Page Size:
-        <select data-bind="value: size">
+        <select data-bind="value: $component.size">
           <option value="10">10</option>
           <option value="20">20</option>
           <option value="30">30</option>
@@ -271,17 +273,15 @@ ko.components.register('generic-grid-pagination', {
       <label>
         Page Size:
         <input type="number" min="10" max="50" step="10"
-               data-bind="value: size, valueUpdate: 'input'"
+               data-bind="value: $component.size, valueUpdate: 'input'"
                style="width:50px;"
                onkeydown="return event.key === 'ArrowUp' || event.key === 'ArrowDown';"
                onpaste="return false;" ondrop="return false;">
       </label>
 
-      <span>Total: <span data-bind="text: total"></span></span>
+      <span>Total: <span data-bind="text: $component.total"></span></span>
     </div>
   `
 });
-
-//-----------------------------------
 
 //-----------------------------------

@@ -6,7 +6,7 @@
     <title>Property Management</title>
     <script src="../../../js/knockout-latest.js"></script>
     <script src="property.js"></script>
-    <script src="genericComponents.js"></script>
+    <script src="genericComponents2.js"></script>
     <link rel="stylesheet" href="property.css">
 </head>
 <body>
@@ -18,7 +18,8 @@
         params="searchConfig: searchConfig, 
                 searchParams: searchParams, 
                 errors: errors, 
-                searchObjects: searchObjects">
+                searchObjects: searchObjects,
+				coreCount: 3">
     </generic-search-form>
 
     <!-- Generic Search Actions -->

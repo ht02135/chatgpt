@@ -6,7 +6,7 @@
     <title>Edit User</title>
     <script src="../../../js/knockout-latest.js"></script>
     <script src="user.js"></script>
-    <script src="genericComponents.js"></script>
+    <script src="genericComponents2.js"></script>
     <link rel="stylesheet" href="user.css">
 </head>
 <body>

@@ -6,7 +6,7 @@
     <title>User Management</title>
     <script src="../../../js/knockout-latest.js"></script>
     <script src="user.js"></script>
-    <script src="genericComponents.js"></script>
+    <script src="genericComponents2.js"></script>
     <link rel="stylesheet" href="user.css">
 </head>
 <body>
@@ -18,7 +18,8 @@
         params="searchConfig: searchConfig, 
                 searchParams: searchParams, 
                 errors: errors, 
-                searchObjects: searchObjects">
+                searchObjects: searchObjects,
+				coreCount: 5">
     </generic-search-form>
 
     <!-- Generic Search Actions -->

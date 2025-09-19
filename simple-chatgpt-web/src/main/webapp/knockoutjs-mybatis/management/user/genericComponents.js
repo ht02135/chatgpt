@@ -122,6 +122,9 @@ ko.components.register('generic-search-form', {
     this.searchParams   = params.searchParams;   // observable params
     this.errors         = params.errors;         // validation errors
     this.searchObjects  = params.searchObjects;  // function to trigger search
+    
+    // configurable number of "core" fields
+    this.coreCount      = ko.unwrap(params.coreCount) || 3;  
   },
   template: `
     <div class="search-container">
@@ -131,8 +134,8 @@ ko.components.register('generic-search-form', {
           <!-- Core Section -->
           <fieldset class="form-col">
             <legend>Core Section</legend>
-            <!-- First 3 fields -->
-            <!-- ko foreach: searchConfig.fields.slice(0,3) -->
+            <!-- First N fields -->
+            <!-- ko foreach: searchConfig.fields.slice(0, $component.coreCount) -->
               <div class="form-row" data-bind="visible: visible">
                 <label data-bind="text: label + ':', attr: { for: name }"></label>
                 <input type="text"
@@ -147,7 +150,7 @@ ko.components.register('generic-search-form', {
           <fieldset class="form-col">
             <legend>Additional Section</legend>
             <!-- Remaining fields -->
-            <!-- ko foreach: searchConfig.fields.slice(3) -->
+            <!-- ko foreach: searchConfig.fields.slice($component.coreCount) -->
               <div class="form-row" data-bind="visible: visible">
                 <label data-bind="text: label + ':', attr: { for: name }"></label>
                 <input type="text"
