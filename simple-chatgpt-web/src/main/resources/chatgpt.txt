@@ -1,11 +1,22 @@
 
 next steps
 
-1>run new user sql
-2>run test config and test user jsp
-3>create load config .js
-3>create users.jsp addUser.jsp editUser.jsp user.js
+1>clone user
+2>upload user via csv or excel
+  csv loader
+  excel loader
+  
+Bulk Operations
+Example:
+POST /users/bulk (create multiple at once)
+DELETE /users/bulk (delete multiple at once)
 
-///////////
+Export / Import
+Example:
+GET /reports/export?format=csv
+POST /users/import with file upload
 
-once that is done, then property
+If controller deals with users:
+POST /login
+POST /logout
+POST /users/{id}/reset-password
