@@ -168,10 +168,10 @@ function PropertyViewModel(params, config) {
     };
     self.editProperty = function(id) {
         console.log("property.js -> editProperty: id=", ko.unwrap(id));
-		console.log("##########");
+		console.log("property.js ##########");
 		console.log("property.js -> editProperty: setItem editPropertyId=", ko.unwrap(id));
         localStorage.setItem('editPropertyId', ko.unwrap(id));
-		console.log("##########");
+		console.log("property.js ##########");
         window.location.href = 'editProperty.jsp';
     };
 
@@ -211,30 +211,42 @@ function PropertyViewModel(params, config) {
     // ========================
     // Save Property
     // ========================
-    self.saveProperty = async function() {
-        console.log("property.js -> saveProperty: called");
-        if (!self.formConfig) return;
+	self.saveProperty = async function() {
+	    console.log("property.js -> saveProperty: called");
+	    if (!self.formConfig) return;
 
-        self.errors({});
-        const errs = self.validateForm(self.currentProperty(), self.formConfig.fields);
-        if (Object.keys(errs).length > 0) {
-            self.errors(errs);
-            return;
-        }
+	    self.errors({});
+	    const errs = self.validateForm(self.currentProperty(), self.formConfig.fields);
+	    if (Object.keys(errs).length > 0) {
+	        self.errors(errs);
+	        return;
+	    }
 
-        const payload = {};
-        self.formConfig.fields.forEach(f => payload[f.name] = self.currentProperty()[f.name]());
+	    const payload = {};
+	    self.formConfig.fields.forEach(f => payload[f.name] = self.currentProperty()[f.name]());
 
-        try {
-            let url = `${API_PROPERTY}/create`, method = 'POST';
-            if (self.mode === 'edit' && self.currentProperty().key && self.currentProperty().key()) {
-                url = `${API_PROPERTY}/update?propertyKey=${self.currentProperty().key()}`;
-                method = 'PUT';
-            }
-            await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-            self.goProperties();
-        } catch (err) { console.error('Save property error:', err); }
-    };
+	    try {
+	        let url = `${API_PROPERTY}/create`, method = 'POST';
+
+	        // Use ID-based update, like saveUser
+	        const idVal = self.currentProperty().id && self.currentProperty().id();
+	        if (self.mode === 'edit' && idVal) {
+	            url = `${API_PROPERTY}/update?id=${encodeURIComponent(idVal)}`;
+	            method = 'PUT';
+	        }
+			
+			console.log("property.js ##########");
+			console.log("property.js -> saveProperty: self.mode=", self.mode);
+			console.log("property.js -> saveProperty: url=", url);
+			console.log("property.js -> saveProperty: method=", method);
+			console.log("property.js -> saveProperty: payload=", payload);
+			console.log("property.js ##########");
+	        await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+	        self.goProperties();
+	    } catch (err) {
+	        console.error('Save property error:', err);
+	    }
+	};
 
     // ========================
     // Load Property by ID

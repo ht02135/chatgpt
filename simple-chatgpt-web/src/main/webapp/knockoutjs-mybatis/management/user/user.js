@@ -163,10 +163,10 @@ function UserViewModel(params, config) {
 
     self.editUser = function(id) {
         console.log("user.js -> editUser: id=", ko.unwrap(id));
-		console.log("##########");
+		console.log("user.js ##########");
 		console.log("user.js -> editUser: setItem editUserId=", ko.unwrap(id));
         localStorage.setItem('editUserId', ko.unwrap(id));
-		console.log("##########");
+		console.log("user.js ##########");
         window.location.href = 'editUser.jsp';
     };
 
