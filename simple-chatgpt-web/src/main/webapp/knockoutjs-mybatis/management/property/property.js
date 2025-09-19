@@ -168,7 +168,10 @@ function PropertyViewModel(params, config) {
     };
     self.editProperty = function(id) {
         console.log("property.js -> editProperty: id=", ko.unwrap(id));
+		console.log("##########");
+		console.log("property.js -> editProperty: setItem editPropertyId=", ko.unwrap(id));
         localStorage.setItem('editPropertyId', ko.unwrap(id));
+		console.log("##########");
         window.location.href = 'editProperty.jsp';
     };
 
@@ -185,7 +188,8 @@ function PropertyViewModel(params, config) {
         console.log("property.js -> invokeAction called", action, row);
         if (action && action.jsMethod && typeof self[action.jsMethod] === 'function') {
             if (action.jsMethod === "editProperty") {
-                self[action.jsMethod](ko.unwrap(row.key));
+				console.log("property.js -> invokeAction: ko.unwrap(row.id)=", ko.unwrap(row.id));
+                self[action.jsMethod](ko.unwrap(row.id));
             } else {
                 self[action.jsMethod](row);
             }
@@ -235,14 +239,23 @@ function PropertyViewModel(params, config) {
     // ========================
     // Load Property by ID
     // ========================
-    self.loadPropertyById = async function(id) {
-        console.log("property.js -> loadPropertyById: id=", id);
-        try {
-            const res = await fetch(`${API_PROPERTY}/get?propertyKey=${id}`, { headers: { 'Accept': 'application/json' } });
-            const data = await res.json();
-            if (data.status === 'SUCCESS' && data.data) self.currentProperty(new Property(data.data, self.formConfig?.fields || []));
-        } catch (err) { console.error('Load property error:', err); }
-    };
+	self.loadPropertyById = async function(id) {
+	    console.log("property.js -> loadPropertyById: id=", id);
+	    if (!id) return;
+
+	    try {
+	        const res = await fetch(`${API_PROPERTY}/get?id=${id}`, {
+	            headers: { 'Accept': 'application/json' }
+	        });
+	        const data = await res.json();
+	        if (data.status === 'SUCCESS' && data.data) {
+	            self.currentProperty(new Property(data.data, self.formConfig?.fields || []));
+	        }
+	    } catch (err) {
+	        console.error('Load property error:', err);
+	    }
+	};
+
 
     // ========================
     // Initialization
