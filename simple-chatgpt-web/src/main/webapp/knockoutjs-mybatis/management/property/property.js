@@ -237,6 +237,7 @@ function PropertyViewModel(params, config) {
 			
 			console.log("property.js ##########");
 			console.log("property.js -> saveProperty: self.mode=", self.mode);
+			console.log("property.js -> saveProperty: idVal=", idVal);
 			console.log("property.js -> saveProperty: url=", url);
 			console.log("property.js -> saveProperty: method=", method);
 			console.log("property.js -> saveProperty: payload=", payload);

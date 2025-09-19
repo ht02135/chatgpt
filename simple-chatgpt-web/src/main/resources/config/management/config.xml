@@ -137,11 +137,12 @@
         <field name="type" label="Type" visible="true" required="true" editable="true" />
     </form>
 
-    <form id="editProperty">
-        <field name="propertyName" label="Name" visible="true" required="true" editable="false" />
-        <field name="propertyKey" label="Key" visible="false" required="true" editable="false" />
-        <field name="type" label="Type" visible="true" required="true" editable="true" />
-        <field name="value" label="Value" visible="true" required="true" editable="true" validators="multiple-validators" />
-    </form>
+	<form id="editProperty">
+    	<field name="id" label="ID" visible="true" required="true" editable="false" />
+    	<field name="propertyName" label="Name" visible="true" required="true" editable="false" />
+    	<field name="propertyKey" label="Key" visible="false" required="true" editable="false" />
+    	<field name="type" label="Type" visible="true" required="true" editable="true" />
+    	<field name="value" label="Value" visible="true" required="true" editable="true" validators="multiple-validators" />
+	</form>
 
 </config>
