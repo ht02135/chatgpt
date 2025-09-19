@@ -1,6 +1,8 @@
 package simple.chatgpt.validator.management.user;
 
+import java.lang.reflect.Method;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 import javax.validation.ConstraintValidator;
@@ -20,89 +22,71 @@ public class ValidUserManagementValidator implements ConstraintValidator<ValidMa
     public boolean isValid(UserManagementPojo user, ConstraintValidatorContext context) {
         if (user == null) {
             logger.warn("Validation skipped: user object is null");
-            return true; // decide false if null should fail validation
+            return true; // return false if null should fail
         }
 
         boolean valid = true;
         context.disableDefaultConstraintViolation();
 
-        // --- Required field checks ---
-        if (isBlank(user.getUserName())) {
-            addViolation(context, "UserName cannot be blank");
-            valid = false;
-        }
-        if (isBlank(user.getUserKey())) {
-            addViolation(context, "UserKey cannot be blank");
-            valid = false;
-        }
-        if (isBlank(user.getPassword())) {
-            addViolation(context, "Password cannot be blank");
-            valid = false;
-        }
-        if (isBlank(user.getFirstName())) {
-            addViolation(context, "FirstName cannot be blank");
-            valid = false;
-        }
-        if (isBlank(user.getLastName())) {
-            addViolation(context, "LastName cannot be blank");
-            valid = false;
-        }
-        if (isBlank(user.getEmail())) {
-            addViolation(context, "Email cannot be blank");
-            valid = false;
-        }
-
-        // --- Regex validations ---
-        if (!isBlank(user.getEmail())) {
-            ValidationRule emailRule = ValidationConfigLoader.getValidationRule("emailValidation");
-            if (!Pattern.matches(emailRule.getRegex(), user.getEmail())) {
-                addViolation(context, emailRule.getError());
+        // --- Required field checks dynamically from POJO fields ---
+        String[] requiredFields = {"userName", "userKey", "password", "firstName", "lastName", "email"};
+        for (String field : requiredFields) {
+            String value = getFieldValue(user, field);
+            if (isBlank(value)) {
+                addViolation(context, field + " cannot be blank");
                 valid = false;
-            } else {
-                logger.debug("Email [{}] passed regex validation", user.getEmail());
-            }
-
-            // --- Email domain validation ---
-            List<String> validDomains = ValidationConfigLoader.getValidEmailDomains();
-            boolean domainOk = validDomains.stream().anyMatch(d -> user.getEmail().endsWith(d));
-            if (!domainOk) {
-                addViolation(context, "Invalid email domain: " + user.getEmail());
-                valid = false;
-            } else {
-                logger.debug("Email [{}] domain validated successfully", user.getEmail());
             }
         }
 
-        if (!isBlank(user.getPassword())) {
-            ValidationRule pwdRule = ValidationConfigLoader.getValidationRule("passwordValidation");
-            if (!Pattern.matches(pwdRule.getRegex(), user.getPassword())) {
-                addViolation(context, pwdRule.getError());
-                valid = false;
-            } else {
-                logger.debug("Password passed regex validation");
+        // --- Dynamic regex validation based on ValidationConfigLoader ---
+        Map<String, ValidationRule> rules = ValidationConfigLoader.getAllValidationRules();
+        for (ValidationRule rule : rules.values()) {
+            String fieldName = rule.getField();
+            String value = getFieldValue(user, fieldName);
+
+            if (!isBlank(value)) {
+                if (!Pattern.matches(rule.getRegex(), value)) {
+                    addViolation(context, rule.getError());
+                    valid = false;
+                } else {
+                    logger.debug("Field [{}] with value [{}] passed regex validation", fieldName, value);
+                }
+
+                // Special handling for email domains
+                if ("email".equals(fieldName)) {
+                    List<String> validDomains = ValidationConfigLoader.getValidEmailDomains();
+                    boolean domainOk = validDomains.stream().anyMatch(d -> value.endsWith(d));
+                    if (!domainOk) {
+                        addViolation(context, "Invalid email domain: " + value);
+                        valid = false;
+                    } else {
+                        logger.debug("Email [{}] domain validated successfully", value);
+                    }
+                }
             }
         }
 
-        if (!isBlank(user.getPostCode())) {
-            ValidationRule postalRule = ValidationConfigLoader.getValidationRule("postalCodeValidation");
-            if (!Pattern.matches(postalRule.getRegex(), user.getPostCode())) {
-                addViolation(context, postalRule.getError());
-                valid = false;
-            } else {
-                logger.debug("PostCode [{}] passed regex validation", user.getPostCode());
-            }
-        }
-
-        // --- Logging final result ---
         logger.debug("#############");
         if (valid) {
-            logger.debug("User [{}] PASS VALIDATION user {}", user);
+            logger.debug("User [{}] PASS VALIDATION", user);
         } else {
-            logger.warn("User [{}] FAILED VALIDATION user {}", user);
+            logger.warn("User [{}] FAILED VALIDATION", user);
         }
         logger.debug("#############");
 
         return valid;
+    }
+
+    private String getFieldValue(UserManagementPojo user, String fieldName) {
+        try {
+            String methodName = "get" + fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1);
+            Method getter = UserManagementPojo.class.getMethod(methodName);
+            Object value = getter.invoke(user);
+            return value != null ? value.toString() : null;
+        } catch (Exception e) {
+            logger.error("Failed to get value of field [{}]", fieldName, e);
+            return null;
+        }
     }
 
     private boolean isBlank(String str) {

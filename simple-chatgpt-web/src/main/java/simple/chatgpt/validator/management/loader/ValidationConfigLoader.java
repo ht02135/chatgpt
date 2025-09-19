@@ -44,10 +44,11 @@ public class ValidationConfigLoader {
             for (int i = 0; i < validationNodes.getLength(); i++) {
                 Element validationElement = (Element) validationNodes.item(i);
                 String id = validationElement.getAttribute("id");
+                String field = validationElement.getAttribute("field"); // NEW: map field
                 String regex = validationElement.getAttribute("regex");
                 String error = validationElement.getAttribute("error");
 
-                ValidationRule rule = new ValidationRule(id, regex, error);
+                ValidationRule rule = new ValidationRule(id, field, regex, error);
                 validationRules.put(id, rule);
 
                 logger.debug("Loaded validation rule: {}", rule);
@@ -88,5 +89,17 @@ public class ValidationConfigLoader {
     public static Map<String, ValidationRule> getAllValidationRules() {
         init();
         return Collections.unmodifiableMap(validationRules);
+    }
+
+    // --- Utility: get rules by field name for dynamic validation ---
+    public static List<ValidationRule> getRulesForField(String fieldName) {
+        init();
+        List<ValidationRule> result = new ArrayList<>();
+        for (ValidationRule rule : validationRules.values()) {
+            if (rule.getField() != null && rule.getField().equals(fieldName)) {
+                result.add(rule);
+            }
+        }
+        return result;
     }
 }
