@@ -35,19 +35,19 @@
     <!-- ========================= -->
     <!-- User Grid -->
     <!-- ========================= -->
-    <grid id="users">
-        <column name="id" label="ID" visible="true" sortable="true" />
-        <column name="userName" label="Username" visible="true" sortable="true" />
-        <column name="userKey" label="User Key" visible="true" sortable="true" />
-        <column name="firstName" label="First Name" visible="true" sortable="true" />
-        <column name="lastName" label="Last Name" visible="true" sortable="true" />
-        <column name="email" label="Email" visible="true" sortable="true" />
-        <column name="city" label="City" visible="true" sortable="true" />
-        <column name="country" label="Country" visible="true" sortable="true" />
-        <column name="createdAt" label="Created At" visible="true" sortable="true" />
-        <column name="updatedAt" label="Updated At" visible="true" sortable="true" />
-        <column name="actions" label="Actions" actions="user-actions" visible="true" sortable="false" />
-    </grid>
+	<grid id="users">
+    	<column name="id" label="ID" visible="true" sortable="true" dbField="id" />
+    	<column name="userName" label="Username" visible="true" sortable="true" dbField="user_name" />
+    	<column name="userKey" label="User Key" visible="true" sortable="true" dbField="user_key" />
+    	<column name="firstName" label="First Name" visible="true" sortable="true" dbField="first_name" />
+    	<column name="lastName" label="Last Name" visible="true" sortable="true" dbField="last_name" />
+    	<column name="email" label="Email" visible="true" sortable="true" dbField="email" />
+    	<column name="city" label="City" visible="true" sortable="true" dbField="city" />
+    	<column name="country" label="Country" visible="true" sortable="true" dbField="country" />
+    	<column name="createdAt" label="Created At" visible="true" sortable="true" dbField="created_at" />
+    	<column name="updatedAt" label="Updated At" visible="true" sortable="true" dbField="updated_at" />
+    	<column name="actions" label="Actions" actions="user-actions" visible="true" sortable="false" />
+	</grid>
 
     <!-- ========================= -->
     <!-- User Forms -->
@@ -119,14 +119,14 @@
     <!-- ========================= -->
     <!-- Property Grid -->
     <!-- ========================= -->
-    <grid id="properties">
-        <column name="id" label="ID" visible="true" sortable="true" />
-        <column name="propertyName" label="Name" visible="true" sortable="true" />
-        <column name="propertyKey" label="Key" visible="false" sortable="true" />
-        <column name="type" label="Type" visible="true" sortable="true" />
-        <column name="value" label="Value" visible="true" sortable="true" />
-        <column name="actions" label="Actions" actions="property-actions" visible="true" sortable="false" />
-    </grid>
+	<grid id="properties">
+    	<column name="id" label="ID" visible="true" sortable="true" dbField="id" />
+    	<column name="propertyName" label="Name" visible="true" sortable="true" dbField="property_name" />
+    	<column name="propertyKey" label="Key" visible="false" sortable="true" dbField="property_key" />
+    	<column name="type" label="Type" visible="true" sortable="true" dbField="type" />
+    	<column name="value" label="Value" visible="true" sortable="true" dbField="value" />
+    	<column name="actions" label="Actions" actions="property-actions" visible="true" sortable="false" />
+	</grid>
 
     <!-- ========================= -->
     <!-- Property Forms -->

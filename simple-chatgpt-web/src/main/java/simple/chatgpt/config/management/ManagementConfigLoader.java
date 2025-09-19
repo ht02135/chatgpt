@@ -48,20 +48,43 @@ public class ManagementConfigLoader {
             for (int j = 0; j < cols.getLength(); j++) {
                 Element c = (Element) cols.item(j);
 
-                String actions = c.hasAttribute("actions") ? c.getAttribute("actions") : null;
+                String name = c.getAttribute("name");
+                String label = c.getAttribute("label");
+                boolean visible = Boolean.parseBoolean(c.getAttribute("visible"));
+                boolean sortable = Boolean.parseBoolean(c.getAttribute("sortable"));
 
-                grid.addColumn(new ColumnConfig(
-                        c.getAttribute("name"),
-                        c.getAttribute("label"),
-                        Boolean.parseBoolean(c.getAttribute("visible")),
-                        Boolean.parseBoolean(c.getAttribute("sortable")),
-                        actions
-                ));
+                ColumnConfig column;
+
+                if (c.hasAttribute("actions")) {
+                    // ✅ actions column
+                    column = new ColumnConfig(
+                            name,
+                            label,
+                            visible,
+                            sortable,
+                            null,                       // dbField not used
+                            c.getAttribute("actions")   // actions
+                    );
+                } else {
+                    // ✅ normal column with optional dbField
+                    String dbField = c.hasAttribute("dbField") ? c.getAttribute("dbField") : null;
+                    column = new ColumnConfig(
+                            name,
+                            label,
+                            visible,
+                            sortable,
+                            dbField,   // dbField
+                            null       // actions not used
+                    );
+                }
+
+                grid.addColumn(column);
             }
             grids.add(grid);
         }
         return grids;
     }
+
 
     public List<FormConfig> loadForms() throws Exception {
         Document doc = loadDocument();

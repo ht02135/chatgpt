@@ -38,15 +38,34 @@ public class ConfigLoader {
             for (int j = 0; j < cols.getLength(); j++) {
                 Element c = (Element) cols.item(j);
 
-                String actions = c.hasAttribute("actions") ? c.getAttribute("actions") : null;
+                String name = c.getAttribute("name");
+                String label = c.getAttribute("label");
+                boolean visible = Boolean.parseBoolean(c.getAttribute("visible"));
+                boolean sortable = Boolean.parseBoolean(c.getAttribute("sortable"));
 
-                grid.addColumn(new ColumnConfig(
-                        c.getAttribute("name"),
-                        c.getAttribute("label"),
-                        Boolean.parseBoolean(c.getAttribute("visible")),
-                        Boolean.parseBoolean(c.getAttribute("sortable")),
-                        actions
-                ));
+                ColumnConfig column;
+                if (c.hasAttribute("actions")) {
+                    // action column
+                    column = ColumnConfig.withActions(
+                            name,
+                            label,
+                            visible,
+                            sortable,
+                            c.getAttribute("actions")
+                    );
+                } else {
+                    // normal sortable/data column with optional dbField
+                    String dbField = c.hasAttribute("dbField") ? c.getAttribute("dbField") : null;
+                    column = ColumnConfig.withDbField(
+                            name,
+                            label,
+                            visible,
+                            sortable,
+                            dbField
+                    );
+                }
+
+                grid.addColumn(column);
             }
             grids.add(grid);
         }
