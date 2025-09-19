@@ -7,6 +7,7 @@ import java.util.Set;
 
 import javax.annotation.PostConstruct;
 import javax.validation.ConstraintViolation;
+import javax.validation.Valid;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
@@ -16,6 +17,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 
 import simple.chatgpt.mapper.management.PropertyManagementMapper;
 import simple.chatgpt.pojo.management.PropertyManagementPojo;
@@ -24,6 +26,7 @@ import simple.chatgpt.util.PagedResult;
 import simple.chatgpt.util.PropertyKey;
 
 @Service
+@Validated
 public class PropertyManagementServiceImpl implements PropertyManagementService {
 
     private static final Logger logger = LogManager.getLogger(PropertyManagementServiceImpl.class);
@@ -139,7 +142,6 @@ public class PropertyManagementServiceImpl implements PropertyManagementService 
         logger.debug("getString key={}", key);
         logger.debug("getString prop={}", prop);
         logger.debug("#############");
-
         logger.debug("getString key={} -> {}", key.getKey(), prop.getValue());
         return prop.getValue();
     }
@@ -200,37 +202,32 @@ public class PropertyManagementServiceImpl implements PropertyManagementService 
     }
 
     @Override
-    public PropertyManagementPojo createProperty(PropertyManagementPojo property) {
+    public PropertyManagementPojo createProperty(@Valid PropertyManagementPojo property) {
         logger.debug("createProperty: {}", property);
         mapper.insertProperty(property);
         logger.debug("Property inserted with ID: {}", property.getId());
+        cache.invalidate(property.getPropertyKey());
         return property;
     }
 
     @Override
-    public PropertyManagementPojo updatePropertyById(Long id, PropertyManagementPojo property) {
-        logger.debug("updatePropertyById id={} property={}", id, property);
+    public PropertyManagementPojo updatePropertyById(Long id, @Valid PropertyManagementPojo property) {
         property.setId(id);
-        mapper.updateProperty(property);
-        logger.debug("Property updated by ID: {}", id);
+        updateDbAndInvalidateCache("updatePropertyById", property, () -> mapper.updateProperty(property));
         return property;
     }
 
     @Override
-    public PropertyManagementPojo updatePropertyByPropertyName(String propertyName, PropertyManagementPojo property) {
-        logger.debug("updatePropertyByPropertyName propertyName={} property={}", propertyName, property);
+    public PropertyManagementPojo updatePropertyByPropertyName(String propertyName, @Valid PropertyManagementPojo property) {
         property.setPropertyName(propertyName);
-        mapper.updatePropertyByPropertyName(property);
-        logger.debug("Property updated by propertyName: {}", propertyName);
+        updateDbAndInvalidateCache("updatePropertyByPropertyName", property, () -> mapper.updatePropertyByPropertyName(property));
         return property;
     }
 
     @Override
-    public PropertyManagementPojo updatePropertyByPropertyKey(String propertyKey, PropertyManagementPojo property) {
-        logger.debug("updatePropertyByPropertyKey propertyKey={} property={}", propertyKey, property);
+    public PropertyManagementPojo updatePropertyByPropertyKey(String propertyKey, @Valid PropertyManagementPojo property) {
         property.setPropertyKey(propertyKey);
-        mapper.updatePropertyByPropertyKey(property);
-        logger.debug("Property updated by propertyKey: {}", propertyKey);
+        updateDbAndInvalidateCache("updatePropertyByPropertyKey", property, () -> mapper.updatePropertyByPropertyKey(property));
         return property;
     }
 
@@ -281,7 +278,6 @@ public class PropertyManagementServiceImpl implements PropertyManagementService 
         sqlParams.put("limit", size);
 
         // Resolve sortField
-        // String sortField = resolveSortField(params.get("sortField"));
         String sortField = params.get("sortField");
         String sortDirection = params.getOrDefault("sortDirection", "ASC").toUpperCase();
         sqlParams.put("sortField", sortField);
@@ -310,6 +306,21 @@ public class PropertyManagementServiceImpl implements PropertyManagementService 
     }
 
     // ---------------- Helper Method ----------------
+    private void updateDbAndInvalidateCache(String actionDesc, PropertyManagementPojo property, Runnable dbUpdateAction) {
+        logger.debug("#############");
+        logger.debug("{} property={}", actionDesc, property);
+
+        // 2. Update DB
+        dbUpdateAction.run();
+        logger.debug("Property updated in DB: {}", property);
+
+        // 3. Invalidate cache
+        cache.invalidate(property.getPropertyKey());
+        logger.debug("Cache invalidated for key={}", property.getPropertyKey());
+        logger.debug("#############");
+    }
+
+    // ---------------- Helper Method for sort mapping ----------------
     private String resolveSortField(String frontEndField) {
         Map<String, String> sortFieldMap = Map.of(
             "propertyName", "property_name",
@@ -328,5 +339,4 @@ public class PropertyManagementServiceImpl implements PropertyManagementService 
         }
         return dbColumn;
     }
-
 }

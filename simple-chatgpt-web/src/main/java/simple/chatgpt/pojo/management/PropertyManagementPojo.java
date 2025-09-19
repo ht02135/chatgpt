@@ -2,6 +2,17 @@ package simple.chatgpt.pojo.management;
 
 import java.io.Serializable;
 
+import simple.chatgpt.validator.management.property.ValidManagementProperty;
+
+/*
+Class-level validation (like @ValidProperty)
+1>If you put @ValidProperty on a class but never validate the 
+object (either manually or via @Valid in a service/controller), 
+it won’t run. 
+2>Class-level validators usually implement ConstraintValidator<ValidProperty, 
+Property> and can check multiple fields together.
+*/
+@ValidManagementProperty
 public class PropertyManagementPojo implements Serializable {
 
     private static final long serialVersionUID = 1L;

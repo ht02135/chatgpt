@@ -158,5 +158,11 @@
         	<aop:before method="validateProperty" pointcut-ref="propertyUpdatePointcut"/>
     	</aop:aspect>
 	</aop:config>
+	
+	<!-- ///////////////////////////////// -->
+	
+	<!-- XML-based AOP configuration for Class-level validation -->
+	<!-- Hibernate Validator setup -->
+	<bean id="validator" class="org.springframework.validation.beanvalidation.LocalValidatorFactoryBean"/>
 
 </beans>
