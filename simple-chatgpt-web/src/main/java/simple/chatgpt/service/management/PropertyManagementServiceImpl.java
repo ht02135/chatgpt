@@ -147,6 +147,11 @@ public class PropertyManagementServiceImpl implements PropertyManagementService 
     }
 
     // ---------------- Update Property ----------------
+    
+    /*
+    note to myself, here i use manual validation, becaise i dont have
+    PropertyManagementPojo with proper annotation as input
+    */
     @Override
     public void updateProperty(PropertyKey key, String newValue) {
         logger.debug("#############");
@@ -201,12 +206,15 @@ public class PropertyManagementServiceImpl implements PropertyManagementService 
         return prop;
     }
 
+    /*
+    note to myself, here i use @Valid to aop wire method validation, because
+    PropertyManagementPojo has proper annotation
+    */
     @Override
     public PropertyManagementPojo createProperty(@Valid PropertyManagementPojo property) {
         logger.debug("createProperty: {}", property);
-        mapper.insertProperty(property);
-        logger.debug("Property inserted with ID: {}", property.getId());
-        cache.invalidate(property.getPropertyKey());
+        // Reuse helper: pass a Runnable for insert instead of update
+        updateDbAndInvalidateCache("createProperty", property, () -> mapper.insertProperty(property));
         return property;
     }
 
