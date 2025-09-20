@@ -45,12 +45,12 @@ ko.components.register('generic-form-fields', {
 ko.components.register('generic-form-actions', {
   viewModel: function(params) {
     this.saveObject = params.saveObject;
-    this.goBack = params.goBack;
+    this.navigateToObjects = params.navigateToObjects;
   },
   template: `
     <div class="form-actions">
       <button type="submit" data-bind="click: $component.saveObject">Save</button>
-      <button type="button" data-bind="click: $component.goBack">Cancel</button>
+      <button type="button" data-bind="click: $component.navigateToObjects">Cancel</button>
     </div>
   `
 });
@@ -71,7 +71,7 @@ ko.components.register('generic-composed-form', {
       <form data-bind="with: $component.vm, submit: saveObject">
         <generic-form-fields params="formConfig: formConfig, currentObject: currentObject, errors: errors"></generic-form-fields>
         
-        <generic-form-actions params="saveObject: saveObject, goBack: goBack"></generic-form-actions>
+        <generic-form-actions params="saveObject: saveObject, navigateToObjects: navigateToObjects"></generic-form-actions>
       </form>
     </div>
   `
@@ -108,7 +108,7 @@ ko.components.register('generic-form', {
         
         <div class="form-actions">
           <button type="submit">Save</button>
-          <button type="button" data-bind="click: $component.goBack">Cancel</button>
+          <button type="button" data-bind="click: $component.navigateToObjects">Cancel</button>
         </div>
       </form>
     </div>

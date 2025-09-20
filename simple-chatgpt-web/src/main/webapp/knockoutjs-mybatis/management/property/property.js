@@ -158,8 +158,8 @@ function PropertyViewModel(params, config) {
     // ========================
     // Navigation
     // ========================
-    self.goProperties = function() {
-        console.log("property.js -> goProperties: called");
+    self.navigateToProperties = function() {
+        console.log("property.js -> navigateToProperties: called");
         window.location.href = 'properties.jsp?reload=' + new Date().getTime();
     };
     self.addProperty = function() {
@@ -187,7 +187,21 @@ function PropertyViewModel(params, config) {
     self.invokeAction = function(action, row) {
         console.log("property.js -> invokeAction called", action, row);
         if (action && action.jsMethod && typeof self[action.jsMethod] === 'function') {
-            if (action.jsMethod === "editProperty") {
+			/*
+			1. Simple OR
+			if (action.jsMethod === "editProperty" || action.jsMethod === "editObject") {
+			   // handle edit logic
+			}
+			2. Array includes (cleaner if you expect more methods later)
+			if (["editProperty", "editObject"].includes(action.jsMethod)) {
+			   // handle edit logic
+			}
+			3. Regex match (if they share a pattern)
+			if (/^edit(Property|Object)$/.test(action.jsMethod)) {
+			   // handle edit logic
+			}
+			*/
+            if (/^edit(Property|Object)$/.test(action.jsMethod)) {
 				console.log("property.js -> invokeAction: ko.unwrap(row.id)=", ko.unwrap(row.id));
                 self[action.jsMethod](ko.unwrap(row.id));
             } else {
@@ -243,7 +257,7 @@ function PropertyViewModel(params, config) {
 			console.log("property.js -> saveProperty: payload=", payload);
 			console.log("property.js ##########");
 	        await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-	        self.goProperties();
+	        self.navigateToProperties();
 	    } catch (err) {
 	        console.error('Save property error:', err);
 	    }
@@ -288,11 +302,11 @@ function PropertyViewModel(params, config) {
     // ========================
     console.log("property.js -> Wrapper block: called");
     self.currentObject = self.currentProperty;
-    // self.formTitle = self.mode === 'edit' ? 'Edit Property' : 'Add Property';
-
-    self.goBack = function() {
-        console.log("property.js Wrapper -> goBack called");
-        return self.goProperties();
+	self.objects = self.properties;
+	
+    self.navigateToObjects = function() {
+        console.log("property.js Wrapper -> navigateToObjects called");
+        return self.navigateToProperties();
     };
     self.saveObject = function() {
         console.log("property.js Wrapper -> saveObject called");
@@ -302,7 +316,6 @@ function PropertyViewModel(params, config) {
         console.log("property.js Wrapper -> addObject called");
         return self.addProperty();
     };
-    self.objects = self.properties;
     self.searchObjects = function() {
         console.log("property.js Wrapper -> searchObjects called");
         return self.searchProperties();

@@ -151,8 +151,8 @@ function UserViewModel(params, config) {
     // ========================
     // Navigation
     // ========================
-    self.goUsers = function() {
-        console.log("user.js -> goUsers: called");
+    self.navigateToUsers = function() {
+        console.log("user.js -> navigateToUsers: called");
         window.location.href = 'users.jsp?reload=' + new Date().getTime();
     };
 
@@ -185,7 +185,21 @@ function UserViewModel(params, config) {
         console.log("user.js -> invokeAction: action=", action);
         console.log("user.js -> invokeAction: row=", row);
         if (action && action.jsMethod && typeof self[action.jsMethod] === 'function') {
-            if (action.jsMethod === "editUser") {
+			/*
+			1. Simple OR
+			if (action.jsMethod === "editUser" || action.jsMethod === "editObject") {
+			   // handle edit logic
+			}
+			2. Array includes (cleaner if you expect more methods later)
+			if (["editUser", "editObject"].includes(action.jsMethod)) {
+			   // handle edit logic
+			}
+			3. Regex match (if they share a pattern)
+			if (/^edit(User|Object)$/.test(action.jsMethod)) {
+			   // handle edit logic
+			}
+			*/
+            if (/^edit(User|Object)$/.test(action.jsMethod)) {
                 console.log("user.js -> invokeAction: ko.unwrap(row.id)=", ko.unwrap(row.id));
                 self[action.jsMethod](ko.unwrap(row.id));
             } else {
@@ -237,7 +251,7 @@ function UserViewModel(params, config) {
             }
             console.log("user.js -> saveUser: url=", url, "method=", method);
             await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-            self.goUsers();
+            self.navigateToUsers();
         } catch (err) { console.error('Save user error:', err); }
     };
 
@@ -287,25 +301,20 @@ function UserViewModel(params, config) {
     // ========================
     console.log("user.js -> Wrapper block: called");
     self.currentObject = self.currentUser;
-    // self.formTitle = self.mode === 'edit' ? 'Edit User' : 'Add User';
+    self.objects = self.users;
 
-    self.goBack = function() {
-        console.log("user.js Wrapper -> goBack called");
-        return self.goUsers();
+    self.navigateToObjects = function() {
+        console.log("user.js Wrapper -> navigateToObjects called");
+        return self.navigateToUsers();
     };
-
     self.saveObject = function() {
         console.log("user.js Wrapper -> saveObject called");
         return self.saveUser();
     };
-
     self.addObject = function() {
         console.log("user.js Wrapper -> addObject called");
         return self.addUser();
     };
-
-    self.objects = self.users;
-
     self.searchObjects = function() {
         console.log("user.js Wrapper -> searchObjects called");
         return self.searchUsers();
