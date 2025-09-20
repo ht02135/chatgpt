@@ -288,7 +288,7 @@ function PropertyViewModel(params, config) {
     // ========================
     console.log("property.js -> Wrapper block: called");
     self.currentObject = self.currentProperty;
-    self.formTitle = self.mode === 'edit' ? 'Edit Property' : 'Add Property';
+    // self.formTitle = self.mode === 'edit' ? 'Edit Property' : 'Add Property';
 
     self.goBack = function() {
         console.log("property.js Wrapper -> goBack called");

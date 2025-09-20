@@ -287,7 +287,7 @@ function UserViewModel(params, config) {
     // ========================
     console.log("user.js -> Wrapper block: called");
     self.currentObject = self.currentUser;
-    self.formTitle = self.mode === 'edit' ? 'Edit User' : 'Add User';
+    // self.formTitle = self.mode === 'edit' ? 'Edit User' : 'Add User';
 
     self.goBack = function() {
         console.log("user.js Wrapper -> goBack called");

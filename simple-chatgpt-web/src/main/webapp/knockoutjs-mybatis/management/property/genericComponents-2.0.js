@@ -57,16 +57,18 @@ ko.components.register('generic-form-actions', {
 
 //-----------------------------------
 // genericComposedFormComponent.js
+// ✅ fixed: formTitle is now passed as param, not from vm
 
 ko.components.register('generic-composed-form', {
   viewModel: function(params) {
     this.vm = params.vm; 
+    this.formTitle = params.formTitle; // <-- NEW
   },
   template: `
-    <div class="container" data-bind="with: $component.vm">
-      <generic-form-title params="formTitle: formTitle"></generic-form-title>
+    <div class="container">
+      <generic-form-title params="formTitle: $component.formTitle"></generic-form-title>
       
-      <form data-bind="submit: saveObject">
+      <form data-bind="with: $component.vm, submit: saveObject">
         <generic-form-fields params="formConfig: formConfig, currentObject: currentObject, errors: errors"></generic-form-fields>
         
         <generic-form-actions params="saveObject: saveObject, goBack: goBack"></generic-form-actions>
@@ -77,38 +79,40 @@ ko.components.register('generic-composed-form', {
 
 //-----------------------------------
 // genericFormComponent.js
+// ✅ fixed: formTitle is now passed as param, not from vm
 
 ko.components.register('generic-form', {
-    viewModel: function(params) {
-        this.vm = params.vm; // no normalization, VM must provide everything
-    },
-    template: `
-        <div class="container" data-bind="with: $component.vm">
-            <h1 data-bind="text: formTitle"></h1>
+  viewModel: function(params) {
+    this.vm = params.vm;
+    this.formTitle = params.formTitle; // <-- NEW
+  },
+  template: `
+    <div class="container">
+      <h1 data-bind="text: $component.formTitle"></h1>
+      
+      <form data-bind="with: $component.vm, submit: saveObject">
+        <div class="form-vertical" data-bind="foreach: formConfig.fields">
+          <div class="form-row">
+            <label data-bind="text: label + ':'"></label>
             
-            <form data-bind="submit: saveObject">
-                <div class="form-vertical" data-bind="foreach: formConfig.fields">
-                    <div class="form-row">
-                        <label data-bind="text: label + ':'"></label>
-                        
-                        <input type="text"
-                               data-bind="value: $component.currentObject()[name], 
-                                          enable: editable, 
-                                          valueUpdate: 'input'" />
-                        
-                        <div class="error-message"
-                             data-bind="text: $component.errors()[name],
-                                        visible: $component.errors()[name]"></div>
-                    </div>
-                </div>
-                
-                <div class="form-actions">
-                    <button type="submit">Save</button>
-                    <button type="button" data-bind="click: $component.goBack">Cancel</button>
-                </div>
-            </form>
+            <input type="text"
+                   data-bind="value: $component.currentObject()[name], 
+                              enable: editable, 
+                              valueUpdate: 'input'" />
+            
+            <div class="error-message"
+                 data-bind="text: $component.errors()[name],
+                            visible: $component.errors()[name]"></div>
+          </div>
         </div>
-    `
+        
+        <div class="form-actions">
+          <button type="submit">Save</button>
+          <button type="button" data-bind="click: $component.goBack">Cancel</button>
+        </div>
+      </form>
+    </div>
+  `
 });
 
 //-----------------------------------

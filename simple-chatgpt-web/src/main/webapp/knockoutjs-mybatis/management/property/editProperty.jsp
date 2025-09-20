@@ -11,7 +11,7 @@
 </head>
 <body>
     <!-- Use the reusable generic form -->
-    <generic-composed-form params="vm: propertyVM"></generic-composed-form>
+	<generic-composed-form params="vm: propertyVM, formTitle: propertyVM.mode === 'edit' ? 'Edit Property' : 'Add Property'"></generic-composed-form>
 
 	<script type="module">
 	import configLoader from "./configLoader.js";

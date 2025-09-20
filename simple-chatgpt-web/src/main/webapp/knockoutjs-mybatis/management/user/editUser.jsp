@@ -11,7 +11,7 @@
 </head>
 <body>
 	<!-- Use the reusable component -->
-	<generic-composed-form params="vm: userVM"></generic-composed-form>
+	<generic-composed-form params="vm: userVM, formTitle: userVM.mode === 'edit' ? 'Edit User' : 'Add User'"></generic-composed-form>
 
 	<script type="module">
 	import configLoader from "./configLoader.js";
