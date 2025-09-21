@@ -22,7 +22,7 @@ import simple.chatgpt.service.management.UserManagementListService;
 import simple.chatgpt.util.Response;
 
 @RestController
-@RequestMapping(value = "/management/lists", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/management/userlists", produces = MediaType.APPLICATION_JSON_VALUE)
 public class UserManagementListController {
 
     private static final Logger logger = LogManager.getLogger(UserManagementListController.class);
