@@ -12,14 +12,13 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.ibatis.session.SqlSession;
-import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.stereotype.Service;
 
 import com.opencsv.CSVReader;
 import com.opencsv.CSVWriter;
@@ -29,21 +28,30 @@ import simple.chatgpt.mapper.management.UserManagementListMemberMapper;
 import simple.chatgpt.pojo.management.UserManagementListMemberPojo;
 import simple.chatgpt.pojo.management.UserManagementListPojo;
 
+@Service
 public class UserManagementListServiceImpl implements UserManagementListService {
 
     private static final Logger logger = LogManager.getLogger(UserManagementListServiceImpl.class);
 
-    private final SqlSessionFactory sqlSessionFactory;
-    private final Path storageDir = Paths.get("data/management/user_lists"); // relative path
+    private final UserManagementListMapper listMapper;
+    private final UserManagementListMemberMapper memberMapper;
+    private final Path storageDir;
 
-    public UserManagementListServiceImpl(SqlSessionFactory sqlSessionFactory) throws IOException {
-        this.sqlSessionFactory = sqlSessionFactory;
-        // Ensure storage directory exists
+    public UserManagementListServiceImpl(UserManagementListMapper listMapper,
+                                         UserManagementListMemberMapper memberMapper) throws IOException {
+        this.listMapper = listMapper;
+        this.memberMapper = memberMapper;
+
+        String webappRoot = System.getProperty("catalina.base") + "/webapps/chatgpt";
+        storageDir = Paths.get(webappRoot, "data/management/user_lists");
+
         if (!Files.exists(storageDir)) {
             Files.createDirectories(storageDir);
-            logger.debug("Storage directory created: relativePath={}, absolutePath={}", storageDir, storageDir.toAbsolutePath());
+            logger.debug("Storage directory created at relativePath={} absolutePath={}", 
+                         storageDir, storageDir.toAbsolutePath());
         } else {
-            logger.debug("Storage directory exists: relativePath={}, absolutePath={}", storageDir, storageDir.toAbsolutePath());
+            logger.debug("Storage directory exists at relativePath={} absolutePath={}", 
+                         storageDir, storageDir.toAbsolutePath());
         }
     }
 
@@ -53,60 +61,42 @@ public class UserManagementListServiceImpl implements UserManagementListService 
     public void createList(UserManagementListPojo list, List<UserManagementListMemberPojo> members) {
         logger.debug("createList list={}", list);
         logger.debug("createList members={}", members);
-        try (SqlSession session = sqlSessionFactory.openSession(false)) {
-            UserManagementListMapper listMapper = session.getMapper(UserManagementListMapper.class);
-            UserManagementListMemberMapper memberMapper = session.getMapper(UserManagementListMemberMapper.class);
 
-            listMapper.insertList(list);
-            Long listId = list.getId();
-            logger.debug("createList generated listId={}", listId);
+        listMapper.insertList(list);
+        Long listId = list.getId();
+        logger.debug("createList generated listId={}", listId);
 
-            if (members != null && !members.isEmpty()) {
-                for (UserManagementListMemberPojo m : members) {
-                    m.setListId(listId);
-                    logger.debug("createList member listId set: member={}", m);
-                }
-                memberMapper.batchInsertMembers(members);
+        if (members != null && !members.isEmpty()) {
+            for (UserManagementListMemberPojo m : members) {
+                m.setListId(listId);
+                logger.debug("createList member listId set: member={}", m);
             }
-
-            session.commit();
-        } catch (Exception e) {
-            logger.error("Failed to create list", e);
-            throw new RuntimeException("Failed to create list", e);
+            memberMapper.batchInsertMembers(members);
         }
     }
 
     @Override
     public void deleteList(Long listId) {
         logger.debug("deleteList listId={}", listId);
-        try (SqlSession session = sqlSessionFactory.openSession(false)) {
-            UserManagementListMapper listMapper = session.getMapper(UserManagementListMapper.class);
-            UserManagementListMemberMapper memberMapper = session.getMapper(UserManagementListMemberMapper.class);
-
-            memberMapper.deleteMembersByListId(listId);
-            listMapper.deleteList(listId);
-
-            session.commit();
-        } catch (Exception e) {
-            logger.error("Failed to delete list", e);
-            throw new RuntimeException("Failed to delete list", e);
-        }
+        memberMapper.deleteMembersByListId(listId);
+        listMapper.deleteList(listId);
+        logger.debug("deleteList completed for listId={}", listId);
     }
 
     @Override
     public UserManagementListPojo getListById(Long listId) {
         logger.debug("getListById listId={}", listId);
-        try (SqlSession session = sqlSessionFactory.openSession()) {
-            return session.getMapper(UserManagementListMapper.class).findListById(listId);
-        }
+        UserManagementListPojo list = listMapper.findListById(listId);
+        logger.debug("getListById result={}", list);
+        return list;
     }
 
     @Override
     public List<UserManagementListMemberPojo> getMembersByListId(Long listId) {
         logger.debug("getMembersByListId listId={}", listId);
-        try (SqlSession session = sqlSessionFactory.openSession()) {
-            return session.getMapper(UserManagementListMemberMapper.class).findMembersByListId(listId);
-        }
+        List<UserManagementListMemberPojo> members = memberMapper.findMembersByListId(listId);
+        logger.debug("getMembersByListId members={}", members);
+        return members;
     }
 
     // ------------------ File Storage ------------------
@@ -114,23 +104,22 @@ public class UserManagementListServiceImpl implements UserManagementListService 
     private Path getListFilePath(Long listId, String originalFileName) {
         String extension = "";
         int dotIndex = originalFileName.lastIndexOf('.');
-        if (dotIndex >= 0) {
-            extension = originalFileName.substring(dotIndex);
-        }
+        if (dotIndex >= 0) extension = originalFileName.substring(dotIndex);
+
         Path path = storageDir.resolve("list_" + listId + extension);
         logger.debug("getListFilePath relativePath={}", path);
         logger.debug("getListFilePath absolutePath={}", path.toAbsolutePath());
         return path;
     }
 
-    // ------------------ CSV Import ------------------
+    // ------------------ CSV Import/Export ------------------
 
     @Override
     public void importListFromCsv(InputStream inputStream, UserManagementListPojo list, String originalFileName) throws Exception {
         logger.debug("importListFromCsv list={}", list);
         logger.debug("importListFromCsv originalFileName={}", originalFileName);
-        List<UserManagementListMemberPojo> members = new ArrayList<>();
 
+        List<UserManagementListMemberPojo> members = new ArrayList<>();
         try (CSVReader reader = new CSVReader(new InputStreamReader(inputStream))) {
             String[] header = reader.readNext(); // skip header
             String[] row;
@@ -154,7 +143,6 @@ public class UserManagementListServiceImpl implements UserManagementListService 
 
         createList(list, members);
 
-        // Save original CSV file
         Path path = getListFilePath(list.getId(), originalFileName);
         try (OutputStream os = Files.newOutputStream(path)) {
             if (inputStream.markSupported()) inputStream.reset();
@@ -162,8 +150,6 @@ public class UserManagementListServiceImpl implements UserManagementListService 
         }
         list.setFilePath(path.toString());
     }
-
-    // ------------------ CSV Export ------------------
 
     @Override
     public void exportListToCsv(Long listId, OutputStream outputStream) throws Exception {
@@ -186,14 +172,14 @@ public class UserManagementListServiceImpl implements UserManagementListService 
         }
     }
 
-    // ------------------ Excel Import ------------------
+    // ------------------ Excel Import/Export ------------------
 
     @Override
     public void importListFromExcel(InputStream inputStream, UserManagementListPojo list, String originalFileName) throws Exception {
         logger.debug("importListFromExcel list={}", list);
         logger.debug("importListFromExcel originalFileName={}", originalFileName);
-        List<UserManagementListMemberPojo> members = new ArrayList<>();
 
+        List<UserManagementListMemberPojo> members = new ArrayList<>();
         try (Workbook workbook = new XSSFWorkbook(inputStream)) {
             Sheet sheet = workbook.getSheetAt(0);
             Iterator<Row> rows = sheet.iterator();
@@ -220,7 +206,6 @@ public class UserManagementListServiceImpl implements UserManagementListService 
 
         createList(list, members);
 
-        // Save original Excel file
         Path path = getListFilePath(list.getId(), originalFileName);
         try (OutputStream os = Files.newOutputStream(path)) {
             if (inputStream.markSupported()) inputStream.reset();
@@ -228,8 +213,6 @@ public class UserManagementListServiceImpl implements UserManagementListService 
         }
         list.setFilePath(path.toString());
     }
-
-    // ------------------ Excel Export ------------------
 
     @Override
     public void exportListToExcel(Long listId, OutputStream outputStream) throws Exception {

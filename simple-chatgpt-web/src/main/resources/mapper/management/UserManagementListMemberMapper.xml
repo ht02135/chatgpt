@@ -6,7 +6,7 @@
 <mapper namespace="simple.chatgpt.mapper.management.UserManagementListMemberMapper">
 
     <resultMap id="UserManagementListMemberResultMap" type="simple.chatgpt.pojo.management.UserManagementListMemberPojo">
-        <id property="id" column="id"/>
+        <id property="id" column="id" />
         <result property="listId" column="list_id"/>
         <result property="userName" column="user_name"/>
         <result property="password" column="password"/>
@@ -32,7 +32,7 @@
          #{addressLine1}, #{addressLine2}, #{city}, #{state}, #{postCode}, #{country})
     </insert>
 
-    <insert id="batchInsertMembers" parameterType="java.util.List">
+    <insert id="batchInsertMembers">
         INSERT INTO user_management_list_member
         (list_id, user_name, password, first_name, last_name, email,
          address_line_1, address_line_2, city, state, post_code, country)
