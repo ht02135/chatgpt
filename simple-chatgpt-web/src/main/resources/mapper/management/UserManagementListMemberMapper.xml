@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="UserManagementListMemberMapper">
+
+    <resultMap id="UserManagementListMemberResultMap" type="UserManagementListMemberPojo">
+        <id property="id" column="id" />
+        <result property="listId" column="list_id"/>
+        <result property="userName" column="user_name"/>
+        <result property="password" column="password"/>
+        <result property="firstName" column="first_name"/>
+        <result property="lastName" column="last_name"/>
+        <result property="email" column="email"/>
+        <result property="addressLine1" column="address_line_1"/>
+        <result property="addressLine2" column="address_line_2"/>
+        <result property="city" column="city"/>
+        <result property="state" column="state"/>
+        <result property="postCode" column="post_code"/>
+        <result property="country" column="country"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
+    <insert id="insertMember" parameterType="UserManagementListMemberPojo" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO user_management_list_member
+        (list_id, user_name, password, first_name, last_name, email,
+         address_line_1, address_line_2, city, state, post_code, country)
+        VALUES
+        (#{listId}, #{userName}, #{password}, #{firstName}, #{lastName}, #{email},
+         #{addressLine1}, #{addressLine2}, #{city}, #{state}, #{postCode}, #{country})
+    </insert>
+
+    <insert id="batchInsertMembers" parameterType="java.util.List">
+        INSERT INTO user_management_list_member
+        (list_id, user_name, password, first_name, last_name, email,
+         address_line_1, address_line_2, city, state, post_code, country)
+        VALUES
+        <foreach collection="list" item="member" separator=",">
+            (#{member.listId}, #{member.userName}, #{member.password}, #{member.firstName},
+             #{member.lastName}, #{member.email}, #{member.addressLine1}, #{member.addressLine2},
+             #{member.city}, #{member.state}, #{member.postCode}, #{member.country})
+        </foreach>
+    </insert>
+
+    <delete id="deleteMembersByListId" parameterType="long">
+        DELETE FROM user_management_list_member WHERE list_id = #{listId}
+    </delete>
+
+    <select id="findMembersByListId" parameterType="long" resultMap="UserManagementListMemberResultMap">
+        SELECT * FROM user_management_list_member WHERE list_id = #{listId} ORDER BY created_at ASC
+    </select>
+
+</mapper>

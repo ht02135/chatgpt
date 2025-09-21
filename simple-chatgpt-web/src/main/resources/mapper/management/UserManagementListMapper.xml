@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="UserManagementListMapper">
+
+    <resultMap id="UserManagementListResultMap" type="UserManagementListPojo">
+        <id property="id" column="id" />
+        <result property="userListName" column="user_list_name"/>
+        <result property="filePath" column="file_path"/>
+        <result property="description" column="description"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
+    <insert id="insertList" parameterType="UserManagementListPojo" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO user_management_list
+        (user_list_name, file_path, description)
+        VALUES
+        (#{userListName}, #{filePath}, #{description})
+    </insert>
+
+    <update id="updateList" parameterType="UserManagementListPojo">
+        UPDATE user_management_list
+        SET user_list_name = #{userListName},
+            file_path = #{filePath},
+            description = #{description},
+            updated_at = CURRENT_TIMESTAMP
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteList" parameterType="long">
+        DELETE FROM user_management_list WHERE id = #{id}
+    </delete>
+
+    <select id="findListById" parameterType="long" resultMap="UserManagementListResultMap">
+        SELECT * FROM user_management_list WHERE id = #{id}
+    </select>
+
+    <select id="findAllLists" resultMap="UserManagementListResultMap">
+        SELECT * FROM user_management_list ORDER BY created_at DESC
+    </select>
+
+</mapper>
