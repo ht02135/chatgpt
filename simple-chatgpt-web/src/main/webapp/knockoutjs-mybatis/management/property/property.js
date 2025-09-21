@@ -164,7 +164,14 @@ function PropertyViewModel(params, config) {
     };
     self.addProperty = function() {
         console.log("property.js -> addProperty: called");
-        window.location.href = 'addProperty.jsp';
+		/*
+		we dont allow add property from UI, because is pointless.
+		1>any system level property need to be added thru PropertyKey.
+		2>of course, we can enable user to create new property via UI,
+		  but it will be a pointless property that will not be used 
+		  anywhere. that is why we disable add property from UI
+		*/
+        // window.location.href = 'addProperty.jsp';
     };
     self.editProperty = function(id) {
         console.log("property.js -> editProperty: id=", ko.unwrap(id));
