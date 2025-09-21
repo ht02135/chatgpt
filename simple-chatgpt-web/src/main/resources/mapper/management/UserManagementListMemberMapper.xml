@@ -3,10 +3,10 @@
   PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="UserManagementListMemberMapper">
+<mapper namespace="simple.chatgpt.mapper.management.UserManagementListMemberMapper">
 
-    <resultMap id="UserManagementListMemberResultMap" type="UserManagementListMemberPojo">
-        <id property="id" column="id" />
+    <resultMap id="UserManagementListMemberResultMap" type="simple.chatgpt.pojo.management.UserManagementListMemberPojo">
+        <id property="id" column="id"/>
         <result property="listId" column="list_id"/>
         <result property="userName" column="user_name"/>
         <result property="password" column="password"/>
@@ -23,7 +23,7 @@
         <result property="updatedAt" column="updated_at"/>
     </resultMap>
 
-    <insert id="insertMember" parameterType="UserManagementListMemberPojo" useGeneratedKeys="true" keyProperty="id">
+    <insert id="insertMember" parameterType="simple.chatgpt.pojo.management.UserManagementListMemberPojo" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO user_management_list_member
         (list_id, user_name, password, first_name, last_name, email,
          address_line_1, address_line_2, city, state, post_code, country)

@@ -84,6 +84,61 @@ exportListToCsv(Long listId)
 exportListToExcel(Long listId)
 deleteList(Long listId)
 
+/////////////////
+
+java.io.File 📄
+
+The java.io.File class represents a pathname to a file or directory on the file system. It's part of the standard Java library. You use it to interact with files that already exist on your computer's disk, or to create, delete, or rename files. It's a general-purpose class for file system operations.
+
+The MultipartFile is a Spring Framework-specific interface. It represents a file that has been uploaded as part of a multipart/form-data request, which is the standard way to send files from a web browser to a server. This object is used to handle file uploads in web applications built with Spring. The file it represents might exist in memory or as a temporary file on the server's disk, but it's not a file you can interact with directly on the file system in the same way as a java.io.File.
+
+///////////////////
+
+Where MultipartFile belongs
+
+Controller	Accepts MultipartFile from an HTTP request (<input type="file">). Converts it to File or InputStream and passes it to the service.
+
+Service	Works with File or InputStream. Doesn’t know about MultipartFile — keeps it framework-agnostic.
+
+/////////////////
+
+Using File in the service layer
+
+public void importListFromCsv(File file, UserManagementListPojo list)
+
+Pros:
+Simple if you already have a physical file on disk.
+Easy to use with standard Java I/O (FileReader, FileWriter).
+
+Cons:
+Forces the service layer to depend on the file system.
+Harder to integrate with HTTP file uploads (MultipartFile) without writing temporary files.
+
+////////////////////
+2️⃣ Using InputStream / OutputStream in the service layer
+
+Signature example:
+
+public void importListFromCsv(InputStream inputStream, UserManagementListPojo list)
+public void exportListToCsv(Long listId, OutputStream outputStream)
+
+Pros:
+
+Framework-agnostic: Doesn’t care where the data comes from (HTTP upload, local file, network stream, memory).
+
+Works directly with MultipartFile in Spring MVC:
+
+service.importListFromCsv(multipartFile.getInputStream(), list);
+
+Cons:
+Slightly more boilerplate if you’re always reading/writing from actual files on disk (you need to wrap FileInputStream or FileOutputStream).
+
+✅ Recommendation
+
+For modern web applications, the InputStream/OutputStream approach is preferred.
+Keep the service decoupled from Spring or the filesystem.
+Let the controller layer handle MultipartFile and convert it to a stream if needed.
+
 ///////////////////
 4. Controller Layer
 

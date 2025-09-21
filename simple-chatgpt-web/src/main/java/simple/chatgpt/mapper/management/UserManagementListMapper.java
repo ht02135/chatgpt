@@ -1,6 +1,5 @@
 package simple.chatgpt.mapper.management;
 
-// UserManagementListMapper.java
 import java.util.List;
 
 import simple.chatgpt.pojo.management.UserManagementListPojo;

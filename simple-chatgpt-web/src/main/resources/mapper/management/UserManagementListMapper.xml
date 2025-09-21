@@ -3,10 +3,10 @@
   PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="UserManagementListMapper">
+<mapper namespace="simple.chatgpt.mapper.management.UserManagementListMapper">
 
-    <resultMap id="UserManagementListResultMap" type="UserManagementListPojo">
-        <id property="id" column="id" />
+    <resultMap id="UserManagementListResultMap" type="simple.chatgpt.pojo.management.UserManagementListPojo">
+        <id property="id" column="id"/>
         <result property="userListName" column="user_list_name"/>
         <result property="filePath" column="file_path"/>
         <result property="description" column="description"/>
@@ -14,14 +14,13 @@
         <result property="updatedAt" column="updated_at"/>
     </resultMap>
 
-    <insert id="insertList" parameterType="UserManagementListPojo" useGeneratedKeys="true" keyProperty="id">
+    <insert id="insertList" parameterType="simple.chatgpt.pojo.management.UserManagementListPojo" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO user_management_list
         (user_list_name, file_path, description)
-        VALUES
-        (#{userListName}, #{filePath}, #{description})
+        VALUES (#{userListName}, #{filePath}, #{description})
     </insert>
 
-    <update id="updateList" parameterType="UserManagementListPojo">
+    <update id="updateList" parameterType="simple.chatgpt.pojo.management.UserManagementListPojo">
         UPDATE user_management_list
         SET user_list_name = #{userListName},
             file_path = #{filePath},
