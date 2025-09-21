@@ -8,9 +8,14 @@ import simple.chatgpt.pojo.management.UserManagementListPojo;
 
 @Mapper
 public interface UserManagementListMapper {
-    int insertList(UserManagementListPojo list);
-    int updateList(UserManagementListPojo list);
+
+    int insertList(UserManagementListPojo list);  // INSERT now includes originalFileName
+
+    int updateList(UserManagementListPojo list);  // UPDATE now includes originalFileName
+
     int deleteList(Long id);
+
     UserManagementListPojo findListById(Long id);
+
     List<UserManagementListPojo> findAllLists();
 }

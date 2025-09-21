@@ -5,41 +5,43 @@
 
 <mapper namespace="simple.chatgpt.mapper.management.UserManagementListMapper">
 
-    <resultMap id="UserManagementListResultMap" type="simple.chatgpt.pojo.management.UserManagementListPojo">
-        <id property="id" column="id" />
-        <result property="userListName" column="user_list_name"/>
-        <result property="filePath" column="file_path"/>
-        <result property="description" column="description"/>
-        <result property="createdAt" column="created_at"/>
-        <result property="updatedAt" column="updated_at"/>
-    </resultMap>
-
+    <!-- INSERT -->
     <insert id="insertList" parameterType="simple.chatgpt.pojo.management.UserManagementListPojo" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO user_management_list
-        (user_list_name, file_path, description)
+        INSERT INTO user_management_lists
+        (user_list_name, file_path, original_file_name, description, created_at, updated_at)
         VALUES
-        (#{userListName}, #{filePath}, #{description})
+        (#{userListName}, #{filePath}, #{originalFileName}, #{description}, NOW(), NOW())
     </insert>
 
+    <!-- UPDATE -->
     <update id="updateList" parameterType="simple.chatgpt.pojo.management.UserManagementListPojo">
-        UPDATE user_management_list
-        SET user_list_name = #{userListName},
+        UPDATE user_management_lists
+        SET
+            user_list_name = #{userListName},
             file_path = #{filePath},
+            original_file_name = #{originalFileName},
             description = #{description},
-            updated_at = CURRENT_TIMESTAMP
+            updated_at = NOW()
         WHERE id = #{id}
     </update>
 
+    <!-- DELETE -->
     <delete id="deleteList" parameterType="long">
-        DELETE FROM user_management_list WHERE id = #{id}
+        DELETE FROM user_management_lists WHERE id = #{id}
     </delete>
 
-    <select id="findListById" parameterType="long" resultMap="UserManagementListResultMap">
-        SELECT * FROM user_management_list WHERE id = #{id}
+    <!-- SELECT ONE -->
+    <select id="findListById" parameterType="long" resultType="simple.chatgpt.pojo.management.UserManagementListPojo">
+        SELECT id, user_list_name, file_path, original_file_name, description, created_at, updated_at
+        FROM user_management_lists
+        WHERE id = #{id}
     </select>
 
-    <select id="findAllLists" resultMap="UserManagementListResultMap">
-        SELECT * FROM user_management_list ORDER BY created_at DESC
+    <!-- SELECT ALL -->
+    <select id="findAllLists" resultType="simple.chatgpt.pojo.management.UserManagementListPojo">
+        SELECT id, user_list_name, file_path, original_file_name, description, created_at, updated_at
+        FROM user_management_lists
+        ORDER BY created_at DESC
     </select>
 
 </mapper>
