@@ -12,10 +12,26 @@ function UserViewModel(params, config) {
     console.log("user.js -> UserViewModel:", params, config);
     const self = this;
 
+	/*
+	?. is the optional chaining operator
+	///////////////////
+	equivalent ternary operator:
+	self.mode = params.mode ? params.mode : 'list';
+	*/
     self.mode = params.mode || 'list';
+	/*
+	?. is the optional chaining operator
+	///////////////////
+	equivalent ternary operator:
+	self.gridConfig = (config !== null && typeof config !== 'undefined') ? config.grid : undefined;
+	*/
     self.gridConfig = config?.grid;
     self.formConfig = config?.form;
     self.searchConfig = config?.search;
+	/*
+	equivalent ternary operator:
+	self.actionGroupMap = (config?.actionGroups !== null && typeof config?.actionGroups !== 'undefined') ? config.actionGroups : {};
+	*/
     self.actionGroupMap = config?.actionGroups || {};
 
     self.users = ko.observableArray([]);
