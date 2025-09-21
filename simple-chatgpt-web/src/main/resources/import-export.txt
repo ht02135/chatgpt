@@ -1,65 +1,8 @@
-
-i want to be able to import/export list of user
-
-i think about create 2 db to track those, but i dont know what other column is needed?
-
-user_management_list
-    id BIGINT PRIMARY KEY AUTO_INCREMENT,
-    user_list_name VARCHAR(100) UNIQUE,
-    file_path VARCHAR(100),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-
-user_management_list_member
-    id BIGINT PRIMARY KEY AUTO_INCREMENT,
-    foreign key to user_management_list.id ???
-    user_name VARCHAR(100) UNIQUE,
-    password VARCHAR(255),
-    first_name VARCHAR(100),
-    last_name VARCHAR(100),
-    email VARCHAR(100) NOT NULL UNIQUE,
-    address_line_1 VARCHAR(255),
-    address_line_2 VARCHAR(255),
-    city VARCHAR(100),
-    state VARCHAR(100),
-    post_code VARCHAR(20),
-    country VARCHAR(100),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-
-then i will need to create these in non-boot mvc environment and in mybatis way...
-1>mapper for those 2 table
-  UserManagementListMapper? 
-  UserManagementListMemberMapper? 
-  not sure if we can just do one mapper to handle 2 table?
-2>may be one service for user_management_list
-  UserManagementListService?
-3>may be one controller for user_management_list
-  UserManagementListController?
-  will have methods to import csv file or excel file into 2 table
-  will have methods to exporst to csv file or excel file
-  
-  file format will have these necessary field
-    user_name VARCHAR(100) UNIQUE,
-    password VARCHAR(255),
-    first_name VARCHAR(100),
-    last_name VARCHAR(100),
-    email VARCHAR(100) NOT NULL UNIQUE,
-    address_line_1 VARCHAR(255),
-    address_line_2 VARCHAR(255),
-    city VARCHAR(100),
-    state VARCHAR(100),
-    post_code VARCHAR(20),
-    country VARCHAR(100),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-
-then system need to populate
-user_management_list
-user_management_list_member
   
 ///////////////////
 1. Database Schema
+
+UserManagementList.sql
 
 user_management_list (the "container" for a user list)
 
@@ -130,9 +73,6 @@ findMembersByListId(Long listId)
 
 ///////////////////
 
-
-
-///////////////////
 3. Service Layer
 
 UserManagementListService
