@@ -151,8 +151,10 @@ public class UserManagementListServiceImpl implements UserManagementListService 
         logger.debug("importListFromCsv list={}", list);
         logger.debug("importListFromCsv originalFileName={}", originalFileName);
 
+        byte[] bytes = inputStream.readAllBytes(); // copy input stream
+
         List<UserManagementListMemberPojo> members = new ArrayList<>();
-        try (CSVReader reader = new CSVReader(new InputStreamReader(inputStream))) {
+        try (CSVReader reader = new CSVReader(new InputStreamReader(new java.io.ByteArrayInputStream(bytes)))) {
             reader.readNext(); // skip header
             String[] row;
             while ((row = reader.readNext()) != null) {
@@ -168,8 +170,7 @@ public class UserManagementListServiceImpl implements UserManagementListService 
 
         Path path = getListFilePath(list.getId(), originalFileName);
         try (OutputStream os = Files.newOutputStream(path)) {
-            if (inputStream.markSupported()) inputStream.reset();
-            inputStream.transferTo(os);
+            os.write(bytes);
         }
         list.setFilePath(path.toString());
     }
@@ -197,8 +198,10 @@ public class UserManagementListServiceImpl implements UserManagementListService 
         logger.debug("importListFromExcel list={}", list);
         logger.debug("importListFromExcel originalFileName={}", originalFileName);
 
+        byte[] bytes = inputStream.readAllBytes(); // copy input stream
+
         List<UserManagementListMemberPojo> members = new ArrayList<>();
-        try (Workbook workbook = new XSSFWorkbook(inputStream)) {
+        try (Workbook workbook = new XSSFWorkbook(new java.io.ByteArrayInputStream(bytes))) {
             Sheet sheet = workbook.getSheetAt(0);
             Iterator<Row> rows = sheet.iterator();
             if (rows.hasNext()) rows.next(); // skip header
@@ -206,7 +209,8 @@ public class UserManagementListServiceImpl implements UserManagementListService 
                 Row row = rows.next();
                 UserManagementListMemberPojo member = new UserManagementListMemberPojo();
                 for (int i = 0; i < uploadColumns.size(); i++) {
-                    setFieldValue(member, uploadColumns.get(i).getName(), row.getCell(i).getStringCellValue());
+                    if (row.getCell(i) != null)
+                        setFieldValue(member, uploadColumns.get(i).getName(), row.getCell(i).getStringCellValue());
                 }
                 members.add(member);
             }
@@ -216,8 +220,7 @@ public class UserManagementListServiceImpl implements UserManagementListService 
 
         Path path = getListFilePath(list.getId(), originalFileName);
         try (OutputStream os = Files.newOutputStream(path)) {
-            if (inputStream.markSupported()) inputStream.reset();
-            inputStream.transferTo(os);
+            os.write(bytes);
         }
         list.setFilePath(path.toString());
     }
