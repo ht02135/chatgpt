@@ -18,8 +18,15 @@ button { margin: 5px; padding: 8px 12px; }
 <script>
 const output = document.getElementById("output");
 const API_BASE = '/chatgpt/api/management/userlists';
-const UPLOAD_CSV = '/chatgpt/test-management/upload/test_user_lists_1.csv';
-const UPLOAD_XLS = '/chatgpt/test-management/upload/test_user_lists_1.xls';
+
+/*
+hung: actual file path
+C:\apps\tomcat8.5.85\webapps\chatgpt\knockoutjs-mybatis\management\test-management\upload\test_user_lists_1.csv
+C:\apps\tomcat8.5.85\webapps\chatgpt\knockoutjs-mybatis\management\test-management\upload\test_user_lists_1.xls
+*/
+const UPLOAD_CSV = '/chatgpt/knockoutjs-mybatis/management/test-management/upload/test_user_lists_1.csv';
+const UPLOAD_XLS = '/chatgpt/knockoutjs-mybatis/management/test-management/upload/test_user_lists_1.xls';
+
 
 // Utility to append to output
 function log(msg) {
