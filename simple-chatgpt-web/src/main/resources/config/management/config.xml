@@ -12,46 +12,39 @@
            validRegexExpression="^\d{5}(?:[-\s]\d{4})?$"
            errorMessage="wrong postal code format" />
 
-	<!-- 
-	Minimum length: Usually 8 characters or more.
-	At least one uppercase letter.
-	At least one lowercase letter.
-	At least one digit.
-	At least one special character.
-	No whitespace characters.
-	-->
+    <!-- 
+        Password rules:
+        - Min length: 8
+        - At least 1 uppercase, 1 lowercase, 1 digit, 1 special char
+        - No whitespace
+    -->
     <regex id="passwordValidation"
            validRegexExpression="^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9\s])(?!.*\s).{8,}$"
            errorMessage="wrong password format" />
 
     <!-- ========================= -->
-    <!-- User Actions -->
+    <!-- User Management -->
     <!-- ========================= -->
+
     <actions id="user-actions">
         <action name="Edit" label="Edit" visible="true" jsMethod="editUser" />
         <action name="Delete" label="Delete" visible="true" jsMethod="deleteUser" />
     </actions>
 
-    <!-- ========================= -->
-    <!-- User Grid -->
-    <!-- ========================= -->
-	<grid id="users">
-    	<column name="id" label="ID" visible="true" sortable="true" dbField="id" />
-    	<column name="userName" label="Username" visible="true" sortable="true" dbField="user_name" />
-    	<column name="userKey" label="User Key" visible="false" sortable="true" dbField="user_key" />
-    	<column name="firstName" label="First Name" visible="true" sortable="true" dbField="first_name" />
-    	<column name="lastName" label="Last Name" visible="true" sortable="true" dbField="last_name" />
-    	<column name="email" label="Email" visible="true" sortable="true" dbField="email" />
-    	<column name="city" label="City" visible="false" sortable="true" dbField="city" />
-    	<column name="country" label="Country" visible="false" sortable="true" dbField="country" />
-    	<column name="createdAt" label="Created At" visible="false" sortable="true" dbField="created_at" />
-    	<column name="updatedAt" label="Updated At" visible="false" sortable="true" dbField="updated_at" />
-    	<column name="actions" label="Actions" actions="user-actions" visible="true" sortable="false" />
-	</grid>
+    <grid id="users">
+        <column name="id" label="ID" visible="true" sortable="true" dbField="id" />
+        <column name="userName" label="Username" visible="true" sortable="true" dbField="user_name" />
+        <column name="userKey" label="User Key" visible="false" sortable="true" dbField="user_key" />
+        <column name="firstName" label="First Name" visible="true" sortable="true" dbField="first_name" />
+        <column name="lastName" label="Last Name" visible="true" sortable="true" dbField="last_name" />
+        <column name="email" label="Email" visible="true" sortable="true" dbField="email" />
+        <column name="city" label="City" visible="false" sortable="true" dbField="city" />
+        <column name="country" label="Country" visible="false" sortable="true" dbField="country" />
+        <column name="createdAt" label="Created At" visible="false" sortable="true" dbField="created_at" />
+        <column name="updatedAt" label="Updated At" visible="false" sortable="true" dbField="updated_at" />
+        <column name="actions" label="Actions" actions="user-actions" visible="true" sortable="false" />
+    </grid>
 
-    <!-- ========================= -->
-    <!-- User Forms -->
-    <!-- ========================= -->
     <form id="searchUser">
         <field name="userName" label="Username" visible="true" />
         <field name="userKey" label="User Key" visible="true" />
@@ -100,8 +93,9 @@
     </form>
 
     <!-- ========================= -->
-    <!-- Property Validators -->
+    <!-- Property Management -->
     <!-- ========================= -->
+
     <validators id="multiple-validators">
         <validator type="boolean" validRegexExpression="^(true|false)$" errorMessage="wrong boolean format" />
         <validator type="integer" validRegexExpression="^\d+$" errorMessage="wrong integer format" />
@@ -109,40 +103,101 @@
         <validator type="string" validRegexExpression=".*" errorMessage="wrong string format" />
     </validators>
 
-    <!-- ========================= -->
-    <!-- Property Actions -->
-    <!-- ========================= -->
     <actions id="property-actions">
         <action name="Edit" label="Edit" visible="true" jsMethod="editProperty" />
     </actions>
 
-    <!-- ========================= -->
-    <!-- Property Grid -->
-    <!-- ========================= -->
-	<grid id="properties">
-    	<column name="id" label="ID" visible="true" sortable="true" dbField="id" />
-    	<column name="propertyName" label="Name" visible="true" sortable="true" dbField="property_name" />
-    	<column name="propertyKey" label="Key" visible="false" sortable="true" dbField="property_key" />
-    	<column name="type" label="Type" visible="true" sortable="true" dbField="type" />
-    	<column name="value" label="Value" visible="true" sortable="true" dbField="value" />
-    	<column name="actions" label="Actions" actions="property-actions" visible="true" sortable="false" />
-	</grid>
+    <grid id="properties">
+        <column name="id" label="ID" visible="true" sortable="true" dbField="id" />
+        <column name="propertyName" label="Name" visible="true" sortable="true" dbField="property_name" />
+        <column name="propertyKey" label="Key" visible="false" sortable="true" dbField="property_key" />
+        <column name="type" label="Type" visible="true" sortable="true" dbField="type" />
+        <column name="value" label="Value" visible="true" sortable="true" dbField="value" />
+        <column name="actions" label="Actions" actions="property-actions" visible="true" sortable="false" />
+    </grid>
 
-    <!-- ========================= -->
-    <!-- Property Forms -->
-    <!-- ========================= -->
     <form id="searchProperty">
         <field name="propertyName" label="Name" visible="true" required="true" editable="true" />
         <field name="propertyKey" label="Key" visible="false" required="true" editable="true" />
         <field name="type" label="Type" visible="true" required="true" editable="true" />
     </form>
 
-	<form id="editProperty">
-    	<field name="id" label="ID" visible="true" required="true" editable="false" />
-    	<field name="propertyName" label="Name" visible="true" required="true" editable="false" />
-    	<field name="propertyKey" label="Key" visible="false" required="true" editable="false" />
-    	<field name="type" label="Type" visible="true" required="true" editable="true" />
-    	<field name="value" label="Value" visible="true" required="true" editable="true" validators="multiple-validators" />
-	</form>
+    <form id="editProperty">
+        <field name="id" label="ID" visible="true" required="true" editable="false" />
+        <field name="propertyName" label="Name" visible="true" required="true" editable="false" />
+        <field name="propertyKey" label="Key" visible="false" required="true" editable="false" />
+        <field name="type" label="Type" visible="true" required="true" editable="true" />
+        <field name="value" label="Value" visible="true" required="true" editable="true" validators="multiple-validators" />
+    </form>
+
+    <!-- ========================= -->
+    <!-- User List Management -->
+    <!-- ========================= -->
+
+    <actions id="user-list-actions">
+        <action name="Edit" label="Edit" visible="true" jsMethod="editUserList" />
+        <action name="Delete" label="Delete" visible="true" jsMethod="deleteUserList" />
+    </actions>
+
+    <grid id="user-lists">
+        <column name="id" label="ID" visible="true" sortable="true" dbField="id" />
+        <column name="user_list_name" label="User List Name" visible="true" sortable="true" dbField="user_list_name" />
+        <column name="file_path" label="File Path" visible="false" sortable="true" dbField="file_path" />
+        <column name="original_file_name" label="Original File Name" visible="true" sortable="true" dbField="original_file_name" />
+        <column name="description" label="Description" visible="true" sortable="true" dbField="description" />
+        <column name="actions" label="Actions" actions="user-list-actions" visible="true" sortable="false" />
+    </grid>
+
+    <actions id="user-list-member-actions">
+        <action name="Edit" label="Edit" visible="true" jsMethod="editUserListMember" />
+        <action name="Delete" label="Delete" visible="true" jsMethod="deleteUserListMember" />
+    </actions>
+
+    <grid id="user-list-members">
+        <column name="id" label="ID" visible="true" sortable="true" dbField="id" />
+        <column name="userName" label="Username" visible="true" sortable="true" dbField="user_name" />
+        <column name="userKey" label="User Key" visible="false" sortable="true" dbField="user_key" />
+        <column name="firstName" label="First Name" visible="true" sortable="true" dbField="first_name" />
+        <column name="lastName" label="Last Name" visible="true" sortable="true" dbField="last_name" />
+        <column name="email" label="Email" visible="true" sortable="true" dbField="email" />
+        <column name="city" label="City" visible="false" sortable="true" dbField="city" />
+        <column name="country" label="Country" visible="false" sortable="true" dbField="country" />
+        <column name="createdAt" label="Created At" visible="false" sortable="true" dbField="created_at" />
+        <column name="updatedAt" label="Updated At" visible="false" sortable="true" dbField="updated_at" />
+        <column name="actions" label="Actions" actions="user-list-member-actions" visible="true" sortable="false" />
+    </grid>
+
+    <form id="addUserListMember">
+        <field name="userName" label="Username" required="true" editable="true" />
+        <field name="userKey" label="User Key" required="true" editable="true" />
+        <field name="firstName" label="First Name" required="true" editable="true" />
+        <field name="lastName" label="Last Name" required="true" editable="true" />
+        <field name="email" label="Email" regex="emailValidation" required="true" editable="true" />
+        <field name="password" label="Password" regex="passwordValidation" required="true" editable="true" />
+        <field name="addressLine1" label="Address Line 1" editable="true" />
+        <field name="addressLine2" label="Address Line 2" editable="true" />
+        <field name="city" label="City" editable="true" />
+        <field name="state" label="State" editable="true" />
+        <field name="postCode" label="Post Code" regex="postalCodeValidation" editable="true" />
+        <field name="country" label="Country" editable="true" />
+    </form>
+
+    <form id="editUserListMember">
+        <field name="id" label="ID" required="true" editable="false" />
+        <field name="userName" label="Username" required="true" editable="true" />
+        <field name="userKey" label="User Key" required="true" editable="true" />
+        <field name="firstName" label="First Name" required="true" editable="true" />
+        <field name="lastName" label="Last Name" required="true" editable="true" />
+        <field name="email" label="Email" regex="emailValidation" required="true" editable="true" />
+        <field name="password" label="Password" regex="passwordValidation" required="true" editable="true" />
+        <field name="addressLine1" label="Address Line 1" editable="true" />
+        <field name="addressLine2" label="Address Line 2" editable="true" />
+        <field name="city" label="City" editable="true" />
+        <field name="state" label="State" editable="true" />
+        <field name="postCode" label="Post Code" regex="postalCodeValidation" editable="true" />
+        <field name="country" label="Country" editable="true" />
+        <field name="createdAt" label="Created At" editable="false" />
+        <field name="updatedAt" label="Updated At" editable="false" />
+    </form>
 
 </config>

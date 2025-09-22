@@ -1,0 +1,11 @@
+<download-config>
+    <grid id="user-list-members">
+        <column name="userName" dbField="user_name" label="Username" visible="true" index="0"/>
+        <column name="password" dbField="password" label="Password" visible="true" index="1"/>
+        <column name="firstName" dbField="first_name" label="First Name" visible="true" index="2"/>
+        <column name="lastName" dbField="last_name" label="Last Name" visible="true" index="3"/>
+        <column name="email" dbField="email" label="Email" visible="true" index="4"/>
+        <column name="city" dbField="city" label="City" visible="false" index="5"/>
+        <column name="country" dbField="country" label="Country" visible="false" index="6"/>
+    </grid>
+</download-config>

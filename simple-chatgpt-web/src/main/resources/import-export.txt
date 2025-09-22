@@ -1,32 +1,82 @@
-  
+
+i dont like hard code this way
+
+        try (CSVWriter writer = new CSVWriter(new OutputStreamWriter(outputStream))) {
+            String[] header = {"user_name","password","first_name","last_name","email",
+                    "address_line_1","address_line_2","city","state","post_code","country"};
+
 ///////////////////
-1. Database Schema
 
-UserManagementList.sql
+can we add say upload-download-config.xml
 
-user_management_list (the "container" for a user list)
+and create UploadDownloadConfigLoader like ValidationConfigLoader
+
+1>upload-config.xml
+package simple.chatgpt.upload.management.loader;
+UploadConfigLoader
+
+2>download-config.xml
+package simple.chatgpt.upload.management.loader;
+DownloadConfigLoader
+
+//////////////////////////
+
+upload-config.xml
+
+<?xml version="1.0" encoding="UTF-8" ?>
+<upload-config>
+
+    <!-- ========================= -->
+    <!-- Regex Validators -->
+    <!-- ========================= -->
+    <regex id="emailValidation"
+           validRegexExpression="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
+           errorMessage="wrong email format" />
+
+    <regex id="postalCodeValidation"
+           validRegexExpression="^\d{5}(?:[-\s]\d{4})?$"
+           errorMessage="wrong postal code format" />
+
+	<!-- 
+	Minimum length: Usually 8 characters or more.
+	At least one uppercase letter.
+	At least one lowercase letter.
+	At least one digit.
+	At least one special character.
+	No whitespace characters.
+	-->
+    <regex id="passwordValidation"
+           validRegexExpression="^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9\s])(?!.*\s).{8,}$"
+           errorMessage="wrong password format" />
+           
+---------------
 
 CREATE TABLE user_management_list (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     user_list_name VARCHAR(100) UNIQUE NOT NULL,
-    file_path VARCHAR(255), -- make it longer in case of long paths
-    description TEXT,       -- optional, useful if you want to describe the list
+    original_file_name VARCHAR(255),  -- store the original uploaded file name
+    file_path VARCHAR(512),           -- increased length for long paths
+    description TEXT,                 -- optional, useful if you want to describe the list
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
-1. Why file_path does not need to be UNIQUE
-Each row in user_management_list already has a unique id.
-If you generate file paths like /data/user_lists/{id}.csv, then uniqueness comes from id itself.
 
-1. id is AUTO_INCREMENT (BIGINT)
-BIGINT in MySQL = up to 2^63 - 1 (about 9 quintillion).
-That’s practically infinite for your use case — you’ll never hit the max in a real system.
-Every new row gets a unique id.
-So each id naturally maps to one file, e.g. /data/user_lists/{id}.csv.
+	<grid id="user-lists">
+    	<column name="id" label="ID" visible="true" sortable="true" dbField="id" />
+    	<column name="user_list_name" label="user_list_name" visible="true" sortable="true" dbField="user_list_name" />
+    	<column name="file_path" label="file_path" visible="false" sortable="true" dbField="file_path" />
+    	<column name="original_file_name" label="original_file_name" visible="true" sortable="true" dbField="original_file_name" />
+    	<column name="description" label="description" visible="true" sortable="true" dbField="description" />
+    	<column name="actions" label="Actions" actions="user-list-actions" visible="true" sortable="false" />
+	</grid>
 
-///////////////////
-user_management_list_member (the members of that list)
+    <actions id="user-list-actions">
+        <action name="Edit" label="Edit" visible="true" jsMethod="editUserList" />
+        <action name="Delete" label="Delete" visible="true" jsMethod="deleteUserList" />
+    </actions>
+    	
+-------------
 
 CREATE TABLE user_management_list_member (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
@@ -49,116 +99,444 @@ CREATE TABLE user_management_list_member (
     CONSTRAINT uq_list_member_username UNIQUE (list_id, user_name)
 );
 
-Don’t make user_name and email globally UNIQUE, because the same user 
-could appear in multiple lists. Instead, enforce uniqueness within 
-the same list → (list_id, email) and (list_id, user_name) composite 
-constraints.
+	<grid id="user-list-members">
+    	<column name="id" label="ID" visible="true" sortable="true" dbField="id" />
+    	<column name="userName" label="Username" visible="true" sortable="true" dbField="user_name" />
+    	<column name="userKey" label="User Key" visible="false" sortable="true" dbField="user_key" />
+    	<column name="firstName" label="First Name" visible="true" sortable="true" dbField="first_name" />
+    	<column name="lastName" label="Last Name" visible="true" sortable="true" dbField="last_name" />
+    	<column name="email" label="Email" visible="true" sortable="true" dbField="email" />
+    	<column name="city" label="City" visible="false" sortable="true" dbField="city" />
+    	<column name="country" label="Country" visible="false" sortable="true" dbField="country" />
+    	<column name="createdAt" label="Created At" visible="false" sortable="true" dbField="created_at" />
+    	<column name="updatedAt" label="Updated At" visible="false" sortable="true" dbField="updated_at" />
+    	<column name="actions" label="Actions" actions="user-list-member-actions" visible="true" sortable="false" />
+	</grid>
+	
+    <actions id="user-list-member-actions">
+        <action name="Edit" label="Edit" visible="true" jsMethod="editUserListMember" />
+        <action name="Delete" label="Delete" visible="true" jsMethod="deleteUserListMember" />
+    </actions>
 
-///////////////////
-2. MyBatis Mapper Layer
-You usually want separate mappers per table for maintainability.
+    <form id="addUserListMembr">
+        <field name="userName" label="Username" visible="true" required="true" editable="true" />
+        <field name="userKey" label="User Key" visible="true" required="true" editable="true" />
+        <field name="firstName" label="First Name" visible="true" required="true" editable="true" />
+        <field name="lastName" label="Last Name" visible="true" required="true" editable="true" />
+        <field name="email" label="Email" regex="emailValidation" visible="true" required="true" editable="true" />
+        <field name="password" label="Password" regex="passwordValidation" visible="true" required="true" editable="true" />
+        <field name="addressLine1" label="Address Line 1" visible="true" editable="true" />
+        <field name="addressLine2" label="Address Line 2" visible="true" editable="true" />
+        <field name="city" label="City" visible="true" editable="true" />
+        <field name="state" label="State" visible="true" editable="true" />
+        <field name="postCode" label="Post Code" regex="postalCodeValidation" visible="true" editable="true" />
+        <field name="country" label="Country" visible="true" editable="true" />
+    </form>
 
-UserManagementListMapper.java
-insertList(UserManagementList list)
-updateList(UserManagementList list)
-deleteList(Long id)
-findListById(Long id)
-findAllLists()
+    <form id="editUserListMembr">
+        <field name="id" label="ID" visible="true" required="true" editable="false" />
+        <field name="userName" label="Username" visible="true" required="true" editable="true" />
+        <field name="userKey" label="User Key" visible="true" required="true" editable="true" />
+        <field name="firstName" label="First Name" visible="true" required="true" editable="true" />
+        <field name="lastName" label="Last Name" visible="true" required="true" editable="true" />
+        <field name="email" label="Email" regex="emailValidation" visible="true" required="true" editable="true" />
+        <field name="password" label="Password" regex="passwordValidation" visible="true" required="true" editable="true" />
+        <field name="addressLine1" label="Address Line 1" visible="true" editable="true" />
+        <field name="addressLine2" label="Address Line 2" visible="true" editable="true" />
+        <field name="city" label="City" visible="true" editable="true" />
+        <field name="state" label="State" visible="true" editable="true" />
+        <field name="postCode" label="Post Code" regex="postalCodeValidation" visible="true" editable="true" />
+        <field name="country" label="Country" visible="true" editable="true" />
+        <field name="createdAt" label="Created At" visible="true" editable="false" />
+        <field name="updatedAt" label="Updated At" visible="true" editable="false" />
+    </form>
 
-UserManagementListMemberMapper.java
-insertMember(UserManagementListMember member)
-batchInsertMembers(List<UserManagementListMember> members)
-deleteMembersByListId(Long listId)
-findMembersByListId(Long listId)
+</upload-config>
 
-///////////////////
+//////////////
 
-3. Service Layer
+download-config.xml
 
-UserManagementListService
+<download-config>
 
-createList(UserManagementList list, List<UserManagementListMember> members)
-importListFromCsv(MultipartFile file)
-importListFromExcel(MultipartFile file)
-exportListToCsv(Long listId)
-exportListToExcel(Long listId)
-deleteList(Long listId)
+necessary column for you to create file???
 
-/////////////////
+	<grid id="user-lists">
+....
+	</grid>
+	
+	<grid id="user-list-members">
+...
+	</grid>
+	
+<download-config>
 
-java.io.File 📄
-
-The java.io.File class represents a pathname to a file or directory on the file system. It's part of the standard Java library. You use it to interact with files that already exist on your computer's disk, or to create, delete, or rename files. It's a general-purpose class for file system operations.
-
-The MultipartFile is a Spring Framework-specific interface. It represents a file that has been uploaded as part of a multipart/form-data request, which is the standard way to send files from a web browser to a server. This object is used to handle file uploads in web applications built with Spring. The file it represents might exist in memory or as a temporary file on the server's disk, but it's not a file you can interact with directly on the file system in the same way as a java.io.File.
-
-///////////////////
-
-Where MultipartFile belongs
-
-Controller	Accepts MultipartFile from an HTTP request (<input type="file">). Converts it to File or InputStream and passes it to the service.
-
-Service	Works with File or InputStream. Doesn’t know about MultipartFile — keeps it framework-agnostic.
-
-/////////////////
-
-Using File in the service layer
-
-public void importListFromCsv(File file, UserManagementListPojo list)
-
-Pros:
-Simple if you already have a physical file on disk.
-Easy to use with standard Java I/O (FileReader, FileWriter).
-
-Cons:
-Forces the service layer to depend on the file system.
-Harder to integrate with HTTP file uploads (MultipartFile) without writing temporary files.
-
-////////////////////
-2️⃣ Using InputStream / OutputStream in the service layer
-
-Signature example:
-
-public void importListFromCsv(InputStream inputStream, UserManagementListPojo list)
-public void exportListToCsv(Long listId, OutputStream outputStream)
-
-Pros:
-
-Framework-agnostic: Doesn’t care where the data comes from (HTTP upload, local file, network stream, memory).
-
-Works directly with MultipartFile in Spring MVC:
-
-service.importListFromCsv(multipartFile.getInputStream(), list);
-
-Cons:
-Slightly more boilerplate if you’re always reading/writing from actual files on disk (you need to wrap FileInputStream or FileOutputStream).
-
-✅ Recommendation
-
-For modern web applications, the InputStream/OutputStream approach is preferred.
-Keep the service decoupled from Spring or the filesystem.
-Let the controller layer handle MultipartFile and convert it to a stream if needed.
-
-///////////////////
-4. Controller Layer
-
-UserManagementListController
-
-POST /lists/import-csv
-POST /lists/import-excel
-GET /lists/{id}/export-csv
-GET /lists/{id}/export-excel
-GET /lists
-GET /lists/{id}
-DELETE /lists/{id}
-
-///////////////////
-5. Import/Export Format
-
-Your CSV/Excel should have at least:
-user_name,password,first_name,last_name,email,address_line_1,address_line_2,city,state,post_code,country
 
 ///////////////////
 
+package simple.chatgpt.service.management;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.stereotype.Service;
+
+import com.opencsv.CSVReader;
+import com.opencsv.CSVWriter;
+
+import simple.chatgpt.mapper.management.UserManagementListMapper;
+import simple.chatgpt.mapper.management.UserManagementListMemberMapper;
+import simple.chatgpt.pojo.management.UserManagementListMemberPojo;
+import simple.chatgpt.pojo.management.UserManagementListPojo;
+
+@Service
+public class UserManagementListServiceImpl implements UserManagementListService {
+
+    private static final Logger logger = LogManager.getLogger(UserManagementListServiceImpl.class);
+
+    private final UserManagementListMapper listMapper;
+    private final UserManagementListMemberMapper memberMapper;
+    private final Path storageDir;
+
+    public UserManagementListServiceImpl(UserManagementListMapper listMapper,
+                                         UserManagementListMemberMapper memberMapper) throws IOException {
+        this.listMapper = listMapper;
+        this.memberMapper = memberMapper;
+
+        String webappRoot = System.getProperty("catalina.base") + "/webapps/chatgpt";
+        storageDir = Paths.get(webappRoot, "data/management/user_lists");
+
+        if (!Files.exists(storageDir)) {
+            Files.createDirectories(storageDir);
+            logger.debug("Storage directory created at relativePath={} absolutePath={}", 
+                         storageDir, storageDir.toAbsolutePath());
+        } else {
+            logger.debug("Storage directory exists at relativePath={} absolutePath={}", 
+                         storageDir, storageDir.toAbsolutePath());
+        }
+    }
+
+    // ------------------ Core CRUD ------------------
+
+    @Override
+    public void createList(UserManagementListPojo list, List<UserManagementListMemberPojo> members) {
+        logger.debug("createList list={}", list);
+        logger.debug("createList members={}", members);
+
+        listMapper.insertList(list);
+        Long listId = list.getId();
+        logger.debug("createList generated listId={}", listId);
+
+        if (members != null && !members.isEmpty()) {
+            for (UserManagementListMemberPojo m : members) {
+                m.setListId(listId);
+                logger.debug("createList member listId set: member={}", m);
+            }
+            memberMapper.batchInsertMembers(members);
+        }
+    }
+
+    @Override
+    public void deleteList(Long listId) {
+        logger.debug("deleteList listId={}", listId);
+        memberMapper.deleteMembersByListId(listId);
+        listMapper.deleteList(listId);
+        logger.debug("deleteList completed for listId={}", listId);
+    }
+
+    @Override
+    public UserManagementListPojo getListById(Long listId) {
+        logger.debug("getListById listId={}", listId);
+        UserManagementListPojo list = listMapper.findListById(listId);
+        logger.debug("getListById result={}", list);
+        return list;
+    }
+
+    @Override
+    public List<UserManagementListMemberPojo> getMembersByListId(Long listId) {
+        logger.debug("getMembersByListId listId={}", listId);
+        List<UserManagementListMemberPojo> members = memberMapper.findMembersByListId(listId);
+        logger.debug("getMembersByListId members={}", members);
+        return members;
+    }
+
+    // ------------------ File Storage ------------------
+
+    private Path getListFilePath(Long listId, String originalFileName) {
+        String extension = "";
+        int dotIndex = originalFileName.lastIndexOf('.');
+        if (dotIndex >= 0) extension = originalFileName.substring(dotIndex);
+
+        Path path = storageDir.resolve("list_" + listId + extension);
+        logger.debug("getListFilePath relativePath={}", path);
+        logger.debug("getListFilePath absolutePath={}", path.toAbsolutePath());
+        return path;
+    }
+
+    // ------------------ CSV Import/Export ------------------
+
+    @Override
+    public void importListFromCsv(InputStream inputStream, UserManagementListPojo list, String originalFileName) throws Exception {
+        logger.debug("importListFromCsv list={}", list);
+        logger.debug("importListFromCsv originalFileName={}", originalFileName);
+
+        List<UserManagementListMemberPojo> members = new ArrayList<>();
+        try (CSVReader reader = new CSVReader(new InputStreamReader(inputStream))) {
+            String[] header = reader.readNext(); // skip header
+            String[] row;
+            while ((row = reader.readNext()) != null) {
+                UserManagementListMemberPojo member = new UserManagementListMemberPojo();
+                member.setUserName(row[0]);
+                member.setPassword(row[1]);
+                member.setFirstName(row[2]);
+                member.setLastName(row[3]);
+                member.setEmail(row[4]);
+                member.setAddressLine1(row[5]);
+                member.setAddressLine2(row[6]);
+                member.setCity(row[7]);
+                member.setState(row[8]);
+                member.setPostCode(row[9]);
+                member.setCountry(row[10]);
+                members.add(member);
+                logger.debug("importListFromCsv member parsed={}", member);
+            }
+        }
+
+        createList(list, members);
+
+        Path path = getListFilePath(list.getId(), originalFileName);
+        try (OutputStream os = Files.newOutputStream(path)) {
+            if (inputStream.markSupported()) inputStream.reset();
+            inputStream.transferTo(os);
+        }
+        list.setFilePath(path.toString());
+    }
+
+    @Override
+    public void exportListToCsv(Long listId, OutputStream outputStream) throws Exception {
+        logger.debug("exportListToCsv listId={}", listId);
+        List<UserManagementListMemberPojo> members = getMembersByListId(listId);
+
+        try (CSVWriter writer = new CSVWriter(new OutputStreamWriter(outputStream))) {
+            String[] header = {"user_name","password","first_name","last_name","email",
+                    "address_line_1","address_line_2","city","state","post_code","country"};
+            writer.writeNext(header);
+
+            for (UserManagementListMemberPojo m : members) {
+                writer.writeNext(new String[]{
+                        m.getUserName(), m.getPassword(), m.getFirstName(), m.getLastName(),
+                        m.getEmail(), m.getAddressLine1(), m.getAddressLine2(),
+                        m.getCity(), m.getState(), m.getPostCode(), m.getCountry()
+                });
+                logger.debug("exportListToCsv member written={}", m);
+            }
+        }
+    }
+
+    // ------------------ Excel Import/Export ------------------
+
+    @Override
+    public void importListFromExcel(InputStream inputStream, UserManagementListPojo list, String originalFileName) throws Exception {
+        logger.debug("importListFromExcel list={}", list);
+        logger.debug("importListFromExcel originalFileName={}", originalFileName);
+
+        List<UserManagementListMemberPojo> members = new ArrayList<>();
+        try (Workbook workbook = new XSSFWorkbook(inputStream)) {
+            Sheet sheet = workbook.getSheetAt(0);
+            Iterator<Row> rows = sheet.iterator();
+            if (rows.hasNext()) rows.next(); // skip header
+
+            while (rows.hasNext()) {
+                Row row = rows.next();
+                UserManagementListMemberPojo member = new UserManagementListMemberPojo();
+                member.setUserName(row.getCell(0).getStringCellValue());
+                member.setPassword(row.getCell(1).getStringCellValue());
+                member.setFirstName(row.getCell(2).getStringCellValue());
+                member.setLastName(row.getCell(3).getStringCellValue());
+                member.setEmail(row.getCell(4).getStringCellValue());
+                member.setAddressLine1(row.getCell(5).getStringCellValue());
+                member.setAddressLine2(row.getCell(6).getStringCellValue());
+                member.setCity(row.getCell(7).getStringCellValue());
+                member.setState(row.getCell(8).getStringCellValue());
+                member.setPostCode(row.getCell(9).getStringCellValue());
+                member.setCountry(row.getCell(10).getStringCellValue());
+                members.add(member);
+                logger.debug("importListFromExcel member parsed={}", member);
+            }
+        }
+
+        createList(list, members);
+
+        Path path = getListFilePath(list.getId(), originalFileName);
+        try (OutputStream os = Files.newOutputStream(path)) {
+            if (inputStream.markSupported()) inputStream.reset();
+            inputStream.transferTo(os);
+        }
+        list.setFilePath(path.toString());
+    }
+
+    @Override
+    public void exportListToExcel(Long listId, OutputStream outputStream) throws Exception {
+        logger.debug("exportListToExcel listId={}", listId);
+        List<UserManagementListMemberPojo> members = getMembersByListId(listId);
+
+        try (Workbook workbook = new XSSFWorkbook()) {
+            Sheet sheet = workbook.createSheet("Users");
+
+            Row header = sheet.createRow(0);
+            String[] columns = {"user_name","password","first_name","last_name","email",
+                    "address_line_1","address_line_2","city","state","post_code","country"};
+            for (int i = 0; i < columns.length; i++) {
+                header.createCell(i).setCellValue(columns[i]);
+            }
+
+            int rowIdx = 1;
+            for (UserManagementListMemberPojo m : members) {
+                Row row = sheet.createRow(rowIdx++);
+                row.createCell(0).setCellValue(m.getUserName());
+                row.createCell(1).setCellValue(m.getPassword());
+                row.createCell(2).setCellValue(m.getFirstName());
+                row.createCell(3).setCellValue(m.getLastName());
+                row.createCell(4).setCellValue(m.getEmail());
+                row.createCell(5).setCellValue(m.getAddressLine1());
+                row.createCell(6).setCellValue(m.getAddressLine2());
+                row.createCell(7).setCellValue(m.getCity());
+                row.createCell(8).setCellValue(m.getState());
+                row.createCell(9).setCellValue(m.getPostCode());
+                row.createCell(10).setCellValue(m.getCountry());
+                logger.debug("exportListToExcel member written={}", m);
+            }
+
+            workbook.write(outputStream);
+        }
+    }
+}
+
+
+//////////////////
+
+package simple.chatgpt.validator.management.loader;
+
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+
+import simple.chatgpt.validator.management.rule.ValidationRule;
+
+public class ValidationConfigLoader {
+
+    private static final Logger logger = LogManager.getLogger(ValidationConfigLoader.class);
+    private static final String CONFIG_FILE = "/config/management/validation-config.xml";
+
+    private static List<String> validEmailDomains = new ArrayList<>();
+    private static Map<String, ValidationRule> validationRules = new HashMap<>();
+    private static boolean initialized = false;
+
+    private static void init() {
+        if (initialized) return;
+
+        try (InputStream inputStream = ValidationConfigLoader.class.getResourceAsStream(CONFIG_FILE)) {
+            if (inputStream == null) {
+                throw new RuntimeException("Could not find " + CONFIG_FILE + " on classpath");
+            }
+
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder builder = factory.newDocumentBuilder();
+            Document document = builder.parse(inputStream);
+
+            // --- Load <validation> rules ---
+            NodeList validationNodes = document.getElementsByTagName("validation");
+            for (int i = 0; i < validationNodes.getLength(); i++) {
+                Element validationElement = (Element) validationNodes.item(i);
+                String id = validationElement.getAttribute("id");
+                String field = validationElement.getAttribute("field"); // NEW: map field
+                String regex = validationElement.getAttribute("regex");
+                String error = validationElement.getAttribute("error");
+
+                ValidationRule rule = new ValidationRule(id, field, regex, error);
+                validationRules.put(id, rule);
+
+                logger.debug("Loaded validation rule: {}", rule);
+            }
+
+            // --- Load <validEmailDomains> ---
+            NodeList domainNodes = document.getElementsByTagName("domain");
+            for (int i = 0; i < domainNodes.getLength(); i++) {
+                Element domainElement = (Element) domainNodes.item(i);
+                String domainName = domainElement.getAttribute("domainName").trim();
+                if (!domainName.isEmpty()) {
+                    validEmailDomains.add(domainName);
+                    logger.debug("Loaded valid email domain: {}", domainName);
+                }
+            }
+
+            logger.info("Final validation rules loaded: {}", validationRules.keySet());
+            logger.info("Final list of valid email domains: {}", validEmailDomains);
+
+            initialized = true;
+
+        } catch (Exception e) {
+            logger.error("Failed to load validation configuration", e);
+            throw new RuntimeException("Failed to load validation configuration", e);
+        }
+    }
+
+    public static List<String> getValidEmailDomains() {
+        init();
+        return Collections.unmodifiableList(validEmailDomains);
+    }
+
+    public static ValidationRule getValidationRule(String id) {
+        init();
+        return validationRules.get(id);
+    }
+
+    public static Map<String, ValidationRule> getAllValidationRules() {
+        init();
+        return Collections.unmodifiableMap(validationRules);
+    }
+
+    // --- Utility: get rules by field name for dynamic validation ---
+    public static List<ValidationRule> getRulesForField(String fieldName) {
+        init();
+        List<ValidationRule> result = new ArrayList<>();
+        for (ValidationRule rule : validationRules.values()) {
+            if (rule.getField() != null && rule.getField().equals(fieldName)) {
+                result.add(rule);
+            }
+        }
+        return result;
+    }
+}
+
+///////////////////
+///////////////////
 
     

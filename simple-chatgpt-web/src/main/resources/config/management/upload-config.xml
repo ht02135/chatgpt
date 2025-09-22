@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<upload-config>
+    <grid id="user-list-members">
+        <column name="userName" dbField="user_name" index="0" required="true"/>
+        <column name="password" dbField="password" index="1" required="true" regex="passwordValidation"/>
+        <column name="firstName" dbField="first_name" index="2"/>
+        <column name="lastName" dbField="last_name" index="3"/>
+        <column name="email" dbField="email" index="4" regex="emailValidation"/>
+        <column name="addressLine1" dbField="address_line_1" index="5"/>
+        <column name="addressLine2" dbField="address_line_2" index="6"/>
+        <column name="city" dbField="city" index="7"/>
+        <column name="state" dbField="state" index="8"/>
+        <column name="postCode" dbField="post_code" index="9" regex="postalCodeValidation"/>
+        <column name="country" dbField="country" index="10"/>
+    </grid>
+</upload-config>

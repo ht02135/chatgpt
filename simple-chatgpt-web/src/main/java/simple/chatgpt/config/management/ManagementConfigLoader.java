@@ -2,10 +2,13 @@ package simple.chatgpt.config.management;
 
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -22,19 +25,27 @@ import simple.chatgpt.config.ValidatorGroupConfig;
 
 public class ManagementConfigLoader {
 
+    private static final Logger logger = LogManager.getLogger(ManagementConfigLoader.class);
     private static final String CONFIG_FILE = "/config/management/config.xml";
 
+    /**
+     * Load the XML document from the classpath.
+     */
     private Document loadDocument() throws Exception {
         try (InputStream is = ManagementConfigLoader.class.getResourceAsStream(CONFIG_FILE)) {
             if (is == null) {
                 throw new RuntimeException("Config file not found: " + CONFIG_FILE);
             }
+            logger.info("Loaded config file: {}", CONFIG_FILE);
             return DocumentBuilderFactory.newInstance()
                     .newDocumentBuilder()
                     .parse(is);
         }
     }
 
+    /**
+     * Load all grid definitions from config.xml
+     */
     public List<GridConfig> loadGrids() throws Exception {
         Document doc = loadDocument();
         NodeList gridNodes = doc.getElementsByTagName("grid");
@@ -43,6 +54,7 @@ public class ManagementConfigLoader {
         for (int i = 0; i < gridNodes.getLength(); i++) {
             Element gridEl = (Element) gridNodes.item(i);
             GridConfig grid = new GridConfig(gridEl.getAttribute("id"));
+            logger.info("Loading Grid: {}", grid.getId());
 
             NodeList cols = gridEl.getElementsByTagName("column");
             for (int j = 0; j < cols.getLength(); j++) {
@@ -56,26 +68,26 @@ public class ManagementConfigLoader {
                 ColumnConfig column;
 
                 if (c.hasAttribute("actions")) {
-                    // ✅ actions column
                     column = new ColumnConfig(
                             name,
                             label,
                             visible,
                             sortable,
-                            null,                       // dbField not used
-                            c.getAttribute("actions")   // actions
+                            null,
+                            c.getAttribute("actions")
                     );
+                    logger.debug("  [Column] name={} (actions={})", name, c.getAttribute("actions"));
                 } else {
-                    // ✅ normal column with optional dbField
                     String dbField = c.hasAttribute("dbField") ? c.getAttribute("dbField") : null;
                     column = new ColumnConfig(
                             name,
                             label,
                             visible,
                             sortable,
-                            dbField,   // dbField
-                            null       // actions not used
+                            dbField,
+                            null
                     );
+                    logger.debug("  [Column] name={} dbField={}", name, dbField);
                 }
 
                 grid.addColumn(column);
@@ -85,7 +97,9 @@ public class ManagementConfigLoader {
         return grids;
     }
 
-
+    /**
+     * Load all form definitions from config.xml
+     */
     public List<FormConfig> loadForms() throws Exception {
         Document doc = loadDocument();
         NodeList formNodes = doc.getElementsByTagName("form");
@@ -94,26 +108,42 @@ public class ManagementConfigLoader {
         for (int i = 0; i < formNodes.getLength(); i++) {
             Element formEl = (Element) formNodes.item(i);
             FormConfig form = new FormConfig(formEl.getAttribute("id"));
+            logger.info("Loading Form: {}", form.getId());
 
             NodeList fields = formEl.getElementsByTagName("field");
             for (int j = 0; j < fields.getLength(); j++) {
                 Element f = (Element) fields.item(j);
 
-                form.addField(new FieldConfig(
+                // ✅ Support multiple validators (comma separated)
+                String validatorAttr = f.hasAttribute("validators") ? f.getAttribute("validators") : null;
+                List<String> validatorIds = new ArrayList<>();
+                if (validatorAttr != null && !validatorAttr.isEmpty()) {
+                    validatorIds.addAll(Arrays.asList(validatorAttr.split(",")));
+                }
+
+                FieldConfig field = new FieldConfig(
                         f.getAttribute("name"),
                         f.getAttribute("label"),
-                        Boolean.parseBoolean(f.getAttribute("visible")),
-                        Boolean.parseBoolean(f.getAttribute("required")),
-                        Boolean.parseBoolean(f.getAttribute("editable")),
-                        f.getAttribute("regex"),
-                        f.hasAttribute("validators") ? f.getAttribute("validators") : null
-                ));
+                        f.hasAttribute("visible") && Boolean.parseBoolean(f.getAttribute("visible")),
+                        f.hasAttribute("required") && Boolean.parseBoolean(f.getAttribute("required")),
+                        f.hasAttribute("editable") && Boolean.parseBoolean(f.getAttribute("editable")),
+                        f.hasAttribute("regex") ? f.getAttribute("regex") : null,
+                        validatorIds
+                );
+
+                logger.debug("  [Field] name={} label={} regex={} validators={}",
+                        field.getName(), field.getLabel(), field.getRegex(), validatorIds);
+
+                form.addField(field);
             }
             forms.add(form);
         }
         return forms;
     }
 
+    /**
+     * Load regex validators (single regex definitions)
+     */
     public List<RegexConfig> loadRegexes() throws Exception {
         Document doc = loadDocument();
         NodeList regexNodes = doc.getElementsByTagName("regex");
@@ -121,15 +151,20 @@ public class ManagementConfigLoader {
 
         for (int i = 0; i < regexNodes.getLength(); i++) {
             Element r = (Element) regexNodes.item(i);
-            regexes.add(new RegexConfig(
+            RegexConfig regex = new RegexConfig(
                     r.getAttribute("id"),
                     r.getAttribute("validRegexExpression"),
                     r.getAttribute("errorMessage")
-            ));
+            );
+            regexes.add(regex);
+            logger.info("[Regex] id={} expr={}", regex.getId(), regex.getExpression());
         }
         return regexes;
     }
 
+    /**
+     * Load action groups (actions inside <actions id="...">)
+     */
     public List<ActionGroupConfig> loadActionGroups() throws Exception {
         Document doc = loadDocument();
         NodeList actionGroupNodes = doc.getElementsByTagName("actions");
@@ -138,6 +173,7 @@ public class ManagementConfigLoader {
         for (int i = 0; i < actionGroupNodes.getLength(); i++) {
             Element groupEl = (Element) actionGroupNodes.item(i);
             ActionGroupConfig group = new ActionGroupConfig(groupEl.getAttribute("id"));
+            logger.info("Loading Actions group: {}", group.getId());
 
             NodeList actions = groupEl.getElementsByTagName("action");
             for (int j = 0; j < actions.getLength(); j++) {
@@ -152,13 +188,18 @@ public class ManagementConfigLoader {
                     visible = Boolean.parseBoolean(a.getAttribute("visible"));
                 }
 
-                group.addAction(new ActionConfig(name, label, visible, jsMethod));
+                ActionConfig action = new ActionConfig(name, label, visible, jsMethod);
+                group.addAction(action);
+                logger.debug("  [Action] name={} label={} jsMethod={}", name, label, jsMethod);
             }
             groups.add(group);
         }
         return groups;
     }
 
+    /**
+     * Load validator groups (<validators id="...">)
+     */
     public List<ValidatorGroupConfig> loadValidators() throws Exception {
         Document doc = loadDocument();
         NodeList validatorGroupNodes = doc.getElementsByTagName("validators");
@@ -167,15 +208,18 @@ public class ManagementConfigLoader {
         for (int i = 0; i < validatorGroupNodes.getLength(); i++) {
             Element groupEl = (Element) validatorGroupNodes.item(i);
             ValidatorGroupConfig group = new ValidatorGroupConfig(groupEl.getAttribute("id"));
+            logger.info("Loading Validator Group: {}", group.getId());
 
             NodeList validators = groupEl.getElementsByTagName("validator");
             for (int j = 0; j < validators.getLength(); j++) {
                 Element v = (Element) validators.item(j);
-                group.addValidator(new ValidatorConfig(
+                ValidatorConfig validator = new ValidatorConfig(
                         v.getAttribute("type"),
                         v.getAttribute("validRegexExpression"),
                         v.getAttribute("errorMessage")
-                ));
+                );
+                group.addValidator(validator);
+                logger.debug("  [Validator] type={} expr={}", validator.getType(), validator.getValidRegexExpression());
             }
             groups.add(group);
         }
