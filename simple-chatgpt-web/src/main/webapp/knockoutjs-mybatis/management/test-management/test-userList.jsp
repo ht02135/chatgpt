@@ -18,11 +18,8 @@ button { margin: 5px; padding: 8px 12px; }
 <script>
 const output = document.getElementById("output");
 const API_BASE = '/chatgpt/api/management/userlists';
-
-// Hardcoded upload files (simulate choosing files from upload folder)
 const UPLOAD_CSV = '/chatgpt/test-management/upload/test_user_lists_1.csv';
 const UPLOAD_XLS = '/chatgpt/test-management/upload/test_user_lists_1.xls';
-const EXPORT_DIR = '/chatgpt/test-management/export/';
 
 // Utility to append to output
 function log(msg) {
@@ -36,8 +33,16 @@ async function testCreateList() {
     log("=== Test 1: Create List ===");
     const list = { userListName: "Test List", description: "List for JSP test" };
     const members = [
-        { userName: "alice", firstName: "Alice", lastName: "Wonder", email: "alice@example.com" },
-        { userName: "bob", firstName: "Bob", lastName: "Builder", email: "bob@example.com" }
+        { 
+            userName: "alice", password: "ZAQ!zaq1", firstName: "Alice", lastName: "Wonder",
+            email: "alice@example.com", addressLine1: "123 Main St", addressLine2: "Apt 4",
+            city: "Wonderland", state: "WL", postCode: "12345", country: "Fantasia"
+        },
+        { 
+            userName: "bob", password: "ZAQ!ZAQ!", firstName: "Bob", lastName: "Builder",
+            email: "bob@example.com", addressLine1: "456 Build Rd", addressLine2: "",
+            city: "Construct", state: "CN", postCode: "67890", country: "Builderland"
+        }
     ];
 
     try {
@@ -81,7 +86,6 @@ async function testGetMembers(listId) {
 async function testImportCsv() {
     log("=== Test 4: Import CSV ===");
     try {
-        // Fetch the CSV from upload folder (simulate file)
         const fileRes = await fetch(UPLOAD_CSV);
         const blob = await fileRes.blob();
 
@@ -93,7 +97,7 @@ async function testImportCsv() {
         const res = await fetch(API_BASE + "/import", { method: 'POST', body: formData });
         const json = await res.json();
         log(JSON.stringify(json, null, 2));
-        return json.data.id; // return listId for export
+        return json.data.id;
     } catch(e) {
         log("Error: " + e);
     }
@@ -128,12 +132,11 @@ async function testExportCsv(listId) {
         const blob = await res.blob();
         const filename = "export_" + listId + ".csv";
 
-        // Save to export folder
         const a = document.createElement("a");
         a.href = URL.createObjectURL(blob);
         a.download = filename;
         a.click();
-        log("Exported CSV saved as " + filename + " to browser downloads");
+        log("Exported CSV saved as " + filename);
     } catch(e) {
         log("Error: " + e);
     }
@@ -151,7 +154,7 @@ async function testExportExcel(listId) {
         a.href = URL.createObjectURL(blob);
         a.download = filename;
         a.click();
-        log("Exported Excel saved as " + filename + " to browser downloads");
+        log("Exported Excel saved as " + filename);
     } catch(e) {
         log("Error: " + e);
     }
