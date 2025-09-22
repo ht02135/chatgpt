@@ -1,5 +1,6 @@
 package simple.chatgpt.controller.management;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
@@ -32,21 +33,44 @@ public class UserManagementListController {
     public UserManagementListController(UserManagementListService userManagementListService) {
         this.userManagementListService = userManagementListService;
     }
-
+    
     // ➕ CREATE LIST WITH MEMBERS
     @PostMapping("/create")
     public ResponseEntity<Response<UserManagementListPojo>> createList(
             @RequestPart("list") UserManagementListPojo list,
-            @RequestPart(value = "members", required = false) List<UserManagementListMemberPojo> members
+            @RequestPart(value = "members", required = false) UserManagementListMemberPojo[] members
     ) {
         logger.debug("createList list={}", list);
-        logger.debug("createList members={}", members);
+        if(list != null) {
+            logger.debug("createList list.userListName={}", list.getUserListName());
+            logger.debug("createList list.description={}", list.getDescription());
+        }
 
-        userManagementListService.createList(list, members);
+        if(members != null) {
+            for(UserManagementListMemberPojo m : members) {
+                logger.debug("createList member={}", m);
+                logger.debug("createList member.userName={}", m.getUserName());
+                logger.debug("createList member.firstName={}", m.getFirstName());
+                logger.debug("createList member.lastName={}", m.getLastName());
+                logger.debug("createList member.email={}", m.getEmail());
+            }
+        } else {
+            logger.debug("createList members=null");
+        }
+
+        try {
+            // Convert array to list for service call
+            userManagementListService.createList(list, members != null ? Arrays.asList(members) : null);
+        } catch(Exception e) {
+            logger.error("createList failed", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Response.error("Create failed: " + e.getMessage(), null, 500));
+        }
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(Response.success("List created successfully", list, HttpStatus.CREATED.value()));
     }
+
 
     // 📖 GET LIST BY ID
     @GetMapping("/get")

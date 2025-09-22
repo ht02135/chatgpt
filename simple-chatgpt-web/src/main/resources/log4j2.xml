@@ -20,10 +20,16 @@
       		<AppenderRef ref="LogToConsole"/>
     	</Logger>
         
-        <Logger name="org.springframework" level="INFO" additivity="false">
-            <AppenderRef ref="LogToConsole"/>
-        </Logger>
-        
+		<Logger name="org.springframework" level="DEBUG" additivity="false">
+    		<AppenderRef ref="LogToConsole"/>
+		</Logger>
+		<Logger name="org.springframework.web" level="DEBUG" additivity="false">
+    		<AppenderRef ref="LogToConsole"/>
+		</Logger>
+		<Logger name="org.springframework.web.multipart" level="DEBUG" additivity="false">
+    		<AppenderRef ref="LogToConsole"/>
+		</Logger>
+
         <Root level="DEBUG">
             <AppenderRef ref="LogToConsole"/>
         </Root>
