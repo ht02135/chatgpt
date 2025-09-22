@@ -28,24 +28,16 @@ public class ManagementConfigLoader {
     private static final Logger logger = LogManager.getLogger(ManagementConfigLoader.class);
     private static final String CONFIG_FILE = "/config/management/config.xml";
 
-    /**
-     * Load the XML document from the classpath.
-     */
+    /** Load XML document from classpath */
     private Document loadDocument() throws Exception {
         try (InputStream is = ManagementConfigLoader.class.getResourceAsStream(CONFIG_FILE)) {
-            if (is == null) {
-                throw new RuntimeException("Config file not found: " + CONFIG_FILE);
-            }
+            if (is == null) throw new RuntimeException("Config file not found: " + CONFIG_FILE);
             logger.info("Loaded config file: {}", CONFIG_FILE);
-            return DocumentBuilderFactory.newInstance()
-                    .newDocumentBuilder()
-                    .parse(is);
+            return DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(is);
         }
     }
 
-    /**
-     * Load all grid definitions from config.xml
-     */
+    /** Load all grid definitions */
     public List<GridConfig> loadGrids() throws Exception {
         Document doc = loadDocument();
         NodeList gridNodes = doc.getElementsByTagName("grid");
@@ -61,33 +53,27 @@ public class ManagementConfigLoader {
                 Element c = (Element) cols.item(j);
 
                 String name = c.getAttribute("name");
-                String label = c.getAttribute("label");
-                boolean visible = Boolean.parseBoolean(c.getAttribute("visible"));
-                boolean sortable = Boolean.parseBoolean(c.getAttribute("sortable"));
+                String label = c.hasAttribute("label") ? c.getAttribute("label") : name;
+                boolean visible = c.hasAttribute("visible") && Boolean.parseBoolean(c.getAttribute("visible"));
+                boolean sortable = c.hasAttribute("sortable") && Boolean.parseBoolean(c.getAttribute("sortable"));
+                int index = -1;
+                if (c.hasAttribute("index")) {
+                    try {
+                        index = Integer.parseInt(c.getAttribute("index"));
+                    } catch (NumberFormatException nfe) {
+                        logger.warn("Invalid index '{}' for column '{}' in grid '{}', defaulting to -1",
+                                c.getAttribute("index"), name, grid.getId());
+                    }
+                }
 
                 ColumnConfig column;
-
                 if (c.hasAttribute("actions")) {
-                    column = new ColumnConfig(
-                            name,
-                            label,
-                            visible,
-                            sortable,
-                            null,
-                            c.getAttribute("actions")
-                    );
-                    logger.debug("  [Column] name={} (actions={})", name, c.getAttribute("actions"));
+                    column = new ColumnConfig(name, label, visible, sortable, null, c.getAttribute("actions"), index);
+                    logger.debug("  [Column] name={} actions={} index={}", name, c.getAttribute("actions"), index);
                 } else {
                     String dbField = c.hasAttribute("dbField") ? c.getAttribute("dbField") : null;
-                    column = new ColumnConfig(
-                            name,
-                            label,
-                            visible,
-                            sortable,
-                            dbField,
-                            null
-                    );
-                    logger.debug("  [Column] name={} dbField={}", name, dbField);
+                    column = new ColumnConfig(name, label, visible, sortable, dbField, null, index);
+                    logger.debug("  [Column] name={} dbField={} index={}", name, dbField, index);
                 }
 
                 grid.addColumn(column);
@@ -97,9 +83,7 @@ public class ManagementConfigLoader {
         return grids;
     }
 
-    /**
-     * Load all form definitions from config.xml
-     */
+    /** Load all form definitions */
     public List<FormConfig> loadForms() throws Exception {
         Document doc = loadDocument();
         NodeList formNodes = doc.getElementsByTagName("form");
@@ -114,7 +98,6 @@ public class ManagementConfigLoader {
             for (int j = 0; j < fields.getLength(); j++) {
                 Element f = (Element) fields.item(j);
 
-                // ✅ Support multiple validators (comma separated)
                 String validatorAttr = f.hasAttribute("validators") ? f.getAttribute("validators") : null;
                 List<String> validatorIds = new ArrayList<>();
                 if (validatorAttr != null && !validatorAttr.isEmpty()) {
@@ -130,7 +113,6 @@ public class ManagementConfigLoader {
                         f.hasAttribute("regex") ? f.getAttribute("regex") : null,
                         validatorIds
                 );
-
                 logger.debug("  [Field] name={} label={} regex={} validators={}",
                         field.getName(), field.getLabel(), field.getRegex(), validatorIds);
 
@@ -141,9 +123,7 @@ public class ManagementConfigLoader {
         return forms;
     }
 
-    /**
-     * Load regex validators (single regex definitions)
-     */
+    /** Load regex validators */
     public List<RegexConfig> loadRegexes() throws Exception {
         Document doc = loadDocument();
         NodeList regexNodes = doc.getElementsByTagName("regex");
@@ -162,9 +142,7 @@ public class ManagementConfigLoader {
         return regexes;
     }
 
-    /**
-     * Load action groups (actions inside <actions id="...">)
-     */
+    /** Load action groups */
     public List<ActionGroupConfig> loadActionGroups() throws Exception {
         Document doc = loadDocument();
         NodeList actionGroupNodes = doc.getElementsByTagName("actions");
@@ -182,11 +160,7 @@ public class ManagementConfigLoader {
                 String name = a.getAttribute("name");
                 String label = a.getAttribute("label");
                 String jsMethod = a.getAttribute("jsMethod");
-
-                boolean visible = true;
-                if (a.hasAttribute("visible")) {
-                    visible = Boolean.parseBoolean(a.getAttribute("visible"));
-                }
+                boolean visible = !a.hasAttribute("visible") || Boolean.parseBoolean(a.getAttribute("visible"));
 
                 ActionConfig action = new ActionConfig(name, label, visible, jsMethod);
                 group.addAction(action);
@@ -197,9 +171,7 @@ public class ManagementConfigLoader {
         return groups;
     }
 
-    /**
-     * Load validator groups (<validators id="...">)
-     */
+    /** Load validator groups */
     public List<ValidatorGroupConfig> loadValidators() throws Exception {
         Document doc = loadDocument();
         NodeList validatorGroupNodes = doc.getElementsByTagName("validators");
@@ -225,5 +197,4 @@ public class ManagementConfigLoader {
         }
         return groups;
     }
-
 }

@@ -42,6 +42,7 @@ public class ConfigLoader {
                 String label = c.getAttribute("label");
                 boolean visible = Boolean.parseBoolean(c.getAttribute("visible"));
                 boolean sortable = Boolean.parseBoolean(c.getAttribute("sortable"));
+                int index = c.hasAttribute("index") ? Integer.parseInt(c.getAttribute("index")) : j;
 
                 ColumnConfig column;
                 if (c.hasAttribute("actions")) {
@@ -51,7 +52,8 @@ public class ConfigLoader {
                             label,
                             visible,
                             sortable,
-                            c.getAttribute("actions")
+                            c.getAttribute("actions"),
+                            index
                     );
                 } else {
                     // normal sortable/data column with optional dbField
@@ -61,7 +63,8 @@ public class ConfigLoader {
                             label,
                             visible,
                             sortable,
-                            dbField
+                            dbField,
+                            index
                     );
                 }
 
@@ -92,7 +95,7 @@ public class ConfigLoader {
                         Boolean.parseBoolean(f.getAttribute("required")),
                         Boolean.parseBoolean(f.getAttribute("editable")),
                         f.getAttribute("regex"),
-                        f.hasAttribute("validators") ? f.getAttribute("validators") : null  // <-- NEW
+                        f.hasAttribute("validators") ? f.getAttribute("validators") : null
                 ));
             }
             forms.add(form);
@@ -144,7 +147,7 @@ public class ConfigLoader {
         }
         return groups;
     }
-    
+
     public List<ValidatorGroupConfig> loadValidators() throws Exception {
         Document doc = loadDocument();
         NodeList validatorGroupNodes = doc.getElementsByTagName("validators");

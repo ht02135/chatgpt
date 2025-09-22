@@ -7,7 +7,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.apache.logging.log4j.LogManager;
@@ -16,14 +15,15 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-import simple.chatgpt.config.DownloadFieldConfig;
+import simple.chatgpt.config.ColumnConfig;
 
 public class DownloadConfigLoader {
 
     private static final Logger logger = LogManager.getLogger(DownloadConfigLoader.class);
     private static final String CONFIG_FILE = "/config/management/download-config.xml";
 
-    private static Map<String, List<DownloadFieldConfig>> gridConfigs = new HashMap<>();
+    // Store ColumnConfig lists per grid id
+    private static final Map<String, List<ColumnConfig>> gridConfigs = new HashMap<>();
     private static boolean initialized = false;
 
     private static void init() {
@@ -34,31 +34,64 @@ public class DownloadConfigLoader {
                 throw new RuntimeException("Could not find " + CONFIG_FILE + " on classpath");
             }
 
-            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder builder = factory.newDocumentBuilder();
-            Document document = builder.parse(inputStream);
+            Document document = DocumentBuilderFactory.newInstance()
+                    .newDocumentBuilder()
+                    .parse(inputStream);
 
             NodeList gridNodes = document.getElementsByTagName("grid");
             for (int i = 0; i < gridNodes.getLength(); i++) {
                 Element gridElement = (Element) gridNodes.item(i);
                 String gridId = gridElement.getAttribute("id");
 
-                List<DownloadFieldConfig> columns = new ArrayList<>();
+                // Temporary lists for ordered columns
+                List<ColumnConfig> indexed = new ArrayList<>();
+                List<ColumnConfig> noIndex = new ArrayList<>();
+
                 NodeList colNodes = gridElement.getElementsByTagName("column");
                 for (int j = 0; j < colNodes.getLength(); j++) {
                     Element col = (Element) colNodes.item(j);
 
-                    DownloadFieldConfig config = new DownloadFieldConfig(
-                            col.getAttribute("name"),
-                            col.getAttribute("dbField"),
-                            col.getAttribute("label"),
-                            Boolean.parseBoolean(col.getAttribute("visible")),
-                            Integer.parseInt(col.getAttribute("index"))
-                    );
-                    columns.add(config);
+                    String name = col.getAttribute("name");
+                    String dbField = col.getAttribute("dbField");
+                    String label = col.hasAttribute("label") ? col.getAttribute("label") : name;
+                    boolean visible = Boolean.parseBoolean(col.getAttribute("visible"));
+                    String indexAttr = col.getAttribute("index");
+
+                    // Parse index
+                    int idx = -1;
+                    if (indexAttr != null && !indexAttr.isEmpty()) {
+                        try {
+                            idx = Integer.parseInt(indexAttr);
+                        } catch (NumberFormatException nfe) {
+                            logger.warn("Invalid index '{}' for column '{}' in grid '{}', treating as no-index",
+                                    indexAttr, name, gridId);
+                            idx = -1;
+                        }
+                    }
+
+                    // Create ColumnConfig (all download columns sortable=true)
+                    ColumnConfig cfg = new ColumnConfig(name, label, visible, true, dbField, null, idx);
+
+                    logger.debug("  [Download Column] name={} dbField={} label={} visible={} index={}",
+                            name, dbField, label, visible, idx);
+
+                    // Add to indexed or noIndex list
+                    if (idx >= 0) {
+                        while (indexed.size() <= idx) indexed.add(null);
+                        indexed.set(idx, cfg);
+                    } else {
+                        noIndex.add(cfg);
+                    }
                 }
-                gridConfigs.put(gridId, columns);
-                logger.debug("Loaded download grid={} with {} columns", gridId, columns.size());
+
+                // Build final column list (indexed first, then noIndex)
+                List<ColumnConfig> finalColumns = new ArrayList<>();
+                for (ColumnConfig c : indexed) if (c != null) finalColumns.add(c);
+                finalColumns.addAll(noIndex);
+
+                gridConfigs.put(gridId, finalColumns);
+                logger.debug("Loaded download grid='{}' with {} columns (indexed: {}, noIndex: {})",
+                        gridId, finalColumns.size(), indexed.size(), noIndex.size());
             }
 
             initialized = true;
@@ -69,7 +102,11 @@ public class DownloadConfigLoader {
         }
     }
 
-    public static List<DownloadFieldConfig> getColumns(String gridId) {
+    /**
+     * Returns the ColumnConfig list for the given download grid.
+     * Columns are ordered according to 'index' when provided.
+     */
+    public static List<ColumnConfig> getColumns(String gridId) {
         init();
         return gridConfigs.getOrDefault(gridId, Collections.emptyList());
     }

@@ -5,15 +5,13 @@ public class ColumnConfig {
     private String label;
     private boolean visible;
     private boolean sortable;
-
-    // ✅ optional DB column name (for sorting/filtering)
     private String dbField;
-
-    // ✅ optional action group reference
     private String actions;
+    private int index = -1; // default -1 means no index
 
     public ColumnConfig() {}
 
+    // basic constructor
     public ColumnConfig(String name, String label, boolean visible, boolean sortable) {
         this.name = name;
         this.label = label;
@@ -21,26 +19,28 @@ public class ColumnConfig {
         this.sortable = sortable;
     }
 
-    // ✅ single full constructor
-    public ColumnConfig(String name, String label, boolean visible, boolean sortable, String dbField, String actions) {
+    // full constructor including dbField, actions, index
+    public ColumnConfig(String name, String label, boolean visible, boolean sortable, String dbField, String actions, int index) {
         this.name = name;
         this.label = label;
         this.visible = visible;
         this.sortable = sortable;
         this.dbField = dbField;
         this.actions = actions;
+        this.index = index;
     }
 
-    // ✅ factory method for dbField-based columns
-    public static ColumnConfig withDbField(String name, String label, boolean visible, boolean sortable, String dbField) {
-        return new ColumnConfig(name, label, visible, sortable, dbField, null);
+    // factory method for dbField
+    public static ColumnConfig withDbField(String name, String label, boolean visible, boolean sortable, String dbField, int index) {
+        return new ColumnConfig(name, label, visible, sortable, dbField, null, index);
     }
 
-    // ✅ factory method for action-based columns
-    public static ColumnConfig withActions(String name, String label, boolean visible, boolean sortable, String actions) {
-        return new ColumnConfig(name, label, visible, sortable, null, actions);
+    // factory method for actions
+    public static ColumnConfig withActions(String name, String label, boolean visible, boolean sortable, String actions, int index) {
+        return new ColumnConfig(name, label, visible, sortable, null, actions, index);
     }
 
+    // getters/setters
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
 
@@ -58,4 +58,7 @@ public class ColumnConfig {
 
     public String getActions() { return actions; }
     public void setActions(String actions) { this.actions = actions; }
+
+    public int getIndex() { return index; }
+    public void setIndex(int index) { this.index = index; }
 }
