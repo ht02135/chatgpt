@@ -1,17 +1,19 @@
+DROP TABLE IF EXISTS user_management_list_member;
+DROP TABLE IF EXISTS user_management_list;
+
 CREATE TABLE user_management_list (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
-    user_list_name VARCHAR(100) UNIQUE NOT NULL,
-    original_file_name VARCHAR(255),  -- store the original uploaded file name
-    file_path VARCHAR(512),           -- increased length for long paths
-    description TEXT,                 -- optional, useful if you want to describe the list
+    user_list_name VARCHAR(100) NOT NULL,   -- no UNIQUE
+    original_file_name VARCHAR(255),
+    file_path VARCHAR(512),
+    description TEXT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
-
 CREATE TABLE user_management_list_member (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
-    list_id BIGINT NOT NULL,  -- FK to user_management_list
+    list_id BIGINT NOT NULL,  
     user_name VARCHAR(100) NOT NULL,
     password VARCHAR(255) NOT NULL,
     first_name VARCHAR(100),
