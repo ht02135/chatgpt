@@ -40,7 +40,9 @@ public class UserManagementListController {
             @RequestPart("list") UserManagementListPojo list,
             @RequestPart(value = "members", required = false) UserManagementListMemberPojo[] members
     ) {
-        logger.debug("createList list={}", list);
+    	logger.debug("#############");
+    	logger.debug("createList list={}", list);
+    	logger.debug("#############");
         if(list != null) {
             logger.debug("createList list.userListName={}", list.getUserListName());
             logger.debug("createList list.description={}", list.getDescription());
@@ -75,7 +77,9 @@ public class UserManagementListController {
     // 📖 GET LIST BY ID
     @GetMapping("/get")
     public ResponseEntity<Response<UserManagementListPojo>> getList(@RequestParam Long id) {
-        logger.debug("getList id={}", id);
+    	logger.debug("#############");
+    	logger.debug("getList id={}", id);
+    	logger.debug("#############");
 
         UserManagementListPojo list = userManagementListService.getListById(id);
         if (list == null) {
@@ -88,7 +92,9 @@ public class UserManagementListController {
     // 📖 GET MEMBERS OF LIST
     @GetMapping("/members")
     public ResponseEntity<Response<List<UserManagementListMemberPojo>>> getMembers(@RequestParam Long listId) {
-        logger.debug("getMembers listId={}", listId);
+    	logger.debug("#############");
+    	logger.debug("getMembers listId={}", listId);
+    	logger.debug("#############");
 
         List<UserManagementListMemberPojo> members = userManagementListService.getMembersByListId(listId);
         return ResponseEntity.ok(Response.success("Members fetched successfully", members, HttpStatus.OK.value()));
@@ -97,7 +103,9 @@ public class UserManagementListController {
     // 🗑 DELETE LIST
     @DeleteMapping("/delete")
     public ResponseEntity<Response<Void>> deleteList(@RequestParam Long listId) {
-        logger.debug("deleteList listId={}", listId);
+    	logger.debug("#############");
+    	logger.debug("deleteList listId={}", listId);
+    	logger.debug("#############");
 
         userManagementListService.deleteList(listId);
         return ResponseEntity.ok(Response.success("List deleted successfully", null, HttpStatus.OK.value()));
@@ -109,8 +117,10 @@ public class UserManagementListController {
             @RequestPart("list") UserManagementListPojo list,
             @RequestPart("file") MultipartFile file
     ) {
-        logger.debug("importList list={}", list);
+    	logger.debug("#############");
+    	logger.debug("importList list={}", list);
         logger.debug("importList fileName={}", file.getOriginalFilename());
+        logger.debug("#############");
 
         try (var is = file.getInputStream()) {
             String filename = file.getOriginalFilename().toLowerCase();
@@ -133,7 +143,10 @@ public class UserManagementListController {
     // 📤 EXPORT LIST TO CSV
     @GetMapping("/export/csv")
     public void exportListToCsv(@RequestParam Long listId, javax.servlet.http.HttpServletResponse response) {
-        logger.debug("exportListToCsv listId={}", listId);
+    	logger.debug("#############");
+    	logger.debug("exportListToCsv listId={}", listId);
+    	logger.debug("#############");
+    	
         response.setContentType("text/csv");
         response.setHeader("Content-Disposition", "attachment; filename=\"list_" + listId + ".csv\"");
 
@@ -147,7 +160,10 @@ public class UserManagementListController {
     // 📤 EXPORT LIST TO EXCEL
     @GetMapping("/export/excel")
     public void exportListToExcel(@RequestParam Long listId, javax.servlet.http.HttpServletResponse response) {
-        logger.debug("exportListToExcel listId={}", listId);
+    	logger.debug("#############");
+    	logger.debug("exportListToExcel listId={}", listId);
+    	logger.debug("#############");
+    	
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         response.setHeader("Content-Disposition", "attachment; filename=\"list_" + listId + ".xlsx\"");
 
