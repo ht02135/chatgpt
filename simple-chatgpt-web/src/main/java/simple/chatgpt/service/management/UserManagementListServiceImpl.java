@@ -24,12 +24,12 @@ import com.opencsv.CSVReader;
 import com.opencsv.CSVWriter;
 
 import simple.chatgpt.config.ColumnConfig;
-import simple.chatgpt.config.GridConfig;
-import simple.chatgpt.config.management.ManagementConfigLoader;
+import simple.chatgpt.download.management.loader.DownloadConfigLoader;
 import simple.chatgpt.mapper.management.UserManagementListMapper;
 import simple.chatgpt.mapper.management.UserManagementListMemberMapper;
 import simple.chatgpt.pojo.management.UserManagementListMemberPojo;
 import simple.chatgpt.pojo.management.UserManagementListPojo;
+import simple.chatgpt.upload.management.loader.UploadConfigLoader;
 
 @Service
 public class UserManagementListServiceImpl implements UserManagementListService {
@@ -40,7 +40,8 @@ public class UserManagementListServiceImpl implements UserManagementListService 
     private final UserManagementListMapper listMapper;
     private final UserManagementListMemberMapper memberMapper;
     private final Path storageDir;
-    private final List<ColumnConfig> memberColumns;
+    private final List<ColumnConfig> uploadColumns;   // For import
+    private final List<ColumnConfig> downloadColumns; // For export
 
     public UserManagementListServiceImpl(UserManagementListMapper listMapper,
                                          UserManagementListMemberMapper memberMapper) throws Exception {
@@ -52,19 +53,14 @@ public class UserManagementListServiceImpl implements UserManagementListService 
 
         if (!Files.exists(storageDir)) {
             Files.createDirectories(storageDir);
-            logger.debug("Storage directory created at relativePath={} absolutePath={}", 
-                         storageDir, storageDir.toAbsolutePath());
+            logger.debug("Storage directory created at relativePath={} absolutePath={}", storageDir, storageDir.toAbsolutePath());
         } else {
-            logger.debug("Storage directory exists at relativePath={} absolutePath={}", 
-                         storageDir, storageDir.toAbsolutePath());
+            logger.debug("Storage directory exists at relativePath={} absolutePath={}", storageDir, storageDir.toAbsolutePath());
         }
 
-        ManagementConfigLoader configLoader = new ManagementConfigLoader();
-        GridConfig memberGrid = configLoader.loadGrids().stream()
-                .filter(g -> MEMBER_GRID_ID.equals(g.getId()))
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException("Grid config not found: " + MEMBER_GRID_ID));
-        memberColumns = memberGrid.getColumns();
+        // Load columns for import/export
+        this.uploadColumns = UploadConfigLoader.getColumns(MEMBER_GRID_ID);
+        this.downloadColumns = DownloadConfigLoader.getColumns(MEMBER_GRID_ID);
     }
 
     // ------------------ Core CRUD ------------------
@@ -124,7 +120,7 @@ public class UserManagementListServiceImpl implements UserManagementListService 
         return path;
     }
 
-    // ------------------ Reflection Helper ------------------
+    // ------------------ Reflection Helpers ------------------
 
     private String getFieldValue(UserManagementListMemberPojo member, String property) {
         try {
@@ -161,11 +157,10 @@ public class UserManagementListServiceImpl implements UserManagementListService 
             String[] row;
             while ((row = reader.readNext()) != null) {
                 UserManagementListMemberPojo member = new UserManagementListMemberPojo();
-                for (int i = 0; i < memberColumns.size() && i < row.length; i++) {
-                    setFieldValue(member, memberColumns.get(i).getName(), row[i]);
+                for (int i = 0; i < uploadColumns.size() && i < row.length; i++) {
+                    setFieldValue(member, uploadColumns.get(i).getName(), row[i]);
                 }
                 members.add(member);
-                logger.debug("importListFromCsv member parsed={}", member);
             }
         }
 
@@ -182,16 +177,15 @@ public class UserManagementListServiceImpl implements UserManagementListService 
     @Override
     public void exportListToCsv(Long listId, OutputStream outputStream) throws Exception {
         logger.debug("exportListToCsv listId={}", listId);
-        List<UserManagementListMemberPojo> members = getMembersByListId(listId);
 
+        List<UserManagementListMemberPojo> members = getMembersByListId(listId);
         try (CSVWriter writer = new CSVWriter(new OutputStreamWriter(outputStream))) {
-            String[] header = memberColumns.stream().map(ColumnConfig::getDbField).toArray(String[]::new);
+            String[] header = downloadColumns.stream().map(ColumnConfig::getDbField).toArray(String[]::new);
             writer.writeNext(header);
 
             for (UserManagementListMemberPojo m : members) {
-                String[] row = memberColumns.stream().map(c -> getFieldValue(m, c.getName())).toArray(String[]::new);
+                String[] row = downloadColumns.stream().map(c -> getFieldValue(m, c.getName())).toArray(String[]::new);
                 writer.writeNext(row);
-                logger.debug("exportListToCsv member written={}", m);
             }
         }
     }
@@ -211,11 +205,10 @@ public class UserManagementListServiceImpl implements UserManagementListService 
             while (rows.hasNext()) {
                 Row row = rows.next();
                 UserManagementListMemberPojo member = new UserManagementListMemberPojo();
-                for (int i = 0; i < memberColumns.size(); i++) {
-                    setFieldValue(member, memberColumns.get(i).getName(), row.getCell(i).getStringCellValue());
+                for (int i = 0; i < uploadColumns.size(); i++) {
+                    setFieldValue(member, uploadColumns.get(i).getName(), row.getCell(i).getStringCellValue());
                 }
                 members.add(member);
-                logger.debug("importListFromExcel member parsed={}", member);
             }
         }
 
@@ -232,6 +225,7 @@ public class UserManagementListServiceImpl implements UserManagementListService 
     @Override
     public void exportListToExcel(Long listId, OutputStream outputStream) throws Exception {
         logger.debug("exportListToExcel listId={}", listId);
+
         List<UserManagementListMemberPojo> members = getMembersByListId(listId);
 
         try (Workbook workbook = new XSSFWorkbook()) {
@@ -239,18 +233,17 @@ public class UserManagementListServiceImpl implements UserManagementListService 
 
             // Header
             Row header = sheet.createRow(0);
-            for (int i = 0; i < memberColumns.size(); i++) {
-                header.createCell(i).setCellValue(memberColumns.get(i).getDbField());
+            for (int i = 0; i < downloadColumns.size(); i++) {
+                header.createCell(i).setCellValue(downloadColumns.get(i).getDbField());
             }
 
             // Rows
             int rowIdx = 1;
             for (UserManagementListMemberPojo m : members) {
                 Row row = sheet.createRow(rowIdx++);
-                for (int i = 0; i < memberColumns.size(); i++) {
-                    row.createCell(i).setCellValue(getFieldValue(m, memberColumns.get(i).getName()));
+                for (int i = 0; i < downloadColumns.size(); i++) {
+                    row.createCell(i).setCellValue(getFieldValue(m, downloadColumns.get(i).getName()));
                 }
-                logger.debug("exportListToExcel member written={}", m);
             }
 
             workbook.write(outputStream);
