@@ -14,6 +14,7 @@ import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -201,16 +202,20 @@ public class UserManagementListServiceImpl implements UserManagementListService 
         byte[] bytes = inputStream.readAllBytes(); // copy input stream
 
         List<UserManagementListMemberPojo> members = new ArrayList<>();
-        try (Workbook workbook = new XSSFWorkbook(new java.io.ByteArrayInputStream(bytes))) {
+        try (Workbook workbook = originalFileName.endsWith(".xls") ?
+                new HSSFWorkbook(new java.io.ByteArrayInputStream(bytes)) : 
+                new XSSFWorkbook(new java.io.ByteArrayInputStream(bytes))) {
+
             Sheet sheet = workbook.getSheetAt(0);
             Iterator<Row> rows = sheet.iterator();
             if (rows.hasNext()) rows.next(); // skip header
+
             while (rows.hasNext()) {
                 Row row = rows.next();
                 UserManagementListMemberPojo member = new UserManagementListMemberPojo();
                 for (int i = 0; i < uploadColumns.size(); i++) {
                     if (row.getCell(i) != null)
-                        setFieldValue(member, uploadColumns.get(i).getName(), row.getCell(i).getStringCellValue());
+                        setFieldValue(member, uploadColumns.get(i).getName(), row.getCell(i).toString());
                 }
                 members.add(member);
             }
@@ -231,7 +236,7 @@ public class UserManagementListServiceImpl implements UserManagementListService 
 
         List<UserManagementListMemberPojo> members = getMembersByListId(listId);
 
-        try (Workbook workbook = new XSSFWorkbook()) {
+        try (Workbook workbook = new XSSFWorkbook()) {  // always .xlsx
             Sheet sheet = workbook.createSheet("Users");
 
             // Header
