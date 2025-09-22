@@ -1,22 +1,447 @@
 
-next steps
+i think i need to create 
+UserManagementListMemberController
+UserManagementListMemberService
+UserManagementListMemberServiceImpl
 
-1>clone user
-2>upload user via csv or excel
-  csv loader
-  excel loader
+after that we will add missing method in
+UserManagementListController
+UserManagementListService
+UserManagementListServiceImpl
+
+////////////
+
+unless i am mistaken
+UserManagementController (/management/users)
+1>user.js has code that allow
+  search, filter, sort, page users.
+  and edit individual user
   
-Bulk Operations
-Example:
-POST /users/bulk (create multiple at once)
-DELETE /users/bulk (delete multiple at once)
+i need following that has most functionality like UserManagementController
 
-Export / Import
-Example:
-GET /reports/export?format=csv
-POST /users/import with file upload
+UserManagementListController (/management/userlists)
+2>i need to write userList.js to
+  search, filter, sort, page userLists
+  and edit individual userList which go to say editUserList.jsp
+  
+so what method in UserManagementController currently missing in UserManagementListController
 
-If controller deals with users:
-POST /login
-POST /logout
-POST /users/{id}/reset-password
+3>should i create UserManagementListMemberController? (/management/userlistmembers)
+editUserList.jsp should show list of userListMember which userListMember.js need to
+  search, filter, sort, page userListMembers
+  and edit individual userListMember
+
+///////////////////
+
+package simple.chatgpt.controller.management;
+
+import java.util.Arrays;
+import java.util.List;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
+
+import simple.chatgpt.pojo.management.UserManagementListMemberPojo;
+import simple.chatgpt.pojo.management.UserManagementListPojo;
+import simple.chatgpt.service.management.UserManagementListService;
+import simple.chatgpt.util.Response;
+
+@RestController
+@RequestMapping(value = "/management/userlists", produces = MediaType.APPLICATION_JSON_VALUE)
+public class UserManagementListController {
+
+    private static final Logger logger = LogManager.getLogger(UserManagementListController.class);
+
+    private final UserManagementListService userManagementListService;
+
+    public UserManagementListController(UserManagementListService userManagementListService) {
+        this.userManagementListService = userManagementListService;
+    }
+    
+    // ➕ CREATE LIST WITH MEMBERS
+    @PostMapping("/create")
+    public ResponseEntity<Response<UserManagementListPojo>> createList(
+            @RequestPart("list") UserManagementListPojo list,
+            @RequestPart(value = "members", required = false) UserManagementListMemberPojo[] members
+    ) {
+    	logger.debug("createList #############");
+    	logger.debug("createList list={}", list);
+    	logger.debug("createList #############");
+        if(list != null) {
+            logger.debug("createList list.userListName={}", list.getUserListName());
+            logger.debug("createList list.description={}", list.getDescription());
+        }
+
+        if(members != null) {
+            for(UserManagementListMemberPojo m : members) {
+                logger.debug("createList member={}", m);
+                logger.debug("createList member.userName={}", m.getUserName());
+                logger.debug("createList member.firstName={}", m.getFirstName());
+                logger.debug("createList member.lastName={}", m.getLastName());
+                logger.debug("createList member.email={}", m.getEmail());
+            }
+        } else {
+            logger.debug("createList members=null");
+        }
+
+        try {
+            // Convert array to list for service call
+            userManagementListService.createList(list, members != null ? Arrays.asList(members) : null);
+        } catch(Exception e) {
+            logger.error("createList failed", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Response.error("Create failed: " + e.getMessage(), null, 500));
+        }
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(Response.success("List created successfully", list, HttpStatus.CREATED.value()));
+    }
+
+
+    // 📖 GET LIST BY ID
+    @GetMapping("/get")
+    public ResponseEntity<Response<UserManagementListPojo>> getList(@RequestParam Long id) {
+    	logger.debug("getList #############");
+    	logger.debug("getList id={}", id);
+    	logger.debug("getList #############");
+
+        UserManagementListPojo list = userManagementListService.getListById(id);
+        if (list == null) {
+            return ResponseEntity.ok(Response.error("List not found", null, HttpStatus.NOT_FOUND.value()));
+        }
+
+        return ResponseEntity.ok(Response.success("List fetched successfully", list, HttpStatus.OK.value()));
+    }
+
+    // 📖 GET MEMBERS OF LIST
+    @GetMapping("/members")
+    public ResponseEntity<Response<List<UserManagementListMemberPojo>>> getMembers(@RequestParam Long listId) {
+    	logger.debug("getMembers #############");
+    	logger.debug("getMembers listId={}", listId);
+    	logger.debug("getMembers #############");
+
+        List<UserManagementListMemberPojo> members = userManagementListService.getMembersByListId(listId);
+        return ResponseEntity.ok(Response.success("Members fetched successfully", members, HttpStatus.OK.value()));
+    }
+
+    // 🗑 DELETE LIST
+    @DeleteMapping("/delete")
+    public ResponseEntity<Response<Void>> deleteList(@RequestParam Long listId) {
+    	logger.debug("deleteList #############");
+    	logger.debug("deleteList listId={}", listId);
+    	logger.debug("deleteList #############");
+
+        userManagementListService.deleteList(listId);
+        return ResponseEntity.ok(Response.success("List deleted successfully", null, HttpStatus.OK.value()));
+    }
+
+    // 📥 IMPORT LIST FROM CSV/EXCEL
+    @PostMapping("/import")
+    public ResponseEntity<Response<UserManagementListPojo>> importList(
+            @RequestPart("list") UserManagementListPojo list,
+            @RequestPart("file") MultipartFile file
+    ) {
+    	logger.debug("importList #############");
+    	logger.debug("importList list={}", list);
+        logger.debug("importList fileName={}", file.getOriginalFilename());
+        logger.debug("importList #############");
+
+        try (var is = file.getInputStream()) {
+            String filename = file.getOriginalFilename().toLowerCase();
+            if (filename.endsWith(".csv")) {
+                userManagementListService.importListFromCsv(is, list, file.getOriginalFilename());
+            } else if (filename.endsWith(".xlsx") || filename.endsWith(".xls")) {
+                userManagementListService.importListFromExcel(is, list, file.getOriginalFilename());
+            } else {
+                return ResponseEntity.ok(Response.error("Unsupported file type", null, HttpStatus.BAD_REQUEST.value()));
+            }
+        } catch (Exception e) {
+            logger.error("importList failed", e);
+            return ResponseEntity.ok(Response.error("Import failed: " + e.getMessage(), null, HttpStatus.INTERNAL_SERVER_ERROR.value()));
+        }
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(Response.success("List imported successfully", list, HttpStatus.CREATED.value()));
+    }
+
+    // 📤 EXPORT LIST TO CSV
+    @GetMapping("/export/csv")
+    public void exportListToCsv(@RequestParam Long listId, javax.servlet.http.HttpServletResponse response) {
+    	logger.debug("exportListToCsv #############");
+    	logger.debug("exportListToCsv listId={}", listId);
+    	logger.debug("exportListToCsv #############");
+    	
+        response.setContentType("text/csv");
+        response.setHeader("Content-Disposition", "attachment; filename=\"list_" + listId + ".csv\"");
+
+        try (var os = response.getOutputStream()) {
+            userManagementListService.exportListToCsv(listId, os);
+        } catch (Exception e) {
+            logger.error("exportListToCsv failed", e);
+        }
+    }
+
+    // 📤 EXPORT LIST TO EXCEL
+    @GetMapping("/export/excel")
+    public void exportListToExcel(@RequestParam Long listId, javax.servlet.http.HttpServletResponse response) {
+    	logger.debug("exportListToExcel #############");
+    	logger.debug("exportListToExcel listId={}", listId);
+    	logger.debug("exportListToExcel #############");
+    	
+        response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        response.setHeader("Content-Disposition", "attachment; filename=\"list_" + listId + ".xlsx\"");
+
+        try (var os = response.getOutputStream()) {
+            userManagementListService.exportListToExcel(listId, os);
+        } catch (Exception e) {
+            logger.error("exportListToExcel failed", e);
+        }
+    }
+}
+
+////////////////
+
+package simple.chatgpt.controller.management;
+
+import java.util.Map;
+
+import javax.validation.Valid;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import simple.chatgpt.pojo.management.UserManagementPojo;
+import simple.chatgpt.service.management.UserManagementService;
+import simple.chatgpt.util.PagedResult;
+import simple.chatgpt.util.Response;
+
+@RestController
+@RequestMapping(value = "/management/users", produces = MediaType.APPLICATION_JSON_VALUE)
+public class UserManagementController {
+    private static final Logger logger = LogManager.getLogger(UserManagementController.class);
+
+    private final UserManagementService userManagementService;
+
+    public UserManagementController(UserManagementService userManagementService) {
+        this.userManagementService = userManagementService;
+    }
+
+    // 🔎 LIST / SEARCH
+    /*
+    1>Simple pagination request:
+	GET /users?page=0&size=20
+	2>With filters:
+	GET /users?firstName=John&city=New+York&page=1&size=10
+	3>With sorting:
+	GET /users?sortField=last_name&sortDirection=desc
+    */
+    @GetMapping
+    public ResponseEntity<Response<PagedResult<UserManagementPojo>>> searchUsers(
+            @RequestParam Map<String, String> params
+    ) {
+        logger.debug("searchUsers called with params={}", params);
+
+        int page = Integer.parseInt(params.getOrDefault("page", "0"));
+        int size = Integer.parseInt(params.getOrDefault("size", "20"));
+        int offset = page * size;
+
+        params.put("offset", String.valueOf(offset));
+        params.put("limit", String.valueOf(size));
+        params.put("sortField", params.getOrDefault("sortField", "id"));
+        params.put("sortDirection", params.getOrDefault("sortDirection", "asc"));
+
+        PagedResult<UserManagementPojo> users = userManagementService.searchUsers(params);
+        return ResponseEntity.ok(Response.success("Fetched successfully", users, HttpStatus.OK.value()));
+    }
+
+    // 📖 READ (Flexible key)
+    @GetMapping("/get")
+    public ResponseEntity<Response<UserManagementPojo>> getUser(
+            @RequestParam(required = false) Long id,
+            @RequestParam(required = false) String userName,
+            @RequestParam(required = false) String userKey
+    ) {
+        logger.debug("getUser called with id={}, userName={}, userKey={}", id, userName, userKey);
+
+        UserManagementPojo user = null;
+
+        if (id != null) {
+            user = userManagementService.getUserById(id);
+        } else if (userName != null) {
+            user = userManagementService.getByUserName(userName);
+        } else if (userKey != null) {
+            user = userManagementService.getByUserKey(userKey);
+        }
+
+        if (user == null) {
+            return ResponseEntity.ok(Response.error("User not found", null, HttpStatus.NOT_FOUND.value()));
+        }
+
+        return ResponseEntity.ok(Response.success("Fetched successfully", user, HttpStatus.OK.value()));
+    }
+
+    // ➕ CREATE
+    @PostMapping("/create")
+    public ResponseEntity<Response<UserManagementPojo>> createUser(
+            @Valid @RequestBody UserManagementPojo user) {
+
+        logger.debug("#############");
+        logger.debug("createUser called with user={}", user);
+
+        UserManagementPojo created = userManagementService.createUser(user);
+        logger.debug("createUser created={}", created);
+        logger.debug("#############");
+
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(Response.success("User created successfully", created, HttpStatus.CREATED.value()));
+    }
+
+    // ✏️ UPDATE (Flexible key)
+    @PutMapping("/update")
+    public ResponseEntity<Response<UserManagementPojo>> updateUser(
+            @RequestParam(required = false) Long id,
+            @RequestParam(required = false) String userName,
+            @RequestParam(required = false) String userKey,
+            @Valid @RequestBody UserManagementPojo user
+    ) {
+        logger.debug("updateUser called with id={}, userName={}, userKey={}, user={}", id, userName, userKey, user);
+
+        UserManagementPojo updated = null;
+
+        logger.debug("#############");
+        if (id != null) {
+            updated = userManagementService.updateUserById(id, user);
+        } else if (userName != null) {
+            updated = userManagementService.updateUserByUserName(userName, user);
+        } else if (userKey != null) {
+            updated = userManagementService.updateUserByUserKey(userKey, user);
+        } else {
+            return ResponseEntity.ok(Response.error("At least one key must be provided for update", null, HttpStatus.BAD_REQUEST.value()));
+        }
+        logger.debug("updateUser updated={}", updated);
+        logger.debug("#############");
+
+        return ResponseEntity.ok(Response.success("User updated successfully", updated, HttpStatus.OK.value()));
+    }
+
+    // 🗑 DELETE (Flexible key)
+    @DeleteMapping("/delete")
+    public ResponseEntity<Response<Void>> deleteUser(
+            @RequestParam(required = false) Long id,
+            @RequestParam(required = false) String userName,
+            @RequestParam(required = false) String userKey
+    ) {
+        logger.debug("deleteUser called with id={}, userName={}, userKey={}", id, userName, userKey);
+
+        if (id != null) {
+            userManagementService.deleteUserById(id);
+        } else if (userName != null) {
+            userManagementService.deleteUserByUserName(userName);
+        } else if (userKey != null) {
+            userManagementService.deleteUserByUserKey(userKey);
+        } else {
+            return ResponseEntity.ok(Response.error("At least one key must be provided for delete", null, HttpStatus.BAD_REQUEST.value()));
+        }
+
+        return ResponseEntity.ok(Response.success("User deleted successfully", null, HttpStatus.OK.value()));
+    }
+}
+
+////////////
+
+package simple.chatgpt.mapper.management;
+
+import java.util.List;
+
+import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Param;
+
+import simple.chatgpt.pojo.management.UserManagementListMemberPojo;
+
+@Mapper
+public interface UserManagementListMemberMapper {
+    int insertMember(UserManagementListMemberPojo member);
+    int batchInsertMembers(@Param("list") List<UserManagementListMemberPojo> members);
+    int deleteMembersByListId(Long listId);
+    List<UserManagementListMemberPojo> findMembersByListId(Long listId);
+}
+
+/////////////
+
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="simple.chatgpt.mapper.management.UserManagementListMemberMapper">
+
+    <resultMap id="UserManagementListMemberResultMap" type="simple.chatgpt.pojo.management.UserManagementListMemberPojo">
+        <id property="id" column="id" />
+        <result property="listId" column="list_id"/>
+        <result property="userName" column="user_name"/>
+        <result property="password" column="password"/>
+        <result property="firstName" column="first_name"/>
+        <result property="lastName" column="last_name"/>
+        <result property="email" column="email"/>
+        <result property="addressLine1" column="address_line_1"/>
+        <result property="addressLine2" column="address_line_2"/>
+        <result property="city" column="city"/>
+        <result property="state" column="state"/>
+        <result property="postCode" column="post_code"/>
+        <result property="country" column="country"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
+    <insert id="insertMember" parameterType="simple.chatgpt.pojo.management.UserManagementListMemberPojo" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO user_management_list_member
+        (list_id, user_name, password, first_name, last_name, email,
+         address_line_1, address_line_2, city, state, post_code, country)
+        VALUES
+        (#{listId}, #{userName}, #{password}, #{firstName}, #{lastName}, #{email},
+         #{addressLine1}, #{addressLine2}, #{city}, #{state}, #{postCode}, #{country})
+    </insert>
+
+    <insert id="batchInsertMembers">
+        INSERT INTO user_management_list_member
+        (list_id, user_name, password, first_name, last_name, email,
+         address_line_1, address_line_2, city, state, post_code, country)
+        VALUES
+        <foreach collection="list" item="member" separator=",">
+            (#{member.listId}, #{member.userName}, #{member.password}, #{member.firstName},
+             #{member.lastName}, #{member.email}, #{member.addressLine1}, #{member.addressLine2},
+             #{member.city}, #{member.state}, #{member.postCode}, #{member.country})
+        </foreach>
+    </insert>
+
+    <delete id="deleteMembersByListId" parameterType="long">
+        DELETE FROM user_management_list_member WHERE list_id = #{listId}
+    </delete>
+
+    <select id="findMembersByListId" parameterType="long" resultMap="UserManagementListMemberResultMap">
+        SELECT * FROM user_management_list_member WHERE list_id = #{listId} ORDER BY created_at ASC
+    </select>
+
+</mapper>
