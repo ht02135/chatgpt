@@ -18,7 +18,15 @@ function UserListViewModel(mode, config) {
     // ========================
     // Mode & Configs
     // ========================
-    self.mode = mode || 'list';
+	/*
+	Hung : mode is treated as object
+	self.mode = mode || 'list';
+	*/
+	/*
+	Hung: params is the object you pass ({ mode: "list" }).
+	      params.mode correctly accesses the string "list".
+	*/
+	self.mode = params.mode || 'list';
     self.gridConfig = config?.grid;
     self.formConfig = config?.form;
     self.searchConfig = config?.search;
