@@ -248,4 +248,3 @@ function UserListViewModel(mode, config) {
 }
 
 export default UserListViewModel;
-}
