@@ -66,31 +66,22 @@ public class UserManagementListServiceImpl implements UserManagementListService 
         this.downloadColumns = DownloadConfigLoader.getColumns(MEMBER_GRID_ID);
     }
 
-    // ------------------ SEARCH / LIST ------------------
+    // ------------------ SEARCH ------------------
     @Override
     public PagedResult<UserManagementListPojo> searchUserLists(Map<String, String> params) {
         logger.debug("searchUserLists called with params={}", params);
 
-        int page = 0;
-        int size = 20;
-        try {
-            page = Integer.parseInt(params.getOrDefault("page", "0"));
-        } catch (NumberFormatException e) {
-            logger.warn("Invalid page parameter: {}, defaulting to 0", params.get("page"), e);
-        }
-        try {
-            size = Integer.parseInt(params.getOrDefault("size", "20"));
-        } catch (NumberFormatException e) {
-            logger.warn("Invalid size parameter: {}, defaulting to 20", params.get("size"), e);
-        }
-        int offset = page * size;
+        int page = 0, size = 20;
+        try { page = Integer.parseInt(params.getOrDefault("page", "0")); }
+        catch (NumberFormatException e) { logger.warn("Invalid page param {}, defaulting to 0", params.get("page"), e); }
+        try { size = Integer.parseInt(params.getOrDefault("size", "20")); }
+        catch (NumberFormatException e) { logger.warn("Invalid size param {}, defaulting to 20", params.get("size"), e); }
 
+        int offset = page * size;
         String sortField = params.getOrDefault("sortField", "id");
         String sortDirection = params.getOrDefault("sortDirection", "ASC").toUpperCase();
 
-        // Copy params into Map<String, Object> for MyBatis
-        Map<String, Object> sqlParams = new HashMap<>();
-        sqlParams.putAll(params);
+        Map<String, Object> sqlParams = new HashMap<>(params);
         sqlParams.put("offset", offset);
         sqlParams.put("limit", size);
         sqlParams.put("sortField", sortField);
@@ -98,15 +89,14 @@ public class UserManagementListServiceImpl implements UserManagementListService 
 
         List<UserManagementListPojo> items = new ArrayList<>();
         long totalCount = 0;
-
         try {
-            items = listMapper.searchUserLists(sqlParams, offset, size, sortField, sortDirection);
+            items = listMapper.findLists(sqlParams);
             totalCount = listMapper.countLists(sqlParams);
             logger.debug("searchUserLists items={}", items);
             logger.debug("searchUserLists totalCount={}", totalCount);
         } catch (Exception e) {
             logger.error("Error executing searchUserLists query with params={}", sqlParams, e);
-            throw new RuntimeException("Database error during searchUserLists", e);
+            throw new RuntimeException(e);
         }
 
         return new PagedResult<>(items, totalCount, page, size);
@@ -147,6 +137,7 @@ public class UserManagementListServiceImpl implements UserManagementListService 
         return list;
     }
 
+    // ------------------ MEMBER SEARCH/COUNT ------------------
     @Override
     public List<UserManagementListMemberPojo> getMembersByListId(Long listId) {
         logger.debug("getMembersByListId listId={}", listId);
@@ -155,7 +146,6 @@ public class UserManagementListServiceImpl implements UserManagementListService 
         return members;
     }
 
-    // ------------------ MEMBER SEARCH ------------------
     @Override
     public List<UserManagementListMemberPojo> searchMembers(Map<String, Object> params) {
         logger.debug("searchMembers params={}", params);
@@ -172,38 +162,36 @@ public class UserManagementListServiceImpl implements UserManagementListService 
         return count;
     }
 
-    // ------------------ FILE STORAGE ------------------
+    // ------------------ CSV/Excel Helpers ------------------
     private Path getListFilePath(Long listId, String originalFileName) {
         String extension = "";
-        int dotIndex = originalFileName.lastIndexOf('.');
-        if (dotIndex >= 0) extension = originalFileName.substring(dotIndex);
-
+        int dot = originalFileName.lastIndexOf('.');
+        if (dot >= 0) extension = originalFileName.substring(dot);
         Path path = storageDir.resolve("list_" + listId + extension);
         logger.debug("getListFilePath relativePath={}", path);
         logger.debug("getListFilePath absolutePath={}", path.toAbsolutePath());
         return path;
     }
 
-    // ------------------ Reflection Helpers ------------------
     private String getFieldValue(UserManagementListMemberPojo member, String property) {
         try {
-            String methodName = "get" + property.substring(0, 1).toUpperCase() + property.substring(1);
-            Method method = UserManagementListMemberPojo.class.getMethod(methodName);
-            Object value = method.invoke(member);
-            return value != null ? value.toString() : "";
+            String mName = "get" + property.substring(0, 1).toUpperCase() + property.substring(1);
+            Method m = UserManagementListMemberPojo.class.getMethod(mName);
+            Object val = m.invoke(member);
+            return val != null ? val.toString() : "";
         } catch (Exception e) {
-            logger.warn("Failed to get field '{}': {}", property, e.getMessage());
+            logger.warn("Failed getFieldValue '{}': {}", property, e.getMessage());
             return "";
         }
     }
 
     private void setFieldValue(UserManagementListMemberPojo member, String property, String value) {
         try {
-            String methodName = "set" + property.substring(0, 1).toUpperCase() + property.substring(1);
-            Method method = UserManagementListMemberPojo.class.getMethod(methodName, String.class);
-            method.invoke(member, value);
+            String mName = "set" + property.substring(0, 1).toUpperCase() + property.substring(1);
+            Method m = UserManagementListMemberPojo.class.getMethod(mName, String.class);
+            m.invoke(member, value);
         } catch (Exception e) {
-            logger.warn("Failed to set field '{}': {}", property, e.getMessage());
+            logger.warn("Failed setFieldValue '{}': {}", property, e.getMessage());
         }
     }
 

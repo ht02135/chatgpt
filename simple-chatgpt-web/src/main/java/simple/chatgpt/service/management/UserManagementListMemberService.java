@@ -7,23 +7,23 @@ import simple.chatgpt.pojo.management.UserManagementListMemberPojo;
 
 public interface UserManagementListMemberService {
 
-    // 🔎 SEARCH / LIST
+    // ------------------ SEARCH / LIST ------------------
     List<UserManagementListMemberPojo> searchMembers(Map<String, Object> params);
     long countMembers(Map<String, Object> params);
 
-    // 📖 READ
+    // ------------------ READ ------------------
     UserManagementListMemberPojo getMemberById(Long id);
     UserManagementListMemberPojo getMemberByUserName(String userName);
 
-    // ➕ CREATE
+    // ------------------ CREATE ------------------
     UserManagementListMemberPojo createMember(UserManagementListMemberPojo member);
     int batchCreateMembers(List<UserManagementListMemberPojo> members);
 
-    // ✏️ UPDATE
+    // ------------------ UPDATE ------------------
     UserManagementListMemberPojo updateMemberById(Long id, UserManagementListMemberPojo member);
     UserManagementListMemberPojo updateMemberByUserName(String userName, UserManagementListMemberPojo member);
 
-    // 🗑 DELETE
+    // ------------------ DELETE ------------------
     void deleteMemberById(Long id);
     void deleteMemberByUserName(String userName);
     void deleteMembersByListId(Long listId);
