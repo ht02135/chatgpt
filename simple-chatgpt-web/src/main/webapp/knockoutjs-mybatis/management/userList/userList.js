@@ -1,6 +1,6 @@
 // userList.js
 
-const API_USERLIST = '/chatgpt/api/management/userLists';
+const API_USERLIST = '/chatgpt/api/management/userlists';
 
 function UserList(data, fields) {
     console.log("userList.js -> UserList: constructor called");
