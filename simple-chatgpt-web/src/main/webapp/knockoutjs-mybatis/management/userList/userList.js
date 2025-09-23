@@ -51,6 +51,7 @@ function UserListViewModel(mode, config) {
     };
 
     self.buildSearchQuery = function() {
+		console.log("userList.js -> buildSearchQuery called");
         const params = new URLSearchParams();
         params.append('page', self.page() - 1);
         params.append('size', self.size());
@@ -63,6 +64,7 @@ function UserListViewModel(mode, config) {
                 if (val && val.toString().trim()) params.append(f.name, val.toString().trim());
             });
         }
+		console.log("userList.js -> params=",params);
         return params.toString();
     };
 
@@ -71,6 +73,7 @@ function UserListViewModel(mode, config) {
     // ========================
     self.loadUserLists = async function() {
         console.log("userList.js -> loadUserLists called");
+		console.log("userList.js -> self.mode=",self.mode);
         if (self.mode !== 'list') return;
 
         try {
