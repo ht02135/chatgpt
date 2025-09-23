@@ -23,7 +23,7 @@ function UserListMemberViewModel(mode, config, userListId) {
     self.formConfig = config?.form;
     self.searchConfig = config?.search;
     self.actionGroupMap = config?.actionGroups || {};
-    self.userListId = userListId;
+    self.userListId = userListId || localStorage.getItem('editUserListId');
 
     // ========================
     // Observables
@@ -51,6 +51,7 @@ function UserListMemberViewModel(mode, config, userListId) {
         return col?.dbField || uiField;
     };
 
+    // Build query string with userListId
     self.buildSearchQuery = function() {
         const params = new URLSearchParams();
         params.append('page', self.page() - 1);
@@ -133,11 +134,11 @@ function UserListMemberViewModel(mode, config, userListId) {
     // ========================
     // Navigation
     // ========================
-    self.navigateToMembers = function() { window.location.href = `editUserList.jsp?id=${self.userListId}`; };
-    self.addUserListMember = function() { window.location.href = `addUserListMember.jsp?userListId=${self.userListId}`; };
+    self.navigateToMembers = function() { window.location.href = 'editUserList.jsp'; };
+    self.addUserListMember = function() { window.location.href = 'addUserListMember.jsp'; };
     self.editUserListMember = function(id) {
         localStorage.setItem('editUserListMemberId', ko.unwrap(id));
-        window.location.href = `editUserListMember.jsp?userListId=${self.userListId}`;
+        window.location.href = 'editUserListMember.jsp';
     };
 
     // ========================
@@ -174,12 +175,17 @@ function UserListMemberViewModel(mode, config, userListId) {
         }
 
         try {
-            const payload = ko.toJS(self.currentMember());
+            const payload = {
+                ...ko.toJS(self.currentMember()),
+                userListId: self.userListId || localStorage.getItem('editUserListId')
+            };
+
             let url = `${API_USERLIST_MEMBER}/create`, method = 'POST';
             if (self.mode === 'edit' && self.currentMember().id && self.currentMember().id()) {
                 url = `${API_USERLIST_MEMBER}/update?id=${encodeURIComponent(self.currentMember().id())}`;
                 method = 'PUT';
             }
+
             await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
             self.navigateToMembers();
         } catch (err) { console.error('Save member error:', err); }
