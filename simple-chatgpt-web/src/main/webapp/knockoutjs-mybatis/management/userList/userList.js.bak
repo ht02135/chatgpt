@@ -1,0 +1,319 @@
+// userList.js
+
+const API_USER = '/chatgpt/api/management/userLists';
+function UserList(data, fields) {
+    console.log("user.js -> User: called");
+    const self = this;
+    fields.forEach(f => {
+        self[f.name] = ko.observable(data && data[f.name] || '');
+    });
+}
+
+function UserListViewModel(mode, configs) {
+    const self = this;
+
+    console.log("UserListViewModel constructor called");
+
+    // ========================
+    // Mode & Configs
+    // ========================
+    self.mode = mode || "list";
+    self.gridConfig = configs.grid || {};
+    self.searchConfig = configs.search || {};
+    self.actionGroups = configs.actionGroups || {};
+
+    // ========================
+    // Observables
+    // ========================
+    self.userLists = ko.observableArray([]);
+    self.currentUserList = ko.observable(null);
+    self.searchParams = ko.observable({});
+    self.errors = ko.observable({});
+    self.page = ko.observable(1);
+    self.size = ko.observable(10);
+    self.maxPage = ko.observable(1);
+    self.total = ko.observable(0);
+    self.sortField = ko.observable("");
+    self.sortOrder = ko.observable("ASC");
+
+    // Validator placeholder
+    self.validator = null;
+	// ========================
+	// Helper: resolve sortField -> dbField
+	// ========================
+	self.resolveDbField = function(uiField) {
+	    const col = self.gridConfig?.columns?.find(c => c.name === uiField);
+	    return col?.dbField || uiField; // fallback to uiField if no mapping
+	};
+	
+    // Build URLSearchParams for search
+    self.buildSearchQuery = function() {
+        console.log("user.js -> buildSearchQuery: called");
+        const params = new URLSearchParams();
+        params.append('page', self.page() - 1); // backend is 0-based
+        params.append('size', self.size());
+		params.append('sortField', self.resolveDbField(self.sortField()));
+        params.append('sortDirection', self.sortOrder());
+
+        if (self.searchConfig?.fields) {
+            self.searchConfig.fields.forEach(f => {
+                const val = self.searchParams[f.name]();
+                if (val && val.toString().trim()) params.append(f.name, val.toString().trim());
+            });
+        }
+
+        return params.toString();
+    };
+    
+    // ========================
+    // Methods
+    // ========================
+   // Load Users for Grid
+    self.loadUserLists = async function() {
+        console.log("user.js -> loadUsers: called");
+        if (self.mode !== 'list') return;
+
+        try {
+            const qs = self.buildSearchQuery();
+            console.log("user.js -> loadUsers: qs=", qs);
+            const res = await fetch(`${API_USER}?${qs}`, { headers: { 'Accept': 'application/json' } });
+            const data = await res.json();
+            console.log("user.js -> loadUsers: response=", data);
+
+            if (data.status === 'SUCCESS' && data.data) {
+                const paged = data.data;
+
+                console.log("user.js -> loadUsers: mapping items");
+                self.users(paged.items.map(u => new User(u, self.gridConfig?.columns.map(c => ({ name: c.name })) || [])));
+
+                console.log("user.js -> loadUsers: update pagination");
+                paged.totalCount && self.total() !== paged.totalCount ? self.total(paged.totalCount) : null;
+            } else {
+                console.log("user.js -> loadUsers: empty result");
+                self.users([]);
+                self.total(0);
+            }
+        } catch (err) {
+            console.error('Load users error:', err);
+            self.users([]);
+            self.total(0);
+        }
+    };
+
+    self.searchUserLists = function() {
+        console.log("searchUserLists called with params:", ko.toJS(self.searchParams));
+        self.page(1);
+        self.loadUserLists();
+    };
+
+    self.resetSearch = function() {
+        console.log("resetSearch called");
+        self.searchParams({});
+        self.page(1);
+        self.loadUserLists();
+    };
+
+    // Pagination
+    self.nextPage = function() {
+        console.log("user.js -> nextPage: called");
+        if (self.page() < self.maxPage()) {
+            self.page(self.page() + 1);
+            self.loadUsers();
+        }
+    };
+
+    self.prevPage = function() {
+        console.log("user.js -> prevPage: called");
+        if (self.page() > 1) {
+            self.page(self.page() - 1);
+            self.loadUsers();
+        }
+    };
+
+    self.size.subscribe(() => {
+        console.log("user.js -> size.subscribe: called");
+        self.page(1);
+        self.loadUsers();
+    });
+
+    // Sorting
+    self.setSort = function(field) {
+        console.log("user.js -> setSort: field=", field);
+        if (self.sortField() === field) self.sortOrder(self.sortOrder() === 'ASC' ? 'DESC' : 'ASC');
+        else { self.sortField(field); self.sortOrder('ASC'); }
+        self.page(1);
+        self.loadUsers();
+    };
+
+    // ========================
+    // Navigation
+    // ========================
+    self.navigateToUsers = function() {
+        console.log("user.js -> navigateToUsers: called");
+        window.location.href = 'users.jsp?reload=' + new Date().getTime();
+    };
+
+    self.addUser = function() {
+        console.log("user.js -> addUser: called");
+        window.location.href = 'addUser.jsp';
+    };
+
+    self.editUser = function(id) {
+        console.log("user.js -> editUser: id=", ko.unwrap(id));
+		console.log("user.js ##########");
+		console.log("user.js -> editUser: setItem editUserId=", ko.unwrap(id));
+        localStorage.setItem('editUserId', ko.unwrap(id));
+		console.log("user.js ##########");
+        window.location.href = 'editUser.jsp';
+    };
+
+    // ========================
+    // Actions Resolver
+    // ========================
+    self.getActionsForColumn = function(column) {
+        console.log("user.js -> getActionsForColumn: column=", column);
+        if (!column.actions) return [];
+        const actionGroup = self.actionGroupMap[column.actions];
+        return Array.isArray(actionGroup) ? actionGroup.filter(a => a.visible !== false) : [];
+    };
+
+    self.invokeAction = function(action, row) {
+        console.log("user.js -> invokeAction called");
+        console.log("user.js -> invokeAction: action=", action);
+        console.log("user.js -> invokeAction: row=", row);
+        if (action && action.jsMethod && typeof self[action.jsMethod] === 'function') {
+			/*
+			1. Simple OR
+			if (action.jsMethod === "editUser" || action.jsMethod === "editObject") {
+			   // handle edit logic
+			}
+			2. Array includes (cleaner if you expect more methods later)
+			if (["editUser", "editObject"].includes(action.jsMethod)) {
+			   // handle edit logic
+			}
+			3. Regex match (if they share a pattern)
+			if (/^edit(User|Object)$/.test(action.jsMethod)) {
+			   // handle edit logic
+			}
+			*/
+            if (/^edit(User|Object)$/.test(action.jsMethod)) {
+                console.log("user.js -> invokeAction: ko.unwrap(row.id)=", ko.unwrap(row.id));
+                self[action.jsMethod](ko.unwrap(row.id));
+            } else {
+                self[action.jsMethod](row);
+            }
+        } else {
+            console.warn("No JS method found for action:", action);
+        }
+    };
+
+    // ========================
+    // Validation Helpers
+    // ========================
+    self.validateForm = function (userObj, fieldsConfig) {
+        console.log("user.js -> calling Validator.validateForm");
+        return self.validator
+            ? self.validator.validateForm(userObj, fieldsConfig)
+            : {};
+    };
+
+    // Save User
+    self.saveUser = async function() {
+        console.log("user.js -> saveUser: called");
+        if (!self.formConfig) return;
+
+        self.errors({});
+        const errs = self.validateForm(self.currentUser(), self.formConfig.fields);
+        console.log("user.js ##########");
+        console.log("user.js -> saveUser: errs=", errs);
+        if (Object.keys(errs).length > 0) {
+            self.errors(errs);
+            console.log("user.js -> saveUser: return");
+            return;
+        }
+        console.log("user.js ##########");
+
+        const payload = {};
+        self.formConfig.fields.forEach(f => payload[f.name] = self.currentUser()[f.name]());
+        console.log("user.js -> saveUser: payload=", payload);
+
+        try {
+            // <-- fixed: use controller's /create and /update endpoints (keep method variable)
+            let url = `${API_USER}/create`, method = 'POST';
+            if (self.mode === 'edit' && self.currentUser().id && self.currentUser().id()) {
+                const idVal = self.currentUser().id();
+                // update uses query param id=...
+                url = `${API_USER}/update?id=${encodeURIComponent(idVal)}`;
+                method = 'PUT';
+            }
+            console.log("user.js -> saveUser: url=", url, "method=", method);
+            await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+            self.navigateToUsers();
+        } catch (err) { console.error('Save user error:', err); }
+    };
+
+    // Delete User
+    self.deleteUser = async function(user) {
+        console.log("user.js -> deleteUser: user=", user);
+        if (!confirm('Are you sure?')) return;
+        try {
+            console.log("user.js -> deleteUser: id=", ko.unwrap(user.id));
+            const idVal = ko.unwrap(user.id);
+            // <-- fixed: call controller's delete endpoint with query param
+            await fetch(`${API_USER}/delete?id=${encodeURIComponent(idVal)}`, { method: 'DELETE', headers: { 'Accept': 'application/json' } });
+            self.loadUsers();
+        } catch (err) { console.error('Delete user error:', err); }
+    };
+
+    // Load User by ID
+    self.loadUserById = async function(id) {
+        console.log("user.js -> loadUserById: id=", id);
+        try {
+            // <-- fixed: call /get?id=...
+            const res = await fetch(`${API_USER}/get?id=${encodeURIComponent(id)}`, { headers: { 'Accept': 'application/json' } });
+            const data = await res.json();
+            console.log("user.js -> loadUserById: response=", data);
+            if (data.status === 'SUCCESS' && data.data) self.currentUser(new User(data.data, self.formConfig?.fields || []));
+        } catch (err) { console.error('Load user error:', err); }
+    };
+
+    // ========================
+    // Initialization
+    // ========================
+    console.log("user.js -> Initialization block: called");
+    if (self.mode === 'edit') {
+        const id = localStorage.getItem('editUserId');
+        console.log("user.js -> Initialization: edit id=", id);
+        if (id) self.loadUserById(id);
+    } else if (self.mode === 'add') {
+        console.log("user.js -> Initialization: add mode");
+        self.currentUser(new User({}, self.formConfig?.fields || []));
+    } else {
+        console.log("user.js -> Initialization: list mode -> loadUsers");
+        self.loadUsers();
+    }
+	
+    // ========================
+    // WRAPPER: MUST BE AT BOTTOM
+    // ========================
+    console.log("user.js -> Wrapper block: called");
+    self.currentObject = self.currentUser;
+    self.objects = self.users;
+
+    self.navigateToObjects = function() {
+        console.log("user.js Wrapper -> navigateToObjects called");
+        return self.navigateToUsers();
+    };
+    self.saveObject = function() {
+        console.log("user.js Wrapper -> saveObject called");
+        return self.saveUser();
+    };
+    self.addObject = function() {
+        console.log("user.js Wrapper -> addObject called");
+        return self.addUser();
+    };
+    self.searchObjects = function() {
+        console.log("user.js Wrapper -> searchObjects called");
+        return self.searchUsers();
+    };
+}
