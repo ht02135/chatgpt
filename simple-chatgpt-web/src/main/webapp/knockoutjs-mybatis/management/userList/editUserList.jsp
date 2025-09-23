@@ -60,8 +60,8 @@ import Validator from "./validation.js";
     console.log("Initializing User List Members page...");
 
     // ✅ Get User List ID from localStorage (editUserListId)
-    const userListId = localStorage.getItem("editUserListId");
-    console.log("editUserList.jsp -> using userListId from localStorage:", userListId);
+    const editUserListId = localStorage.getItem("editUserListId");
+    console.log("editUserList.jsp -> using editUserListId from localStorage:", editUserListId);
 
     // Load configs
     const gridConfig     = await configLoader.getGridConfig("userListMembers");
@@ -71,9 +71,8 @@ import Validator from "./validation.js";
 
     // Initialize ViewModel (from userListMember.js, global function)
     const objectVM = new UserListMemberViewModel(
-        { mode: "list" },
+        { mode: "list", userListId: editUserListId },
         { grid: gridConfig, search: searchConfig, form: formConfig, actionGroups: actionGroupMap },
-        userListId
     );
 
     // Build Validator

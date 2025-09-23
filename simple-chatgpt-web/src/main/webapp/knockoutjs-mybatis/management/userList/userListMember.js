@@ -10,7 +10,7 @@ function UserListMember(data, fields) {
     });
 }
 
-function UserListMemberViewModel(mode, config, userListId) {
+function UserListMemberViewModel(params, config) {
     const self = this;
 
     console.log("userListMember.js -> UserListMemberViewModel: constructor called");
@@ -27,11 +27,11 @@ function UserListMemberViewModel(mode, config, userListId) {
 	      params.mode correctly accesses the string "list".
 	*/
 	self.mode = params.mode || 'list';
+	self.userListId = params.userListId || localStorage.getItem('editUserListId');
     self.gridConfig = config?.grid;
     self.formConfig = config?.form;
     self.searchConfig = config?.search;
     self.actionGroupMap = config?.actionGroups || {};
-    self.userListId = userListId || localStorage.getItem('editUserListId');
 
     // ========================
     // Observables

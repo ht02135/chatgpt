@@ -10,7 +10,7 @@ function UserList(data, fields) {
     });
 }
 
-function UserListViewModel(mode, config) {
+function UserListViewModel(params, config) {
     const self = this;
 
     console.log("userList.js -> UserListViewModel: constructor called");
