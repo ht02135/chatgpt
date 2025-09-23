@@ -7,7 +7,7 @@
 	<script src="../../../js/knockout-latest.js"></script>
 	<script src="userList.js"></script>
 	<script src="genericComponents-2.0.js"></script>
-	<link rel="stylesheet" href="user.css">
+    <link rel="stylesheet" href="userList.css">
 </head>
 <body>
 

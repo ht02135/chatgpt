@@ -4,21 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <title>Edit User List Members</title>
-
-    <!-- KnockoutJS -->
-    <script src="../../../js/knockout-latest.js"></script>
-
-    <!-- Generic Components -->
-    <script src="genericComponents-2.0.js"></script>
-
-    <!-- Config + Validator -->
-    <script type="module" src="configLoader.js"></script>
-    <script type="module" src="validation.js"></script>
-
-    <!-- Page-specific JS (global UserListMemberViewModel, no export/import) -->
-    <script src="userListMember.js"></script>
-
-    <!-- Styles -->
+	<script src="../../../js/knockout-latest.js"></script>
+	<script src="userListMember.js"></script>
+	<script src="genericComponents-2.0.js"></script>
     <link rel="stylesheet" href="userList.css">
 </head>
 <body>

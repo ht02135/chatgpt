@@ -51,7 +51,6 @@ function UserListMemberViewModel(mode, config, userListId) {
         return col?.dbField || uiField;
     };
 
-    // Build query string with userListId
     self.buildSearchQuery = function() {
         const params = new URLSearchParams();
         params.append('page', self.page() - 1);
@@ -95,9 +94,7 @@ function UserListMemberViewModel(mode, config, userListId) {
         }
     };
 
-    // ========================
     // Search & Reset
-    // ========================
     self.searchUserListMembers = function() {
         console.log("userListMember.js -> searchUserListMembers called");
         self.page(1);
@@ -110,9 +107,7 @@ function UserListMemberViewModel(mode, config, userListId) {
         self.loadUserListMembers();
     };
 
-    // ========================
     // Pagination
-    // ========================
     self.nextPage = function() {
         if (self.page() < self.maxPage()) { self.page(self.page() + 1); self.loadUserListMembers(); }
     };
@@ -121,9 +116,7 @@ function UserListMemberViewModel(mode, config, userListId) {
     };
     self.size.subscribe(() => { self.page(1); self.loadUserListMembers(); });
 
-    // ========================
     // Sorting
-    // ========================
     self.setSort = function(field) {
         if (self.sortField() === field) self.sortOrder(self.sortOrder() === 'ASC' ? 'DESC' : 'ASC');
         else { self.sortField(field); self.sortOrder('ASC'); }
@@ -131,9 +124,7 @@ function UserListMemberViewModel(mode, config, userListId) {
         self.loadUserListMembers();
     };
 
-    // ========================
     // Navigation
-    // ========================
     self.navigateToMembers = function() { window.location.href = 'editUserList.jsp'; };
     self.addUserListMember = function() { window.location.href = 'addUserListMember.jsp'; };
     self.editUserListMember = function(id) {
@@ -141,9 +132,7 @@ function UserListMemberViewModel(mode, config, userListId) {
         window.location.href = 'editUserListMember.jsp';
     };
 
-    // ========================
     // Action Resolver
-    // ========================
     self.getActionsForColumn = function(column) {
         if (!column.actions) return [];
         const group = self.actionGroupMap[column.actions];
@@ -156,9 +145,7 @@ function UserListMemberViewModel(mode, config, userListId) {
         } else console.warn("No JS method found for action:", action);
     };
 
-    // ========================
     // Validation & Save
-    // ========================
     self.validateForm = function(obj, fields) {
         return self.validator ? self.validator.validateForm(obj, fields) : {};
     };
@@ -191,9 +178,7 @@ function UserListMemberViewModel(mode, config, userListId) {
         } catch (err) { console.error('Save member error:', err); }
     };
 
-    // ========================
     // Delete
-    // ========================
     self.deleteUserListMember = async function(row) {
         if (!confirm('Are you sure?')) return;
         try {
@@ -202,9 +187,7 @@ function UserListMemberViewModel(mode, config, userListId) {
         } catch (err) { console.error('Delete member error:', err); }
     };
 
-    // ========================
     // Load by ID
-    // ========================
     self.loadUserListMemberById = async function(id) {
         try {
             const res = await fetch(`${API_USERLIST_MEMBER}/get?memberId=${encodeURIComponent(id)}`, { headers: { 'Accept': 'application/json' } });
@@ -213,9 +196,7 @@ function UserListMemberViewModel(mode, config, userListId) {
         } catch (err) { console.error('Load member error:', err); }
     };
 
-    // ========================
-    // Initialization block
-    // ========================
+    // Initialization
     if (self.mode === 'edit') {
         const id = localStorage.getItem('editUserListMemberId');
         if (id) self.loadUserListMemberById(id);
@@ -224,10 +205,8 @@ function UserListMemberViewModel(mode, config, userListId) {
     } else {
         self.loadUserListMembers();
     }
-	
-    // ========================
-    // Wrapper block
-    // ========================
+    
+    // Wrapper
     self.currentObject = self.currentMember;
     self.objects = self.members;
 

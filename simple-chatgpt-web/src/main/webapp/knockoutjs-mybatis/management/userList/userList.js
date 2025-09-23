@@ -36,7 +36,7 @@ function UserListViewModel(mode, config) {
         self.searchConfig.fields.forEach(f => self.searchParams[f.name] = ko.observable(''));
     }
 
-    // Pagination state
+    // Pagination
     self.page = ko.observable(1);
     self.size = ko.observable(10);
     self.total = ko.observable(0);
@@ -109,9 +109,7 @@ function UserListViewModel(mode, config) {
         self.loadUserLists();
     };
 
-    // ========================
     // Pagination
-    // ========================
     self.nextPage = function() {
         if (self.page() < self.maxPage()) {
             self.page(self.page() + 1);
@@ -129,9 +127,7 @@ function UserListViewModel(mode, config) {
         self.loadUserLists();
     });
 
-    // ========================
     // Sorting
-    // ========================
     self.setSort = function(field) {
         if (self.sortField() === field) self.sortOrder(self.sortOrder() === 'ASC' ? 'DESC' : 'ASC');
         else { self.sortField(field); self.sortOrder('ASC'); }
@@ -139,9 +135,7 @@ function UserListViewModel(mode, config) {
         self.loadUserLists();
     };
 
-    // ========================
     // Navigation
-    // ========================
     self.navigateToUserLists = function() {
         window.location.href = 'userLists.jsp';
     };
@@ -153,9 +147,7 @@ function UserListViewModel(mode, config) {
         window.location.href = 'editUserList.jsp';
     };
 
-    // ========================
     // Action Resolver
-    // ========================
     self.getActionsForColumn = function(column) {
         if (!column.actions) return [];
         const group = self.actionGroupMap[column.actions];
@@ -169,15 +161,13 @@ function UserListViewModel(mode, config) {
         } else console.warn("No JS method found for action:", action);
     };
 
-    // ========================
     // Validation & Save
-    // ========================
     self.validateForm = function(obj, fields) {
         return self.validator ? self.validator.validateForm(obj, fields) : {};
     };
 
     self.saveUserList = async function() {
-        console.log("userList.js -> saveUser called");
+        console.log("userList.js -> saveUserList called");
         if (!self.formConfig) return;
 
         self.errors({});
@@ -201,9 +191,7 @@ function UserListViewModel(mode, config) {
         } catch (err) { console.error('Save userList error:', err); }
     };
 
-    // ========================
     // Delete
-    // ========================
     self.deleteUserList = async function(row) {
         if (!confirm('Are you sure?')) return;
         try {
@@ -212,9 +200,7 @@ function UserListViewModel(mode, config) {
         } catch (err) { console.error('Delete userList error:', err); }
     };
 
-    // ========================
     // Load by ID
-    // ========================
     self.loadUserListById = async function(id) {
         try {
             const res = await fetch(`${API_USERLIST}/get?id=${encodeURIComponent(id)}`, { headers: { 'Accept': 'application/json' } });
@@ -223,9 +209,7 @@ function UserListViewModel(mode, config) {
         } catch (err) { console.error('Load userList error:', err); }
     };
 
-    // ========================
-    // Initialization block
-    // ========================
+    // Initialization
     if (self.mode === 'edit') {
         const id = localStorage.getItem('editUserListId');
         if (id) self.loadUserListById(id);
@@ -235,9 +219,7 @@ function UserListViewModel(mode, config) {
         self.loadUserLists();
     }
 
-    // ========================
-    // Wrapper block
-    // ========================
+    // Wrapper
     self.currentObject = self.currentUserList;
     self.objects = self.userLists;
 
