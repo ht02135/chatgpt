@@ -1,12 +1,15 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper
-  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="simple.chatgpt.mapper.management.UserManagementListMemberMapper">
 
+    <!-- ========================= -->
+    <!-- ResultMap for POJO fields -->
+    <!-- ========================= -->
     <resultMap id="UserManagementListMemberResultMap" type="simple.chatgpt.pojo.management.UserManagementListMemberPojo">
-        <id property="id" column="id" />
+        <id property="id" column="id"/>
         <result property="listId" column="list_id"/>
         <result property="userName" column="user_name"/>
         <result property="password" column="password"/>
@@ -23,10 +26,62 @@
         <result property="updatedAt" column="updated_at"/>
     </resultMap>
 
-    <insert id="insertMember" parameterType="simple.chatgpt.pojo.management.UserManagementListMemberPojo" useGeneratedKeys="true" keyProperty="id">
+    <!-- 🔎 SEARCH / LIST -->
+    <select id="findMembers" parameterType="map" resultMap="UserManagementListMemberResultMap">
+        SELECT * FROM user_management_list_member
+        <where>
+            <if test="listId != null">AND list_id = #{listId}</if>
+            <if test="userName != null and userName != ''">AND user_name LIKE CONCAT('%', #{userName}, '%')</if>
+            <if test="firstName != null and firstName != ''">AND first_name LIKE CONCAT('%', #{firstName}, '%')</if>
+            <if test="lastName != null and lastName != ''">AND last_name LIKE CONCAT('%', #{lastName}, '%')</if>
+            <if test="email != null and email != ''">AND email LIKE CONCAT('%', #{email}, '%')</if>
+            <if test="addressLine1 != null and addressLine1 != ''">AND address_line_1 LIKE CONCAT('%', #{addressLine1}, '%')</if>
+            <if test="addressLine2 != null and addressLine2 != ''">AND address_line_2 LIKE CONCAT('%', #{addressLine2}, '%')</if>
+            <if test="city != null and city != ''">AND city LIKE CONCAT('%', #{city}, '%')</if>
+            <if test="state != null and state != ''">AND state LIKE CONCAT('%', #{state}, '%')</if>
+            <if test="postCode != null and postCode != ''">AND post_code LIKE CONCAT('%', #{postCode}, '%')</if>
+            <if test="country != null and country != ''">AND country LIKE CONCAT('%', #{country}, '%')</if>
+        </where>
+        <if test="sortField != null and sortDirection != null">
+            ORDER BY ${sortField} ${sortDirection}
+        </if>
+        <if test="offset != null and limit != null">
+            LIMIT #{offset}, #{limit}
+        </if>
+    </select>
+
+    <!-- Count for pagination -->
+    <select id="countMembers" parameterType="map" resultType="long">
+        SELECT COUNT(*) FROM user_management_list_member
+        <where>
+            <if test="listId != null">AND list_id = #{listId}</if>
+            <if test="userName != null and userName != ''">AND user_name LIKE CONCAT('%', #{userName}, '%')</if>
+            <if test="firstName != null and firstName != ''">AND first_name LIKE CONCAT('%', #{firstName}, '%')</if>
+            <if test="lastName != null and lastName != ''">AND last_name LIKE CONCAT('%', #{lastName}, '%')</if>
+            <if test="email != null and email != ''">AND email LIKE CONCAT('%', #{email}, '%')</if>
+            <if test="addressLine1 != null and addressLine1 != ''">AND address_line_1 LIKE CONCAT('%', #{addressLine1}, '%')</if>
+            <if test="addressLine2 != null and addressLine2 != ''">AND address_line_2 LIKE CONCAT('%', #{addressLine2}, '%')</if>
+            <if test="city != null and city != ''">AND city LIKE CONCAT('%', #{city}, '%')</if>
+            <if test="state != null and state != ''">AND state LIKE CONCAT('%', #{state}, '%')</if>
+            <if test="postCode != null and postCode != ''">AND post_code LIKE CONCAT('%', #{postCode}, '%')</if>
+            <if test="country != null and country != ''">AND country LIKE CONCAT('%', #{country}, '%')</if>
+        </where>
+    </select>
+
+    <!-- 📖 READ -->
+    <select id="getMemberById" resultMap="UserManagementListMemberResultMap">
+        SELECT * FROM user_management_list_member WHERE id = #{id}
+    </select>
+
+    <select id="getMemberByUserName" resultMap="UserManagementListMemberResultMap">
+        SELECT * FROM user_management_list_member WHERE user_name = #{userName}
+    </select>
+
+    <!-- ➕ CREATE -->
+    <insert id="insertMember" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO user_management_list_member
-        (list_id, user_name, password, first_name, last_name, email,
-         address_line_1, address_line_2, city, state, post_code, country)
+        (list_id, user_name, password, first_name, last_name, email, address_line_1,
+         address_line_2, city, state, post_code, country)
         VALUES
         (#{listId}, #{userName}, #{password}, #{firstName}, #{lastName}, #{email},
          #{addressLine1}, #{addressLine2}, #{city}, #{state}, #{postCode}, #{country})
@@ -37,19 +92,52 @@
         (list_id, user_name, password, first_name, last_name, email,
          address_line_1, address_line_2, city, state, post_code, country)
         VALUES
-        <foreach collection="list" item="member" separator=",">
-            (#{member.listId}, #{member.userName}, #{member.password}, #{member.firstName},
-             #{member.lastName}, #{member.email}, #{member.addressLine1}, #{member.addressLine2},
-             #{member.city}, #{member.state}, #{member.postCode}, #{member.country})
+        <foreach collection="list" item="item" separator=",">
+            (#{item.listId}, #{item.userName}, #{item.password}, #{item.firstName}, #{item.lastName},
+             #{item.email}, #{item.addressLine1}, #{item.addressLine2}, #{item.city},
+             #{item.state}, #{item.postCode}, #{item.country})
         </foreach>
     </insert>
 
-    <delete id="deleteMembersByListId" parameterType="long">
-        DELETE FROM user_management_list_member WHERE list_id = #{listId}
-    </delete>
+    <!-- ✏️ UPDATE -->
+    <update id="updateMemberById">
+        UPDATE user_management_list_member
+        <set>
+            <if test="userName != null">user_name = #{userName},</if>
+            <if test="password != null">password = #{password},</if>
+            <if test="firstName != null">first_name = #{firstName},</if>
+            <if test="lastName != null">last_name = #{lastName},</if>
+            <if test="email != null">email = #{email},</if>
+            <if test="addressLine1 != null">address_line_1 = #{addressLine1},</if>
+            <if test="addressLine2 != null">address_line_2 = #{addressLine2},</if>
+            <if test="city != null">city = #{city},</if>
+            <if test="state != null">state = #{state},</if>
+            <if test="postCode != null">post_code = #{postCode},</if>
+            <if test="country != null">country = #{country},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
 
-    <select id="findMembersByListId" parameterType="long" resultMap="UserManagementListMemberResultMap">
-        SELECT * FROM user_management_list_member WHERE list_id = #{listId} ORDER BY created_at ASC
-    </select>
+    <update id="updateMemberByUserName">
+        UPDATE user_management_list_member
+        <set>
+            <if test="password != null">password = #{password},</if>
+            <if test="firstName != null">first_name = #{firstName},</if>
+            <if test="lastName != null">last_name = #{lastName},</if>
+            <if test="email != null">email = #{email},</if>
+            <if test="addressLine1 != null">address_line_1 = #{addressLine1},</if>
+            <if test="addressLine2 != null">address_line_2 = #{addressLine2},</if>
+            <if test="city != null">city = #{city},</if>
+            <if test="state != null">state = #{state},</if>
+            <if test="postCode != null">post_code = #{postCode},</if>
+            <if test="country != null">country = #{country},</if>
+        </set>
+        WHERE user_name = #{userName}
+    </update>
+
+    <!-- 🗑 DELETE -->
+    <delete id="deleteMembersByListId">DELETE FROM user_management_list_member WHERE list_id = #{listId}</delete>
+    <delete id="deleteMemberById">DELETE FROM user_management_list_member WHERE id = #{id}</delete>
+    <delete id="deleteMemberByUserName">DELETE FROM user_management_list_member WHERE user_name = #{userName}</delete>
 
 </mapper>

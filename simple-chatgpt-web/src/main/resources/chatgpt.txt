@@ -4,6 +4,14 @@ UserManagementListMemberController
 UserManagementListMemberService
 UserManagementListMemberServiceImpl
 
+Search (GET /management/userlistmembers)
+Get by key (GET /management/userlistmembers/get)
+Create (POST /management/users/create)
+Update (PUT /management/userlistmembers/update)
+Delete (DELETE /management/userlistmembers/delete)
+
+/////////////////
+
 after that we will add missing method in
 UserManagementListController
 UserManagementListService

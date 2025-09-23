@@ -5,7 +5,7 @@
 
 <mapper namespace="simple.chatgpt.mapper.management.UserManagementListMapper">
 
-    <!-- INSERT -->
+    <!-- Existing CRUD XML stays intact -->
     <insert id="insertList" parameterType="simple.chatgpt.pojo.management.UserManagementListPojo" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO user_management_list
         (user_list_name, file_path, original_file_name, description, created_at, updated_at)
@@ -13,7 +13,6 @@
         (#{userListName}, #{filePath}, #{originalFileName}, #{description}, NOW(), NOW())
     </insert>
 
-    <!-- UPDATE -->
     <update id="updateList" parameterType="simple.chatgpt.pojo.management.UserManagementListPojo">
         UPDATE user_management_list
         SET
@@ -25,23 +24,53 @@
         WHERE id = #{id}
     </update>
 
-    <!-- DELETE -->
     <delete id="deleteList" parameterType="long">
         DELETE FROM user_management_list WHERE id = #{id}
     </delete>
 
-    <!-- SELECT ONE -->
     <select id="findListById" parameterType="long" resultType="simple.chatgpt.pojo.management.UserManagementListPojo">
         SELECT id, user_list_name, file_path, original_file_name, description, created_at, updated_at
         FROM user_management_list
         WHERE id = #{id}
     </select>
 
-    <!-- SELECT ALL -->
     <select id="findAllLists" resultType="simple.chatgpt.pojo.management.UserManagementListPojo">
         SELECT id, user_list_name, file_path, original_file_name, description, created_at, updated_at
         FROM user_management_list
         ORDER BY created_at DESC
+    </select>
+
+    <!-- 🔎 NEW: Search / list with Map params -->
+    <select id="findLists" parameterType="map" resultType="simple.chatgpt.pojo.management.UserManagementListPojo">
+        SELECT id, user_list_name, file_path, original_file_name, description, created_at, updated_at
+        FROM user_management_list
+        <where>
+            <if test="userListName != null and userListName != ''">
+                AND user_list_name LIKE CONCAT('%', #{userListName}, '%')
+            </if>
+            <if test="description != null and description != ''">
+                AND description LIKE CONCAT('%', #{description}, '%')
+            </if>
+        </where>
+        <if test="sortField != null and sortDirection != null">
+            ORDER BY ${sortField} ${sortDirection}
+        </if>
+        <if test="offset != null and limit != null">
+            LIMIT #{offset}, #{limit}
+        </if>
+    </select>
+
+    <!-- 🔢 NEW: Count for pagination -->
+    <select id="countLists" parameterType="map" resultType="long">
+        SELECT COUNT(*) FROM user_management_list
+        <where>
+            <if test="userListName != null and userListName != ''">
+                AND user_list_name LIKE CONCAT('%', #{userListName}, '%')
+            </if>
+            <if test="description != null and description != ''">
+                AND description LIKE CONCAT('%', #{description}, '%')
+            </if>
+        </where>
     </select>
 
 </mapper>
