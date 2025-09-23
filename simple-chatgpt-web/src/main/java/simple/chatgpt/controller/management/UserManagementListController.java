@@ -2,6 +2,7 @@ package simple.chatgpt.controller.management;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -40,9 +41,9 @@ public class UserManagementListController {
             @RequestPart("list") UserManagementListPojo list,
             @RequestPart(value = "members", required = false) UserManagementListMemberPojo[] members
     ) {
-    	logger.debug("createList #############");
-    	logger.debug("createList list={}", list);
-    	logger.debug("createList #############");
+        logger.debug("createList #############");
+        logger.debug("createList list={}", list);
+        logger.debug("createList #############");
         if(list != null) {
             logger.debug("createList list.userListName={}", list.getUserListName());
             logger.debug("createList list.description={}", list.getDescription());
@@ -73,13 +74,12 @@ public class UserManagementListController {
                 .body(Response.success("List created successfully", list, HttpStatus.CREATED.value()));
     }
 
-
     // 📖 GET LIST BY ID
     @GetMapping("/get")
     public ResponseEntity<Response<UserManagementListPojo>> getList(@RequestParam Long id) {
-    	logger.debug("getList #############");
-    	logger.debug("getList id={}", id);
-    	logger.debug("getList #############");
+        logger.debug("getList #############");
+        logger.debug("getList id={}", id);
+        logger.debug("getList #############");
 
         UserManagementListPojo list = userManagementListService.getListById(id);
         if (list == null) {
@@ -92,9 +92,9 @@ public class UserManagementListController {
     // 📖 GET MEMBERS OF LIST
     @GetMapping("/members")
     public ResponseEntity<Response<List<UserManagementListMemberPojo>>> getMembers(@RequestParam Long listId) {
-    	logger.debug("getMembers #############");
-    	logger.debug("getMembers listId={}", listId);
-    	logger.debug("getMembers #############");
+        logger.debug("getMembers #############");
+        logger.debug("getMembers listId={}", listId);
+        logger.debug("getMembers #############");
 
         List<UserManagementListMemberPojo> members = userManagementListService.getMembersByListId(listId);
         return ResponseEntity.ok(Response.success("Members fetched successfully", members, HttpStatus.OK.value()));
@@ -103,9 +103,9 @@ public class UserManagementListController {
     // 🗑 DELETE LIST
     @DeleteMapping("/delete")
     public ResponseEntity<Response<Void>> deleteList(@RequestParam Long listId) {
-    	logger.debug("deleteList #############");
-    	logger.debug("deleteList listId={}", listId);
-    	logger.debug("deleteList #############");
+        logger.debug("deleteList #############");
+        logger.debug("deleteList listId={}", listId);
+        logger.debug("deleteList #############");
 
         userManagementListService.deleteList(listId);
         return ResponseEntity.ok(Response.success("List deleted successfully", null, HttpStatus.OK.value()));
@@ -117,8 +117,8 @@ public class UserManagementListController {
             @RequestPart("list") UserManagementListPojo list,
             @RequestPart("file") MultipartFile file
     ) {
-    	logger.debug("importList #############");
-    	logger.debug("importList list={}", list);
+        logger.debug("importList #############");
+        logger.debug("importList list={}", list);
         logger.debug("importList fileName={}", file.getOriginalFilename());
         logger.debug("importList #############");
 
@@ -143,10 +143,10 @@ public class UserManagementListController {
     // 📤 EXPORT LIST TO CSV
     @GetMapping("/export/csv")
     public void exportListToCsv(@RequestParam Long listId, javax.servlet.http.HttpServletResponse response) {
-    	logger.debug("exportListToCsv #############");
-    	logger.debug("exportListToCsv listId={}", listId);
-    	logger.debug("exportListToCsv #############");
-    	
+        logger.debug("exportListToCsv #############");
+        logger.debug("exportListToCsv listId={}", listId);
+        logger.debug("exportListToCsv #############");
+        
         response.setContentType("text/csv");
         response.setHeader("Content-Disposition", "attachment; filename=\"list_" + listId + ".csv\"");
 
@@ -160,10 +160,10 @@ public class UserManagementListController {
     // 📤 EXPORT LIST TO EXCEL
     @GetMapping("/export/excel")
     public void exportListToExcel(@RequestParam Long listId, javax.servlet.http.HttpServletResponse response) {
-    	logger.debug("exportListToExcel #############");
-    	logger.debug("exportListToExcel listId={}", listId);
-    	logger.debug("exportListToExcel #############");
-    	
+        logger.debug("exportListToExcel #############");
+        logger.debug("exportListToExcel listId={}", listId);
+        logger.debug("exportListToExcel #############");
+        
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         response.setHeader("Content-Disposition", "attachment; filename=\"list_" + listId + ".xlsx\"");
 
@@ -172,5 +172,31 @@ public class UserManagementListController {
         } catch (Exception e) {
             logger.error("exportListToExcel failed", e);
         }
+    }
+
+    // 🔍 SEARCH MEMBERS BY PARAMETERS
+    @GetMapping("/members/search")
+    public ResponseEntity<Response<List<UserManagementListMemberPojo>>> searchMembers(
+            @RequestParam Map<String, Object> params
+    ) {
+        logger.debug("searchMembers #############");
+        logger.debug("searchMembers params={}", params);
+        logger.debug("searchMembers #############");
+
+        List<UserManagementListMemberPojo> members = userManagementListService.searchMembers(params);
+        return ResponseEntity.ok(Response.success("Members fetched successfully", members, HttpStatus.OK.value()));
+    }
+
+    // 📊 COUNT MEMBERS BY PARAMETERS
+    @GetMapping("/members/count")
+    public ResponseEntity<Response<Long>> countMembers(
+            @RequestParam Map<String, Object> params
+    ) {
+        logger.debug("countMembers #############");
+        logger.debug("countMembers params={}", params);
+        logger.debug("countMembers #############");
+
+        long count = userManagementListService.countMembers(params);
+        return ResponseEntity.ok(Response.success("Count fetched successfully", count, HttpStatus.OK.value()));
     }
 }
