@@ -11,6 +11,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -41,8 +42,8 @@ public class UserManagementListServiceImpl implements UserManagementListService 
     private final UserManagementListMapper listMapper;
     private final UserManagementListMemberMapper memberMapper;
     private final Path storageDir;
-    private final List<ColumnConfig> uploadColumns;   // For import
-    private final List<ColumnConfig> downloadColumns; // For export
+    private final List<ColumnConfig> uploadColumns;
+    private final List<ColumnConfig> downloadColumns;
 
     public UserManagementListServiceImpl(UserManagementListMapper listMapper,
                                          UserManagementListMemberMapper memberMapper) throws Exception {
@@ -59,13 +60,11 @@ public class UserManagementListServiceImpl implements UserManagementListService 
             logger.debug("Storage directory exists at relativePath={} absolutePath={}", storageDir, storageDir.toAbsolutePath());
         }
 
-        // Load columns for import/export
         this.uploadColumns = UploadConfigLoader.getColumns(MEMBER_GRID_ID);
         this.downloadColumns = DownloadConfigLoader.getColumns(MEMBER_GRID_ID);
     }
 
     // ------------------ Core CRUD ------------------
-
     @Override
     public void createList(UserManagementListPojo list, List<UserManagementListMemberPojo> members) {
         logger.debug("createList list={}", list);
@@ -108,8 +107,24 @@ public class UserManagementListServiceImpl implements UserManagementListService 
         return members;
     }
 
-    // ------------------ File Storage ------------------
+    // ------------------ ADDED MAP-BASED METHODS ------------------
+    @Override
+    public List<UserManagementListMemberPojo> searchMembers(Map<String, Object> params) {
+        logger.debug("searchMembers params={}", params);
+        List<UserManagementListMemberPojo> members = memberMapper.findMembers(params);
+        logger.debug("searchMembers members={}", members);
+        return members;
+    }
 
+    @Override
+    public long countMembers(Map<String, Object> params) {
+        logger.debug("countMembers params={}", params);
+        long count = memberMapper.countMembers(params);
+        logger.debug("countMembers count={}", count);
+        return count;
+    }
+
+    // ------------------ File Storage ------------------
     private Path getListFilePath(Long listId, String originalFileName) {
         String extension = "";
         int dotIndex = originalFileName.lastIndexOf('.');
@@ -122,7 +137,6 @@ public class UserManagementListServiceImpl implements UserManagementListService 
     }
 
     // ------------------ Reflection Helpers ------------------
-
     private String getFieldValue(UserManagementListMemberPojo member, String property) {
         try {
             String methodName = "get" + property.substring(0, 1).toUpperCase() + property.substring(1);
@@ -146,7 +160,6 @@ public class UserManagementListServiceImpl implements UserManagementListService 
     }
 
     // ------------------ CSV Import/Export ------------------
-
     @Override
     public void importListFromCsv(InputStream inputStream, UserManagementListPojo list, String originalFileName) throws Exception {
         logger.debug("importListFromCsv list={}", list);
@@ -193,7 +206,6 @@ public class UserManagementListServiceImpl implements UserManagementListService 
     }
 
     // ------------------ Excel Import/Export ------------------
-
     @Override
     public void importListFromExcel(InputStream inputStream, UserManagementListPojo list, String originalFileName) throws Exception {
         logger.debug("importListFromExcel list={}", list);
@@ -203,7 +215,7 @@ public class UserManagementListServiceImpl implements UserManagementListService 
 
         List<UserManagementListMemberPojo> members = new ArrayList<>();
         try (Workbook workbook = originalFileName.endsWith(".xls") ?
-                new HSSFWorkbook(new java.io.ByteArrayInputStream(bytes)) : 
+                new HSSFWorkbook(new java.io.ByteArrayInputStream(bytes)) :
                 new XSSFWorkbook(new java.io.ByteArrayInputStream(bytes))) {
 
             Sheet sheet = workbook.getSheetAt(0);

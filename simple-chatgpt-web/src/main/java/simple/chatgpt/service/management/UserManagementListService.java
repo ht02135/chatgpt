@@ -3,6 +3,7 @@ package simple.chatgpt.service.management;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
+import java.util.Map;
 
 import simple.chatgpt.pojo.management.UserManagementListMemberPojo;
 import simple.chatgpt.pojo.management.UserManagementListPojo;
@@ -40,4 +41,11 @@ public interface UserManagementListService {
 
     /** Export list members to an Excel file */
     void exportListToExcel(Long listId, OutputStream outputStream) throws Exception;
+
+    // ------------------ ADDED METHODS ------------------
+    /** Search members using a map of parameters */
+    List<UserManagementListMemberPojo> searchMembers(Map<String, Object> params);
+
+    /** Count members using a map of parameters */
+    long countMembers(Map<String, Object> params);
 }
