@@ -141,17 +141,36 @@
 
     <grid id="user-lists">
         <column name="id" label="ID" visible="true" sortable="true" dbField="id" />
-        <column name="user_list_name" label="User List Name" visible="true" sortable="true" dbField="user_list_name" />
-        <column name="file_path" label="File Path" visible="false" sortable="true" dbField="file_path" />
-        <column name="original_file_name" label="Original File Name" visible="true" sortable="true" dbField="original_file_name" />
+        <column name="userListName" label="User List Name" visible="true" sortable="true" dbField="user_list_name" />
+        <column name="originalFileName" label="Original File Name" visible="true" sortable="true" dbField="original_file_name" />
         <column name="description" label="Description" visible="true" sortable="true" dbField="description" />
         <column name="actions" label="Actions" actions="user-list-actions" visible="true" sortable="false" />
     </grid>
+    
+    <form id="searchUserList">
+        <field name="userListName" label="User List Name" visible="true" />
+        <field name="originalFileName" label="Original File Name" visible="true" />
+        <field name="description" label="Description" visible="true" />
+    </form>
 
     <actions id="user-list-member-actions">
         <action name="Edit" label="Edit" visible="true" jsMethod="editUserListMember" />
         <action name="Delete" label="Delete" visible="true" jsMethod="deleteUserListMember" />
     </actions>
+    
+    <form id="searchUserListMember">
+        <field name="userName" label="Username" visible="true" />
+        <field name="userKey" label="User Key" visible="true" />
+        <field name="firstName" label="First Name" visible="true" />
+        <field name="lastName" label="Last Name" visible="true" />
+        <field name="email" label="Email" regex="emailValidation" visible="true" />
+        <field name="addressLine1" label="Address Line 1" visible="true" />
+        <field name="addressLine2" label="Address Line 2" visible="true" />
+        <field name="city" label="City" visible="true" />
+        <field name="state" label="State" visible="true" />
+        <field name="postCode" label="Post Code" regex="postalCodeValidation" visible="true" />
+        <field name="country" label="Country" visible="true" />
+    </form>
 
     <grid id="user-list-members">
         <column name="id" label="ID" visible="true" sortable="true" dbField="id" />
