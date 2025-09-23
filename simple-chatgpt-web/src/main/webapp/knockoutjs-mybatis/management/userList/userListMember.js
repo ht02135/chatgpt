@@ -224,7 +224,7 @@ function UserListMemberViewModel(mode, config, userListId) {
     } else {
         self.loadUserListMembers();
     }
-
+	
     // ========================
     // Wrapper block
     // ========================
