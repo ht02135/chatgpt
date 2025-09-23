@@ -9,6 +9,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -32,6 +33,7 @@ import simple.chatgpt.mapper.management.UserManagementListMemberMapper;
 import simple.chatgpt.pojo.management.UserManagementListMemberPojo;
 import simple.chatgpt.pojo.management.UserManagementListPojo;
 import simple.chatgpt.upload.management.loader.UploadConfigLoader;
+import simple.chatgpt.util.PagedResult;
 
 @Service
 public class UserManagementListServiceImpl implements UserManagementListService {
@@ -64,7 +66,53 @@ public class UserManagementListServiceImpl implements UserManagementListService 
         this.downloadColumns = DownloadConfigLoader.getColumns(MEMBER_GRID_ID);
     }
 
-    // ------------------ Core CRUD ------------------
+    // ------------------ SEARCH / LIST ------------------
+    @Override
+    public PagedResult<UserManagementListPojo> searchUserLists(Map<String, String> params) {
+        logger.debug("searchUserLists called with params={}", params);
+
+        int page = 0;
+        int size = 20;
+        try {
+            page = Integer.parseInt(params.getOrDefault("page", "0"));
+        } catch (NumberFormatException e) {
+            logger.warn("Invalid page parameter: {}, defaulting to 0", params.get("page"), e);
+        }
+        try {
+            size = Integer.parseInt(params.getOrDefault("size", "20"));
+        } catch (NumberFormatException e) {
+            logger.warn("Invalid size parameter: {}, defaulting to 20", params.get("size"), e);
+        }
+        int offset = page * size;
+
+        String sortField = params.getOrDefault("sortField", "id");
+        String sortDirection = params.getOrDefault("sortDirection", "ASC").toUpperCase();
+
+        // Copy params into Map<String, Object> for MyBatis
+        Map<String, Object> sqlParams = new HashMap<>();
+        sqlParams.putAll(params);
+        sqlParams.put("offset", offset);
+        sqlParams.put("limit", size);
+        sqlParams.put("sortField", sortField);
+        sqlParams.put("sortDirection", sortDirection);
+
+        List<UserManagementListPojo> items = new ArrayList<>();
+        long totalCount = 0;
+
+        try {
+            items = listMapper.searchUserLists(sqlParams, offset, size, sortField, sortDirection);
+            totalCount = listMapper.countLists(sqlParams);
+            logger.debug("searchUserLists items={}", items);
+            logger.debug("searchUserLists totalCount={}", totalCount);
+        } catch (Exception e) {
+            logger.error("Error executing searchUserLists query with params={}", sqlParams, e);
+            throw new RuntimeException("Database error during searchUserLists", e);
+        }
+
+        return new PagedResult<>(items, totalCount, page, size);
+    }
+
+    // ------------------ CRUD ------------------
     @Override
     public void createList(UserManagementListPojo list, List<UserManagementListMemberPojo> members) {
         logger.debug("createList list={}", list);
@@ -107,7 +155,7 @@ public class UserManagementListServiceImpl implements UserManagementListService 
         return members;
     }
 
-    // ------------------ ADDED MAP-BASED METHODS ------------------
+    // ------------------ MEMBER SEARCH ------------------
     @Override
     public List<UserManagementListMemberPojo> searchMembers(Map<String, Object> params) {
         logger.debug("searchMembers params={}", params);
@@ -124,7 +172,7 @@ public class UserManagementListServiceImpl implements UserManagementListService 
         return count;
     }
 
-    // ------------------ File Storage ------------------
+    // ------------------ FILE STORAGE ------------------
     private Path getListFilePath(Long listId, String originalFileName) {
         String extension = "";
         int dotIndex = originalFileName.lastIndexOf('.');
@@ -211,9 +259,9 @@ public class UserManagementListServiceImpl implements UserManagementListService 
         logger.debug("importListFromExcel list={}", list);
         logger.debug("importListFromExcel originalFileName={}", originalFileName);
 
-        byte[] bytes = inputStream.readAllBytes(); // copy input stream
-
+        byte[] bytes = inputStream.readAllBytes();
         List<UserManagementListMemberPojo> members = new ArrayList<>();
+
         try (Workbook workbook = originalFileName.endsWith(".xls") ?
                 new HSSFWorkbook(new java.io.ByteArrayInputStream(bytes)) :
                 new XSSFWorkbook(new java.io.ByteArrayInputStream(bytes))) {
@@ -245,19 +293,16 @@ public class UserManagementListServiceImpl implements UserManagementListService 
     @Override
     public void exportListToExcel(Long listId, OutputStream outputStream) throws Exception {
         logger.debug("exportListToExcel listId={}", listId);
-
         List<UserManagementListMemberPojo> members = getMembersByListId(listId);
 
-        try (Workbook workbook = new XSSFWorkbook()) {  // always .xlsx
+        try (Workbook workbook = new XSSFWorkbook()) {
             Sheet sheet = workbook.createSheet("Users");
 
-            // Header
             Row header = sheet.createRow(0);
             for (int i = 0; i < downloadColumns.size(); i++) {
                 header.createCell(i).setCellValue(downloadColumns.get(i).getDbField());
             }
 
-            // Rows
             int rowIdx = 1;
             for (UserManagementListMemberPojo m : members) {
                 Row row = sheet.createRow(rowIdx++);

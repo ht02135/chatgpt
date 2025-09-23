@@ -21,6 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 import simple.chatgpt.pojo.management.UserManagementListMemberPojo;
 import simple.chatgpt.pojo.management.UserManagementListPojo;
 import simple.chatgpt.service.management.UserManagementListService;
+import simple.chatgpt.util.PagedResult;
 import simple.chatgpt.util.Response;
 
 @RestController
@@ -34,6 +35,27 @@ public class UserManagementListController {
     public UserManagementListController(UserManagementListService userManagementListService) {
         this.userManagementListService = userManagementListService;
     }
+    
+    @GetMapping
+    public ResponseEntity<Response<PagedResult<UserManagementListPojo>>> searchUserLists(
+            @RequestParam Map<String, String> params
+    ) {
+        logger.debug("searchUserLists called with params={}", params);
+
+        int page = Integer.parseInt(params.getOrDefault("page", "0"));
+        int size = Integer.parseInt(params.getOrDefault("size", "20"));
+        int offset = page * size;
+
+        params.put("offset", String.valueOf(offset));
+        params.put("limit", String.valueOf(size));
+        params.put("sortField", params.getOrDefault("sortField", "id"));
+        params.put("sortDirection", params.getOrDefault("sortDirection", "asc"));
+
+        PagedResult<UserManagementListPojo> lists = userManagementListService.searchUserLists(params);
+
+        return ResponseEntity.ok(Response.success("Fetched successfully", lists, HttpStatus.OK.value()));
+    }
+
     
     // ➕ CREATE LIST WITH MEMBERS
     @PostMapping("/create")
