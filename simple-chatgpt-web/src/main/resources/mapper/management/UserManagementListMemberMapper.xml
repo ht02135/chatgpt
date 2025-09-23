@@ -30,23 +30,23 @@
     <select id="findMembers" parameterType="map" resultMap="UserManagementListMemberResultMap">
         SELECT * FROM user_management_list_member
         <where>
-            <if test="listId != null">AND list_id = #{listId}</if>
-            <if test="userName != null and userName != ''">AND user_name LIKE CONCAT('%', #{userName}, '%')</if>
-            <if test="firstName != null and firstName != ''">AND first_name LIKE CONCAT('%', #{firstName}, '%')</if>
-            <if test="lastName != null and lastName != ''">AND last_name LIKE CONCAT('%', #{lastName}, '%')</if>
-            <if test="email != null and email != ''">AND email LIKE CONCAT('%', #{email}, '%')</if>
-            <if test="addressLine1 != null and addressLine1 != ''">AND address_line_1 LIKE CONCAT('%', #{addressLine1}, '%')</if>
-            <if test="addressLine2 != null and addressLine2 != ''">AND address_line_2 LIKE CONCAT('%', #{addressLine2}, '%')</if>
-            <if test="city != null and city != ''">AND city LIKE CONCAT('%', #{city}, '%')</if>
-            <if test="state != null and state != ''">AND state LIKE CONCAT('%', #{state}, '%')</if>
-            <if test="postCode != null and postCode != ''">AND post_code LIKE CONCAT('%', #{postCode}, '%')</if>
-            <if test="country != null and country != ''">AND country LIKE CONCAT('%', #{country}, '%')</if>
+            <if test="params.listId != null">AND list_id = #{params.listId}</if>
+            <if test="params.userName != null and params.userName != ''">AND user_name LIKE CONCAT('%', #{params.userName}, '%')</if>
+            <if test="params.firstName != null and params.firstName != ''">AND first_name LIKE CONCAT('%', #{params.firstName}, '%')</if>
+            <if test="params.lastName != null and params.lastName != ''">AND last_name LIKE CONCAT('%', #{params.lastName}, '%')</if>
+            <if test="params.email != null and params.email != ''">AND email LIKE CONCAT('%', #{params.email}, '%')</if>
+            <if test="params.addressLine1 != null and params.addressLine1 != ''">AND address_line_1 LIKE CONCAT('%', #{params.addressLine1}, '%')</if>
+            <if test="params.addressLine2 != null and params.addressLine2 != ''">AND address_line_2 LIKE CONCAT('%', #{params.addressLine2}, '%')</if>
+            <if test="params.city != null and params.city != ''">AND city LIKE CONCAT('%', #{params.city}, '%')</if>
+            <if test="params.state != null and params.state != ''">AND state LIKE CONCAT('%', #{params.state}, '%')</if>
+            <if test="params.postCode != null and params.postCode != ''">AND post_code LIKE CONCAT('%', #{params.postCode}, '%')</if>
+            <if test="params.country != null and params.country != ''">AND country LIKE CONCAT('%', #{params.country}, '%')</if>
         </where>
-        <if test="sortField != null and sortDirection != null">
-            ORDER BY ${sortField} ${sortDirection}
+        <if test="params.sortField != null and params.sortDirection != null">
+            ORDER BY ${params.sortField} ${params.sortDirection}
         </if>
-        <if test="offset != null and limit != null">
-            LIMIT #{offset}, #{limit}
+        <if test="params.offset != null and params.limit != null">
+            LIMIT #{params.offset}, #{params.limit}
         </if>
     </select>
 
@@ -54,17 +54,17 @@
     <select id="countMembers" parameterType="map" resultType="long">
         SELECT COUNT(*) FROM user_management_list_member
         <where>
-            <if test="listId != null">AND list_id = #{listId}</if>
-            <if test="userName != null and userName != ''">AND user_name LIKE CONCAT('%', #{userName}, '%')</if>
-            <if test="firstName != null and firstName != ''">AND first_name LIKE CONCAT('%', #{firstName}, '%')</if>
-            <if test="lastName != null and lastName != ''">AND last_name LIKE CONCAT('%', #{lastName}, '%')</if>
-            <if test="email != null and email != ''">AND email LIKE CONCAT('%', #{email}, '%')</if>
-            <if test="addressLine1 != null and addressLine1 != ''">AND address_line_1 LIKE CONCAT('%', #{addressLine1}, '%')</if>
-            <if test="addressLine2 != null and addressLine2 != ''">AND address_line_2 LIKE CONCAT('%', #{addressLine2}, '%')</if>
-            <if test="city != null and city != ''">AND city LIKE CONCAT('%', #{city}, '%')</if>
-            <if test="state != null and state != ''">AND state LIKE CONCAT('%', #{state}, '%')</if>
-            <if test="postCode != null and postCode != ''">AND post_code LIKE CONCAT('%', #{postCode}, '%')</if>
-            <if test="country != null and country != ''">AND country LIKE CONCAT('%', #{country}, '%')</if>
+            <if test="params.listId != null">AND list_id = #{params.listId}</if>
+            <if test="params.userName != null and params.userName != ''">AND user_name LIKE CONCAT('%', #{params.userName}, '%')</if>
+            <if test="params.firstName != null and params.firstName != ''">AND first_name LIKE CONCAT('%', #{params.firstName}, '%')</if>
+            <if test="params.lastName != null and params.lastName != ''">AND last_name LIKE CONCAT('%', #{params.lastName}, '%')</if>
+            <if test="params.email != null and params.email != ''">AND email LIKE CONCAT('%', #{params.email}, '%')</if>
+            <if test="params.addressLine1 != null and params.addressLine1 != ''">AND address_line_1 LIKE CONCAT('%', #{params.addressLine1}, '%')</if>
+            <if test="params.addressLine2 != null and params.addressLine2 != ''">AND address_line_2 LIKE CONCAT('%', #{params.addressLine2}, '%')</if>
+            <if test="params.city != null and params.city != ''">AND city LIKE CONCAT('%', #{params.city}, '%')</if>
+            <if test="params.state != null and params.state != ''">AND state LIKE CONCAT('%', #{params.state}, '%')</if>
+            <if test="params.postCode != null and params.postCode != ''">AND post_code LIKE CONCAT('%', #{params.postCode}, '%')</if>
+            <if test="params.country != null and params.country != ''">AND country LIKE CONCAT('%', #{params.country}, '%')</if>
         </where>
     </select>
 

@@ -49,18 +49,18 @@
         SELECT id, user_list_name, file_path, original_file_name, description, created_at, updated_at
         FROM user_management_list
         <where>
-            <if test="userListName != null and userListName != ''">
-                AND user_list_name LIKE CONCAT('%', #{userListName}, '%')
+            <if test="params.userListName != null and params.userListName != ''">
+                AND user_list_name LIKE CONCAT('%', #{params.userListName}, '%')
             </if>
-            <if test="description != null and description != ''">
-                AND description LIKE CONCAT('%', #{description}, '%')
+            <if test="params.description != null and params.description != ''">
+                AND description LIKE CONCAT('%', #{params.description}, '%')
             </if>
         </where>
-        <if test="sortField != null and sortDirection != null">
-            ORDER BY ${sortField} ${sortDirection}
+        <if test="params.sortField != null and params.sortDirection != null">
+            ORDER BY ${params.sortField} ${params.sortDirection}
         </if>
-        <if test="offset != null and limit != null">
-            LIMIT #{offset}, #{limit}
+        <if test="params.offset != null and params.limit != null">
+            LIMIT #{params.offset}, #{params.limit}
         </if>
     </select>
 
@@ -71,11 +71,11 @@
         SELECT COUNT(*)
         FROM user_management_list
         <where>
-            <if test="userListName != null and userListName != ''">
-                AND user_list_name LIKE CONCAT('%', #{userListName}, '%')
+            <if test="params.userListName != null and params.userListName != ''">
+                AND user_list_name LIKE CONCAT('%', #{params.userListName}, '%')
             </if>
-            <if test="description != null and description != ''">
-                AND description LIKE CONCAT('%', #{description}, '%')
+            <if test="params.description != null and params.description != ''">
+                AND description LIKE CONCAT('%', #{params.description}, '%')
             </if>
         </where>
     </select>
