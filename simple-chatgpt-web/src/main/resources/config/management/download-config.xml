@@ -1,5 +1,5 @@
 <download-config>
-    <grid id="user-list-members">
+    <grid id="userListMembers">
         <column name="userName"     dbField="user_name" label="Username" visible="true" index="0"/>
         <column name="password"     dbField="password" label="Password" visible="true" index="1"/>
         <column name="firstName"    dbField="first_name" label="First Name" visible="true" index="2"/>

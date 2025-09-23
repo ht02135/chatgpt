@@ -134,17 +134,17 @@
     <!-- User List Management -->
     <!-- ========================= -->
 
-    <actions id="user-list-actions">
+    <actions id="userList-actions">
         <action name="Edit" label="Edit" visible="true" jsMethod="editUserList" />
         <action name="Delete" label="Delete" visible="true" jsMethod="deleteUserList" />
     </actions>
 
-    <grid id="user-lists">
+    <grid id="userLists">
         <column name="id" label="ID" visible="true" sortable="true" dbField="id" />
         <column name="userListName" label="User List Name" visible="true" sortable="true" dbField="user_list_name" />
         <column name="originalFileName" label="Original File Name" visible="true" sortable="true" dbField="original_file_name" />
         <column name="description" label="Description" visible="true" sortable="true" dbField="description" />
-        <column name="actions" label="Actions" actions="user-list-actions" visible="true" sortable="false" />
+        <column name="actions" label="Actions" actions="userList-actions" visible="true" sortable="false" />
     </grid>
     
     <form id="searchUserList">
@@ -153,7 +153,7 @@
         <field name="description" label="Description" visible="true" />
     </form>
 
-    <actions id="user-list-member-actions">
+    <actions id="userListMember-actions">
         <action name="Edit" label="Edit" visible="true" jsMethod="editUserListMember" />
         <action name="Delete" label="Delete" visible="true" jsMethod="deleteUserListMember" />
     </actions>
@@ -172,7 +172,7 @@
         <field name="country" label="Country" visible="true" />
     </form>
 
-    <grid id="user-list-members">
+    <grid id="userListMembers">
         <column name="id" label="ID" visible="true" sortable="true" dbField="id" />
         <column name="userName" label="Username" visible="true" sortable="true" dbField="user_name" />
         <column name="userKey" label="User Key" visible="false" sortable="true" dbField="user_key" />
@@ -183,7 +183,7 @@
         <column name="country" label="Country" visible="false" sortable="true" dbField="country" />
         <column name="createdAt" label="Created At" visible="false" sortable="true" dbField="created_at" />
         <column name="updatedAt" label="Updated At" visible="false" sortable="true" dbField="updated_at" />
-        <column name="actions" label="Actions" actions="user-list-member-actions" visible="true" sortable="false" />
+        <column name="actions" label="Actions" actions="userListMember-actions" visible="true" sortable="false" />
     </grid>
 
     <form id="addUserListMember">

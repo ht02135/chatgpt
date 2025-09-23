@@ -37,7 +37,7 @@ import simple.chatgpt.upload.management.loader.UploadConfigLoader;
 public class UserManagementListServiceImpl implements UserManagementListService {
 
     private static final Logger logger = LogManager.getLogger(UserManagementListServiceImpl.class);
-    private static final String MEMBER_GRID_ID = "user-list-members";
+    private static final String MEMBER_GRID_ID = "userListMembers";
 
     private final UserManagementListMapper listMapper;
     private final UserManagementListMemberMapper memberMapper;

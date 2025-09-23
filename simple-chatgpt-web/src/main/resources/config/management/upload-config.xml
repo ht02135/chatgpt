@@ -1,5 +1,5 @@
 <upload-config>
-    <grid id="user-list-members">
+    <grid id="userListMembers">
         <column name="userName"     dbField="user_name" index="0" required="true"/>
         <column name="password"     dbField="password" index="1" required="true" regex="passwordValidation"/>
         <column name="firstName"    dbField="first_name" index="2"/>
