@@ -236,5 +236,3 @@ function UserListMemberViewModel(mode, config, userListId) {
     self.addObject = function() { return self.addUserListMember(); };
     self.searchObjects = function() { return self.searchUserListMembers(); };
 }
-
-export default UserListMemberViewModel;

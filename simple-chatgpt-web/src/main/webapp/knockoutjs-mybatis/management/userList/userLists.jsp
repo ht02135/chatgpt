@@ -4,18 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <title>User Lists</title>
-
-    <!-- KnockoutJS -->
-    <script src="../../../js/knockout-latest.js"></script>
-
-    <!-- Generic Components -->
-    <script src="genericComponents-2.0.js"></script>
-
-    <!-- Page-specific JS -->
-    <script type="module" src="userList.js"></script>
-
-    <!-- Styles -->
-    <link rel="stylesheet" href="userList.css">
+	<script src="../../../js/knockout-latest.js"></script>
+	<script src="userList.js"></script>
+	<script src="genericComponents-2.0.js"></script>
+	<link rel="stylesheet" href="user.css">
 </head>
 <body>
 
@@ -59,21 +51,20 @@
 
 </div>
 
-<!-- Module Script to load config and bind VM -->
+<!-- Initialization Script -->
 <script type="module">
 import configLoader from "./configLoader.js";
 import Validator from "./validation.js";
-import { UserListViewModel } from "./userList.js";
 
 (async function () {
     console.log("Initializing User Lists page...");
 
     // Load configs
-    const gridConfig      = await configLoader.getGridConfig("userLists");
-    const searchConfig    = await configLoader.getFormConfig("searchUserList");
-    const actionGroupMap  = await configLoader.getActionGroupMap();
+    const gridConfig     = await configLoader.getGridConfig("userLists");
+    const searchConfig   = await configLoader.getFormConfig("searchUserList");
+    const actionGroupMap = await configLoader.getActionGroupMap();
 
-    // Initialize ViewModel
+    // Initialize ViewModel (comes from userList.js, global function)
     const objectVM = new UserListViewModel(
         { mode: "list" },
         { grid: gridConfig, search: searchConfig, actionGroups: actionGroupMap }

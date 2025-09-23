@@ -11,8 +11,12 @@
     <!-- Generic Components -->
     <script src="genericComponents-2.0.js"></script>
 
-    <!-- Page-specific JS -->
-    <script type="module" src="userListMember.js"></script>
+    <!-- Config + Validator -->
+    <script type="module" src="configLoader.js"></script>
+    <script type="module" src="validation.js"></script>
+
+    <!-- Page-specific JS (global UserListMemberViewModel, no export/import) -->
+    <script src="userListMember.js"></script>
 
     <!-- Styles -->
     <link rel="stylesheet" href="userList.css">
@@ -31,7 +35,7 @@
 
     <!-- Search Actions -->
     <generic-search-actions params="
-        addObject: objectVM.navigateToAddUserListMember,
+        addObject: objectVM.addUserListMember,
         searchObjects: objectVM.searchUserListMembers,
         resetSearch: objectVM.resetSearch
     "></generic-search-actions>
@@ -59,25 +63,25 @@
 
 </div>
 
-<!-- Module Script to load config and bind VM -->
+<!-- Initialization Script -->
 <script type="module">
 import configLoader from "./configLoader.js";
 import Validator from "./validation.js";
-import { UserListMemberViewModel } from "./userListMember.js";
 
 (async function () {
     console.log("Initializing User List Members page...");
 
-    // Get User List ID from query param
-    const userListId = new URLSearchParams(window.location.search).get('id');
+    // ✅ Get User List ID from localStorage (editUserListId)
+    const userListId = localStorage.getItem("editUserListId");
+    console.log("editUserList.jsp -> using userListId from localStorage:", userListId);
 
     // Load configs
-    const gridConfig      = await configLoader.getGridConfig("userListMembers");
-    const searchConfig    = await configLoader.getFormConfig("searchUserListMember");
-    const actionGroupMap  = await configLoader.getActionGroupMap();
-    const formConfig      = await configLoader.getFormConfig("editUserListMember");
+    const gridConfig     = await configLoader.getGridConfig("userListMembers");
+    const searchConfig   = await configLoader.getFormConfig("searchUserListMember");
+    const actionGroupMap = await configLoader.getActionGroupMap();
+    const formConfig     = await configLoader.getFormConfig("editUserListMember");
 
-    // Initialize ViewModel
+    // Initialize ViewModel (from userListMember.js, global function)
     const objectVM = new UserListMemberViewModel(
         { mode: "list" },
         { grid: gridConfig, search: searchConfig, form: formConfig, actionGroups: actionGroupMap },
