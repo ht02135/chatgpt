@@ -112,6 +112,7 @@ public class UserManagementListMemberController {
     }
 
     // 🔍 SEARCH MEMBERS BY PARAMETERS
+ // ------------------ SEARCH MEMBERS ------------------
     @GetMapping("/search")
     public ResponseEntity<Response<List<UserManagementListMemberPojo>>> searchMembers(
             @RequestParam Map<String, Object> params
@@ -120,11 +121,27 @@ public class UserManagementListMemberController {
         logger.debug("searchMembers params={}", params);
         logger.debug("searchMembers #############");
 
-        List<UserManagementListMemberPojo> members = memberService.searchMembers(params);
+        Map<String, Object> serviceParams = new HashMap<>(params);
+
+        // Convert page & size
+        int page = params.get("page") != null ? Integer.parseInt(params.get("page").toString()) : 0;
+        int size = params.get("size") != null ? Integer.parseInt(params.get("size").toString()) : 20;
+        int offset = page * size;
+
+        serviceParams.put("page", page);
+        serviceParams.put("size", size);
+        serviceParams.put("offset", offset);
+        serviceParams.put("limit", size);
+
+        // Ensure sort defaults
+        serviceParams.put("sortField", params.getOrDefault("sortField", "id"));
+        serviceParams.put("sortDirection", params.getOrDefault("sortDirection", "ASC"));
+
+        List<UserManagementListMemberPojo> members = memberService.searchMembers(serviceParams);
         return ResponseEntity.ok(Response.success("Members fetched successfully", members, HttpStatus.OK.value()));
     }
 
-    // 📊 COUNT MEMBERS BY PARAMETERS
+    // ------------------ COUNT MEMBERS ------------------
     @GetMapping("/count")
     public ResponseEntity<Response<Long>> countMembers(
             @RequestParam Map<String, Object> params
@@ -133,7 +150,15 @@ public class UserManagementListMemberController {
         logger.debug("countMembers params={}", params);
         logger.debug("countMembers #############");
 
-        long count = memberService.countMembers(params);
+        Map<String, Object> serviceParams = new HashMap<>(params);
+
+        // Convert numeric params if present
+        if (params.get("userListId") != null) {
+            serviceParams.put("userListId", Long.parseLong(params.get("userListId").toString()));
+        }
+
+        long count = memberService.countMembers(serviceParams);
         return ResponseEntity.ok(Response.success("Count fetched successfully", count, HttpStatus.OK.value()));
     }
+
 }
