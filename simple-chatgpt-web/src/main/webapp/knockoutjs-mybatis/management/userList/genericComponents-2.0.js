@@ -295,20 +295,23 @@ ko.components.register('generic-grid-pagination', {
 
 ko.components.register('generic-edit-form-fields', {
   viewModel: function(params) {
-    this.fields = params.formConfig.fields;
+    // Accept either formConfig via params or via parent vm
+    this.fields = (params.formConfig && params.formConfig.fields) ? params.formConfig.fields : (params.formConfig || []);
     this.currentObject = params.currentObject;
-    this.errors = params.errors;
+    this.errors = params.errors || ko.observable({});
+    console.log('generic-edit-form-fields: constructor called; fields count=', this.fields.length);
   },
   template: `
     <div class="form-vertical" data-bind="foreach: $component.fields">
       <div class="form-row">
         <label data-bind="text: label + ':'"></label>
-        
-        <input type="text"
-               data-bind="value: $component.currentObject()[name], 
-                          enable: editable, 
-                          valueUpdate: 'input'" />
-        
+
+        <input data-bind="
+               attr: { type: type || 'text' },
+               value: $component.currentObject()[name],
+               enable: editable,
+               valueUpdate: 'input'" />
+
         <div class="error-message"
              data-bind="text: $component.errors()[name],
                         visible: $component.errors()[name]"></div>
@@ -319,46 +322,64 @@ ko.components.register('generic-edit-form-fields', {
 
 //-----------------------------------
 // generic-edit-form-actions.js
+
 ko.components.register('generic-edit-form-actions', {
   viewModel: function(params) {
-    this.saveObject = params.saveObject;
-    this.navigateToObjects = params.navigateToObjects;
+    // actions shouldn't rely on "with" on the parent element; parent form will handle submit.
+    this.navigateToObjects = params.navigateToObjects || function() { console.log('navigateToObjects not provided'); };
+    console.log('generic-edit-form-actions: constructor called');
   },
   template: `
     <div class="form-actions">
-      <button type="submit" data-bind="click: $component.saveObject">Save</button>
-      <button type="button" data-bind="click: $component.navigateToObjects">Cancel</button>
+      <!-- Make Save a submit button so the form's submit binding is used -->
+      <button type="submit">Save</button>
+      <button type="button" data-bind="click: navigateToObjects">Cancel</button>
     </div>
   `
 });
 
 //-----------------------------------
 // generic-edit-form.js
+
 ko.components.register('generic-edit-form', {
   viewModel: function(params) {
-    this.vm = params.vm;
-    this.formTitle = params.formTitle || "Edit Form";
+    // Accept either the full vm (recommended) or separate params
+    this.vm = params.vm || null;
+
+    // Prefer direct params, fall back to vm.*
+    this.formTitle = params.formTitle || (this.vm && this.vm.formTitle) || "Edit Form";
+    this.formConfig = params.formConfig || (this.vm && this.vm.formConfig) || { fields: [] };
+    this.currentObject = params.currentObject || (this.vm && this.vm.currentObject);
+    this.errors = params.errors || (this.vm && this.vm.errors) || ko.observable({});
+    this.saveObject = params.saveObject || (this.vm && this.vm.saveObject);
+
+    // submitHandler is what we'll bind to the form's submit.
+    this.submitHandler = this.saveObject || null;
+
+    console.log('generic-edit-form: constructor called; submitHandler?', !!this.submitHandler);
+    if (!this.submitHandler) {
+      console.error('generic-edit-form: No saveObject provided. Pass params.vm (with saveObject) or params.saveObject.');
+    }
   },
   template: `
     <div class="container">
       <generic-form-title params="formTitle: $component.formTitle"></generic-form-title>
-      
-      <form data-bind="with: $component.vm, submit: saveObject">
+
+      <!-- IMPORTANT: bind submit to $component.submitHandler (explicit) -->
+      <form data-bind="submit: $component.submitHandler">
         <generic-edit-form-fields 
-          params="formConfig: formConfig, 
-                  currentObject: currentObject, 
-                  errors: errors">
+          params="formConfig: $component.formConfig, 
+                  currentObject: $component.currentObject, 
+                  errors: $component.errors">
         </generic-edit-form-fields>
-        
+
         <generic-edit-form-actions 
-          params="saveObject: saveObject, 
-                  navigateToObjects: navigateToObjects">
+          params="navigateToObjects: $component.vm && $component.vm.navigateToObjects">
         </generic-edit-form-actions>
       </form>
     </div>
   `
 });
-
 
 //-----------------------------------
 
