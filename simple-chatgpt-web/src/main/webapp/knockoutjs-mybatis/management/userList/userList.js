@@ -202,7 +202,7 @@ function UserListViewModel(params, config) {
 
             let url = `${API_USERLIST}/create`, method = 'POST';
             if (self.mode === 'edit' && self.currentUserList().id && self.currentUserList().id()) {
-                url = `${API_USERLIST}/update?id=${encodeURIComponent(self.currentUserList().id())}`;
+                url = `${API_USERLIST}/update?listId=${encodeURIComponent(self.currentUserList().id())}`;
                 method = 'PUT';
             }
             await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
@@ -214,15 +214,19 @@ function UserListViewModel(params, config) {
     self.deleteUserList = async function(row) {
         if (!confirm('Are you sure?')) return;
         try {
-            await fetch(`${API_USERLIST}/delete?id=${encodeURIComponent(ko.unwrap(row.id))}`, { method: 'DELETE', headers: { 'Accept': 'application/json' } });
-            self.loadUserLists();
+			await fetch(`${API_USERLIST}/delete?listId=${encodeURIComponent(ko.unwrap(row.id))}`, {
+			    method: 'DELETE',
+			    headers: { 'Accept': 'application/json' }
+			});
+
+			self.loadUserLists();
         } catch (err) { console.error('Delete userList error:', err); }
     };
 
     // Load by ID
     self.loadUserListById = async function(id) {
         try {
-            const res = await fetch(`${API_USERLIST}/get?id=${encodeURIComponent(id)}`, { headers: { 'Accept': 'application/json' } });
+            const res = await fetch(`${API_USERLIST}/get?listId=${encodeURIComponent(id)}`, { headers: { 'Accept': 'application/json' } });
             const data = await res.json();
             if (data.status === 'SUCCESS' && data.data) self.currentUserList(new UserList(data.data, self.formConfig?.fields || []));
         } catch (err) { console.error('Load userList error:', err); }

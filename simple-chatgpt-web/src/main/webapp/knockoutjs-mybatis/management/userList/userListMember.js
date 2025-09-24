@@ -180,10 +180,10 @@ function UserListMemberViewModel(params, config) {
         }
 
         try {
-            const payload = {
-                ...ko.toJS(self.currentMember()),
-                userListId: self.userListId || localStorage.getItem('editUserListId')
-            };
+			const payload = {
+			    ...ko.toJS(self.currentMember()),
+			    listId: self.userListId || localStorage.getItem('editUserListId')
+			};
 
             let url = `${API_USERLIST_MEMBER}/create`, method = 'POST';
             if (self.mode === 'edit' && self.currentMember().id && self.currentMember().id()) {

@@ -153,8 +153,8 @@ public class UserManagementListMemberController {
         Map<String, Object> serviceParams = new HashMap<>(params);
 
         // Convert numeric params if present
-        if (params.get("userListId") != null) {
-            serviceParams.put("userListId", Long.parseLong(params.get("userListId").toString()));
+        if (params.get("listId") != null) {
+            serviceParams.put("listId", Long.parseLong(params.get("listId").toString()));
         }
 
         long count = memberService.countMembers(serviceParams);
