@@ -158,7 +158,7 @@ function UserListViewModel(params, config) {
     self.navigateToUserLists = function() { window.location.href = 'userLists.jsp'; };
     self.addUserList = function() { window.location.href = 'addUserList.jsp'; };
     self.editUserList = function(listId) {
-		console.log("userList.js -> editUserListMember: id=", ko.unwrap(id));
+		console.log("userList.js -> editUserListMember: listId=", ko.unwrap(listId));
         localStorage.setItem('editUserListId', ko.unwrap(listId));
         window.location.href = 'editUserList.jsp';
     };

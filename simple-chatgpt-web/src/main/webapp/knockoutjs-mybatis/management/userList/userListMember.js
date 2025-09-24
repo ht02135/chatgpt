@@ -145,9 +145,9 @@ function UserListMemberViewModel(params, config) {
     // Navigation
     self.navigateToMembers = function() { window.location.href = 'editUserList.jsp'; };
     self.addUserListMember = function() { window.location.href = 'addUserListMember.jsp'; };
-    self.editUserListMember = function(id) {
-		console.log("userListMember.js -> editUserListMember: id=", ko.unwrap(id));
-        localStorage.setItem('editUserListMemberId', ko.unwrap(id));
+    self.editUserListMember = function(memberId) {
+		console.log("userListMember.js -> editUserListMember: id=", ko.unwrap(memberId));
+        localStorage.setItem('editUserListMemberId', ko.unwrap(memberId));
         window.location.href = 'editUserListMember.jsp';
     };
 
