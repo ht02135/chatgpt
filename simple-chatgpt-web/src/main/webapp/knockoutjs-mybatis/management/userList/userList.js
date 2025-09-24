@@ -171,8 +171,12 @@ function UserListViewModel(params, config) {
 
     self.invokeAction = function(action, row) {
         if (action && action.jsMethod && typeof self[action.jsMethod] === 'function') {
-            if (/^edit(UserList|Object)$/.test(action.jsMethod)) self[action.jsMethod](ko.unwrap(row.id));
-            else self[action.jsMethod](row);
+            if (/^edit(UserList|Object)$/.test(action.jsMethod)) {
+				console.log("userList.js -> invokeAction: ko.unwrap(row.id)=", ko.unwrap(row.id));
+				self[action.jsMethod](ko.unwrap(row.id));
+            } else {
+				self[action.jsMethod](row);
+			}
         } else console.warn("No JS method found for action:", action);
     };
 
@@ -236,8 +240,17 @@ function UserListViewModel(params, config) {
     self.currentObject = self.currentUserList;
     self.objects = self.userLists;
 
-    self.navigateToObjects = function() { return self.navigateToUserLists(); };
-    self.saveObject = function() { return self.saveUserList(); };
-    self.addObject = function() { return self.addUserList(); };
-    self.searchObjects = function() { return self.searchUserLists(); };
+    self.navigateToObjects = function() { 
+		return self.navigateToUserLists(); 
+	};
+    self.saveObject = function() { 
+		console.log("userList.js -> saveObject called");
+		return self.saveUserList(); 
+	};
+    self.addObject = function() { 
+		return self.addUserList(); 
+	};
+    self.searchObjects = function() { 
+		return self.searchUserLists(); 
+	};
 }
