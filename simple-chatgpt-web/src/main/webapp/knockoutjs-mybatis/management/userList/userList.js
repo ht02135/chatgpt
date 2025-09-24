@@ -26,7 +26,7 @@ function UserListViewModel(params, config) {
 	Hung: params is the object you pass ({ mode: "list" }).
 	      params.mode correctly accesses the string "list".
 	*/
-	self.mode = params.mode || 'list';
+    self.mode = params.mode || 'list';
     self.gridConfig = config?.grid;
     self.formConfig = config?.form;
     self.searchConfig = config?.search;
@@ -59,7 +59,7 @@ function UserListViewModel(params, config) {
     };
 
     self.buildSearchQuery = function() {
-		console.log("userList.js -> buildSearchQuery called");
+        console.log("userList.js -> buildSearchQuery called");
         const params = new URLSearchParams();
         params.append('page', self.page() - 1);
         params.append('size', self.size());
@@ -72,7 +72,7 @@ function UserListViewModel(params, config) {
                 if (val && val.toString().trim()) params.append(f.name, val.toString().trim());
             });
         }
-		console.log("userList.js -> params=",params);
+        console.log("userList.js -> params=", params);
         return params.toString();
     };
 
@@ -81,7 +81,7 @@ function UserListViewModel(params, config) {
     // ========================
     self.loadUserLists = async function() {
         console.log("userList.js -> loadUserLists called");
-		console.log("userList.js -> self.mode=",self.mode);
+        console.log("userList.js -> self.mode=", self.mode);
         if (self.mode !== 'list') return;
 
         try {
@@ -155,14 +155,10 @@ function UserListViewModel(params, config) {
     };
 
     // Navigation
-    self.navigateToUserLists = function() {
-        window.location.href = 'userLists.jsp';
-    };
-    self.addUserList = function() {
-        window.location.href = 'addUserList.jsp';
-    };
-    self.editUserList = function(id) {
-        localStorage.setItem('editUserListId', ko.unwrap(id));
+    self.navigateToUserLists = function() { window.location.href = 'userLists.jsp'; };
+    self.addUserList = function() { window.location.href = 'addUserList.jsp'; };
+    self.editUserList = function(listId) {
+        localStorage.setItem('editUserListId', ko.unwrap(listId));
         window.location.href = 'editUserList.jsp';
     };
 
@@ -181,9 +177,7 @@ function UserListViewModel(params, config) {
     };
 
     // Validation & Save
-    self.validateForm = function(obj, fields) {
-        return self.validator ? self.validator.validateForm(obj, fields) : {};
-    };
+    self.validateForm = function(obj, fields) { return self.validator ? self.validator.validateForm(obj, fields) : {}; };
 
     self.saveUserList = async function() {
         console.log("userList.js -> saveUserList called");
@@ -191,10 +185,7 @@ function UserListViewModel(params, config) {
 
         self.errors({});
         const errs = self.validateForm(self.currentUserList(), self.formConfig.fields);
-        if (Object.keys(errs).length > 0) {
-            self.errors(errs);
-            return;
-        }
+        if (Object.keys(errs).length > 0) { self.errors(errs); return; }
 
         try {
             const uploadedFile = await FileUploader.upload("#fileInput");
@@ -211,22 +202,21 @@ function UserListViewModel(params, config) {
     };
 
     // Delete
-    self.deleteUserList = async function(row) {
+    self.deleteUserList = async function(userList) {
         if (!confirm('Are you sure?')) return;
         try {
-			await fetch(`${API_USERLIST}/delete?listId=${encodeURIComponent(ko.unwrap(row.id))}`, {
-			    method: 'DELETE',
-			    headers: { 'Accept': 'application/json' }
-			});
-
-			self.loadUserLists();
+            await fetch(`${API_USERLIST}/delete?listId=${encodeURIComponent(ko.unwrap(userList.id))}`, {
+                method: 'DELETE',
+                headers: { 'Accept': 'application/json' }
+            });
+            self.loadUserLists();
         } catch (err) { console.error('Delete userList error:', err); }
     };
 
     // Load by ID
-    self.loadUserListById = async function(id) {
+    self.loadUserListById = async function(listId) {
         try {
-            const res = await fetch(`${API_USERLIST}/get?listId=${encodeURIComponent(id)}`, { headers: { 'Accept': 'application/json' } });
+            const res = await fetch(`${API_USERLIST}/get?listId=${encodeURIComponent(listId)}`, { headers: { 'Accept': 'application/json' } });
             const data = await res.json();
             if (data.status === 'SUCCESS' && data.data) self.currentUserList(new UserList(data.data, self.formConfig?.fields || []));
         } catch (err) { console.error('Load userList error:', err); }
@@ -234,8 +224,8 @@ function UserListViewModel(params, config) {
 
     // Initialization
     if (self.mode === 'edit') {
-        const id = localStorage.getItem('editUserListId');
-        if (id) self.loadUserListById(id);
+        const listId = localStorage.getItem('editUserListId');
+        if (listId) self.loadUserListById(listId);
     } else if (self.mode === 'add') {
         self.currentUserList(new UserList({}, self.formConfig?.fields || []));
     } else {
