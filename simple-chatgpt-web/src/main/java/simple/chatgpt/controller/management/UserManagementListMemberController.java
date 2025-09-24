@@ -64,7 +64,7 @@ public class UserManagementListMemberController {
         logger.debug("getMember #############");
 
         Map<String, Object> params = new HashMap<>();
-        params.put("id", memberId);
+        params.put("memberId", memberId); // <-- corrected key
 
         UserManagementListMemberPojo member = memberService.getMemberById(params);
         if (member == null) {
@@ -77,11 +77,11 @@ public class UserManagementListMemberController {
     // 📝 UPDATE MEMBER
     @PutMapping("/update")
     public ResponseEntity<Response<UserManagementListMemberPojo>> updateMember(
-            @RequestParam Long id,
+            @RequestParam Long memberId,
             @RequestBody UserManagementListMemberPojo member
     ) {
         logger.debug("updateMember #############");
-        logger.debug("updateMember id={}", id);
+        logger.debug("updateMember memberId={}", memberId);
         logger.debug("updateMember member={}", member);
         logger.debug("updateMember member.userName={}", member.getUserName());
         logger.debug("updateMember member.firstName={}", member.getFirstName());
@@ -90,7 +90,7 @@ public class UserManagementListMemberController {
         logger.debug("updateMember #############");
 
         Map<String, Object> params = new HashMap<>();
-        params.put("id", id);
+        params.put("memberId", memberId); // <-- corrected key
         params.put("member", member);
 
         UserManagementListMemberPojo updatedMember = memberService.updateMemberById(params);
@@ -105,14 +105,13 @@ public class UserManagementListMemberController {
         logger.debug("deleteMember #############");
 
         Map<String, Object> params = new HashMap<>();
-        params.put("id", memberId);
+        params.put("memberId", memberId); // <-- corrected key
         memberService.deleteMemberById(params);
 
         return ResponseEntity.ok(Response.success("Member deleted successfully", null, HttpStatus.OK.value()));
     }
 
-    // 🔍 SEARCH MEMBERS BY PARAMETERS
- // ------------------ SEARCH MEMBERS ------------------
+    // 🔍 SEARCH MEMBERS
     @GetMapping("/search")
     public ResponseEntity<Response<PagedResult<UserManagementListMemberPojo>>> searchMembers(
             @RequestParam Map<String, Object> params
@@ -123,7 +122,6 @@ public class UserManagementListMemberController {
 
         Map<String, Object> serviceParams = new HashMap<>(params);
 
-        // Convert page & size
         int page = params.get("page") != null ? Integer.parseInt(params.get("page").toString()) : 0;
         int size = params.get("size") != null ? Integer.parseInt(params.get("size").toString()) : 20;
         int offset = page * size;
@@ -133,9 +131,13 @@ public class UserManagementListMemberController {
         serviceParams.put("offset", offset);
         serviceParams.put("limit", size);
 
-        // Ensure sort defaults
         serviceParams.put("sortField", params.getOrDefault("sortField", "id"));
         serviceParams.put("sortDirection", params.getOrDefault("sortDirection", "ASC"));
+
+        // Ensure listId key matches MyBatis mapping
+        if (params.get("listId") != null) {
+            serviceParams.put("listId", Long.parseLong(params.get("listId").toString()));
+        }
 
         PagedResult<UserManagementListMemberPojo> members = memberService.searchMembers(serviceParams);
         return ResponseEntity.ok(Response.success("Members fetched successfully", members, HttpStatus.OK.value()));
@@ -143,16 +145,12 @@ public class UserManagementListMemberController {
 
     // ------------------ COUNT MEMBERS ------------------
     @GetMapping("/count")
-    public ResponseEntity<Response<Long>> countMembers(
-            @RequestParam Map<String, Object> params
-    ) {
+    public ResponseEntity<Response<Long>> countMembers(@RequestParam Map<String, Object> params) {
         logger.debug("countMembers #############");
         logger.debug("countMembers params={}", params);
         logger.debug("countMembers #############");
 
         Map<String, Object> serviceParams = new HashMap<>(params);
-
-        // Convert numeric params if present
         if (params.get("listId") != null) {
             serviceParams.put("listId", Long.parseLong(params.get("listId").toString()));
         }
