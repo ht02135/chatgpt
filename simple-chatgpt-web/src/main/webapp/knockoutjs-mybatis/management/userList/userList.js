@@ -88,13 +88,17 @@ function UserListViewModel(params, config) {
             const qs = self.buildSearchQuery();
 			console.log("userList.js -> qs=", qs);
             const res = await fetch(`${API_USERLIST}?${qs}`, { headers: { 'Accept': 'application/json' } });
+			console.log("userList.js -> #############=");
 			console.log("userList.js -> res=", res);
+			console.log("userList.js -> #############=");
 			const data = await res.json();
 			console.log("userList.js -> data=", data);
 
             if (data.status === 'SUCCESS' && data.data) {
                 const paged = data.data;
+				console.log("userList.js -> #############=");
 				console.log("userList.js -> paged=", paged);
+				console.log("userList.js -> #############=");
                 self.userLists(paged.items.map(u => new UserList(u, self.gridConfig?.columns.map(c => ({ name: c.name })) || [])));
                 if (paged.totalCount && self.total() !== paged.totalCount) self.total(paged.totalCount);
             } else {
