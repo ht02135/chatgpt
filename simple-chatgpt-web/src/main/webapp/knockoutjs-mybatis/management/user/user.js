@@ -216,7 +216,7 @@ function UserViewModel(params, config) {
 			}
 			*/
             if (/^edit(User|Object)$/.test(action.jsMethod)) {
-                console.log("user.js -> invokeAction: ko.unwrap(row.id)=", ko.unwrap(row.id));
+                console.log("user.js -> invokeAction: action.jsMethod=", action.jsMethod);
                 self[action.jsMethod](ko.unwrap(row.id));
             } else {
                 self[action.jsMethod](row);
