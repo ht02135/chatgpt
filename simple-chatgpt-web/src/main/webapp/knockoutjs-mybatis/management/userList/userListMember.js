@@ -27,7 +27,7 @@ function UserListMemberViewModel(params, config) {
 	      params.mode correctly accesses the string "list".
 	*/
 	self.mode = params.mode || 'list';
-	self.userListId = params.userListId || localStorage.getItem('editUserListId');
+	self.listId = params.listId || localStorage.getItem('editUserListId');
     self.gridConfig = config?.grid;
     self.formConfig = config?.form;
     self.searchConfig = config?.search;
@@ -65,7 +65,7 @@ function UserListMemberViewModel(params, config) {
         params.append('size', self.size());
         params.append('sortField', self.resolveDbField(self.sortField()));
         params.append('sortDirection', self.sortOrder());
-        params.append('listId', self.userListId);
+        params.append('listId', self.listId);
 
         if (self.searchConfig?.fields) {
             self.searchConfig.fields.forEach(f => {
@@ -182,12 +182,12 @@ function UserListMemberViewModel(params, config) {
         try {
 			const payload = {
 			    ...ko.toJS(self.currentMember()),
-			    listId: self.userListId || localStorage.getItem('editUserListId')
+			    listId: self.listId
 			};
 
             let url = `${API_USERLIST_MEMBER}/create`, method = 'POST';
             if (self.mode === 'edit' && self.currentMember().id && self.currentMember().id()) {
-                url = `${API_USERLIST_MEMBER}/update?id=${encodeURIComponent(self.currentMember().id())}`;
+                url = `${API_USERLIST_MEMBER}/update?memberId=${encodeURIComponent(self.currentMember().id())}`;
                 method = 'PUT';
             }
 
