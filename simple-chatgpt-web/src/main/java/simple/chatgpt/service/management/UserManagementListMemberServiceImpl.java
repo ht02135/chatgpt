@@ -23,31 +23,17 @@ public class UserManagementListMemberServiceImpl implements UserManagementListMe
     }
 
     // ------------------ SEARCH / LIST ------------------
- // ------------------ MEMBER SEARCH / LIST ------------------
     @Override
     public List<UserManagementListMemberPojo> searchMembers(Map<String, Object> params) {
         logger.debug("searchMembers called with params={}", params);
 
-        // Default pagination
-        int page = 0;
-        int size = 20;
-        try {
-            page = Integer.parseInt((String) params.getOrDefault("page", "0"));
-        } catch (Exception e) {
-            logger.warn("Invalid page parameter: {}, defaulting to 0", params.get("page"), e);
-        }
-        try {
-            size = Integer.parseInt((String) params.getOrDefault("size", "20"));
-        } catch (Exception e) {
-            logger.warn("Invalid size parameter: {}, defaulting to 20", params.get("size"), e);
-        }
+        int page = params.get("page") != null ? (int) params.get("page") : 0;
+        int size = params.get("size") != null ? (int) params.get("size") : 20;
         int offset = page * size;
 
-        // Sorting
         String sortField = (String) params.getOrDefault("sortField", "id");
         String sortDirection = ((String) params.getOrDefault("sortDirection", "ASC")).toUpperCase();
 
-        // Copy params into Map<String,Object> for MyBatis
         Map<String, Object> sqlParams = new HashMap<>(params);
         sqlParams.put("offset", offset);
         sqlParams.put("limit", size);
@@ -59,7 +45,7 @@ public class UserManagementListMemberServiceImpl implements UserManagementListMe
             logger.debug("searchMembers param {}={}", entry.getKey(), entry.getValue());
         }
 
-        List<UserManagementListMemberPojo> members = null;
+        List<UserManagementListMemberPojo> members;
         try {
             members = mapper.findMembers(sqlParams);
             logger.debug("searchMembers result size={}", members != null ? members.size() : 0);
@@ -76,13 +62,11 @@ public class UserManagementListMemberServiceImpl implements UserManagementListMe
         logger.debug("countMembers called with params={}", params);
 
         Map<String, Object> sqlParams = new HashMap<>(params);
-
-        // Log every param individually
         for (Map.Entry<String, Object> entry : sqlParams.entrySet()) {
             logger.debug("countMembers param {}={}", entry.getKey(), entry.getValue());
         }
 
-        long count = 0;
+        long count;
         try {
             count = mapper.countMembers(sqlParams);
             logger.debug("countMembers result={}", count);

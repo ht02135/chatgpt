@@ -148,17 +148,60 @@ public class UserManagementListServiceImpl implements UserManagementListService 
 
     @Override
     public List<UserManagementListMemberPojo> searchMembers(Map<String, Object> params) {
-        logger.debug("searchMembers params={}", params);
-        List<UserManagementListMemberPojo> members = memberMapper.findMembers(params);
-        logger.debug("searchMembers members={}", members);
+        logger.debug("searchMembers called with params={}", params);
+
+        // Prepare SQL params with offset, limit, sort
+        int page = 0, size = 20;
+        try { page = Integer.parseInt((String) params.getOrDefault("page", "0")); }
+        catch (Exception e) { logger.warn("Invalid page param {}, defaulting to 0", params.get("page"), e); }
+        try { size = Integer.parseInt((String) params.getOrDefault("size", "20")); }
+        catch (Exception e) { logger.warn("Invalid size param {}, defaulting to 20", params.get("size"), e); }
+
+        int offset = page * size;
+        String sortField = (String) params.getOrDefault("sortField", "id");
+        String sortDirection = ((String) params.getOrDefault("sortDirection", "ASC")).toUpperCase();
+
+        Map<String, Object> sqlParams = new HashMap<>(params);
+        sqlParams.put("offset", offset);
+        sqlParams.put("limit", size);
+        sqlParams.put("sortField", sortField);
+        sqlParams.put("sortDirection", sortDirection);
+
+        // Log all params individually
+        for (Map.Entry<String, Object> entry : sqlParams.entrySet()) {
+            logger.debug("searchMembers param {}={}", entry.getKey(), entry.getValue());
+        }
+
+        List<UserManagementListMemberPojo> members = new ArrayList<>();
+        try {
+            members = memberMapper.findMembers(sqlParams);
+            logger.debug("searchMembers result size={}", members.size());
+        } catch (Exception e) {
+            logger.error("Error executing searchMembers query with params={}", sqlParams, e);
+            throw new RuntimeException(e);
+        }
+
         return members;
     }
 
     @Override
     public long countMembers(Map<String, Object> params) {
-        logger.debug("countMembers params={}", params);
-        long count = memberMapper.countMembers(params);
-        logger.debug("countMembers count={}", count);
+        logger.debug("countMembers called with params={}", params);
+
+        Map<String, Object> sqlParams = new HashMap<>(params);
+        for (Map.Entry<String, Object> entry : sqlParams.entrySet()) {
+            logger.debug("countMembers param {}={}", entry.getKey(), entry.getValue());
+        }
+
+        long count = 0;
+        try {
+            count = memberMapper.countMembers(sqlParams);
+            logger.debug("countMembers result={}", count);
+        } catch (Exception e) {
+            logger.error("Error executing countMembers query with params={}", sqlParams, e);
+            throw new RuntimeException(e);
+        }
+
         return count;
     }
 
