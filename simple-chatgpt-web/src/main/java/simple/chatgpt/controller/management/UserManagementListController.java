@@ -1,8 +1,11 @@
 package simple.chatgpt.controller.management;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -35,19 +38,21 @@ public class UserManagementListController {
     public UserManagementListController(UserManagementListService userManagementListService) {
         this.userManagementListService = userManagementListService;
     }
-    
+
+    // ------------------ LIST SEARCH ------------------
     @GetMapping
     public ResponseEntity<Response<PagedResult<UserManagementListPojo>>> searchUserLists(
-            @RequestParam Map<String, String> params
+            @RequestParam Map<String, Object> params
     ) {
         logger.debug("searchUserLists called with params={}", params);
 
-        int page = Integer.parseInt(params.getOrDefault("page", "0"));
-        int size = Integer.parseInt(params.getOrDefault("size", "20"));
+        // Default pagination and sorting
+        int page = Integer.parseInt(params.getOrDefault("page", "0").toString());
+        int size = Integer.parseInt(params.getOrDefault("size", "20").toString());
         int offset = page * size;
 
-        params.put("offset", String.valueOf(offset));
-        params.put("limit", String.valueOf(size));
+        params.put("offset", offset);
+        params.put("limit", size);
         params.put("sortField", params.getOrDefault("sortField", "id"));
         params.put("sortDirection", params.getOrDefault("sortDirection", "asc"));
 
@@ -56,8 +61,7 @@ public class UserManagementListController {
         return ResponseEntity.ok(Response.success("Fetched successfully", lists, HttpStatus.OK.value()));
     }
 
-    
-    // ➕ CREATE LIST WITH MEMBERS
+    // ------------------ CREATE LIST WITH MEMBERS ------------------
     @PostMapping("/create")
     public ResponseEntity<Response<UserManagementListPojo>> createList(
             @RequestPart("list") UserManagementListPojo list,
@@ -66,13 +70,13 @@ public class UserManagementListController {
         logger.debug("createList #############");
         logger.debug("createList list={}", list);
         logger.debug("createList #############");
-        if(list != null) {
+        if (list != null) {
             logger.debug("createList list.userListName={}", list.getUserListName());
             logger.debug("createList list.description={}", list.getDescription());
         }
 
-        if(members != null) {
-            for(UserManagementListMemberPojo m : members) {
+        if (members != null) {
+            for (UserManagementListMemberPojo m : members) {
                 logger.debug("createList member={}", m);
                 logger.debug("createList member.userName={}", m.getUserName());
                 logger.debug("createList member.firstName={}", m.getFirstName());
@@ -84,9 +88,11 @@ public class UserManagementListController {
         }
 
         try {
-            // Convert array to list for service call
-            userManagementListService.createList(list, members != null ? Arrays.asList(members) : null);
-        } catch(Exception e) {
+            Map<String, Object> params = new HashMap<>();
+            params.put("list", list);
+            params.put("members", members != null ? Arrays.asList(members) : null);
+            userManagementListService.createList(params);
+        } catch (Exception e) {
             logger.error("createList failed", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Response.error("Create failed: " + e.getMessage(), null, 500));
@@ -96,14 +102,17 @@ public class UserManagementListController {
                 .body(Response.success("List created successfully", list, HttpStatus.CREATED.value()));
     }
 
-    // 📖 GET LIST BY ID
+    // ------------------ GET LIST BY ID ------------------
     @GetMapping("/get")
-    public ResponseEntity<Response<UserManagementListPojo>> getList(@RequestParam Long id) {
+    public ResponseEntity<Response<UserManagementListPojo>> getList(@RequestParam Long listId) {
         logger.debug("getList #############");
-        logger.debug("getList id={}", id);
+        logger.debug("getList listId={}", listId);
         logger.debug("getList #############");
 
-        UserManagementListPojo list = userManagementListService.getListById(id);
+        Map<String, Object> params = new HashMap<>();
+        params.put("listId", listId);
+
+        UserManagementListPojo list = userManagementListService.getListById(params);
         if (list == null) {
             return ResponseEntity.ok(Response.error("List not found", null, HttpStatus.NOT_FOUND.value()));
         }
@@ -111,29 +120,35 @@ public class UserManagementListController {
         return ResponseEntity.ok(Response.success("List fetched successfully", list, HttpStatus.OK.value()));
     }
 
-    // 📖 GET MEMBERS OF LIST
+    // ------------------ GET MEMBERS BY LIST ------------------
     @GetMapping("/members")
     public ResponseEntity<Response<List<UserManagementListMemberPojo>>> getMembers(@RequestParam Long listId) {
         logger.debug("getMembers #############");
         logger.debug("getMembers listId={}", listId);
         logger.debug("getMembers #############");
 
-        List<UserManagementListMemberPojo> members = userManagementListService.getMembersByListId(listId);
+        Map<String, Object> params = new HashMap<>();
+        params.put("listId", listId);
+
+        List<UserManagementListMemberPojo> members = userManagementListService.getMembersByListId(params);
         return ResponseEntity.ok(Response.success("Members fetched successfully", members, HttpStatus.OK.value()));
     }
 
-    // 🗑 DELETE LIST
+    // ------------------ DELETE LIST ------------------
     @DeleteMapping("/delete")
     public ResponseEntity<Response<Void>> deleteList(@RequestParam Long listId) {
         logger.debug("deleteList #############");
         logger.debug("deleteList listId={}", listId);
         logger.debug("deleteList #############");
 
-        userManagementListService.deleteList(listId);
+        Map<String, Object> params = new HashMap<>();
+        params.put("listId", listId);
+
+        userManagementListService.deleteList(params);
         return ResponseEntity.ok(Response.success("List deleted successfully", null, HttpStatus.OK.value()));
     }
 
-    // 📥 IMPORT LIST FROM CSV/EXCEL
+    // ------------------ IMPORT LIST ------------------
     @PostMapping("/import")
     public ResponseEntity<Response<UserManagementListPojo>> importList(
             @RequestPart("list") UserManagementListPojo list,
@@ -146,10 +161,15 @@ public class UserManagementListController {
 
         try (var is = file.getInputStream()) {
             String filename = file.getOriginalFilename().toLowerCase();
+            Map<String, Object> params = new HashMap<>();
+            params.put("list", list);
+            params.put("inputStream", is);
+            params.put("originalFileName", file.getOriginalFilename());
+
             if (filename.endsWith(".csv")) {
-                userManagementListService.importListFromCsv(is, list, file.getOriginalFilename());
+                userManagementListService.importListFromCsv(params);
             } else if (filename.endsWith(".xlsx") || filename.endsWith(".xls")) {
-                userManagementListService.importListFromExcel(is, list, file.getOriginalFilename());
+                userManagementListService.importListFromExcel(params);
             } else {
                 return ResponseEntity.ok(Response.error("Unsupported file type", null, HttpStatus.BAD_REQUEST.value()));
             }
@@ -162,41 +182,46 @@ public class UserManagementListController {
                 .body(Response.success("List imported successfully", list, HttpStatus.CREATED.value()));
     }
 
-    // 📤 EXPORT LIST TO CSV
+    // ------------------ EXPORT LIST ------------------
     @GetMapping("/export/csv")
-    public void exportListToCsv(@RequestParam Long listId, javax.servlet.http.HttpServletResponse response) {
+    public void exportListToCsv(@RequestParam Long listId, HttpServletResponse response) {
         logger.debug("exportListToCsv #############");
         logger.debug("exportListToCsv listId={}", listId);
         logger.debug("exportListToCsv #############");
-        
+
         response.setContentType("text/csv");
         response.setHeader("Content-Disposition", "attachment; filename=\"list_" + listId + ".csv\"");
 
         try (var os = response.getOutputStream()) {
-            userManagementListService.exportListToCsv(listId, os);
+            Map<String, Object> params = new HashMap<>();
+            params.put("listId", listId);
+            params.put("outputStream", os);
+            userManagementListService.exportListToCsv(params);
         } catch (Exception e) {
             logger.error("exportListToCsv failed", e);
         }
     }
 
-    // 📤 EXPORT LIST TO EXCEL
     @GetMapping("/export/excel")
-    public void exportListToExcel(@RequestParam Long listId, javax.servlet.http.HttpServletResponse response) {
+    public void exportListToExcel(@RequestParam Long listId, HttpServletResponse response) {
         logger.debug("exportListToExcel #############");
         logger.debug("exportListToExcel listId={}", listId);
         logger.debug("exportListToExcel #############");
-        
+
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         response.setHeader("Content-Disposition", "attachment; filename=\"list_" + listId + ".xlsx\"");
 
         try (var os = response.getOutputStream()) {
-            userManagementListService.exportListToExcel(listId, os);
+            Map<String, Object> params = new HashMap<>();
+            params.put("listId", listId);
+            params.put("outputStream", os);
+            userManagementListService.exportListToExcel(params);
         } catch (Exception e) {
             logger.error("exportListToExcel failed", e);
         }
     }
 
-    // 🔍 SEARCH MEMBERS BY PARAMETERS
+    // ------------------ SEARCH MEMBERS ------------------
     @GetMapping("/members/search")
     public ResponseEntity<Response<List<UserManagementListMemberPojo>>> searchMembers(
             @RequestParam Map<String, Object> params
@@ -209,7 +234,6 @@ public class UserManagementListController {
         return ResponseEntity.ok(Response.success("Members fetched successfully", members, HttpStatus.OK.value()));
     }
 
-    // 📊 COUNT MEMBERS BY PARAMETERS
     @GetMapping("/members/count")
     public ResponseEntity<Response<Long>> countMembers(
             @RequestParam Map<String, Object> params
