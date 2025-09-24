@@ -146,6 +146,7 @@ function UserListMemberViewModel(params, config) {
     self.navigateToMembers = function() { window.location.href = 'editUserList.jsp'; };
     self.addUserListMember = function() { window.location.href = 'addUserListMember.jsp'; };
     self.editUserListMember = function(id) {
+		console.log("userListMember.js -> editUserListMember: id=", ko.unwrap(id));
         localStorage.setItem('editUserListMemberId', ko.unwrap(id));
         window.location.href = 'editUserListMember.jsp';
     };
@@ -211,9 +212,14 @@ function UserListMemberViewModel(params, config) {
 
     // Load by ID
     self.loadUserListMemberById = async function(id) {
+		console.log("userListMember.js -> loadUserListMemberById called");
+		console.log("userListMember.js -> loadUserListMemberById id=",id);
         try {
             const res = await fetch(`${API_USERLIST_MEMBER}/get?memberId=${encodeURIComponent(id)}`, { headers: { 'Accept': 'application/json' } });
-            const data = await res.json();
+			console.log("userListMember.js -> loadUserListMemberById res=",res);
+			const data = await res.json();
+			console.log("userListMember.js -> loadUserListMemberById data=",data);
+			
             if (data.status === 'SUCCESS' && data.data) self.currentMember(new UserListMember(data.data, self.formConfig?.fields || []));
         } catch (err) { console.error('Load member error:', err); }
     };
