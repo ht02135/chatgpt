@@ -65,7 +65,7 @@ function UserListMemberViewModel(params, config) {
         params.append('size', self.size());
         params.append('sortField', self.resolveDbField(self.sortField()));
         params.append('sortDirection', self.sortOrder());
-        params.append('userListId', self.userListId);
+        params.append('listId', self.userListId);
 
         if (self.searchConfig?.fields) {
             self.searchConfig.fields.forEach(f => {
