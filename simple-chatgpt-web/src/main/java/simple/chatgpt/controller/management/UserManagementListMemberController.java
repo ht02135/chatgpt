@@ -1,5 +1,6 @@
 package simple.chatgpt.controller.management;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -47,7 +48,10 @@ public class UserManagementListMemberController {
         logger.debug("createMember member.email={}", member.getEmail());
         logger.debug("createMember #############");
 
-        memberService.createMember(member);
+        Map<String, Object> params = new HashMap<>();
+        params.put("member", member);
+        memberService.createMember(params);
+
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(Response.success("Member created successfully", member, HttpStatus.CREATED.value()));
     }
@@ -59,7 +63,10 @@ public class UserManagementListMemberController {
         logger.debug("getMember memberId={}", memberId);
         logger.debug("getMember #############");
 
-        UserManagementListMemberPojo member = memberService.getMemberById(memberId);
+        Map<String, Object> params = new HashMap<>();
+        params.put("id", memberId);
+
+        UserManagementListMemberPojo member = memberService.getMemberById(params);
         if (member == null) {
             return ResponseEntity.ok(Response.error("Member not found", null, HttpStatus.NOT_FOUND.value()));
         }
@@ -82,10 +89,13 @@ public class UserManagementListMemberController {
         logger.debug("updateMember member.email={}", member.getEmail());
         logger.debug("updateMember #############");
 
-        UserManagementListMemberPojo updatedMember = memberService.updateMemberById(id, member);
+        Map<String, Object> params = new HashMap<>();
+        params.put("id", id);
+        params.put("member", member);
+
+        UserManagementListMemberPojo updatedMember = memberService.updateMemberById(params);
         return ResponseEntity.ok(Response.success("Member updated successfully", updatedMember, HttpStatus.OK.value()));
     }
-
 
     // 🗑 DELETE MEMBER
     @DeleteMapping("/delete")
@@ -94,7 +104,10 @@ public class UserManagementListMemberController {
         logger.debug("deleteMember memberId={}", memberId);
         logger.debug("deleteMember #############");
 
-        memberService.deleteMemberById(memberId);  // delete by ID
+        Map<String, Object> params = new HashMap<>();
+        params.put("id", memberId);
+        memberService.deleteMemberById(params);
+
         return ResponseEntity.ok(Response.success("Member deleted successfully", null, HttpStatus.OK.value()));
     }
 
