@@ -205,21 +205,38 @@ public class UserManagementListServiceImpl implements UserManagementListService 
 
     // ------------------ MEMBER SEARCH/COUNT ------------------
     @Override
-    public List<UserManagementListMemberPojo> getMembersByListId(Map<String, Object> params) {
+    public PagedResult<UserManagementListMemberPojo> getMembersByListId(Map<String, Object> params) {
         logger.debug("getMembersByListId called with params={}", params);
         Long listId = (Long) params.get("listId");
         logger.debug("getMembersByListId listId={}", listId);
 
+        int page = 0;
+        int size = 20;
+        try { page = Integer.parseInt((String) params.getOrDefault("page", "0")); } 
+        catch (Exception e) { logger.warn("Invalid page param {}, defaulting to 0", params.get("page"), e); }
+        try { size = Integer.parseInt((String) params.getOrDefault("size", "20")); } 
+        catch (Exception e) { logger.warn("Invalid size param {}, defaulting to 20", params.get("size"), e); }
+
+        int offset = page * size;
+
         Map<String, Object> sqlParams = new HashMap<>();
         sqlParams.put("listId", listId);
+        sqlParams.put("offset", offset);
+        sqlParams.put("limit", size);
+
+        for (Map.Entry<String, Object> entry : sqlParams.entrySet()) {
+            logger.debug("getMembersByListId param {}={}", entry.getKey(), entry.getValue());
+        }
 
         List<UserManagementListMemberPojo> members = memberMapper.findMembersByListId(sqlParams);
-        logger.debug("getMembersByListId members={}", members);
-        return members;
+        long total = memberMapper.countMembers(sqlParams); // total for pagination
+
+        logger.debug("getMembersByListId result size={} total={}", members.size(), total);
+        return new PagedResult<>(members, total, page, size);
     }
 
     @Override
-    public List<UserManagementListMemberPojo> searchMembers(Map<String, Object> params) {
+    public PagedResult<UserManagementListMemberPojo> searchMembers(Map<String, Object> params) {
         logger.debug("searchMembers called with params={}", params);
 
         int page = 0, size = 20;
@@ -243,8 +260,10 @@ public class UserManagementListServiceImpl implements UserManagementListService 
         }
 
         List<UserManagementListMemberPojo> members = memberMapper.findMembers(sqlParams);
-        logger.debug("searchMembers result size={}", members.size());
-        return members;
+        long total = memberMapper.countMembers(params);
+
+        logger.debug("searchMembers result size={} total={}", members.size(), total);
+        return new PagedResult<>(members, total, page, size);
     }
 
     @Override
@@ -260,6 +279,7 @@ public class UserManagementListServiceImpl implements UserManagementListService 
         logger.debug("countMembers result={}", count);
         return count;
     }
+
 
     // ------------------ CSV/Excel ------------------
     @Override
@@ -308,15 +328,25 @@ public class UserManagementListServiceImpl implements UserManagementListService 
         OutputStream outputStream = (OutputStream) params.get("outputStream");
 
         logger.debug("exportListToCsv listId={}", listId);
+        logger.debug("exportListToCsv outputStream={}", outputStream);
 
-        List<UserManagementListMemberPojo> members = getMembersByListId(params);
+        // Use PagedResult to get all members (set page=0, size=Integer.MAX_VALUE to fetch all)
+        Map<String, Object> pagingParams = new HashMap<>(params);
+        pagingParams.put("page", 0);
+        pagingParams.put("size", Integer.MAX_VALUE);
+
+        PagedResult<UserManagementListMemberPojo> result = getMembersByListId(pagingParams);
+        List<UserManagementListMemberPojo> members = result.getItems();
+        logger.debug("exportListToCsv members count={}", members.size());
 
         try (CSVWriter writer = new CSVWriter(new java.io.OutputStreamWriter(outputStream))) {
             String[] header = downloadColumns.stream().map(ColumnConfig::getDbField).toArray(String[]::new);
             writer.writeNext(header);
 
             for (UserManagementListMemberPojo m : members) {
-                String[] row = downloadColumns.stream().map(c -> getFieldValue(m, c.getName())).toArray(String[]::new);
+                String[] row = downloadColumns.stream()
+                    .map(c -> getFieldValue(m, c.getName()))
+                    .toArray(String[]::new);
                 writer.writeNext(row);
             }
         }
@@ -375,8 +405,16 @@ public class UserManagementListServiceImpl implements UserManagementListService 
         OutputStream outputStream = (OutputStream) params.get("outputStream");
 
         logger.debug("exportListToExcel listId={}", listId);
+        logger.debug("exportListToExcel outputStream={}", outputStream);
 
-        List<UserManagementListMemberPojo> members = getMembersByListId(params);
+        // Use PagedResult to get all members (page=0, size=Integer.MAX_VALUE)
+        Map<String, Object> pagingParams = new HashMap<>(params);
+        pagingParams.put("page", 0);
+        pagingParams.put("size", Integer.MAX_VALUE);
+
+        PagedResult<UserManagementListMemberPojo> result = getMembersByListId(pagingParams);
+        List<UserManagementListMemberPojo> members = result.getItems();
+        logger.debug("exportListToExcel members count={}", members.size());
 
         try (Workbook workbook = new XSSFWorkbook()) {
             Sheet sheet = workbook.createSheet("Users");

@@ -1,6 +1,5 @@
 package simple.chatgpt.service.management;
 
-import java.util.List;
 import java.util.Map;
 
 import simple.chatgpt.pojo.management.UserManagementListMemberPojo;
@@ -19,8 +18,8 @@ public interface UserManagementListService {
     UserManagementListPojo getListById(Map<String, Object> params); // params should include "listId"
 
     // ------------------ MEMBER CRUD ------------------
-    List<UserManagementListMemberPojo> getMembersByListId(Map<String, Object> params); // params should include "listId"
-    List<UserManagementListMemberPojo> searchMembers(Map<String, Object> params);
+    PagedResult<UserManagementListMemberPojo> getMembersByListId(Map<String, Object> params); // params should include "listId"
+    PagedResult<UserManagementListMemberPojo> searchMembers(Map<String, Object> params);
     long countMembers(Map<String, Object> params);
 
     // ------------------ FILE IMPORT/EXPORT ------------------

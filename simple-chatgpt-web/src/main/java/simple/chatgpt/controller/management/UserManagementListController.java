@@ -2,7 +2,6 @@ package simple.chatgpt.controller.management;
 
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
@@ -122,7 +121,7 @@ public class UserManagementListController {
 
     // ------------------ GET MEMBERS BY LIST ------------------
     @GetMapping("/members")
-    public ResponseEntity<Response<List<UserManagementListMemberPojo>>> getMembers(@RequestParam Long listId) {
+    public ResponseEntity<Response<PagedResult<UserManagementListMemberPojo>>> getMembers(@RequestParam Long listId) {
         logger.debug("getMembers #############");
         logger.debug("getMembers listId={}", listId);
         logger.debug("getMembers #############");
@@ -130,7 +129,7 @@ public class UserManagementListController {
         Map<String, Object> params = new HashMap<>();
         params.put("listId", listId);
 
-        List<UserManagementListMemberPojo> members = userManagementListService.getMembersByListId(params);
+        PagedResult<UserManagementListMemberPojo> members = userManagementListService.getMembersByListId(params);
         return ResponseEntity.ok(Response.success("Members fetched successfully", members, HttpStatus.OK.value()));
     }
 
@@ -223,7 +222,7 @@ public class UserManagementListController {
 
  // ------------------ SEARCH MEMBERS ------------------
     @GetMapping("/members/search")
-    public ResponseEntity<Response<List<UserManagementListMemberPojo>>> searchMembers(
+    public ResponseEntity<Response<PagedResult<UserManagementListMemberPojo>>> searchMembers(
             @RequestParam Map<String, Object> params
     ) {
         logger.debug("searchMembers #############");
@@ -247,7 +246,7 @@ public class UserManagementListController {
         serviceParams.put("sortField", params.getOrDefault("sortField", "id"));
         serviceParams.put("sortDirection", params.getOrDefault("sortDirection", "ASC"));
 
-        List<UserManagementListMemberPojo> members = userManagementListService.searchMembers(serviceParams);
+        PagedResult<UserManagementListMemberPojo> members = userManagementListService.searchMembers(serviceParams);
         return ResponseEntity.ok(Response.success("Members fetched successfully", members, HttpStatus.OK.value()));
     }
 
