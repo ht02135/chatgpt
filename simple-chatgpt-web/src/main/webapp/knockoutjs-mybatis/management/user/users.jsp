@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="user.css">
 </head>
 <body>
-<div class="container" data-bind="with: objectVM">
+<div class="container" data-bind="with: UserVM">
     <h1>User Management</h1>
 
     <!-- Generic Search Form -->
@@ -62,22 +62,22 @@ import Validator from "./validation.js";
     const actionGroupMap = await configLoader.getActionGroupMap();
 
     // ✅ Initialize ViewModel
-    const objectVM = new UserViewModel(
+    const UserVM = new UserViewModel(
         { mode: "list" },
         { grid: gridConfig, search: searchConfig, actionGroups: actionGroupMap }
     );
 
     // ✅ Build Validator (loads regexConfig internally)
-    objectVM.validator = await Validator.build(configLoader);
+    UserVM.validator = await Validator.build(configLoader);
 
     // ✅ Initialize observable for errors
-    objectVM.errors = ko.observable({});
+    UserVM.errors = ko.observable({});
 
     // ✅ Apply Knockout bindings
-    ko.applyBindings({ objectVM });
+    ko.applyBindings({ UserVM });
 
     // ✅ Initial load of users
-    await objectVM.loadUsers();
+    await UserVM.loadUsers();
 })();
 </script>
 

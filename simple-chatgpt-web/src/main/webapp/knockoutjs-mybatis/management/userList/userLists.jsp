@@ -15,39 +15,39 @@
 
     <!-- Search Form -->
     <generic-search-form params="
-        searchConfig: objectVM.searchConfig, 
-        searchParams: objectVM.searchParams, 
-        errors: objectVM.errors, 
-        searchObjects: objectVM.searchUserLists,
+        searchConfig: UserListVM.searchConfig, 
+        searchParams: UserListVM.searchParams, 
+        errors: UserListVM.errors, 
+        searchObjects: UserListVM.searchUserLists,
 		coreCount: 3
     "></generic-search-form>
 
     <!-- Search Actions -->
     <generic-search-actions params="
-        addObject: objectVM.navigateToAddUserList,
-        searchObjects: objectVM.searchUserLists,
-        resetSearch: objectVM.resetSearch
+        addObject: UserListVM.navigateToAddUserList,
+        searchObjects: UserListVM.searchUserLists,
+        resetSearch: UserListVM.resetSearch
     "></generic-search-actions>
 
     <!-- Grid -->
     <generic-grid params="
-        gridConfig: objectVM.gridConfig,
-        items: objectVM.userLists,
-        sortField: objectVM.sortField,
-        sortOrder: objectVM.sortOrder,
-        setSort: objectVM.setSort,
-        getActionsForColumn: objectVM.getActionsForColumn,
-        invokeAction: objectVM.invokeAction
+        gridConfig: UserListVM.gridConfig,
+        items: UserListVM.userLists,
+        sortField: UserListVM.sortField,
+        sortOrder: UserListVM.sortOrder,
+        setSort: UserListVM.setSort,
+        getActionsForColumn: UserListVM.getActionsForColumn,
+        invokeAction: UserListVM.invokeAction
     "></generic-grid>
 
     <!-- Pagination -->
     <generic-grid-pagination params="
-        page: objectVM.page,
-        maxPage: objectVM.maxPage,
-        prevPage: objectVM.prevPage,
-        nextPage: objectVM.nextPage,
-        size: objectVM.size,
-        total: objectVM.total
+        page: UserListVM.page,
+        maxPage: UserListVM.maxPage,
+        prevPage: UserListVM.prevPage,
+        nextPage: UserListVM.nextPage,
+        size: UserListVM.size,
+        total: UserListVM.total
     "></generic-grid-pagination>
 
 </div>
@@ -66,22 +66,22 @@ import Validator from "./validation.js";
     const actionGroupMap = await configLoader.getActionGroupMap();
 
     // Initialize ViewModel (comes from userList.js, global function)
-    const objectVM = new UserListViewModel(
+    const UserListVM = new UserListViewModel(
         { mode: "list" },
         { grid: gridConfig, search: searchConfig, actionGroups: actionGroupMap }
     );
 
     // Build Validator
-    objectVM.validator = await Validator.build(configLoader);
+    UserListVM.validator = await Validator.build(configLoader);
 
     // Initialize observable for errors
-    objectVM.errors = ko.observable({});
+    UserListVM.errors = ko.observable({});
 
     // Apply Knockout bindings
-    ko.applyBindings({ objectVM });
+    ko.applyBindings({ UserListVM });
 
     // Initial load of User Lists
-    await objectVM.loadUserLists();
+    await UserListVM.loadUserLists();
 })();
 </script>
 

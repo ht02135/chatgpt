@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="property.css">
 </head>
 <body>
-<div class="container" data-bind="with: objectVM">
+<div class="container" data-bind="with: PropertyVM">
     <h1>Property Management</h1>
 
     <!-- Generic Search Form -->
@@ -61,20 +61,20 @@ import Validator from "./validation.js";
     const validatorGroups = await configLoader.getValidatorGroupMap();
     const actionGroupMap  = await configLoader.getActionGroupMap();
 
-    const objectVM = new PropertyViewModel(
+    const PropertyVM = new PropertyViewModel(
         { mode: "list" },
         { grid: gridConfig, search: searchConfig, actionGroups: actionGroupMap }
     );
 
     // Validator now builds merged regex config + validatorGroups internally
-    objectVM.validator = await Validator.build(configLoader, validatorGroups);
+    PropertyVM.validator = await Validator.build(configLoader, validatorGroups);
 
-    objectVM.errors = ko.observable({});
+    PropertyVM.errors = ko.observable({});
 
-    ko.applyBindings({ objectVM });
+    ko.applyBindings({ PropertyVM });
 
     // Initial load
-    await objectVM.loadProperties();
+    await PropertyVM.loadProperties();
 })();
 </script>
 
