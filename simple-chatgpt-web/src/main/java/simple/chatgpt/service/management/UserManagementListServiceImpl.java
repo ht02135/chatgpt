@@ -161,7 +161,6 @@ public class UserManagementListServiceImpl implements UserManagementListService 
         logger.debug("updateList list={}", list);
         logger.debug("updateList members={}", members);
 
-        // --- Flatten params for list update
         Map<String, Object> listParam = new HashMap<>();
         listParam.put("listId", list.getId());
         listParam.put("userListName", list.getUserListName());
@@ -173,16 +172,12 @@ public class UserManagementListServiceImpl implements UserManagementListService 
         logger.debug("updateList list updated for listId={}", list.getId());
 
         Long listId = list.getId();
-        logger.debug("updateList listId={}", listId);
-
         if (members != null && !members.isEmpty()) {
-            // Delete existing members
             Map<String, Object> deleteParam = new HashMap<>();
             deleteParam.put("listId", listId);
             memberMapper.deleteMembersByListId(deleteParam);
             logger.debug("updateList existing members deleted for listId={}", listId);
 
-            // Insert new members
             for (UserManagementListMemberPojo m : members) {
                 m.setListId(listId);
                 logger.debug("updateList member listId set: member={}", m);
@@ -234,7 +229,7 @@ public class UserManagementListServiceImpl implements UserManagementListService 
         }
 
         List<UserManagementListMemberPojo> members = memberMapper.findMembersByListId(sqlParams);
-        long total = memberMapper.countMembers(sqlParams); // total for pagination
+        long total = memberMapper.countMembers(sqlParams);
 
         logger.debug("getMembersByListId result size={} total={}", members.size(), total);
         return new PagedResult<>(members, total, page, size);
@@ -265,7 +260,7 @@ public class UserManagementListServiceImpl implements UserManagementListService 
         }
 
         List<UserManagementListMemberPojo> members = memberMapper.findMembers(sqlParams);
-        long total = memberMapper.countMembers(params);
+        long total = memberMapper.countMembers(sqlParams); // fixed: use same filtered params
 
         logger.debug("searchMembers result size={} total={}", members.size(), total);
         return new PagedResult<>(members, total, page, size);
@@ -284,7 +279,6 @@ public class UserManagementListServiceImpl implements UserManagementListService 
         logger.debug("countMembers result={}", count);
         return count;
     }
-
 
     // ------------------ CSV/Excel ------------------
     @Override
@@ -335,7 +329,6 @@ public class UserManagementListServiceImpl implements UserManagementListService 
         logger.debug("exportListToCsv listId={}", listId);
         logger.debug("exportListToCsv outputStream={}", outputStream);
 
-        // Use PagedResult to get all members (set page=0, size=Integer.MAX_VALUE to fetch all)
         Map<String, Object> pagingParams = new HashMap<>(params);
         pagingParams.put("page", 0);
         pagingParams.put("size", Integer.MAX_VALUE);
@@ -412,7 +405,6 @@ public class UserManagementListServiceImpl implements UserManagementListService 
         logger.debug("exportListToExcel listId={}", listId);
         logger.debug("exportListToExcel outputStream={}", outputStream);
 
-        // Use PagedResult to get all members (page=0, size=Integer.MAX_VALUE)
         Map<String, Object> pagingParams = new HashMap<>(params);
         pagingParams.put("page", 0);
         pagingParams.put("size", Integer.MAX_VALUE);
