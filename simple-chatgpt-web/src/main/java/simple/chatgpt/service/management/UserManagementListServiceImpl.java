@@ -1,9 +1,7 @@
 package simple.chatgpt.service.management;
 
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -57,9 +55,11 @@ public class UserManagementListServiceImpl implements UserManagementListService 
 
         if (!Files.exists(storageDir)) {
             Files.createDirectories(storageDir);
-            logger.debug("Storage directory created at relativePath={} absolutePath={}", storageDir, storageDir.toAbsolutePath());
+            logger.debug("Storage directory created at relativePath={}", storageDir);
+            logger.debug("Storage directory created at absolutePath={}", storageDir.toAbsolutePath());
         } else {
-            logger.debug("Storage directory exists at relativePath={} absolutePath={}", storageDir, storageDir.toAbsolutePath());
+            logger.debug("Storage directory exists at relativePath={}", storageDir);
+            logger.debug("Storage directory exists at absolutePath={}", storageDir.toAbsolutePath());
         }
 
         this.uploadColumns = UploadConfigLoader.getColumns(MEMBER_GRID_ID);
@@ -68,89 +68,9 @@ public class UserManagementListServiceImpl implements UserManagementListService 
 
     // ------------------ SEARCH ------------------
     @Override
-    public PagedResult<UserManagementListPojo> searchUserLists(Map<String, String> params) {
+    public PagedResult<UserManagementListPojo> searchUserLists(Map<String, Object> params) {
         logger.debug("searchUserLists called with params={}", params);
 
-        int page = 0, size = 20;
-        try { page = Integer.parseInt(params.getOrDefault("page", "0")); }
-        catch (NumberFormatException e) { logger.warn("Invalid page param {}, defaulting to 0", params.get("page"), e); }
-        try { size = Integer.parseInt(params.getOrDefault("size", "20")); }
-        catch (NumberFormatException e) { logger.warn("Invalid size param {}, defaulting to 20", params.get("size"), e); }
-
-        int offset = page * size;
-        String sortField = params.getOrDefault("sortField", "id");
-        String sortDirection = params.getOrDefault("sortDirection", "ASC").toUpperCase();
-
-        Map<String, Object> sqlParams = new HashMap<>(params);
-        sqlParams.put("offset", offset);
-        sqlParams.put("limit", size);
-        sqlParams.put("sortField", sortField);
-        sqlParams.put("sortDirection", sortDirection);
-
-        List<UserManagementListPojo> items = new ArrayList<>();
-        long totalCount = 0;
-        try {
-            items = listMapper.findLists(sqlParams);
-            totalCount = listMapper.countLists(sqlParams);
-            logger.debug("searchUserLists items={}", items);
-            logger.debug("searchUserLists totalCount={}", totalCount);
-        } catch (Exception e) {
-            logger.error("Error executing searchUserLists query with params={}", sqlParams, e);
-            throw new RuntimeException(e);
-        }
-
-        return new PagedResult<>(items, totalCount, page, size);
-    }
-
-    // ------------------ CRUD ------------------
-    @Override
-    public void createList(UserManagementListPojo list, List<UserManagementListMemberPojo> members) {
-        logger.debug("createList list={}", list);
-        logger.debug("createList members={}", members);
-
-        listMapper.insertList(list);
-        Long listId = list.getId();
-        logger.debug("createList generated listId={}", listId);
-
-        if (members != null && !members.isEmpty()) {
-            for (UserManagementListMemberPojo m : members) {
-                m.setListId(listId);
-                logger.debug("createList member listId set: member={}", m);
-            }
-            memberMapper.batchInsertMembers(members);
-        }
-    }
-
-    @Override
-    public void deleteList(Long listId) {
-        logger.debug("deleteList listId={}", listId);
-        memberMapper.deleteMembersByListId(listId);
-        listMapper.deleteList(listId);
-        logger.debug("deleteList completed for listId={}", listId);
-    }
-
-    @Override
-    public UserManagementListPojo getListById(Long listId) {
-        logger.debug("getListById listId={}", listId);
-        UserManagementListPojo list = listMapper.findListById(listId);
-        logger.debug("getListById result={}", list);
-        return list;
-    }
-
-    // ------------------ MEMBER SEARCH/COUNT ------------------
-    @Override
-    public List<UserManagementListMemberPojo> getMembersByListId(Long listId) {
-        logger.debug("getMembersByListId listId={}", listId);
-        List<UserManagementListMemberPojo> members = memberMapper.findMembersByListId(listId);
-        logger.debug("getMembersByListId members={}", members);
-        return members;
-    }
-
-    @Override
-    public List<UserManagementListMemberPojo> searchMembers(Map<String, Object> params) {
-        logger.debug("searchMembers called with params={}", params);
-
-        // Prepare SQL params with offset, limit, sort
         int page = 0, size = 20;
         try { page = Integer.parseInt((String) params.getOrDefault("page", "0")); }
         catch (Exception e) { logger.warn("Invalid page param {}, defaulting to 0", params.get("page"), e); }
@@ -167,20 +87,163 @@ public class UserManagementListServiceImpl implements UserManagementListService 
         sqlParams.put("sortField", sortField);
         sqlParams.put("sortDirection", sortDirection);
 
-        // Log all params individually
+        List<UserManagementListPojo> items = new ArrayList<>();
+        long totalCount = 0;
+        try {
+            items = listMapper.findLists(sqlParams);
+            totalCount = listMapper.countLists(sqlParams);
+            logger.debug("searchUserLists items={}", items);
+            logger.debug("searchUserLists totalCount={}", totalCount);
+        } catch (Exception e) {
+            logger.error("Error executing searchUserLists with params={}", sqlParams, e);
+            throw new RuntimeException(e);
+        }
+
+        return new PagedResult<>(items, totalCount, page, size);
+    }
+
+    // ------------------ CRUD ------------------
+    @Override
+    public void createList(Map<String, Object> params) {
+        logger.debug("createList called with params={}", params);
+
+        UserManagementListPojo list = (UserManagementListPojo) params.get("list");
+        List<UserManagementListMemberPojo> members = (List<UserManagementListMemberPojo>) params.get("members");
+
+        logger.debug("createList list={}", list);
+        logger.debug("createList members={}", members);
+
+        Map<String, Object> listParam = new HashMap<>();
+        listParam.put("list", list);
+        listMapper.insertList(listParam);
+
+        Long listId = list.getId();
+        logger.debug("createList generated listId={}", listId);
+
+        if (members != null && !members.isEmpty()) {
+            for (UserManagementListMemberPojo m : members) {
+                m.setListId(listId);
+                logger.debug("createList member listId set: member={}", m);
+            }
+            Map<String, Object> memberParam = new HashMap<>();
+            memberParam.put("members", members);
+            memberMapper.batchInsertMembers(memberParam);
+        }
+    }
+
+    @Override
+    public void deleteList(Map<String, Object> params) {
+        logger.debug("deleteList called with params={}", params);
+
+        Long listId = (Long) params.get("listId");
+        logger.debug("deleteList listId={}", listId);
+
+        // Delete members first
+        Map<String, Object> memberParam = new HashMap<>();
+        memberParam.put("listId", listId);
+        memberMapper.deleteMembersByListId(memberParam);
+        logger.debug("deleteList deleted members for listId={}", listId);
+
+        // Delete list
+        Map<String, Object> listParam = new HashMap<>();
+        listParam.put("listId", listId);
+        listMapper.deleteList(listParam);
+        logger.debug("deleteList deleted list for listId={}", listId);
+    }
+
+    @Override
+    public void updateList(Map<String, Object> params) {
+        logger.debug("updateList called with params={}", params);
+
+        UserManagementListPojo list = (UserManagementListPojo) params.get("list");
+        List<UserManagementListMemberPojo> members = (List<UserManagementListMemberPojo>) params.get("members");
+
+        logger.debug("updateList list={}", list);
+        logger.debug("updateList members={}", members);
+
+        // --- Update list
+        Map<String, Object> listParam = new HashMap<>();
+        listParam.put("list", list);
+        listMapper.updateList(listParam);
+        logger.debug("updateList list updated");
+
+        Long listId = list.getId();
+        logger.debug("updateList listId={}", listId);
+
+        if (members != null && !members.isEmpty()) {
+            // Delete existing members
+            Map<String, Object> deleteParam = new HashMap<>();
+            deleteParam.put("listId", listId);
+            memberMapper.deleteMembersByListId(deleteParam);
+            logger.debug("updateList existing members deleted for listId={}", listId);
+
+            // Insert new members
+            for (UserManagementListMemberPojo m : members) {
+                m.setListId(listId);
+                logger.debug("updateList member listId set: member={}", m);
+            }
+            Map<String, Object> insertParam = new HashMap<>();
+            insertParam.put("members", members);
+            memberMapper.batchInsertMembers(insertParam);
+            logger.debug("updateList new members inserted for listId={}", listId);
+        }
+    }
+
+    @Override
+    public UserManagementListPojo getListById(Map<String, Object> params) {
+        logger.debug("getListById called with params={}", params);
+        Long listId = (Long) params.get("listId");
+        logger.debug("getListById listId={}", listId);
+
+        Map<String, Object> sqlParams = new HashMap<>();
+        sqlParams.put("listId", listId);
+
+        UserManagementListPojo list = listMapper.findListById(sqlParams);
+        logger.debug("getListById result={}", list);
+        return list;
+    }
+
+    // ------------------ MEMBER SEARCH/COUNT ------------------
+    @Override
+    public List<UserManagementListMemberPojo> getMembersByListId(Map<String, Object> params) {
+        logger.debug("getMembersByListId called with params={}", params);
+        Long listId = (Long) params.get("listId");
+        logger.debug("getMembersByListId listId={}", listId);
+
+        Map<String, Object> sqlParams = new HashMap<>();
+        sqlParams.put("listId", listId);
+
+        List<UserManagementListMemberPojo> members = memberMapper.findMembersByListId(sqlParams);
+        logger.debug("getMembersByListId members={}", members);
+        return members;
+    }
+
+    @Override
+    public List<UserManagementListMemberPojo> searchMembers(Map<String, Object> params) {
+        logger.debug("searchMembers called with params={}", params);
+
+        int page = 0, size = 20;
+        try { page = Integer.parseInt((String) params.getOrDefault("page", "0")); }
+        catch (Exception e) { logger.warn("Invalid page param {}, defaulting to 0", params.get("page"), e); }
+        try { size = Integer.parseInt((String) params.getOrDefault("size", "20")); }
+        catch (Exception e) { logger.warn("Invalid size param {}, defaulting to 20", params.get("size"), e); }
+
+        int offset = page * size;
+        String sortField = (String) params.getOrDefault("sortField", "id");
+        String sortDirection = ((String) params.getOrDefault("sortDirection", "ASC")).toUpperCase();
+
+        Map<String, Object> sqlParams = new HashMap<>(params);
+        sqlParams.put("offset", offset);
+        sqlParams.put("limit", size);
+        sqlParams.put("sortField", sortField);
+        sqlParams.put("sortDirection", sortDirection);
+
         for (Map.Entry<String, Object> entry : sqlParams.entrySet()) {
             logger.debug("searchMembers param {}={}", entry.getKey(), entry.getValue());
         }
 
-        List<UserManagementListMemberPojo> members = new ArrayList<>();
-        try {
-            members = memberMapper.findMembers(sqlParams);
-            logger.debug("searchMembers result size={}", members.size());
-        } catch (Exception e) {
-            logger.error("Error executing searchMembers query with params={}", sqlParams, e);
-            throw new RuntimeException(e);
-        }
-
+        List<UserManagementListMemberPojo> members = memberMapper.findMembers(sqlParams);
+        logger.debug("searchMembers result size={}", members.size());
         return members;
     }
 
@@ -193,19 +256,149 @@ public class UserManagementListServiceImpl implements UserManagementListService 
             logger.debug("countMembers param {}={}", entry.getKey(), entry.getValue());
         }
 
-        long count = 0;
-        try {
-            count = memberMapper.countMembers(sqlParams);
-            logger.debug("countMembers result={}", count);
-        } catch (Exception e) {
-            logger.error("Error executing countMembers query with params={}", sqlParams, e);
-            throw new RuntimeException(e);
-        }
-
+        long count = memberMapper.countMembers(sqlParams);
+        logger.debug("countMembers result={}", count);
         return count;
     }
 
-    // ------------------ CSV/Excel Helpers ------------------
+    // ------------------ CSV/Excel ------------------
+    @Override
+    public void importListFromCsv(Map<String, Object> params) throws Exception {
+        logger.debug("importListFromCsv called with params={}", params);
+
+        InputStream inputStream = (InputStream) params.get("inputStream");
+        UserManagementListPojo list = (UserManagementListPojo) params.get("list");
+        String originalFileName = (String) params.get("originalFileName");
+
+        logger.debug("importListFromCsv list={}", list);
+        logger.debug("importListFromCsv originalFileName={}", originalFileName);
+
+        byte[] bytes = inputStream.readAllBytes();
+        List<UserManagementListMemberPojo> members = new ArrayList<>();
+
+        try (CSVReader reader = new CSVReader(new java.io.InputStreamReader(new java.io.ByteArrayInputStream(bytes)))) {
+            reader.readNext();
+            String[] row;
+            while ((row = reader.readNext()) != null) {
+                UserManagementListMemberPojo member = new UserManagementListMemberPojo();
+                for (int i = 0; i < uploadColumns.size() && i < row.length; i++) {
+                    setFieldValue(member, uploadColumns.get(i).getName(), row[i]);
+                }
+                members.add(member);
+            }
+        }
+
+        Map<String, Object> createParams = new HashMap<>();
+        createParams.put("list", list);
+        createParams.put("members", members);
+        createList(createParams);
+
+        Path path = getListFilePath(list.getId(), originalFileName);
+        try (OutputStream os = Files.newOutputStream(path)) {
+            os.write(bytes);
+        }
+        list.setFilePath(path.toString());
+    }
+
+    @Override
+    public void exportListToCsv(Map<String, Object> params) throws Exception {
+        logger.debug("exportListToCsv called with params={}", params);
+
+        Long listId = (Long) params.get("listId");
+        OutputStream outputStream = (OutputStream) params.get("outputStream");
+
+        logger.debug("exportListToCsv listId={}", listId);
+
+        List<UserManagementListMemberPojo> members = getMembersByListId(params);
+
+        try (CSVWriter writer = new CSVWriter(new java.io.OutputStreamWriter(outputStream))) {
+            String[] header = downloadColumns.stream().map(ColumnConfig::getDbField).toArray(String[]::new);
+            writer.writeNext(header);
+
+            for (UserManagementListMemberPojo m : members) {
+                String[] row = downloadColumns.stream().map(c -> getFieldValue(m, c.getName())).toArray(String[]::new);
+                writer.writeNext(row);
+            }
+        }
+    }
+
+    @Override
+    public void importListFromExcel(Map<String, Object> params) throws Exception {
+        logger.debug("importListFromExcel called with params={}", params);
+
+        InputStream inputStream = (InputStream) params.get("inputStream");
+        UserManagementListPojo list = (UserManagementListPojo) params.get("list");
+        String originalFileName = (String) params.get("originalFileName");
+
+        logger.debug("importListFromExcel list={}", list);
+        logger.debug("importListFromExcel originalFileName={}", originalFileName);
+
+        byte[] bytes = inputStream.readAllBytes();
+        List<UserManagementListMemberPojo> members = new ArrayList<>();
+
+        try (Workbook workbook = originalFileName.endsWith(".xls") ?
+                new HSSFWorkbook(new java.io.ByteArrayInputStream(bytes)) :
+                new XSSFWorkbook(new java.io.ByteArrayInputStream(bytes))) {
+
+            Sheet sheet = workbook.getSheetAt(0);
+            Iterator<Row> rows = sheet.iterator();
+            if (rows.hasNext()) rows.next();
+
+            while (rows.hasNext()) {
+                Row row = rows.next();
+                UserManagementListMemberPojo member = new UserManagementListMemberPojo();
+                for (int i = 0; i < uploadColumns.size(); i++) {
+                    if (row.getCell(i) != null)
+                        setFieldValue(member, uploadColumns.get(i).getName(), row.getCell(i).toString());
+                }
+                members.add(member);
+            }
+        }
+
+        Map<String, Object> createParams = new HashMap<>();
+        createParams.put("list", list);
+        createParams.put("members", members);
+        createList(createParams);
+
+        Path path = getListFilePath(list.getId(), originalFileName);
+        try (OutputStream os = Files.newOutputStream(path)) {
+            os.write(bytes);
+        }
+        list.setFilePath(path.toString());
+    }
+
+    @Override
+    public void exportListToExcel(Map<String, Object> params) throws Exception {
+        logger.debug("exportListToExcel called with params={}", params);
+
+        Long listId = (Long) params.get("listId");
+        OutputStream outputStream = (OutputStream) params.get("outputStream");
+
+        logger.debug("exportListToExcel listId={}", listId);
+
+        List<UserManagementListMemberPojo> members = getMembersByListId(params);
+
+        try (Workbook workbook = new XSSFWorkbook()) {
+            Sheet sheet = workbook.createSheet("Users");
+
+            Row header = sheet.createRow(0);
+            for (int i = 0; i < downloadColumns.size(); i++) {
+                header.createCell(i).setCellValue(downloadColumns.get(i).getDbField());
+            }
+
+            int rowIdx = 1;
+            for (UserManagementListMemberPojo m : members) {
+                Row row = sheet.createRow(rowIdx++);
+                for (int i = 0; i < downloadColumns.size(); i++) {
+                    row.createCell(i).setCellValue(getFieldValue(m, downloadColumns.get(i).getName()));
+                }
+            }
+
+            workbook.write(outputStream);
+        }
+    }
+
+    // ------------------ Helpers ------------------
     private Path getListFilePath(Long listId, String originalFileName) {
         String extension = "";
         int dot = originalFileName.lastIndexOf('.');
@@ -235,114 +428,6 @@ public class UserManagementListServiceImpl implements UserManagementListService 
             m.invoke(member, value);
         } catch (Exception e) {
             logger.warn("Failed setFieldValue '{}': {}", property, e.getMessage());
-        }
-    }
-
-    // ------------------ CSV Import/Export ------------------
-    @Override
-    public void importListFromCsv(InputStream inputStream, UserManagementListPojo list, String originalFileName) throws Exception {
-        logger.debug("importListFromCsv list={}", list);
-        logger.debug("importListFromCsv originalFileName={}", originalFileName);
-
-        byte[] bytes = inputStream.readAllBytes(); // copy input stream
-
-        List<UserManagementListMemberPojo> members = new ArrayList<>();
-        try (CSVReader reader = new CSVReader(new InputStreamReader(new java.io.ByteArrayInputStream(bytes)))) {
-            reader.readNext(); // skip header
-            String[] row;
-            while ((row = reader.readNext()) != null) {
-                UserManagementListMemberPojo member = new UserManagementListMemberPojo();
-                for (int i = 0; i < uploadColumns.size() && i < row.length; i++) {
-                    setFieldValue(member, uploadColumns.get(i).getName(), row[i]);
-                }
-                members.add(member);
-            }
-        }
-
-        createList(list, members);
-
-        Path path = getListFilePath(list.getId(), originalFileName);
-        try (OutputStream os = Files.newOutputStream(path)) {
-            os.write(bytes);
-        }
-        list.setFilePath(path.toString());
-    }
-
-    @Override
-    public void exportListToCsv(Long listId, OutputStream outputStream) throws Exception {
-        logger.debug("exportListToCsv listId={}", listId);
-
-        List<UserManagementListMemberPojo> members = getMembersByListId(listId);
-        try (CSVWriter writer = new CSVWriter(new OutputStreamWriter(outputStream))) {
-            String[] header = downloadColumns.stream().map(ColumnConfig::getDbField).toArray(String[]::new);
-            writer.writeNext(header);
-
-            for (UserManagementListMemberPojo m : members) {
-                String[] row = downloadColumns.stream().map(c -> getFieldValue(m, c.getName())).toArray(String[]::new);
-                writer.writeNext(row);
-            }
-        }
-    }
-
-    // ------------------ Excel Import/Export ------------------
-    @Override
-    public void importListFromExcel(InputStream inputStream, UserManagementListPojo list, String originalFileName) throws Exception {
-        logger.debug("importListFromExcel list={}", list);
-        logger.debug("importListFromExcel originalFileName={}", originalFileName);
-
-        byte[] bytes = inputStream.readAllBytes();
-        List<UserManagementListMemberPojo> members = new ArrayList<>();
-
-        try (Workbook workbook = originalFileName.endsWith(".xls") ?
-                new HSSFWorkbook(new java.io.ByteArrayInputStream(bytes)) :
-                new XSSFWorkbook(new java.io.ByteArrayInputStream(bytes))) {
-
-            Sheet sheet = workbook.getSheetAt(0);
-            Iterator<Row> rows = sheet.iterator();
-            if (rows.hasNext()) rows.next(); // skip header
-
-            while (rows.hasNext()) {
-                Row row = rows.next();
-                UserManagementListMemberPojo member = new UserManagementListMemberPojo();
-                for (int i = 0; i < uploadColumns.size(); i++) {
-                    if (row.getCell(i) != null)
-                        setFieldValue(member, uploadColumns.get(i).getName(), row.getCell(i).toString());
-                }
-                members.add(member);
-            }
-        }
-
-        createList(list, members);
-
-        Path path = getListFilePath(list.getId(), originalFileName);
-        try (OutputStream os = Files.newOutputStream(path)) {
-            os.write(bytes);
-        }
-        list.setFilePath(path.toString());
-    }
-
-    @Override
-    public void exportListToExcel(Long listId, OutputStream outputStream) throws Exception {
-        logger.debug("exportListToExcel listId={}", listId);
-        List<UserManagementListMemberPojo> members = getMembersByListId(listId);
-
-        try (Workbook workbook = new XSSFWorkbook()) {
-            Sheet sheet = workbook.createSheet("Users");
-
-            Row header = sheet.createRow(0);
-            for (int i = 0; i < downloadColumns.size(); i++) {
-                header.createCell(i).setCellValue(downloadColumns.get(i).getDbField());
-            }
-
-            int rowIdx = 1;
-            for (UserManagementListMemberPojo m : members) {
-                Row row = sheet.createRow(rowIdx++);
-                for (int i = 0; i < downloadColumns.size(); i++) {
-                    row.createCell(i).setCellValue(getFieldValue(m, downloadColumns.get(i).getName()));
-                }
-            }
-
-            workbook.write(outputStream);
         }
     }
 }

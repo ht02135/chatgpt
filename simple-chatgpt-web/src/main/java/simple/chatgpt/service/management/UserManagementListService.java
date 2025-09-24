@@ -15,6 +15,7 @@ public interface UserManagementListService {
     // ------------------ LIST CRUD ------------------
     void createList(Map<String, Object> params); // params should include "list" and "members"
     void deleteList(Map<String, Object> params); // params should include "listId"
+    void updateList(Map<String, Object> params);
     UserManagementListPojo getListById(Map<String, Object> params); // params should include "listId"
 
     // ------------------ MEMBER CRUD ------------------

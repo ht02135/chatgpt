@@ -13,7 +13,9 @@ public interface UserManagementListMemberMapper {
 
     // ➕ CREATE
     int insertMember(@Param("params") Map<String, Object> params);
-    int batchInsertMembers(@Param("list") List<UserManagementListMemberPojo> members);
+
+    // Fully map-compliant batch insert
+    int batchInsertMembers(@Param("params") Map<String, Object> params);
 
     // 🔎 SEARCH / LIST (Map-based params)
     List<UserManagementListMemberPojo> findMembers(@Param("params") Map<String, Object> params);
