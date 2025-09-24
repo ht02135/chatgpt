@@ -11,9 +11,8 @@ function UserListMember(data, fields) {
 }
 
 function UserListMemberViewModel(params, config) {
+	console.log("userListMember.js -> UserListMemberViewModel: constructor called");
     const self = this;
-
-    console.log("userListMember.js -> UserListMemberViewModel: constructor called");
 
     // ========================
     // Mode & Configs
