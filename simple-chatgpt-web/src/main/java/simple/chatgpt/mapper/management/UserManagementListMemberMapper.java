@@ -12,26 +12,26 @@ import simple.chatgpt.pojo.management.UserManagementListMemberPojo;
 public interface UserManagementListMemberMapper {
 
     // ➕ CREATE
-    int insertMember(UserManagementListMemberPojo member);
+    int insertMember(@Param("params") Map<String, Object> params);
     int batchInsertMembers(@Param("list") List<UserManagementListMemberPojo> members);
 
     // 🔎 SEARCH / LIST (Map-based params)
-    List<UserManagementListMemberPojo> findMembers(Map<String, Object> params);
-    long countMembers(Map<String, Object> params);
+    List<UserManagementListMemberPojo> findMembers(@Param("params") Map<String, Object> params);
+    long countMembers(@Param("params") Map<String, Object> params);
 
     // 📖 READ
-    UserManagementListMemberPojo getMemberById(Long id);
-    UserManagementListMemberPojo getMemberByUserName(String userName);
+    UserManagementListMemberPojo getMemberById(@Param("params") Map<String, Object> params);
+    UserManagementListMemberPojo getMemberByUserName(@Param("params") Map<String, Object> params);
 
     // ✏️ UPDATE
-    int updateMemberById(UserManagementListMemberPojo member);
-    int updateMemberByUserName(UserManagementListMemberPojo member);
+    int updateMemberById(@Param("params") Map<String, Object> params);
+    int updateMemberByUserName(@Param("params") Map<String, Object> params);
 
     // 🗑 DELETE
-    int deleteMembersByListId(Long listId);
-    int deleteMemberById(Long id);
-    int deleteMemberByUserName(String userName);
+    int deleteMembersByListId(@Param("params") Map<String, Object> params);
+    int deleteMemberById(@Param("params") Map<String, Object> params);
+    int deleteMemberByUserName(@Param("params") Map<String, Object> params);
 
     // Legacy support
-    List<UserManagementListMemberPojo> findMembersByListId(Long listId);
+    List<UserManagementListMemberPojo> findMembersByListId(@Param("params") Map<String, Object> params);
 }

@@ -69,30 +69,30 @@
     </select>
 
     <!-- 📖 READ -->
-    <select id="getMemberById" resultMap="UserManagementListMemberResultMap">
-        SELECT * FROM user_management_list_member WHERE id = #{id}
+    <select id="getMemberById" parameterType="map" resultMap="UserManagementListMemberResultMap">
+        SELECT * FROM user_management_list_member WHERE id = #{params.id}
     </select>
 
-    <select id="getMemberByUserName" resultMap="UserManagementListMemberResultMap">
-        SELECT * FROM user_management_list_member WHERE user_name = #{userName}
+    <select id="getMemberByUserName" parameterType="map" resultMap="UserManagementListMemberResultMap">
+        SELECT * FROM user_management_list_member WHERE user_name = #{params.userName}
     </select>
 
     <!-- ➕ CREATE -->
-    <insert id="insertMember" useGeneratedKeys="true" keyProperty="id">
+    <insert id="insertMember" parameterType="map" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO user_management_list_member
         (list_id, user_name, password, first_name, last_name, email, address_line_1,
          address_line_2, city, state, post_code, country)
         VALUES
-        (#{listId}, #{userName}, #{password}, #{firstName}, #{lastName}, #{email},
-         #{addressLine1}, #{addressLine2}, #{city}, #{state}, #{postCode}, #{country})
+        (#{params.listId}, #{params.userName}, #{params.password}, #{params.firstName}, #{params.lastName}, #{params.email},
+         #{params.addressLine1}, #{params.addressLine2}, #{params.city}, #{params.state}, #{params.postCode}, #{params.country})
     </insert>
 
-    <insert id="batchInsertMembers">
+    <insert id="batchInsertMembers" parameterType="map">
         INSERT INTO user_management_list_member
         (list_id, user_name, password, first_name, last_name, email,
          address_line_1, address_line_2, city, state, post_code, country)
         VALUES
-        <foreach collection="list" item="item" separator=",">
+        <foreach collection="params.list" item="item" separator=",">
             (#{item.listId}, #{item.userName}, #{item.password}, #{item.firstName}, #{item.lastName},
              #{item.email}, #{item.addressLine1}, #{item.addressLine2}, #{item.city},
              #{item.state}, #{item.postCode}, #{item.country})
@@ -100,44 +100,52 @@
     </insert>
 
     <!-- ✏️ UPDATE -->
-    <update id="updateMemberById">
+    <update id="updateMemberById" parameterType="map">
         UPDATE user_management_list_member
         <set>
-            <if test="userName != null">user_name = #{userName},</if>
-            <if test="password != null">password = #{password},</if>
-            <if test="firstName != null">first_name = #{firstName},</if>
-            <if test="lastName != null">last_name = #{lastName},</if>
-            <if test="email != null">email = #{email},</if>
-            <if test="addressLine1 != null">address_line_1 = #{addressLine1},</if>
-            <if test="addressLine2 != null">address_line_2 = #{addressLine2},</if>
-            <if test="city != null">city = #{city},</if>
-            <if test="state != null">state = #{state},</if>
-            <if test="postCode != null">post_code = #{postCode},</if>
-            <if test="country != null">country = #{country},</if>
+            <if test="params.userName != null">user_name = #{params.userName},</if>
+            <if test="params.password != null">password = #{params.password},</if>
+            <if test="params.firstName != null">first_name = #{params.firstName},</if>
+            <if test="params.lastName != null">last_name = #{params.lastName},</if>
+            <if test="params.email != null">email = #{params.email},</if>
+            <if test="params.addressLine1 != null">address_line_1 = #{params.addressLine1},</if>
+            <if test="params.addressLine2 != null">address_line_2 = #{params.addressLine2},</if>
+            <if test="params.city != null">city = #{params.city},</if>
+            <if test="params.state != null">state = #{params.state},</if>
+            <if test="params.postCode != null">post_code = #{params.postCode},</if>
+            <if test="params.country != null">country = #{params.country},</if>
         </set>
-        WHERE id = #{id}
+        WHERE id = #{params.id}
     </update>
 
-    <update id="updateMemberByUserName">
+    <update id="updateMemberByUserName" parameterType="map">
         UPDATE user_management_list_member
         <set>
-            <if test="password != null">password = #{password},</if>
-            <if test="firstName != null">first_name = #{firstName},</if>
-            <if test="lastName != null">last_name = #{lastName},</if>
-            <if test="email != null">email = #{email},</if>
-            <if test="addressLine1 != null">address_line_1 = #{addressLine1},</if>
-            <if test="addressLine2 != null">address_line_2 = #{addressLine2},</if>
-            <if test="city != null">city = #{city},</if>
-            <if test="state != null">state = #{state},</if>
-            <if test="postCode != null">post_code = #{postCode},</if>
-            <if test="country != null">country = #{country},</if>
+            <if test="params.password != null">password = #{params.password},</if>
+            <if test="params.firstName != null">first_name = #{params.firstName},</if>
+            <if test="params.lastName != null">last_name = #{params.lastName},</if>
+            <if test="params.email != null">email = #{params.email},</if>
+            <if test="params.addressLine1 != null">address_line_1 = #{params.addressLine1},</if>
+            <if test="params.addressLine2 != null">address_line_2 = #{params.addressLine2},</if>
+            <if test="params.city != null">city = #{params.city},</if>
+            <if test="params.state != null">state = #{params.state},</if>
+            <if test="params.postCode != null">post_code = #{params.postCode},</if>
+            <if test="params.country != null">country = #{params.country},</if>
         </set>
-        WHERE user_name = #{userName}
+        WHERE user_name = #{params.userName}
     </update>
 
     <!-- 🗑 DELETE -->
-    <delete id="deleteMembersByListId">DELETE FROM user_management_list_member WHERE list_id = #{listId}</delete>
-    <delete id="deleteMemberById">DELETE FROM user_management_list_member WHERE id = #{id}</delete>
-    <delete id="deleteMemberByUserName">DELETE FROM user_management_list_member WHERE user_name = #{userName}</delete>
+    <delete id="deleteMembersByListId" parameterType="map">
+        DELETE FROM user_management_list_member WHERE list_id = #{params.listId}
+    </delete>
+
+    <delete id="deleteMemberById" parameterType="map">
+        DELETE FROM user_management_list_member WHERE id = #{params.id}
+    </delete>
+
+    <delete id="deleteMemberByUserName" parameterType="map">
+        DELETE FROM user_management_list_member WHERE user_name = #{params.userName}
+    </delete>
 
 </mapper>
