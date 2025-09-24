@@ -15,16 +15,16 @@
         (#{params.userListName}, #{params.filePath}, #{params.originalFileName}, #{params.description}, NOW(), NOW())
     </insert>
 
-	<update id="updateList" parameterType="map">
-    	UPDATE user_management_list
-    	SET
-        	user_list_name = #{params.userListName},
-        	file_path = #{params.filePath},
-        	original_file_name = #{params.originalFileName},
-        	description = #{params.description},
-        	updated_at = NOW()
-    	WHERE id = #{params.listId}
-	</update>
+    <update id="updateList" parameterType="map">
+        UPDATE user_management_list
+        SET
+            user_list_name = #{params.userListName},
+            file_path = #{params.filePath},
+            original_file_name = #{params.originalFileName},
+            description = #{params.description},
+            updated_at = NOW()
+        WHERE id = #{params.listId}
+    </update>
 
     <delete id="deleteList" parameterType="map">
         DELETE FROM user_management_list WHERE id = #{params.listId}
