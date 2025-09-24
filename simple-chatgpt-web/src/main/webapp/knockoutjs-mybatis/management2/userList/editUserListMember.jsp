@@ -10,8 +10,13 @@
     <link rel="stylesheet" href="userList.css">
 </head>
 <body>
-    <!-- Use the reusable generic form component -->
-    <generic-edit-form params="vm: userListMemberVM, formTitle: 'Edit User List Member'"></generic-edit-form>
+	<generic-edit-form params="
+	  saveObject: userListMemberVM.saveObject,
+	  formConfig: userListMemberVM.formConfig,
+	  currentObject: userListMemberVM.currentObject,
+	  errors: userListMemberVM.errors,
+	  formTitle: 'Edit Member'">
+	</generic-edit-form>
 
     <script type="module">
         import configLoader from "./configLoader.js";
