@@ -36,7 +36,7 @@
             // ✅ Load User List Member by ID from localStorage
             const editId = localStorage.getItem("editUserListMemberId");
             if (editId) {
-                await userListMemberVM.loadMemberById(editId);
+                await userListMemberVM.loadUserListMemberById(editId);
             }
 
             // ✅ Apply Knockout bindings
