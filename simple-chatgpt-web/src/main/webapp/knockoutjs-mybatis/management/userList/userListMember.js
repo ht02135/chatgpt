@@ -81,14 +81,19 @@ function UserListMemberViewModel(params, config) {
     // ========================
     self.loadUserListMembers = async function() {
         console.log("userListMember.js -> loadUserListMembers called");
+		console.log("userListMember.js -> self.mode=",self.mode);
         if (self.mode !== 'list') return;
 
         try {
             const qs = self.buildSearchQuery();
+			console.log("userListMember.js -> qs=",qs);
             const res = await fetch(`${API_USERLIST_MEMBER}/search?${qs}`, { headers: { 'Accept': 'application/json' } });
-            const data = await res.json();
+			console.log("userListMember.js -> res=",res);
+			const data = await res.json();
+			console.log("userListMember.js -> data=",data);
             if (data.status === 'SUCCESS' && data.data) {
                 const paged = data.data;
+				console.log("userListMember.js -> paged=",paged);
                 self.members(paged.items.map(m => new UserListMember(m, self.gridConfig?.columns.map(c => ({ name: c.name })) || [])));
                 if (paged.totalCount && self.total() !== paged.totalCount) self.total(paged.totalCount);
             } else {
