@@ -1,7 +1,5 @@
 package simple.chatgpt.service.management;
 
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.List;
 import java.util.Map;
 
@@ -12,21 +10,21 @@ import simple.chatgpt.util.PagedResult;
 public interface UserManagementListService {
 
     // ------------------ LIST SEARCH ------------------
-    PagedResult<UserManagementListPojo> searchUserLists(Map<String, String> params);
+    PagedResult<UserManagementListPojo> searchUserLists(Map<String, Object> params);
 
     // ------------------ LIST CRUD ------------------
-    void createList(UserManagementListPojo list, List<UserManagementListMemberPojo> members);
-    void deleteList(Long listId);
-    UserManagementListPojo getListById(Long listId);
+    void createList(Map<String, Object> params); // params should include "list" and "members"
+    void deleteList(Map<String, Object> params); // params should include "listId"
+    UserManagementListPojo getListById(Map<String, Object> params); // params should include "listId"
 
     // ------------------ MEMBER CRUD ------------------
-    List<UserManagementListMemberPojo> getMembersByListId(Long listId);
+    List<UserManagementListMemberPojo> getMembersByListId(Map<String, Object> params); // params should include "listId"
     List<UserManagementListMemberPojo> searchMembers(Map<String, Object> params);
     long countMembers(Map<String, Object> params);
 
     // ------------------ FILE IMPORT/EXPORT ------------------
-    void importListFromCsv(InputStream inputStream, UserManagementListPojo list, String originalFileName) throws Exception;
-    void exportListToCsv(Long listId, OutputStream outputStream) throws Exception;
-    void importListFromExcel(InputStream inputStream, UserManagementListPojo list, String originalFileName) throws Exception;
-    void exportListToExcel(Long listId, OutputStream outputStream) throws Exception;
+    void importListFromCsv(Map<String, Object> params) throws Exception;   // params include InputStream, list, originalFileName
+    void exportListToCsv(Map<String, Object> params) throws Exception;     // params include listId, OutputStream
+    void importListFromExcel(Map<String, Object> params) throws Exception; // params include InputStream, list, originalFileName
+    void exportListToExcel(Map<String, Object> params) throws Exception;   // params include listId, OutputStream
 }

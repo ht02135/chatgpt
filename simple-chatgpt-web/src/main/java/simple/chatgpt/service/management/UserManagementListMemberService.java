@@ -12,19 +12,19 @@ public interface UserManagementListMemberService {
     long countMembers(Map<String, Object> params);
 
     // ------------------ READ ------------------
-    UserManagementListMemberPojo getMemberById(Long id);
-    UserManagementListMemberPojo getMemberByUserName(String userName);
+    UserManagementListMemberPojo getMemberById(Map<String, Object> params);       // params should include "id"
+    UserManagementListMemberPojo getMemberByUserName(Map<String, Object> params); // params should include "userName"
 
     // ------------------ CREATE ------------------
-    UserManagementListMemberPojo createMember(UserManagementListMemberPojo member);
-    int batchCreateMembers(List<UserManagementListMemberPojo> members);
+    UserManagementListMemberPojo createMember(Map<String, Object> params);        // params include "member"
+    int batchCreateMembers(Map<String, Object> params);                            // params include "members"
 
     // ------------------ UPDATE ------------------
-    UserManagementListMemberPojo updateMemberById(Long id, UserManagementListMemberPojo member);
-    UserManagementListMemberPojo updateMemberByUserName(String userName, UserManagementListMemberPojo member);
+    UserManagementListMemberPojo updateMemberById(Map<String, Object> params);    // params include "id" and "member"
+    UserManagementListMemberPojo updateMemberByUserName(Map<String, Object> params); // params include "userName" and "member"
 
     // ------------------ DELETE ------------------
-    void deleteMemberById(Long id);
-    void deleteMemberByUserName(String userName);
-    void deleteMembersByListId(Long listId);
+    void deleteMemberById(Map<String, Object> params);                             // params include "id"
+    void deleteMemberByUserName(Map<String, Object> params);                       // params include "userName"
+    void deleteMembersByListId(Map<String, Object> params);                        // params include "listId"
 }
