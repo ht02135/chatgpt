@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import simple.chatgpt.mapper.management.UserManagementListMemberMapper;
 import simple.chatgpt.pojo.management.UserManagementListMemberPojo;
+import simple.chatgpt.util.PagedResult;
 
 @Service
 public class UserManagementListMemberServiceImpl implements UserManagementListMemberService {
@@ -24,13 +25,20 @@ public class UserManagementListMemberServiceImpl implements UserManagementListMe
 
     // ------------------ SEARCH / LIST ------------------
     @Override
-    public List<UserManagementListMemberPojo> searchMembers(Map<String, Object> params) {
+    public PagedResult<UserManagementListMemberPojo> searchMembers(Map<String, Object> params) {
         logger.debug("searchMembers called with params={}", params);
 
-        int page = params.get("page") != null ? (int) params.get("page") : 0;
-        int size = params.get("size") != null ? (int) params.get("size") : 20;
-        int offset = page * size;
+        // safely parse page & size
+        int page = 0;
+        int size = 20;
+        try {
+            if (params.get("page") != null) page = Integer.parseInt(params.get("page").toString());
+            if (params.get("size") != null) size = Integer.parseInt(params.get("size").toString());
+        } catch (NumberFormatException e) {
+            logger.warn("Invalid page or size format, using defaults page=0 size=20", e);
+        }
 
+        int offset = page * size;
         String sortField = (String) params.getOrDefault("sortField", "id");
         String sortDirection = ((String) params.getOrDefault("sortDirection", "ASC")).toUpperCase();
 
@@ -46,15 +54,18 @@ public class UserManagementListMemberServiceImpl implements UserManagementListMe
         }
 
         List<UserManagementListMemberPojo> members;
+        long total = 0;
         try {
             members = mapper.findMembers(sqlParams);
+            total = mapper.countMembers(params);  // total for all pages
             logger.debug("searchMembers result size={}", members != null ? members.size() : 0);
+            logger.debug("searchMembers total count={}", total);
         } catch (Exception e) {
             logger.error("Error executing searchMembers with params={}", sqlParams, e);
             throw new RuntimeException("Database error during searchMembers", e);
         }
 
-        return members;
+        return new PagedResult<>(members, total, page, size);
     }
 
     @Override

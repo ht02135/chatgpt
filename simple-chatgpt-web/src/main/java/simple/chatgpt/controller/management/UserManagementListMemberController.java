@@ -1,7 +1,6 @@
 package simple.chatgpt.controller.management;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
@@ -21,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import simple.chatgpt.pojo.management.UserManagementListMemberPojo;
 import simple.chatgpt.service.management.UserManagementListMemberService;
+import simple.chatgpt.util.PagedResult;
 import simple.chatgpt.util.Response;
 
 @RestController
@@ -114,7 +114,7 @@ public class UserManagementListMemberController {
     // 🔍 SEARCH MEMBERS BY PARAMETERS
  // ------------------ SEARCH MEMBERS ------------------
     @GetMapping("/search")
-    public ResponseEntity<Response<List<UserManagementListMemberPojo>>> searchMembers(
+    public ResponseEntity<Response<PagedResult<UserManagementListMemberPojo>>> searchMembers(
             @RequestParam Map<String, Object> params
     ) {
         logger.debug("searchMembers #############");
@@ -137,7 +137,7 @@ public class UserManagementListMemberController {
         serviceParams.put("sortField", params.getOrDefault("sortField", "id"));
         serviceParams.put("sortDirection", params.getOrDefault("sortDirection", "ASC"));
 
-        List<UserManagementListMemberPojo> members = memberService.searchMembers(serviceParams);
+        PagedResult<UserManagementListMemberPojo> members = memberService.searchMembers(serviceParams);
         return ResponseEntity.ok(Response.success("Members fetched successfully", members, HttpStatus.OK.value()));
     }
 
