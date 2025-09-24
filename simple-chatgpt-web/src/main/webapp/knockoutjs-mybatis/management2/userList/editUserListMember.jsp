@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <title>Edit User List Members</title>
     <script src="../../../js/knockout-latest.js"></script>
-    <script src="userListMember-2.0.js"></script>
+    <script src="userListMember.js"></script>
     <script src="genericComponents-2.0.js"></script>
     <link rel="stylesheet" href="userList.css">
 </head>
