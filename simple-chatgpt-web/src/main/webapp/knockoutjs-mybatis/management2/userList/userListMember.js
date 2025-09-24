@@ -1,4 +1,3 @@
-// userListMember-2.0.js
 
 const API_USERLIST_MEMBER = '/chatgpt/api/management/userlistmembers';
 
@@ -51,6 +50,26 @@ function UserListMemberViewModel(params, config) {
     self.maxPage = ko.computed(() => Math.max(1, Math.ceil((self.total() || 0) / (self.size() || 1))));
     self.sortField = ko.observable('id');
     self.sortOrder = ko.observable('ASC');
+
+    // ========================
+    // Wrapper Methods (defined first!)
+    // ========================
+    self.navigateToObjects = function() {
+        return self.navigateToMembers ? self.navigateToMembers() : null;
+    };
+
+    self.saveObject = function() {
+        console.log("userListMember.js -> saveObject called");
+        return self.saveUserListMember ? self.saveUserListMember() : null;
+    };
+
+    self.addObject = function() {
+        return self.addUserListMember ? self.addUserListMember() : null;
+    };
+
+    self.searchObjects = function() {
+        return self.searchUserListMembers ? self.searchUserListMembers() : null;
+    };
 
     // ========================
     // Helper Functions
@@ -158,7 +177,7 @@ function UserListMemberViewModel(params, config) {
     self.editUserListMember = function(memberId) {
         console.log("userListMember.js -> editUserListMember: id=", ko.unwrap(memberId));
         localStorage.setItem('editUserListMemberId', ko.unwrap(memberId));
-        window.location.href = 'editUserListMember-2.0.jsp';
+        window.location.href = 'editUserListMember.jsp';
     };
 
     // ========================
@@ -188,7 +207,6 @@ function UserListMemberViewModel(params, config) {
         return self.validator ? self.validator.validateForm(obj, fields) : {};
     };
 
-    // 🔹 Define save method BEFORE wrapper assignment
     self.saveUserListMember = async function() {
         console.log("userListMember.js -> saveUserListMember called");
         if (!self.formConfig) return;
@@ -214,9 +232,7 @@ function UserListMemberViewModel(params, config) {
 
             await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
             self.navigateToMembers();
-        } catch (err) {
-            console.error('Save member error:', err);
-        }
+        } catch (err) { console.error('Save member error:', err); }
     };
 
     // ========================
@@ -257,27 +273,4 @@ function UserListMemberViewModel(params, config) {
     } else {
         self.loadUserListMembers();
     }
-
-    // ========================
-    // Wrapper Methods
-    // ========================
-    self.currentObject = self.currentMember;
-    self.objects = self.members;
-
-    self.navigateToObjects = function() { 
-        return self.navigateToMembers(); 
-    };
-
-    self.saveObject = function() { 
-        console.log("userListMember.js -> saveObject called");
-        return self.saveUserListMember(); 
-    };
-
-    self.addObject = function() { 
-        return self.addUserListMember(); 
-    };
-
-    self.searchObjects = function() { 
-        return self.searchUserListMembers(); 
-    };
 }
