@@ -45,18 +45,35 @@ public class UserManagementListController {
     ) {
         logger.debug("searchUserLists called with params={}", params);
 
-        // Default pagination and sorting
-        int page = Integer.parseInt(params.getOrDefault("page", "0").toString());
-        int size = Integer.parseInt(params.getOrDefault("size", "20").toString());
-        int offset = page * size;
+        int page = 0;
+        int size = 20;
+        try {
+            if (params.get("page") != null) page = Integer.parseInt(params.get("page").toString());
+        } catch (NumberFormatException e) {
+            logger.warn("Invalid page param {}, defaulting to 0", params.get("page"), e);
+        }
+        try {
+            if (params.get("size") != null) size = Integer.parseInt(params.get("size").toString());
+        } catch (NumberFormatException e) {
+            logger.warn("Invalid size param {}, defaulting to 20", params.get("size"), e);
+        }
 
+        int offset = page * size;
+        String sortField = (String) params.getOrDefault("sortField", "id");
+        String sortDirection = ((String) params.getOrDefault("sortDirection", "ASC")).toUpperCase();
+
+        params.put("page", page);
+        params.put("size", size);
         params.put("offset", offset);
         params.put("limit", size);
-        params.put("sortField", params.getOrDefault("sortField", "id"));
-        params.put("sortDirection", params.getOrDefault("sortDirection", "asc"));
+        params.put("sortField", sortField);
+        params.put("sortDirection", sortDirection);
+
+        for (Map.Entry<String, Object> entry : params.entrySet()) {
+            logger.debug("searchUserLists param {}={}", entry.getKey(), entry.getValue());
+        }
 
         PagedResult<UserManagementListPojo> lists = userManagementListService.searchUserLists(params);
-
         return ResponseEntity.ok(Response.success("Fetched successfully", lists, HttpStatus.OK.value()));
     }
 
@@ -66,9 +83,8 @@ public class UserManagementListController {
             @RequestPart("list") UserManagementListPojo list,
             @RequestPart(value = "members", required = false) UserManagementListMemberPojo[] members
     ) {
-        logger.debug("createList #############");
+        logger.debug("createList called #############");
         logger.debug("createList list={}", list);
-        logger.debug("createList #############");
         if (list != null) {
             logger.debug("createList list.userListName={}", list.getUserListName());
             logger.debug("createList list.description={}", list.getDescription());
@@ -104,9 +120,8 @@ public class UserManagementListController {
     // ------------------ GET LIST BY ID ------------------
     @GetMapping("/get")
     public ResponseEntity<Response<UserManagementListPojo>> getList(@RequestParam Long listId) {
-        logger.debug("getList #############");
+        logger.debug("getList called #############");
         logger.debug("getList listId={}", listId);
-        logger.debug("getList #############");
 
         Map<String, Object> params = new HashMap<>();
         params.put("listId", listId);
@@ -122,9 +137,8 @@ public class UserManagementListController {
     // ------------------ GET MEMBERS BY LIST ------------------
     @GetMapping("/members")
     public ResponseEntity<Response<PagedResult<UserManagementListMemberPojo>>> getMembers(@RequestParam Long listId) {
-        logger.debug("getMembers #############");
+        logger.debug("getMembers called #############");
         logger.debug("getMembers listId={}", listId);
-        logger.debug("getMembers #############");
 
         Map<String, Object> params = new HashMap<>();
         params.put("listId", listId);
@@ -136,9 +150,8 @@ public class UserManagementListController {
     // ------------------ DELETE LIST ------------------
     @DeleteMapping("/delete")
     public ResponseEntity<Response<Void>> deleteList(@RequestParam Long listId) {
-        logger.debug("deleteList #############");
+        logger.debug("deleteList called #############");
         logger.debug("deleteList listId={}", listId);
-        logger.debug("deleteList #############");
 
         Map<String, Object> params = new HashMap<>();
         params.put("listId", listId);
@@ -153,10 +166,9 @@ public class UserManagementListController {
             @RequestPart("list") UserManagementListPojo list,
             @RequestPart("file") MultipartFile file
     ) {
-        logger.debug("importList #############");
+        logger.debug("importList called #############");
         logger.debug("importList list={}", list);
         logger.debug("importList fileName={}", file.getOriginalFilename());
-        logger.debug("importList #############");
 
         try (var is = file.getInputStream()) {
             String filename = file.getOriginalFilename().toLowerCase();
@@ -170,11 +182,12 @@ public class UserManagementListController {
             } else if (filename.endsWith(".xlsx") || filename.endsWith(".xls")) {
                 userManagementListService.importListFromExcel(params);
             } else {
-                return ResponseEntity.ok(Response.error("Unsupported file type", null, HttpStatus.BAD_REQUEST.value()));
+                return ResponseEntity.badRequest().body(Response.error("Unsupported file type", null, HttpStatus.BAD_REQUEST.value()));
             }
         } catch (Exception e) {
             logger.error("importList failed", e);
-            return ResponseEntity.ok(Response.error("Import failed: " + e.getMessage(), null, HttpStatus.INTERNAL_SERVER_ERROR.value()));
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Response.error("Import failed: " + e.getMessage(), null, HttpStatus.INTERNAL_SERVER_ERROR.value()));
         }
 
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -184,9 +197,8 @@ public class UserManagementListController {
     // ------------------ EXPORT LIST ------------------
     @GetMapping("/export/csv")
     public void exportListToCsv(@RequestParam Long listId, HttpServletResponse response) {
-        logger.debug("exportListToCsv #############");
+        logger.debug("exportListToCsv called #############");
         logger.debug("exportListToCsv listId={}", listId);
-        logger.debug("exportListToCsv #############");
 
         response.setContentType("text/csv");
         response.setHeader("Content-Disposition", "attachment; filename=\"list_" + listId + ".csv\"");
@@ -198,14 +210,14 @@ public class UserManagementListController {
             userManagementListService.exportListToCsv(params);
         } catch (Exception e) {
             logger.error("exportListToCsv failed", e);
+            response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
     }
 
     @GetMapping("/export/excel")
     public void exportListToExcel(@RequestParam Long listId, HttpServletResponse response) {
-        logger.debug("exportListToExcel #############");
+        logger.debug("exportListToExcel called #############");
         logger.debug("exportListToExcel listId={}", listId);
-        logger.debug("exportListToExcel #############");
 
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         response.setHeader("Content-Disposition", "attachment; filename=\"list_" + listId + ".xlsx\"");
@@ -217,55 +229,70 @@ public class UserManagementListController {
             userManagementListService.exportListToExcel(params);
         } catch (Exception e) {
             logger.error("exportListToExcel failed", e);
+            response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
     }
 
- // ------------------ SEARCH MEMBERS ------------------
+    // ------------------ SEARCH MEMBERS ------------------
     @GetMapping("/members/search")
     public ResponseEntity<Response<PagedResult<UserManagementListMemberPojo>>> searchMembers(
             @RequestParam Map<String, Object> params
     ) {
-        logger.debug("searchMembers #############");
+        logger.debug("searchMembers called #############");
         logger.debug("searchMembers params={}", params);
-        logger.debug("searchMembers #############");
 
-        // Create a copy for service and convert numeric params
-        Map<String, Object> serviceParams = new HashMap<>(params);
+        int page = 0;
+        int size = 20;
+        try {
+            if (params.get("page") != null) page = Integer.parseInt(params.get("page").toString());
+        } catch (NumberFormatException e) {
+            logger.warn("Invalid page param {}, defaulting to 0", params.get("page"), e);
+        }
+        try {
+            if (params.get("size") != null) size = Integer.parseInt(params.get("size").toString());
+        } catch (NumberFormatException e) {
+            logger.warn("Invalid size param {}, defaulting to 20", params.get("size"), e);
+        }
 
-        // Convert page & size to Integer
-        int page = params.get("page") != null ? Integer.parseInt(params.get("page").toString()) : 0;
-        int size = params.get("size") != null ? Integer.parseInt(params.get("size").toString()) : 20;
         int offset = page * size;
+        String sortField = (String) params.getOrDefault("sortField", "id");
+        String sortDirection = ((String) params.getOrDefault("sortDirection", "ASC")).toUpperCase();
 
+        Map<String, Object> serviceParams = new HashMap<>(params);
         serviceParams.put("page", page);
         serviceParams.put("size", size);
         serviceParams.put("offset", offset);
         serviceParams.put("limit", size);
+        serviceParams.put("sortField", sortField);
+        serviceParams.put("sortDirection", sortDirection);
 
-        // Keep sort defaults
-        serviceParams.put("sortField", params.getOrDefault("sortField", "id"));
-        serviceParams.put("sortDirection", params.getOrDefault("sortDirection", "ASC"));
+        for (Map.Entry<String, Object> entry : serviceParams.entrySet()) {
+            logger.debug("searchMembers param {}={}", entry.getKey(), entry.getValue());
+        }
 
         PagedResult<UserManagementListMemberPojo> members = userManagementListService.searchMembers(serviceParams);
         return ResponseEntity.ok(Response.success("Members fetched successfully", members, HttpStatus.OK.value()));
     }
 
     @GetMapping("/members/count")
-    public ResponseEntity<Response<Long>> countMembers(
-            @RequestParam Map<String, Object> params
-    ) {
-        logger.debug("countMembers #############");
+    public ResponseEntity<Response<Long>> countMembers(@RequestParam Map<String, Object> params) {
+        logger.debug("countMembers called #############");
         logger.debug("countMembers params={}", params);
-        logger.debug("countMembers #############");
 
-        // Convert numeric params if any
         Map<String, Object> serviceParams = new HashMap<>(params);
         if (params.get("listId") != null) {
-            serviceParams.put("listId", Long.parseLong(params.get("listId").toString()));
+            try {
+                serviceParams.put("listId", Long.parseLong(params.get("listId").toString()));
+            } catch (NumberFormatException e) {
+                logger.warn("Invalid listId {}, defaulting to null", params.get("listId"), e);
+            }
+        }
+
+        for (Map.Entry<String, Object> entry : serviceParams.entrySet()) {
+            logger.debug("countMembers param {}={}", entry.getKey(), entry.getValue());
         }
 
         long count = userManagementListService.countMembers(serviceParams);
         return ResponseEntity.ok(Response.success("Count fetched successfully", count, HttpStatus.OK.value()));
     }
-
 }
