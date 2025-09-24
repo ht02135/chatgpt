@@ -18,7 +18,8 @@
         searchConfig: objectVM.searchConfig, 
         searchParams: objectVM.searchParams, 
         errors: objectVM.errors, 
-        searchObjects: objectVM.searchUserListMembers
+        searchObjects: objectVM.searchUserListMembers,
+		coreCount: 5
     "></generic-search-form>
 
     <!-- Search Actions -->
