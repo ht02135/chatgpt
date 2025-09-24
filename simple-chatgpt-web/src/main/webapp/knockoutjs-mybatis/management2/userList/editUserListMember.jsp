@@ -11,7 +11,7 @@
 </head>
 <body>
     <!-- Use the reusable generic form component -->
-    <generic-composed-form params="vm: userListMemberVM, formTitle: userListMemberVM.mode === 'edit' ? 'Edit User List Member' : 'Add User List Member'"></generic-composed-form>
+    <generic-edit-form params="vm: userListMemberVM, formTitle: 'Edit User List Member'"></generic-edit-form>
 
     <script type="module">
         import configLoader from "./configLoader.js";

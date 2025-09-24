@@ -290,3 +290,77 @@ ko.components.register('generic-grid-pagination', {
 });
 
 //-----------------------------------
+//-----------------------------------
+// generic-edit-form-fields.js
+
+ko.components.register('generic-edit-form-fields', {
+  viewModel: function(params) {
+    this.fields = params.formConfig.fields;
+    this.currentObject = params.currentObject;
+    this.errors = params.errors;
+  },
+  template: `
+    <div class="form-vertical" data-bind="foreach: $component.fields">
+      <div class="form-row">
+        <label data-bind="text: label + ':'"></label>
+        
+        <input type="text"
+               data-bind="value: $component.currentObject()[name], 
+                          enable: editable, 
+                          valueUpdate: 'input'" />
+        
+        <div class="error-message"
+             data-bind="text: $component.errors()[name],
+                        visible: $component.errors()[name]"></div>
+      </div>
+    </div>
+  `
+});
+
+//-----------------------------------
+// generic-edit-form-actions.js
+ko.components.register('generic-edit-form-actions', {
+  viewModel: function(params) {
+    this.saveObject = params.saveObject;
+    this.navigateToObjects = params.navigateToObjects;
+  },
+  template: `
+    <div class="form-actions">
+      <button type="submit" data-bind="click: $component.saveObject">Save</button>
+      <button type="button" data-bind="click: $component.navigateToObjects">Cancel</button>
+    </div>
+  `
+});
+
+//-----------------------------------
+// generic-edit-form.js
+ko.components.register('generic-edit-form', {
+  viewModel: function(params) {
+    this.vm = params.vm;
+    this.formTitle = params.formTitle || "Edit Form";
+  },
+  template: `
+    <div class="container">
+      <generic-form-title params="formTitle: $component.formTitle"></generic-form-title>
+      
+      <form data-bind="with: $component.vm, submit: saveObject">
+        <generic-edit-form-fields 
+          params="formConfig: formConfig, 
+                  currentObject: currentObject, 
+                  errors: errors">
+        </generic-edit-form-fields>
+        
+        <generic-edit-form-actions 
+          params="saveObject: saveObject, 
+                  navigateToObjects: navigateToObjects">
+        </generic-edit-form-actions>
+      </form>
+    </div>
+  `
+});
+
+
+//-----------------------------------
+
+
+//-----------------------------------
