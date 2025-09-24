@@ -161,11 +161,16 @@ public class UserManagementListServiceImpl implements UserManagementListService 
         logger.debug("updateList list={}", list);
         logger.debug("updateList members={}", members);
 
-        // --- Update list
+        // --- Flatten params for list update
         Map<String, Object> listParam = new HashMap<>();
-        listParam.put("list", list);
+        listParam.put("listId", list.getId());
+        listParam.put("userListName", list.getUserListName());
+        listParam.put("filePath", list.getFilePath());
+        listParam.put("originalFileName", list.getOriginalFileName());
+        listParam.put("description", list.getDescription());
+
         listMapper.updateList(listParam);
-        logger.debug("updateList list updated");
+        logger.debug("updateList list updated for listId={}", list.getId());
 
         Long listId = list.getId();
         logger.debug("updateList listId={}", listId);
