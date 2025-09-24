@@ -1,3 +1,4 @@
+// userListMember.js
 
 const API_USERLIST_MEMBER = '/chatgpt/api/management/userlistmembers';
 
@@ -10,22 +11,22 @@ function UserListMember(data, fields) {
 }
 
 function UserListMemberViewModel(params, config) {
-    console.log("userListMember.js -> UserListMemberViewModel: constructor called");
+	console.log("userListMember.js -> UserListMemberViewModel: constructor called");
     const self = this;
 
     // ========================
     // Mode & Configs
     // ========================
-    /*
-    Hung : mode is treated as object
-    self.mode = mode || 'list';
-    */
-    /*
-    Hung: params is the object you pass ({ mode: "list" }).
-          params.mode correctly accesses the string "list".
-    */
-    self.mode = params.mode || 'list';
-    self.listId = params.listId || localStorage.getItem('editUserListId');
+	/*
+	Hung : mode is treated as object
+	self.mode = mode || 'list';
+	*/
+	/*
+	Hung: params is the object you pass ({ mode: "list" }).
+	      params.mode correctly accesses the string "list".
+	*/
+	self.mode = params.mode || 'list';
+	self.listId = params.listId || localStorage.getItem('editUserListId');
     self.gridConfig = config?.grid;
     self.formConfig = config?.form;
     self.searchConfig = config?.search;
@@ -51,29 +52,7 @@ function UserListMemberViewModel(params, config) {
     self.sortField = ko.observable('id');
     self.sortOrder = ko.observable('ASC');
 
-    // ========================
-    // Wrapper Methods (defined first!)
-    // ========================
-    self.navigateToObjects = function() {
-        return self.navigateToMembers ? self.navigateToMembers() : null;
-    };
-
-    self.saveObject = function() {
-        console.log("userListMember.js -> saveObject called");
-        return self.saveUserListMember ? self.saveUserListMember() : null;
-    };
-
-    self.addObject = function() {
-        return self.addUserListMember ? self.addUserListMember() : null;
-    };
-
-    self.searchObjects = function() {
-        return self.searchUserListMembers ? self.searchUserListMembers() : null;
-    };
-
-    // ========================
-    // Helper Functions
-    // ========================
+    // Helper: resolve UI field -> DB field
     self.resolveDbField = function(uiField) {
         const col = self.gridConfig?.columns?.find(c => c.name === uiField);
         return col?.dbField || uiField;
@@ -101,24 +80,24 @@ function UserListMemberViewModel(params, config) {
     // ========================
     self.loadUserListMembers = async function() {
         console.log("userListMember.js -> loadUserListMembers called");
-        console.log("userListMember.js -> self.mode=", self.mode);
+		console.log("userListMember.js -> self.mode=",self.mode);
         if (self.mode !== 'list') return;
 
         try {
             const qs = self.buildSearchQuery();
-            console.log("userListMember.js -> qs=", qs);
+			console.log("userListMember.js -> qs=",qs);
             const res = await fetch(`${API_USERLIST_MEMBER}/search?${qs}`, { headers: { 'Accept': 'application/json' } });
-            console.log("userListMember.js -> #############=");
-            console.log("userListMember.js -> res=", res);
-            console.log("userListMember.js -> #############=");
-            const data = await res.json();
-            console.log("userListMember.js -> data=", data);
-
+			console.log("userListMember.js -> #############=");
+			console.log("userListMember.js -> res=",res);
+			console.log("userListMember.js -> #############=");
+			const data = await res.json();
+			console.log("userListMember.js -> data=",data);
+			
             if (data.status === 'SUCCESS' && data.data) {
                 const paged = data.data;
-                console.log("userListMember.js -> #############=");
-                console.log("userListMember.js -> paged=", paged);
-                console.log("userListMember.js -> #############=");
+				console.log("userListMember.js -> #############=");
+				console.log("userListMember.js -> paged=",paged);
+				console.log("userListMember.js -> #############=");
                 self.members(paged.items.map(m => new UserListMember(m, self.gridConfig?.columns.map(c => ({ name: c.name })) || [])));
                 if (paged.totalCount && self.total() !== paged.totalCount) self.total(paged.totalCount);
             } else {
@@ -132,15 +111,12 @@ function UserListMemberViewModel(params, config) {
         }
     };
 
-    // ========================
     // Search & Reset
-    // ========================
     self.searchUserListMembers = function() {
         console.log("userListMember.js -> searchUserListMembers called");
         self.page(1);
         self.loadUserListMembers();
     };
-
     self.resetSearch = function() {
         console.log("userListMember.js -> resetSearch called");
         self.searchParams && Object.keys(self.searchParams).forEach(k => self.searchParams[k](''));
@@ -148,9 +124,7 @@ function UserListMemberViewModel(params, config) {
         self.loadUserListMembers();
     };
 
-    // ========================
     // Pagination
-    // ========================
     self.nextPage = function() {
         if (self.page() < self.maxPage()) { self.page(self.page() + 1); self.loadUserListMembers(); }
     };
@@ -159,9 +133,7 @@ function UserListMemberViewModel(params, config) {
     };
     self.size.subscribe(() => { self.page(1); self.loadUserListMembers(); });
 
-    // ========================
     // Sorting
-    // ========================
     self.setSort = function(field) {
         if (self.sortField() === field) self.sortOrder(self.sortOrder() === 'ASC' ? 'DESC' : 'ASC');
         else { self.sortField(field); self.sortOrder('ASC'); }
@@ -169,40 +141,33 @@ function UserListMemberViewModel(params, config) {
         self.loadUserListMembers();
     };
 
-    // ========================
     // Navigation
-    // ========================
     self.navigateToMembers = function() { window.location.href = 'editUserList.jsp'; };
     self.addUserListMember = function() { window.location.href = 'addUserListMember.jsp'; };
     self.editUserListMember = function(memberId) {
-        console.log("userListMember.js -> editUserListMember: id=", ko.unwrap(memberId));
+		console.log("userListMember.js -> editUserListMember: id=", ko.unwrap(memberId));
         localStorage.setItem('editUserListMemberId', ko.unwrap(memberId));
         window.location.href = 'editUserListMember.jsp';
     };
 
-    // ========================
-    // Actions
-    // ========================
+    // Action Resolver
     self.getActionsForColumn = function(column) {
         if (!column.actions) return [];
         const group = self.actionGroupMap[column.actions];
         return Array.isArray(group) ? group.filter(a => a.visible !== false) : [];
     };
-
     self.invokeAction = function(action, row) {
         if (action && action.jsMethod && typeof self[action.jsMethod] === 'function') {
             if (/^edit(UserListMember|Object)$/.test(action.jsMethod)) {
-                console.log("userListMember.js -> invokeAction: action.jsMethod=", action.jsMethod);
-                self[action.jsMethod](ko.unwrap(row.id));
+				console.log("userListMember.js -> invokeAction: action.jsMethod=", action.jsMethod);
+				self[action.jsMethod](ko.unwrap(row.id));
             } else {
-                self[action.jsMethod](row);
-            }
+				self[action.jsMethod](row);
+			}
         } else console.warn("No JS method found for action:", action);
     };
 
-    // ========================
     // Validation & Save
-    // ========================
     self.validateForm = function(obj, fields) {
         return self.validator ? self.validator.validateForm(obj, fields) : {};
     };
@@ -219,10 +184,10 @@ function UserListMemberViewModel(params, config) {
         }
 
         try {
-            const payload = {
-                ...ko.toJS(self.currentMember()),
-                listId: self.listId
-            };
+			const payload = {
+			    ...ko.toJS(self.currentMember()),
+			    listId: self.listId
+			};
 
             let url = `${API_USERLIST_MEMBER}/create`, method = 'POST';
             if (self.mode === 'edit' && self.currentMember().id && self.currentMember().id()) {
@@ -235,9 +200,7 @@ function UserListMemberViewModel(params, config) {
         } catch (err) { console.error('Save member error:', err); }
     };
 
-    // ========================
     // Delete
-    // ========================
     self.deleteUserListMember = async function(row) {
         if (!confirm('Are you sure?')) return;
         try {
@@ -246,25 +209,21 @@ function UserListMemberViewModel(params, config) {
         } catch (err) { console.error('Delete member error:', err); }
     };
 
-    // ========================
     // Load by ID
-    // ========================
     self.loadUserListMemberById = async function(id) {
-        console.log("userListMember.js -> loadUserListMemberById called");
-        console.log("userListMember.js -> loadUserListMemberById id=", id);
+		console.log("userListMember.js -> loadUserListMemberById called");
+		console.log("userListMember.js -> loadUserListMemberById id=",id);
         try {
             const res = await fetch(`${API_USERLIST_MEMBER}/get?memberId=${encodeURIComponent(id)}`, { headers: { 'Accept': 'application/json' } });
-            console.log("userListMember.js -> loadUserListMemberById res=", res);
-            const data = await res.json();
-            console.log("userListMember.js -> loadUserListMemberById data=", data);
-
+			console.log("userListMember.js -> loadUserListMemberById res=",res);
+			const data = await res.json();
+			console.log("userListMember.js -> loadUserListMemberById data=",data);
+			
             if (data.status === 'SUCCESS' && data.data) self.currentMember(new UserListMember(data.data, self.formConfig?.fields || []));
         } catch (err) { console.error('Load member error:', err); }
     };
 
-    // ========================
     // Initialization
-    // ========================
     if (self.mode === 'edit') {
         const memberId = localStorage.getItem('editUserListMemberId');
         if (memberId) self.loadUserListMemberById(memberId);
@@ -273,4 +232,22 @@ function UserListMemberViewModel(params, config) {
     } else {
         self.loadUserListMembers();
     }
+    
+    // Wrapper
+    self.currentObject = self.currentMember;
+    self.objects = self.members;
+
+    self.navigateToObjects = function() { 
+		return self.navigateToMembers(); 
+	};
+    self.saveObject = function() { 
+		console.log("userListMember.js -> saveObject called");
+		return self.saveUserListMember(); 
+	};
+    self.addObject = function() { 
+		return self.addUserListMember(); 
+	};
+    self.searchObjects = function() { 
+		return self.searchUserListMembers(); 
+	};
 }

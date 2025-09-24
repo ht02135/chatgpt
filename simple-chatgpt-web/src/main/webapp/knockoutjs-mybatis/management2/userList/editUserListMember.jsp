@@ -10,48 +10,37 @@
     <link rel="stylesheet" href="userList.css">
 </head>
 <body>
-    <!-- Render component only when ViewModel is ready -->
-    <div data-bind="if: vmReady">
-        <generic-composed-form 
-            params="vm: userListMemberVM, 
-                    formTitle: userListMemberVM.mode === 'edit' ? 'Edit User List Member' : 'Add User List Member'">
-        </generic-composed-form>
-    </div>
+    <!-- Use the reusable generic form component -->
+    <generic-composed-form params="vm: userListMemberVM, formTitle: userListMemberVM.mode === 'edit' ? 'Edit User List Member' : 'Add User List Member'"></generic-composed-form>
 
     <script type="module">
         import configLoader from "./configLoader.js";
         import Validator from "./validation.js";
 
         (async function () {
-            // ✅ Observable to indicate when ViewModel is ready
-            const vmReady = ko.observable(false);
-
-            // ✅ Load form config
+            // ✅ Load form config for editing User List Members
             const formConfig = await configLoader.getFormConfig("editUserListMember");
 
-            // ✅ Initialize ViewModel
+            // ✅ Initialize ViewModel for User List Members
             const userListMemberVM = new UserListMemberViewModel(
                 { mode: "edit" },
                 { form: formConfig }
             );
 
-            // ✅ Build validator
+            // ✅ Build Validator
             userListMemberVM.validator = await Validator.build(configLoader);
 
             // ✅ Initialize observable for errors
             userListMemberVM.errors = ko.observable({});
 
-            // ✅ Load member if editing
+            // ✅ Load User List Member by ID from localStorage
             const editId = localStorage.getItem("editUserListMemberId");
             if (editId) {
                 await userListMemberVM.loadUserListMemberById(editId);
             }
 
-            // ✅ Apply Knockout bindings including vmReady
-            ko.applyBindings({ userListMemberVM, vmReady });
-
-            // ✅ Mark VM ready so the component renders
-            vmReady(true);
+            // ✅ Apply Knockout bindings
+            ko.applyBindings({ userListMemberVM });
         })();
     </script>
 </body>
