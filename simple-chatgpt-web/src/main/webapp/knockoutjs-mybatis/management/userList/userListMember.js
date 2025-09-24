@@ -216,8 +216,8 @@ function UserListMemberViewModel(params, config) {
 
     // Initialization
     if (self.mode === 'edit') {
-        const id = localStorage.getItem('editUserListMemberId');
-        if (id) self.loadUserListMemberById(id);
+        const memberId = localStorage.getItem('editUserListMemberId');
+        if (memberId) self.loadUserListMemberById(memberId);
     } else if (self.mode === 'add') {
         self.currentMember(new UserListMember({}, self.formConfig?.fields || []));
     } else {

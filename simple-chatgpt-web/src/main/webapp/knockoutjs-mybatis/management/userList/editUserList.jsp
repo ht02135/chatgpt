@@ -72,7 +72,7 @@ import Validator from "./validation.js";
 
     // Initialize ViewModel (from userListMember.js, global function)
     const UserListMemberVM = new UserListMemberViewModel(
-        { mode: "list", userListId: editUserListId },
+        { mode: "list", listId: editUserListId },
         { grid: gridConfig, search: searchConfig, form: formConfig, actionGroups: actionGroupMap },
     );
 
