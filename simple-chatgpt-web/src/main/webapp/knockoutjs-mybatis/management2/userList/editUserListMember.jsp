@@ -15,6 +15,7 @@
 	  formConfig: userListMemberVM.formConfig,
 	  currentObject: userListMemberVM.currentObject,
 	  errors: userListMemberVM.errors,
+	  navigateToObjects: userListMemberVM.navigateToObjects,
 	  formTitle: 'Edit Member'">
 	</generic-edit-form>
 

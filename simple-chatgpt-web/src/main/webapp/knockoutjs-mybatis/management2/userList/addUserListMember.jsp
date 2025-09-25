@@ -10,14 +10,14 @@
     <link rel="stylesheet" href="userList.css">
 </head>
 <body>
-
-    <generic-edit-form params="
-      saveObject: userListMemberVM.saveObject,
-      formConfig: userListMemberVM.formConfig,
-      currentObject: userListMemberVM.currentObject,
-      errors: userListMemberVM.errors,
-      formTitle: 'Add Member'">
-    </generic-edit-form>
+	<generic-edit-form params="
+	  saveObject: userListMemberVM.saveObject,
+	  formConfig: userListMemberVM.formConfig,
+	  currentObject: userListMemberVM.currentObject,
+	  errors: userListMemberVM.errors,
+	  navigateToObjects: userListMemberVM.navigateToObjects,
+	  formTitle: 'Add Member'">
+	</generic-edit-form>
 
     <script type="module">
         import configLoader from "./configLoader.js";
