@@ -92,12 +92,22 @@
         SELECT id, user_list_name, file_path, original_file_name, description, created_at, updated_at
         FROM user_management_list
         <where>
-            <if test="params.list != null">
-                <if test="params.list.userListName != null and params.list.userListName != ''">
-                    AND user_list_name LIKE CONCAT('%', #{params.list.userListName}, '%')
+            <if test="params.list != null or params != null">
+                <if test="(params.list != null and params.list.userListName != null and params.list.userListName != '') 
+                          or (params.userListName != null and params.userListName != '')">
+                    AND user_list_name LIKE CONCAT('%', 
+                        <choose>
+                            <when test="params.list != null and params.list.userListName != null and params.list.userListName != ''">#{params.list.userListName}</when>
+                            <otherwise>#{params.userListName}</otherwise>
+                        </choose>, '%')
                 </if>
-                <if test="params.list.description != null and params.list.description != ''">
-                    AND description LIKE CONCAT('%', #{params.list.description}, '%')
+                <if test="(params.list != null and params.list.description != null and params.list.description != '') 
+                          or (params.description != null and params.description != '')">
+                    AND description LIKE CONCAT('%', 
+                        <choose>
+                            <when test="params.list != null and params.list.description != null and params.list.description != ''">#{params.list.description}</when>
+                            <otherwise>#{params.description}</otherwise>
+                        </choose>, '%')
                 </if>
             </if>
         </where>
@@ -110,24 +120,7 @@
     </select>
 
     <select id="searchLists" parameterType="map" resultType="simple.chatgpt.pojo.management.UserManagementListPojo">
-        SELECT id, user_list_name, file_path, original_file_name, description, created_at, updated_at
-        FROM user_management_list
-        <where>
-            <if test="params.list != null">
-                <if test="params.list.userListName != null and params.list.userListName != ''">
-                    AND user_list_name LIKE CONCAT('%', #{params.list.userListName}, '%')
-                </if>
-                <if test="params.list.description != null and params.list.description != ''">
-                    AND description LIKE CONCAT('%', #{params.list.description}, '%')
-                </if>
-            </if>
-        </where>
-        <if test="params.sortField != null and params.sortDirection != null">
-            ORDER BY ${params.sortField} ${params.sortDirection}
-        </if>
-        <if test="params.offset != null and params.limit != null">
-            LIMIT #{params.offset}, #{params.limit}
-        </if>
+        <include refid="findLists"/>
     </select>
 
     <!-- =======================
@@ -137,14 +130,7 @@
         SELECT COUNT(*)
         FROM user_management_list
         <where>
-            <if test="params.list != null">
-                <if test="params.list.userListName != null and params.list.userListName != ''">
-                    AND user_list_name LIKE CONCAT('%', #{params.list.userListName}, '%')
-                </if>
-                <if test="params.list.description != null and params.list.description != ''">
-                    AND description LIKE CONCAT('%', #{params.list.description}, '%')
-                </if>
-            </if>
+            <include refid="findLists"/>
         </where>
     </select>
 
@@ -155,9 +141,14 @@
         SELECT id, user_list_name, file_path, original_file_name, description, created_at, updated_at
         FROM user_management_list
         <where>
-            <if test="params.list != null">
-                <if test="params.list.userListName != null and params.list.userListName != ''">
-                    AND user_list_name LIKE CONCAT('%', #{params.list.userListName}, '%')
+            <if test="params.list != null or params != null">
+                <if test="(params.list != null and params.list.userListName != null and params.list.userListName != '') 
+                          or (params.userListName != null and params.userListName != '')">
+                    AND user_list_name LIKE CONCAT('%', 
+                        <choose>
+                            <when test="params.list != null and params.list.userListName != null and params.list.userListName != ''">#{params.list.userListName}</when>
+                            <otherwise>#{params.userListName}</otherwise>
+                        </choose>, '%')
                 </if>
             </if>
         </where>

@@ -32,19 +32,90 @@
     <select id="findMembers" parameterType="map" resultMap="UserManagementListMemberResultMap">
         SELECT * FROM user_management_list_member
         <where>
-            <if test="params.member != null">
-                <if test="params.member.listId != null">AND list_id = #{params.member.listId}</if>
-                <if test="params.member.userName != null and params.member.userName != ''">AND user_name LIKE CONCAT('%', #{params.member.userName}, '%')</if>
-                <if test="params.member.userKey != null and params.member.userKey != ''">AND user_key LIKE CONCAT('%', #{params.member.userKey}, '%')</if>
-                <if test="params.member.firstName != null and params.member.firstName != ''">AND first_name LIKE CONCAT('%', #{params.member.firstName}, '%')</if>
-                <if test="params.member.lastName != null and params.member.lastName != ''">AND last_name LIKE CONCAT('%', #{params.member.lastName}, '%')</if>
-                <if test="params.member.email != null and params.member.email != ''">AND email LIKE CONCAT('%', #{params.member.email}, '%')</if>
-                <if test="params.member.addressLine1 != null and params.member.addressLine1 != ''">AND address_line_1 LIKE CONCAT('%', #{params.member.addressLine1}, '%')</if>
-                <if test="params.member.addressLine2 != null and params.member.addressLine2 != ''">AND address_line_2 LIKE CONCAT('%', #{params.member.addressLine2}, '%')</if>
-                <if test="params.member.city != null and params.member.city != ''">AND city LIKE CONCAT('%', #{params.member.city}, '%')</if>
-                <if test="params.member.state != null and params.member.state != ''">AND state LIKE CONCAT('%', #{params.member.state}, '%')</if>
-                <if test="params.member.postCode != null and params.member.postCode != ''">AND post_code LIKE CONCAT('%', #{params.member.postCode}, '%')</if>
-                <if test="params.member.country != null and params.member.country != ''">AND country LIKE CONCAT('%', #{params.member.country}, '%')</if>
+            <if test="params.member != null or params != null">
+                <if test="(params.member != null and params.member.listId != null) or (params.listId != null)">
+                    AND list_id = <choose>
+                                    <when test="params.member != null and params.member.listId != null">#{params.member.listId}</when>
+                                    <otherwise>#{params.listId}</otherwise>
+                                  </choose>
+                </if>
+                <if test="(params.member != null and params.member.userName != null and params.member.userName != '') 
+                          or (params.userName != null and params.userName != '')">
+                    AND user_name LIKE CONCAT('%', <choose>
+                                                    <when test="params.member != null and params.member.userName != null and params.member.userName != ''">#{params.member.userName}</when>
+                                                    <otherwise>#{params.userName}</otherwise>
+                                                  </choose>, '%')
+                </if>
+                <if test="(params.member != null and params.member.userKey != null and params.member.userKey != '') 
+                          or (params.userKey != null and params.userKey != '')">
+                    AND user_key LIKE CONCAT('%', <choose>
+                                                    <when test="params.member != null and params.member.userKey != null and params.member.userKey != ''">#{params.member.userKey}</when>
+                                                    <otherwise>#{params.userKey}</otherwise>
+                                                  </choose>, '%')
+                </if>
+                <if test="(params.member != null and params.member.firstName != null and params.member.firstName != '') 
+                          or (params.firstName != null and params.firstName != '')">
+                    AND first_name LIKE CONCAT('%', <choose>
+                                                    <when test="params.member != null and params.member.firstName != null and params.member.firstName != ''">#{params.member.firstName}</when>
+                                                    <otherwise>#{params.firstName}</otherwise>
+                                                  </choose>, '%')
+                </if>
+                <if test="(params.member != null and params.member.lastName != null and params.member.lastName != '') 
+                          or (params.lastName != null and params.lastName != '')">
+                    AND last_name LIKE CONCAT('%', <choose>
+                                                    <when test="params.member != null and params.member.lastName != null and params.member.lastName != ''">#{params.member.lastName}</when>
+                                                    <otherwise>#{params.lastName}</otherwise>
+                                                  </choose>, '%')
+                </if>
+                <if test="(params.member != null and params.member.email != null and params.member.email != '') 
+                          or (params.email != null and params.email != '')">
+                    AND email LIKE CONCAT('%', <choose>
+                                                    <when test="params.member != null and params.member.email != null and params.member.email != ''">#{params.member.email}</when>
+                                                    <otherwise>#{params.email}</otherwise>
+                                                  </choose>, '%')
+                </if>
+                <if test="(params.member != null and params.member.addressLine1 != null and params.member.addressLine1 != '') 
+                          or (params.addressLine1 != null and params.addressLine1 != '')">
+                    AND address_line_1 LIKE CONCAT('%', <choose>
+                                                    <when test="params.member != null and params.member.addressLine1 != null and params.member.addressLine1 != ''">#{params.member.addressLine1}</when>
+                                                    <otherwise>#{params.addressLine1}</otherwise>
+                                                  </choose>, '%')
+                </if>
+                <if test="(params.member != null and params.member.addressLine2 != null and params.member.addressLine2 != '') 
+                          or (params.addressLine2 != null and params.addressLine2 != '')">
+                    AND address_line_2 LIKE CONCAT('%', <choose>
+                                                    <when test="params.member != null and params.member.addressLine2 != null and params.member.addressLine2 != ''">#{params.member.addressLine2}</when>
+                                                    <otherwise>#{params.addressLine2}</otherwise>
+                                                  </choose>, '%')
+                </if>
+                <if test="(params.member != null and params.member.city != null and params.member.city != '') 
+                          or (params.city != null and params.city != '')">
+                    AND city LIKE CONCAT('%', <choose>
+                                                    <when test="params.member != null and params.member.city != null and params.member.city != ''">#{params.member.city}</when>
+                                                    <otherwise>#{params.city}</otherwise>
+                                                  </choose>, '%')
+                </if>
+                <if test="(params.member != null and params.member.state != null and params.member.state != '') 
+                          or (params.state != null and params.state != '')">
+                    AND state LIKE CONCAT('%', <choose>
+                                                    <when test="params.member != null and params.member.state != null and params.member.state != ''">#{params.member.state}</when>
+                                                    <otherwise>#{params.state}</otherwise>
+                                                  </choose>, '%')
+                </if>
+                <if test="(params.member != null and params.member.postCode != null and params.member.postCode != '') 
+                          or (params.postCode != null and params.postCode != '')">
+                    AND post_code LIKE CONCAT('%', <choose>
+                                                    <when test="params.member != null and params.member.postCode != null and params.member.postCode != ''">#{params.member.postCode}</when>
+                                                    <otherwise>#{params.postCode}</otherwise>
+                                                  </choose>, '%')
+                </if>
+                <if test="(params.member != null and params.member.country != null and params.member.country != '') 
+                          or (params.country != null and params.country != '')">
+                    AND country LIKE CONCAT('%', <choose>
+                                                    <when test="params.member != null and params.member.country != null and params.member.country != ''">#{params.member.country}</when>
+                                                    <otherwise>#{params.country}</otherwise>
+                                                  </choose>, '%')
+                </if>
             </if>
         </where>
         <if test="params.sortField != null and params.sortDirection != null">
@@ -55,50 +126,15 @@
         </if>
     </select>
 
+    <!-- Repeat same dual-treatment style for searchMembers, countMembers, etc. -->
     <select id="searchMembers" parameterType="map" resultMap="UserManagementListMemberResultMap">
-        SELECT * FROM user_management_list_member
-        <where>
-            <if test="params.member != null">
-                <if test="params.member.listId != null">AND list_id = #{params.member.listId}</if>
-                <if test="params.member.userName != null and params.member.userName != ''">AND user_name LIKE CONCAT('%', #{params.member.userName}, '%')</if>
-                <if test="params.member.userKey != null and params.member.userKey != ''">AND user_key LIKE CONCAT('%', #{params.member.userKey}, '%')</if>
-                <if test="params.member.firstName != null and params.member.firstName != ''">AND first_name LIKE CONCAT('%', #{params.member.firstName}, '%')</if>
-                <if test="params.member.lastName != null and params.member.lastName != ''">AND last_name LIKE CONCAT('%', #{params.member.lastName}, '%')</if>
-                <if test="params.member.email != null and params.member.email != ''">AND email LIKE CONCAT('%', #{params.member.email}, '%')</if>
-                <if test="params.member.addressLine1 != null and params.member.addressLine1 != ''">AND address_line_1 LIKE CONCAT('%', #{params.member.addressLine1}, '%')</if>
-                <if test="params.member.addressLine2 != null and params.member.addressLine2 != ''">AND address_line_2 LIKE CONCAT('%', #{params.member.addressLine2}, '%')</if>
-                <if test="params.member.city != null and params.member.city != ''">AND city LIKE CONCAT('%', #{params.member.city}, '%')</if>
-                <if test="params.member.state != null and params.member.state != ''">AND state LIKE CONCAT('%', #{params.member.state}, '%')</if>
-                <if test="params.member.postCode != null and params.member.postCode != ''">AND post_code LIKE CONCAT('%', #{params.member.postCode}, '%')</if>
-                <if test="params.member.country != null and params.member.country != ''">AND country LIKE CONCAT('%', #{params.member.country}, '%')</if>
-            </if>
-        </where>
-        <if test="params.sortField != null and params.sortDirection != null">
-            ORDER BY ${params.sortField} ${params.sortDirection}
-        </if>
-        <if test="params.offset != null and params.limit != null">
-            LIMIT #{params.offset}, #{params.limit}
-        </if>
+        <include refid="findMembers"/>
     </select>
 
-    <!-- Count for pagination -->
     <select id="countMembers" parameterType="map" resultType="long">
         SELECT COUNT(*) FROM user_management_list_member
         <where>
-            <if test="params.member != null">
-                <if test="params.member.listId != null">AND list_id = #{params.member.listId}</if>
-                <if test="params.member.userName != null and params.member.userName != ''">AND user_name LIKE CONCAT('%', #{params.member.userName}, '%')</if>
-                <if test="params.member.userKey != null and params.member.userKey != ''">AND user_key LIKE CONCAT('%', #{params.member.userKey}, '%')</if>
-                <if test="params.member.firstName != null and params.member.firstName != ''">AND first_name LIKE CONCAT('%', #{params.member.firstName}, '%')</if>
-                <if test="params.member.lastName != null and params.member.lastName != ''">AND last_name LIKE CONCAT('%', #{params.member.lastName}, '%')</if>
-                <if test="params.member.email != null and params.member.email != ''">AND email LIKE CONCAT('%', #{params.member.email}, '%')</if>
-                <if test="params.member.addressLine1 != null and params.member.addressLine1 != ''">AND address_line_1 LIKE CONCAT('%', #{params.member.addressLine1}, '%')</if>
-                <if test="params.member.addressLine2 != null and params.member.addressLine2 != ''">AND address_line_2 LIKE CONCAT('%', #{params.member.addressLine2}, '%')</if>
-                <if test="params.member.city != null and params.member.city != ''">AND city LIKE CONCAT('%', #{params.member.city}, '%')</if>
-                <if test="params.member.state != null and params.member.state != ''">AND state LIKE CONCAT('%', #{params.member.state}, '%')</if>
-                <if test="params.member.postCode != null and params.member.postCode != ''">AND post_code LIKE CONCAT('%', #{params.member.postCode}, '%')</if>
-                <if test="params.member.country != null and params.member.country != ''">AND country LIKE CONCAT('%', #{params.member.country}, '%')</if>
-            </if>
+            <include refid="findMembers"/>
         </where>
     </select>
 
