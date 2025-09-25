@@ -295,8 +295,11 @@ ko.components.register('generic-grid-pagination', {
 
 ko.components.register('generic-edit-form-fields', {
   viewModel: function(params) {
-    // Accept either formConfig via params or via parent vm
-    this.fields = (params.formConfig && params.formConfig.fields) ? params.formConfig.fields : (params.formConfig || []);
+    // Default type = "text" if not defined in field
+    this.fields = (params.formConfig.fields || []).map(f => {
+      return Object.assign({ type: "text" }, f); // if f.type exists, it stays; otherwise text
+    });
+
     this.currentObject = params.currentObject;
     this.errors = params.errors || ko.observable({});
     console.log('generic-edit-form-fields: constructor called; fields count=', this.fields.length);
@@ -307,7 +310,7 @@ ko.components.register('generic-edit-form-fields', {
         <label data-bind="text: label + ':'"></label>
 
         <input data-bind="
-               attr: { type: type || 'text' },
+               attr: { type: type },  <!-- type always exists -->
                value: $component.currentObject()[name],
                enable: editable,
                valueUpdate: 'input'" />
@@ -319,6 +322,7 @@ ko.components.register('generic-edit-form-fields', {
     </div>
   `
 });
+
 
 //-----------------------------------
 // generic-edit-form-actions.js
