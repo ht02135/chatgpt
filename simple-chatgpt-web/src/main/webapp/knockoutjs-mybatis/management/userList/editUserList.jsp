@@ -89,7 +89,7 @@ import Validator from "./validation.js";
     userListVM.errors = ko.observable({});
 
     if (editUserListId) {
-        await userListVM.loadUserLists(editUserListId);
+        await userListVM.loadUserListById(editUserListId);
     }
 
     // --- UserListMember VM (search + grid)

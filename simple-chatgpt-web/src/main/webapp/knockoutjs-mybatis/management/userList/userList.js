@@ -229,7 +229,7 @@ function UserListViewModel(params, config) {
     // Load by ID
     self.loadUserListById = async function(listId) {
 		console.log("userList.js -> loadUserListById called");
-		console.log("userList.js -> loadUserListById id=",id);
+		console.log("userList.js -> loadUserListById listId=",listId);
         try {
             const res = await fetch(`${API_USERLIST}/get?listId=${encodeURIComponent(listId)}`, { headers: { 'Accept': 'application/json' } });
 			console.log("userList.js -> loadUserListById res=",res);
