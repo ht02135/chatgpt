@@ -119,9 +119,9 @@ public class UserManagementListController {
 
     // ------------------ GET LIST BY ID ------------------
     @GetMapping("/get")
-    public ResponseEntity<Response<UserManagementListPojo>> getList(@RequestParam Long listId) {
-        logger.debug("getList called #############");
-        logger.debug("getList listId={}", listId);
+    public ResponseEntity<Response<UserManagementListPojo>> getListById(@RequestParam Long listId) {
+        logger.debug("getListById called #############");
+        logger.debug("getListById listId={}", listId);
 
         Map<String, Object> params = new HashMap<>();
         params.put("listId", listId);
@@ -136,9 +136,9 @@ public class UserManagementListController {
 
     // ------------------ GET MEMBERS BY LIST ------------------
     @GetMapping("/members")
-    public ResponseEntity<Response<PagedResult<UserManagementListMemberPojo>>> getMembers(@RequestParam Long listId) {
-        logger.debug("getMembers called #############");
-        logger.debug("getMembers listId={}", listId);
+    public ResponseEntity<Response<PagedResult<UserManagementListMemberPojo>>> getMembersByListId(@RequestParam Long listId) {
+        logger.debug("getMembersByListId called #############");
+        logger.debug("getMembersByListId listId={}", listId);
 
         Map<String, Object> params = new HashMap<>();
         params.put("listId", listId);

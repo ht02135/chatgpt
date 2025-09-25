@@ -46,7 +46,6 @@ public class UserManagementListMemberController {
         logger.debug("createMember member.firstName={}", member.getFirstName());
         logger.debug("createMember member.lastName={}", member.getLastName());
         logger.debug("createMember member.email={}", member.getEmail());
-        logger.debug("createMember #############");
 
         Map<String, Object> params = new HashMap<>();
         params.put("member", member);
@@ -58,13 +57,12 @@ public class UserManagementListMemberController {
 
     // 📖 GET MEMBER BY ID
     @GetMapping("/get")
-    public ResponseEntity<Response<UserManagementListMemberPojo>> getMember(@RequestParam Long memberId) {
-        logger.debug("getMember #############");
-        logger.debug("getMember memberId={}", memberId);
-        logger.debug("getMember #############");
+    public ResponseEntity<Response<UserManagementListMemberPojo>> getMemberById(@RequestParam Long memberId) {
+        logger.debug("getMemberById #############");
+        logger.debug("getMemberById memberId={}", memberId);
 
         Map<String, Object> params = new HashMap<>();
-        params.put("memberId", memberId); // <-- corrected key
+        params.put("memberId", memberId);
 
         UserManagementListMemberPojo member = memberService.getMemberById(params);
         if (member == null) {
@@ -76,25 +74,21 @@ public class UserManagementListMemberController {
 
     // 📝 UPDATE MEMBER
     @PutMapping("/update")
-    public ResponseEntity<Response<UserManagementListMemberPojo>> updateMember(
+    public ResponseEntity<Response<UserManagementListMemberPojo>> updateMemberById(
             @RequestParam Long memberId,
             @RequestBody UserManagementListMemberPojo member
     ) {
-        logger.debug("updateMember #############");
-        logger.debug("updateMember memberId={}", memberId);
-        logger.debug("updateMember member={}", member);
-        logger.debug("updateMember member.userName={}", member.getUserName());
-        logger.debug("updateMember member.firstName={}", member.getFirstName());
-        logger.debug("updateMember member.lastName={}", member.getLastName());
-        logger.debug("updateMember member.email={}", member.getEmail());
-        logger.debug("updateMember #############");
+        logger.debug("updateMemberById #############");
+        logger.debug("updateMemberById memberId={}", memberId);
+        logger.debug("updateMemberById member={}", member);
+        logger.debug("updateMemberById member.userName={}", member.getUserName());
+        logger.debug("updateMemberById member.firstName={}", member.getFirstName());
+        logger.debug("updateMemberById member.lastName={}", member.getLastName());
+        logger.debug("updateMemberById member.email={}", member.getEmail());
 
         Map<String, Object> params = new HashMap<>();
-        params.put("memberId", memberId); // <-- corrected key
+        params.put("memberId", memberId);
         params.put("member", member);
-        logger.debug("updateMember #############");
-        logger.debug("updateMember params={}", params);
-        logger.debug("updateMember #############");
 
         UserManagementListMemberPojo updatedMember = memberService.updateMemberById(params);
         return ResponseEntity.ok(Response.success("Member updated successfully", updatedMember, HttpStatus.OK.value()));
@@ -102,13 +96,12 @@ public class UserManagementListMemberController {
 
     // 🗑 DELETE MEMBER
     @DeleteMapping("/delete")
-    public ResponseEntity<Response<Void>> deleteMember(@RequestParam Long memberId) {
-        logger.debug("deleteMember #############");
-        logger.debug("deleteMember memberId={}", memberId);
-        logger.debug("deleteMember #############");
+    public ResponseEntity<Response<Void>> deleteMemberById(@RequestParam Long memberId) {
+        logger.debug("deleteMemberById #############");
+        logger.debug("deleteMemberById memberId={}", memberId);
 
         Map<String, Object> params = new HashMap<>();
-        params.put("memberId", memberId); // <-- corrected key
+        params.put("memberId", memberId);
         memberService.deleteMemberById(params);
 
         return ResponseEntity.ok(Response.success("Member deleted successfully", null, HttpStatus.OK.value()));
@@ -121,7 +114,6 @@ public class UserManagementListMemberController {
     ) {
         logger.debug("searchMembers #############");
         logger.debug("searchMembers params={}", params);
-        logger.debug("searchMembers #############");
 
         Map<String, Object> serviceParams = new HashMap<>(params);
 
@@ -137,7 +129,6 @@ public class UserManagementListMemberController {
         serviceParams.put("sortField", params.getOrDefault("sortField", "id"));
         serviceParams.put("sortDirection", params.getOrDefault("sortDirection", "ASC"));
 
-        // Ensure listId key matches MyBatis mapping
         if (params.get("listId") != null) {
             serviceParams.put("listId", Long.parseLong(params.get("listId").toString()));
         }
@@ -151,7 +142,6 @@ public class UserManagementListMemberController {
     public ResponseEntity<Response<Long>> countMembers(@RequestParam Map<String, Object> params) {
         logger.debug("countMembers #############");
         logger.debug("countMembers params={}", params);
-        logger.debug("countMembers #############");
 
         Map<String, Object> serviceParams = new HashMap<>(params);
         if (params.get("listId") != null) {
