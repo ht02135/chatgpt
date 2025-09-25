@@ -80,24 +80,24 @@ function UserListMemberViewModel(params, config) {
     // ========================
     self.loadUserListMembers = async function() {
         console.log("userListMember.js -> loadUserListMembers called");
-		console.log("userListMember.js -> self.mode=",self.mode);
+		console.log("userListMember.js -> loadUserListMembers: self.mode=",self.mode);
         if (self.mode !== 'list') return;
 
         try {
             const qs = self.buildSearchQuery();
-			console.log("userListMember.js -> qs=",qs);
+			console.log("userListMember.js -> loadUserListMembers: qs=",qs);
             const res = await fetch(`${API_USERLIST_MEMBER}/search?${qs}`, { headers: { 'Accept': 'application/json' } });
-			console.log("userListMember.js -> #############=");
-			console.log("userListMember.js -> res=",res);
-			console.log("userListMember.js -> #############=");
+			console.log("userListMember.js -> loadUserListMembers: #############=");
+			console.log("userListMember.js -> loadUserListMembers: res=",res);
+			console.log("userListMember.js -> loadUserListMembers: #############=");
 			const data = await res.json();
-			console.log("userListMember.js -> data=",data);
+			console.log("userListMember.js -> loadUserListMembers: data=",data);
 			
             if (data.status === 'SUCCESS' && data.data) {
                 const paged = data.data;
-				console.log("userListMember.js -> #############=");
-				console.log("userListMember.js -> paged=",paged);
-				console.log("userListMember.js -> #############=");
+				console.log("userListMember.js -> loadUserListMembers: #############=");
+				console.log("userListMember.js -> loadUserListMembers: paged=",paged);
+				console.log("userListMember.js -> loadUserListMembers: #############=");
                 self.members(paged.items.map(m => new UserListMember(m, self.gridConfig?.columns.map(c => ({ name: c.name })) || [])));
                 if (paged.totalCount && self.total() !== paged.totalCount) self.total(paged.totalCount);
             } else {
@@ -174,10 +174,12 @@ function UserListMemberViewModel(params, config) {
 
     self.saveUserListMember = async function() {
         console.log("userListMember.js -> saveUserListMember called");
+		console.log("userListMember.js -> saveUserListMember self.formConfig=",self.formConfig);
         if (!self.formConfig) return;
 
         self.errors({});
         const errs = self.validateForm(self.currentMember(), self.formConfig.fields);
+		console.log("userListMember.js -> saveUserListMember errs=",errs);
         if (Object.keys(errs).length > 0) {
             self.errors(errs);
             return;
@@ -194,6 +196,9 @@ function UserListMemberViewModel(params, config) {
                 url = `${API_USERLIST_MEMBER}/update?memberId=${encodeURIComponent(self.currentMember().id())}`;
                 method = 'PUT';
             }
+			console.log("userListMember.js -> saveUserListMember url=",url);
+			console.log("userListMember.js -> saveUserListMember method=",method);
+			console.log("userListMember.js -> saveUserListMember payload=",payload);
 
             await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
             self.navigateToMembers();
