@@ -295,26 +295,33 @@ ko.components.register('generic-grid-pagination', {
 
 ko.components.register('generic-edit-form-fields', {
   viewModel: function(params) {
-    // Default type = "text" if not defined in field
+    // Ensure every field has a type (default to "text")
     this.fields = (params.formConfig.fields || []).map(f => {
-      return Object.assign({ type: "text" }, f); // if f.type exists, it stays; otherwise text
+      return Object.assign({ type: "text" }, f);
     });
 
+    // Observable current object being edited
     this.currentObject = params.currentObject;
+
+    // Observable for field-specific errors
     this.errors = params.errors || ko.observable({});
+
     console.log('generic-edit-form-fields: constructor called; fields count=', this.fields.length);
   },
   template: `
     <div class="form-vertical" data-bind="foreach: $component.fields">
       <div class="form-row">
+        <!-- Field label -->
         <label data-bind="text: label + ':'"></label>
 
+        <!-- Input bound to currentObject()[name]; type defaults to text -->
         <input data-bind="
-               attr: { type: type },  <!-- type always exists -->
+               attr: { type: type },
                value: $component.currentObject()[name],
                enable: editable,
                valueUpdate: 'input'" />
 
+        <!-- Validation error message -->
         <div class="error-message"
              data-bind="text: $component.errors()[name],
                         visible: $component.errors()[name]"></div>
@@ -322,7 +329,6 @@ ko.components.register('generic-edit-form-fields', {
     </div>
   `
 });
-
 
 //-----------------------------------
 // generic-edit-form-actions.js
