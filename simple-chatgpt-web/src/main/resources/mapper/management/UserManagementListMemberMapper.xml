@@ -13,6 +13,7 @@
         <id property="id" column="id" />
         <result property="listId" column="list_id" />
         <result property="userName" column="user_name" />
+        <result property="userKey" column="user_key" />
         <result property="password" column="password" />
         <result property="firstName" column="first_name" />
         <result property="lastName" column="last_name" />
@@ -34,6 +35,7 @@
             <if test="params.member != null">
                 <if test="params.member.listId != null">AND list_id = #{params.member.listId}</if>
                 <if test="params.member.userName != null and params.member.userName != ''">AND user_name LIKE CONCAT('%', #{params.member.userName}, '%')</if>
+                <if test="params.member.userKey != null and params.member.userKey != ''">AND user_key LIKE CONCAT('%', #{params.member.userKey}, '%')</if>
                 <if test="params.member.firstName != null and params.member.firstName != ''">AND first_name LIKE CONCAT('%', #{params.member.firstName}, '%')</if>
                 <if test="params.member.lastName != null and params.member.lastName != ''">AND last_name LIKE CONCAT('%', #{params.member.lastName}, '%')</if>
                 <if test="params.member.email != null and params.member.email != ''">AND email LIKE CONCAT('%', #{params.member.email}, '%')</if>
@@ -59,6 +61,7 @@
             <if test="params.member != null">
                 <if test="params.member.listId != null">AND list_id = #{params.member.listId}</if>
                 <if test="params.member.userName != null and params.member.userName != ''">AND user_name LIKE CONCAT('%', #{params.member.userName}, '%')</if>
+                <if test="params.member.userKey != null and params.member.userKey != ''">AND user_key LIKE CONCAT('%', #{params.member.userKey}, '%')</if>
                 <if test="params.member.firstName != null and params.member.firstName != ''">AND first_name LIKE CONCAT('%', #{params.member.firstName}, '%')</if>
                 <if test="params.member.lastName != null and params.member.lastName != ''">AND last_name LIKE CONCAT('%', #{params.member.lastName}, '%')</if>
                 <if test="params.member.email != null and params.member.email != ''">AND email LIKE CONCAT('%', #{params.member.email}, '%')</if>
@@ -85,6 +88,7 @@
             <if test="params.member != null">
                 <if test="params.member.listId != null">AND list_id = #{params.member.listId}</if>
                 <if test="params.member.userName != null and params.member.userName != ''">AND user_name LIKE CONCAT('%', #{params.member.userName}, '%')</if>
+                <if test="params.member.userKey != null and params.member.userKey != ''">AND user_key LIKE CONCAT('%', #{params.member.userKey}, '%')</if>
                 <if test="params.member.firstName != null and params.member.firstName != ''">AND first_name LIKE CONCAT('%', #{params.member.firstName}, '%')</if>
                 <if test="params.member.lastName != null and params.member.lastName != ''">AND last_name LIKE CONCAT('%', #{params.member.lastName}, '%')</if>
                 <if test="params.member.email != null and params.member.email != ''">AND email LIKE CONCAT('%', #{params.member.email}, '%')</if>
@@ -110,10 +114,10 @@
     <!-- ➕ CREATE -->
     <insert id="insertMember" parameterType="map" useGeneratedKeys="true" keyProperty="params.member.id">
         INSERT INTO user_management_list_member
-        (list_id, user_name, password, first_name, last_name, email, address_line_1,
+        (list_id, user_name, user_key, password, first_name, last_name, email, address_line_1,
         address_line_2, city, state, post_code, country)
         VALUES
-        (#{params.member.listId}, #{params.member.userName}, #{params.member.password}, #{params.member.firstName},
+        (#{params.member.listId}, #{params.member.userName}, #{params.member.userKey}, #{params.member.password}, #{params.member.firstName},
         #{params.member.lastName}, #{params.member.email},
         #{params.member.addressLine1}, #{params.member.addressLine2}, #{params.member.city}, #{params.member.state},
         #{params.member.postCode}, #{params.member.country})
@@ -121,11 +125,11 @@
 
     <insert id="batchInsertMembers" parameterType="map">
         INSERT INTO user_management_list_member
-        (list_id, user_name, password, first_name, last_name, email,
+        (list_id, user_name, user_key, password, first_name, last_name, email,
         address_line_1, address_line_2, city, state, post_code, country)
         VALUES
         <foreach collection="params.list" item="item" separator=",">
-            (#{item.listId}, #{item.userName}, #{item.password},
+            (#{item.listId}, #{item.userName}, #{item.userKey}, #{item.password},
             #{item.firstName}, #{item.lastName},
             #{item.email}, #{item.addressLine1}, #{item.addressLine2}, #{item.city},
             #{item.state}, #{item.postCode}, #{item.country})
@@ -138,6 +142,7 @@
         <set>
             updated_at = NOW(),
             <if test="params.member.userName != null">user_name = #{params.member.userName},</if>
+            <if test="params.member.userKey != null">user_key = #{params.member.userKey},</if>
             <if test="params.member.password != null">password = #{params.member.password},</if>
             <if test="params.member.firstName != null">first_name = #{params.member.firstName},</if>
             <if test="params.member.lastName != null">last_name = #{params.member.lastName},</if>
@@ -156,6 +161,7 @@
         UPDATE user_management_list_member
         <set>
             updated_at = NOW(),
+            <if test="params.member.userKey != null">user_key = #{params.member.userKey},</if>
             <if test="params.member.password != null">password = #{params.member.password},</if>
             <if test="params.member.firstName != null">first_name = #{params.member.firstName},</if>
             <if test="params.member.lastName != null">last_name = #{params.member.lastName},</if>
