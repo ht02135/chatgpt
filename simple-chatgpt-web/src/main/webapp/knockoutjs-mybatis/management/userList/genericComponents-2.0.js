@@ -296,15 +296,8 @@ ko.components.register('generic-grid-pagination', {
 
 ko.components.register('generic-edit-form-fields', {
   viewModel: function(params) {
-    // Ensure every field has a type (default to "text")
-    this.fields = (params.formConfig.fields || []).map(f => {
-      return Object.assign({ type: "text" }, f);
-    });
-
-    // Observable current object being edited
+    this.fields = (params.formConfig.fields || []).map(f => Object.assign({ type: "text" }, f));
     this.currentObject = params.currentObject;
-
-    // Observable for field-specific errors
     this.errors = params.errors || ko.observable({});
 
     console.log('generic-edit-form-fields: constructor called; fields count=', this.fields.length);
@@ -312,17 +305,12 @@ ko.components.register('generic-edit-form-fields', {
   template: `
     <div class="form-vertical" data-bind="foreach: $component.fields">
       <div class="form-row">
-        <!-- Field label -->
         <label data-bind="text: label + ':'"></label>
-
-        <!-- Input bound to currentObject()[name]; type defaults to text -->
         <input data-bind="
                attr: { type: type },
                value: $component.currentObject()[name],
                enable: editable,
                valueUpdate: 'input'" />
-
-        <!-- Validation error message -->
         <div class="error-message"
              data-bind="text: $component.errors()[name],
                         visible: $component.errors()[name]"></div>
@@ -336,14 +324,12 @@ ko.components.register('generic-edit-form-fields', {
 
 ko.components.register('generic-edit-form-actions', {
   viewModel: function(params) {
-    this.navigateToObjects = params.navigateToObjects || function() {
-      console.log('navigateToObjects not provided');
-    };
+    // navigateToObjects comes from parent; fallback logs a warning
+    this.navigateToObjects = params.navigateToObjects || function() { console.warn('navigateToObjects not provided'); };
     console.log('generic-edit-form-actions: constructor called');
   },
   template: `
     <div class="form-actions">
-      <!-- Make Save a submit button so the form's submit binding is used -->
       <button type="submit">Save</button>
       <button type="button" data-bind="click: navigateToObjects">Cancel</button>
     </div>
@@ -353,51 +339,29 @@ ko.components.register('generic-edit-form-actions', {
 //-----------------------------------
 // generic-edit-form.js
 
-//-----------------------------------
-// generic-edit-form.js
-
 ko.components.register('generic-edit-form', {
   viewModel: function(params) {
-    // Accept either full vm or separate params
-    this.vm = params.vm || null;
+    this.formTitle = params.formTitle || "Edit Form";
+    this.formConfig = params.formConfig || { fields: [] };
+    this.currentObject = params.currentObject;
+    this.errors = params.errors || ko.observable({});
+    this.saveObject = params.saveObject || null;
+    this.navigateToObjects = params.navigateToObjects || function() { console.warn('navigateToObjects not provided'); };
 
-    // ----------------------------
-    // Assign core properties
-    // ----------------------------
-    this.formTitle = params.formTitle || (this.vm && this.vm.formTitle) || "Edit Form";
-    this.formConfig = params.formConfig || (this.vm && this.vm.formConfig) || { fields: [] };
-    this.currentObject = params.currentObject || (this.vm && this.vm.currentObject);
-    this.errors = params.errors || (this.vm && this.vm.errors) || ko.observable({});
-    this.saveObject = params.saveObject || (this.vm && this.vm.saveObject);
-
-    // ----------------------------
-    // submitHandler bound to form
-    // ----------------------------
-    this.submitHandler = this.saveObject || function() {
-      console.error('generic-edit-form: saveObject not provided.');
-    };
-
-    // ----------------------------
-    // navigateToObjects passed down to actions
-    // ----------------------------
-    this.navigateToObjects = params.navigateToObjects || (this.vm && this.vm.navigateToObjects) || function() {
-      console.log('generic-edit-form: navigateToObjects not provided.');
-    };
-
-    console.log('generic-edit-form: constructor called; submitHandler?', !!this.submitHandler);
-    console.log('generic-edit-form: navigateToObjects defined?', !!this.navigateToObjects);
+    console.log('generic-edit-form: constructor called; submitHandler?', !!this.saveObject);
+    if (!this.saveObject) {
+      console.error('generic-edit-form: No saveObject provided.');
+    }
   },
   template: `
     <div class="container">
       <generic-form-title params="formTitle: $component.formTitle"></generic-form-title>
-
-      <form data-bind="submit: $component.submitHandler">
+      <form data-bind="submit: $component.saveObject">
         <generic-edit-form-fields 
           params="formConfig: $component.formConfig, 
                   currentObject: $component.currentObject, 
                   errors: $component.errors">
         </generic-edit-form-fields>
-
         <generic-edit-form-actions 
           params="navigateToObjects: $component.navigateToObjects">
         </generic-edit-form-actions>
