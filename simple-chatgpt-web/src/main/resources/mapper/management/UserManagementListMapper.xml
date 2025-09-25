@@ -8,18 +8,18 @@
     <!-- =======================
          CREATE
          ======================= -->
-    <insert id="insertList" parameterType="map" useGeneratedKeys="true" keyProperty="params.id">
+    <insert id="insertList" parameterType="map" useGeneratedKeys="true" keyProperty="params.list.id">
         INSERT INTO user_management_list
         (user_list_name, file_path, original_file_name, description, created_at, updated_at)
         VALUES
-        (#{params.userListName}, #{params.filePath}, #{params.originalFileName}, #{params.description}, NOW(), NOW())
+        (#{params.list.userListName}, #{params.list.filePath}, #{params.list.originalFileName}, #{params.list.description}, NOW(), NOW())
     </insert>
 
-    <insert id="createList" parameterType="map" useGeneratedKeys="true" keyProperty="params.id">
+    <insert id="createList" parameterType="map" useGeneratedKeys="true" keyProperty="params.list.id">
         INSERT INTO user_management_list
         (user_list_name, file_path, original_file_name, description, created_at, updated_at)
         VALUES
-        (#{params.userListName}, #{params.filePath}, #{params.originalFileName}, #{params.description}, NOW(), NOW())
+        (#{params.list.userListName}, #{params.list.filePath}, #{params.list.originalFileName}, #{params.list.description}, NOW(), NOW())
     </insert>
 
     <!-- =======================
@@ -28,10 +28,10 @@
     <update id="updateList" parameterType="map">
         UPDATE user_management_list
         SET
-            user_list_name = #{params.userListName},
-            file_path = #{params.filePath},
-            original_file_name = #{params.originalFileName},
-            description = #{params.description},
+            user_list_name = #{params.list.userListName},
+            file_path = #{params.list.filePath},
+            original_file_name = #{params.list.originalFileName},
+            description = #{params.list.description},
             updated_at = NOW()
         WHERE id = #{params.listId}
     </update>
@@ -39,10 +39,10 @@
     <update id="updateListById" parameterType="map">
         UPDATE user_management_list
         SET
-            user_list_name = #{params.userListName},
-            file_path = #{params.filePath},
-            original_file_name = #{params.originalFileName},
-            description = #{params.description},
+            user_list_name = #{params.list.userListName},
+            file_path = #{params.list.filePath},
+            original_file_name = #{params.list.originalFileName},
+            description = #{params.list.description},
             updated_at = NOW()
         WHERE id = #{params.listId}
     </update>
@@ -92,11 +92,13 @@
         SELECT id, user_list_name, file_path, original_file_name, description, created_at, updated_at
         FROM user_management_list
         <where>
-            <if test="params.userListName != null and params.userListName != ''">
-                AND user_list_name LIKE CONCAT('%', #{params.userListName}, '%')
-            </if>
-            <if test="params.description != null and params.description != ''">
-                AND description LIKE CONCAT('%', #{params.description}, '%')
+            <if test="params.list != null">
+                <if test="params.list.userListName != null and params.list.userListName != ''">
+                    AND user_list_name LIKE CONCAT('%', #{params.list.userListName}, '%')
+                </if>
+                <if test="params.list.description != null and params.list.description != ''">
+                    AND description LIKE CONCAT('%', #{params.list.description}, '%')
+                </if>
             </if>
         </where>
         <if test="params.sortField != null and params.sortDirection != null">
@@ -111,11 +113,13 @@
         SELECT id, user_list_name, file_path, original_file_name, description, created_at, updated_at
         FROM user_management_list
         <where>
-            <if test="params.userListName != null and params.userListName != ''">
-                AND user_list_name LIKE CONCAT('%', #{params.userListName}, '%')
-            </if>
-            <if test="params.description != null and params.description != ''">
-                AND description LIKE CONCAT('%', #{params.description}, '%')
+            <if test="params.list != null">
+                <if test="params.list.userListName != null and params.list.userListName != ''">
+                    AND user_list_name LIKE CONCAT('%', #{params.list.userListName}, '%')
+                </if>
+                <if test="params.list.description != null and params.list.description != ''">
+                    AND description LIKE CONCAT('%', #{params.list.description}, '%')
+                </if>
             </if>
         </where>
         <if test="params.sortField != null and params.sortDirection != null">
@@ -133,11 +137,13 @@
         SELECT COUNT(*)
         FROM user_management_list
         <where>
-            <if test="params.userListName != null and params.userListName != ''">
-                AND user_list_name LIKE CONCAT('%', #{params.userListName}, '%')
-            </if>
-            <if test="params.description != null and params.description != ''">
-                AND description LIKE CONCAT('%', #{params.description}, '%')
+            <if test="params.list != null">
+                <if test="params.list.userListName != null and params.list.userListName != ''">
+                    AND user_list_name LIKE CONCAT('%', #{params.list.userListName}, '%')
+                </if>
+                <if test="params.list.description != null and params.list.description != ''">
+                    AND description LIKE CONCAT('%', #{params.list.description}, '%')
+                </if>
             </if>
         </where>
     </select>
@@ -149,8 +155,10 @@
         SELECT id, user_list_name, file_path, original_file_name, description, created_at, updated_at
         FROM user_management_list
         <where>
-            <if test="params.userListName != null and params.userListName != ''">
-                AND user_list_name LIKE CONCAT('%', #{params.userListName}, '%')
+            <if test="params.list != null">
+                <if test="params.list.userListName != null and params.list.userListName != ''">
+                    AND user_list_name LIKE CONCAT('%', #{params.list.userListName}, '%')
+                </if>
             </if>
         </where>
     </select>
