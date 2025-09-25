@@ -38,14 +38,21 @@ public class UserManagementListMemberController {
     // ➕ CREATE MEMBER
     @PostMapping("/create")
     public ResponseEntity<Response<UserManagementListMemberPojo>> createMember(
-            @RequestPart("member") UserManagementListMemberPojo member
+            @RequestBody UserManagementListMemberPojo member
     ) {
         logger.debug("createMember #############");
         logger.debug("createMember member={}", member);
         logger.debug("createMember member.userName={}", member.getUserName());
+        logger.debug("createMember member.userKey={}", member.getUserKey());
         logger.debug("createMember member.firstName={}", member.getFirstName());
         logger.debug("createMember member.lastName={}", member.getLastName());
         logger.debug("createMember member.email={}", member.getEmail());
+        logger.debug("createMember member.addressLine1={}", member.getAddressLine1());
+        logger.debug("createMember member.addressLine2={}", member.getAddressLine2());
+        logger.debug("createMember member.city={}", member.getCity());
+        logger.debug("createMember member.state={}", member.getState());
+        logger.debug("createMember member.postCode={}", member.getPostCode());
+        logger.debug("createMember member.country={}", member.getCountry());
         logger.debug("createMember #############");
 
         Map<String, Object> params = new HashMap<>();
@@ -53,7 +60,7 @@ public class UserManagementListMemberController {
         logger.debug("createMember #############");
         logger.debug("createMember params={}", params);
         logger.debug("createMember #############");
-        
+
         memberService.createMember(params);
 
         return ResponseEntity.status(HttpStatus.CREATED)
