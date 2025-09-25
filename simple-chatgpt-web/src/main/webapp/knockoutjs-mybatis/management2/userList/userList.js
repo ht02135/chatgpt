@@ -185,26 +185,33 @@ function UserListViewModel(params, config) {
     // Validation & Save
     self.validateForm = function(obj, fields) { return self.validator ? self.validator.validateForm(obj, fields) : {}; };
 
+	// hung: for now, saveUserList just navigate to userLists.jsp
     self.saveUserList = async function() {
         console.log("userList.js -> saveUserList called");
-        if (!self.formConfig) return;
+		window.location.href = 'userLists.jsp';
+    };
+	
+	// hung: this will the the hook for upload user list
+	self.uploadUserList = async function() {
+		console.log("userList.js -> uploadUserList called");
+		if (!self.formConfig) return;
 
-        self.errors({});
-        const errs = self.validateForm(self.currentUserList(), self.formConfig.fields);
-        if (Object.keys(errs).length > 0) { self.errors(errs); return; }
+		self.errors({});
+		const errs = self.validateForm(self.currentUserList(), self.formConfig.fields);
+		if (Object.keys(errs).length > 0) { self.errors(errs); return; }
 
-        try {
-            const uploadedFile = await FileUploader.upload("#fileInput");
-            const payload = { ...ko.toJS(self.currentUserList()), file: uploadedFile };
+		try {
+		    const uploadedFile = await FileUploader.upload("#fileInput");
+		    const payload = { ...ko.toJS(self.currentUserList()), file: uploadedFile };
 
-            let url = `${API_USERLIST}/create`, method = 'POST';
-            if (self.mode === 'edit' && self.currentUserList().id && self.currentUserList().id()) {
-                url = `${API_USERLIST}/update?listId=${encodeURIComponent(self.currentUserList().id())}`;
-                method = 'PUT';
-            }
-            await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-            self.navigateToUserLists();
-        } catch (err) { console.error('Save userList error:', err); }
+		    let url = `${API_USERLIST}/create`, method = 'POST';
+		    if (self.mode === 'edit' && self.currentUserList().id && self.currentUserList().id()) {
+		        url = `${API_USERLIST}/update?listId=${encodeURIComponent(self.currentUserList().id())}`;
+		        method = 'PUT';
+		    }
+		    await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+		    self.navigateToUserLists();
+		} catch (err) { console.error('Save userList error:', err); }
     };
 
     // Delete
@@ -222,7 +229,7 @@ function UserListViewModel(params, config) {
     // Load by ID
     self.loadUserListById = async function(listId) {
 		console.log("userList.js -> loadUserListById called");
-		console.log("userList.js -> loadUserListById id=",id);
+		console.log("userList.js -> loadUserListById listId=",listId);
         try {
             const res = await fetch(`${API_USERLIST}/get?listId=${encodeURIComponent(listId)}`, { headers: { 'Accept': 'application/json' } });
 			console.log("userList.js -> loadUserListById res=",res);

@@ -354,3 +354,22 @@ tbody tr:hover {
         text-align: center;
     }
 }
+
+/* =========================
+   Alignment for editUserList.jsp
+   ========================= */
+#userListMembersPage {
+    text-align: left;      /* force left alignment */
+    margin: 0 auto;        /* center the whole container */
+    max-width: 800px;      /* consistent with .container */
+    padding: 10px;
+}
+
+generic-edit-form,
+generic-search-form,
+generic-search-actions,
+generic-grid,
+generic-grid-pagination {
+    display: block;
+    margin: 0 0 20px 0;    /* space between sections */
+}
