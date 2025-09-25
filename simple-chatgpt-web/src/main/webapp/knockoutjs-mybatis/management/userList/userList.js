@@ -81,24 +81,24 @@ function UserListViewModel(params, config) {
     // ========================
     self.loadUserLists = async function() {
         console.log("userList.js -> loadUserLists called");
-        console.log("userList.js -> self.mode=", self.mode);
+        console.log("userList.js -> loadUserLists: self.mode=", self.mode);
         if (self.mode !== 'list') return;
 
         try {
             const qs = self.buildSearchQuery();
-			console.log("userList.js -> qs=", qs);
+			console.log("userList.js -> loadUserLists: qs=", qs);
             const res = await fetch(`${API_USERLIST}?${qs}`, { headers: { 'Accept': 'application/json' } });
-			console.log("userList.js -> #############=");
-			console.log("userList.js -> res=", res);
-			console.log("userList.js -> #############=");
+			console.log("userList.js -> loadUserLists: #############=");
+			console.log("userList.js -> loadUserLists: res=", res);
+			console.log("userList.js -> loadUserLists: #############=");
 			const data = await res.json();
-			console.log("userList.js -> data=", data);
+			console.log("userList.js -> loadUserLists: data=", data);
 
             if (data.status === 'SUCCESS' && data.data) {
                 const paged = data.data;
-				console.log("userList.js -> #############=");
-				console.log("userList.js -> paged=", paged);
-				console.log("userList.js -> #############=");
+				console.log("userList.js -> loadUserLists: #############=");
+				console.log("userList.js -> loadUserLists: paged=", paged);
+				console.log("userList.js -> loadUserLists: #############=");
                 self.userLists(paged.items.map(u => new UserList(u, self.gridConfig?.columns.map(c => ({ name: c.name })) || [])));
                 if (paged.totalCount && self.total() !== paged.totalCount) self.total(paged.totalCount);
             } else {

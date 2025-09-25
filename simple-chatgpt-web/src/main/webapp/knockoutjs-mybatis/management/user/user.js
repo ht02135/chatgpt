@@ -179,10 +179,10 @@ function UserViewModel(params, config) {
 
     self.editUser = function(id) {
         console.log("user.js -> editUser: id=", ko.unwrap(id));
-		console.log("user.js ##########");
+		console.log("user.js -> editUser: ##########");
 		console.log("user.js -> editUser: setItem editUserId=", ko.unwrap(id));
         localStorage.setItem('editUserId', ko.unwrap(id));
-		console.log("user.js ##########");
+		console.log("user.js -> editUser: ##########");
         window.location.href = 'editUser.jsp';
     };
 
@@ -243,14 +243,14 @@ function UserViewModel(params, config) {
 
         self.errors({});
         const errs = self.validateForm(self.currentUser(), self.formConfig.fields);
-        console.log("user.js ##########");
+        console.log("user.js -> saveUser: ##########");
         console.log("user.js -> saveUser: errs=", errs);
         if (Object.keys(errs).length > 0) {
             self.errors(errs);
             console.log("user.js -> saveUser: return");
             return;
         }
-        console.log("user.js ##########");
+        console.log("user.js -> saveUser: ##########");
 
         const payload = {};
         self.formConfig.fields.forEach(f => payload[f.name] = self.currentUser()[f.name]());

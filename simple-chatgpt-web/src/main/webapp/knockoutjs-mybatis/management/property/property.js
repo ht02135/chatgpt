@@ -175,10 +175,10 @@ function PropertyViewModel(params, config) {
     };
     self.editProperty = function(id) {
         console.log("property.js -> editProperty: id=", ko.unwrap(id));
-		console.log("property.js ##########");
+		console.log("property.js -> editProperty: ##########");
 		console.log("property.js -> editProperty: setItem editPropertyId=", ko.unwrap(id));
         localStorage.setItem('editPropertyId', ko.unwrap(id));
-		console.log("property.js ##########");
+		console.log("property.js -> editProperty: ##########");
         window.location.href = 'editProperty.jsp';
     };
 
@@ -256,13 +256,13 @@ function PropertyViewModel(params, config) {
 	            method = 'PUT';
 	        }
 			
-			console.log("property.js ##########");
+			console.log("property.js -> saveProperty: ##########");
 			console.log("property.js -> saveProperty: self.mode=", self.mode);
 			console.log("property.js -> saveProperty: idVal=", idVal);
 			console.log("property.js -> saveProperty: url=", url);
 			console.log("property.js -> saveProperty: method=", method);
 			console.log("property.js -> saveProperty: payload=", payload);
-			console.log("property.js ##########");
+			console.log("property.js -> saveProperty: ##########");
 	        await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
 	        self.navigateToProperties();
 	    } catch (err) {
