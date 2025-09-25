@@ -46,9 +46,14 @@ public class UserManagementListMemberController {
         logger.debug("createMember member.firstName={}", member.getFirstName());
         logger.debug("createMember member.lastName={}", member.getLastName());
         logger.debug("createMember member.email={}", member.getEmail());
+        logger.debug("createMember #############");
 
         Map<String, Object> params = new HashMap<>();
         params.put("member", member);
+        logger.debug("createMember #############");
+        logger.debug("createMember params={}", params);
+        logger.debug("createMember #############");
+        
         memberService.createMember(params);
 
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -60,6 +65,7 @@ public class UserManagementListMemberController {
     public ResponseEntity<Response<UserManagementListMemberPojo>> getMemberById(@RequestParam Long memberId) {
         logger.debug("getMemberById #############");
         logger.debug("getMemberById memberId={}", memberId);
+        logger.debug("getMemberById #############");
 
         Map<String, Object> params = new HashMap<>();
         params.put("memberId", memberId);
@@ -85,11 +91,15 @@ public class UserManagementListMemberController {
         logger.debug("updateMemberById member.firstName={}", member.getFirstName());
         logger.debug("updateMemberById member.lastName={}", member.getLastName());
         logger.debug("updateMemberById member.email={}", member.getEmail());
+        logger.debug("updateMemberById #############");
 
         Map<String, Object> params = new HashMap<>();
         params.put("memberId", memberId);
         params.put("member", member);
-
+        logger.debug("updateMemberById #############");
+        logger.debug("updateMemberById params={}", params);
+        logger.debug("updateMemberById #############");
+        
         UserManagementListMemberPojo updatedMember = memberService.updateMemberById(params);
         return ResponseEntity.ok(Response.success("Member updated successfully", updatedMember, HttpStatus.OK.value()));
     }
@@ -99,6 +109,7 @@ public class UserManagementListMemberController {
     public ResponseEntity<Response<Void>> deleteMemberById(@RequestParam Long memberId) {
         logger.debug("deleteMemberById #############");
         logger.debug("deleteMemberById memberId={}", memberId);
+        logger.debug("deleteMemberById #############");
 
         Map<String, Object> params = new HashMap<>();
         params.put("memberId", memberId);
@@ -114,6 +125,7 @@ public class UserManagementListMemberController {
     ) {
         logger.debug("searchMembers #############");
         logger.debug("searchMembers params={}", params);
+        logger.debug("searchMembers #############");
 
         Map<String, Object> serviceParams = new HashMap<>(params);
 
@@ -133,7 +145,14 @@ public class UserManagementListMemberController {
             serviceParams.put("listId", Long.parseLong(params.get("listId").toString()));
         }
 
+        logger.debug("searchMembers #############");
+        logger.debug("searchMembers serviceParams={}", serviceParams);
+        logger.debug("searchMembers #############");
         PagedResult<UserManagementListMemberPojo> members = memberService.searchMembers(serviceParams);
+        logger.debug("searchMembers #############");
+        logger.debug("searchMembers members={}", members);
+        logger.debug("searchMembers #############");
+        
         return ResponseEntity.ok(Response.success("Members fetched successfully", members, HttpStatus.OK.value()));
     }
 
@@ -142,6 +161,7 @@ public class UserManagementListMemberController {
     public ResponseEntity<Response<Long>> countMembers(@RequestParam Map<String, Object> params) {
         logger.debug("countMembers #############");
         logger.debug("countMembers params={}", params);
+        logger.debug("countMembers #############");
 
         Map<String, Object> serviceParams = new HashMap<>(params);
         if (params.get("listId") != null) {
