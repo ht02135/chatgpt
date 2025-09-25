@@ -353,35 +353,44 @@ ko.components.register('generic-edit-form-actions', {
 //-----------------------------------
 // generic-edit-form.js
 
+//-----------------------------------
+// generic-edit-form.js
+
 ko.components.register('generic-edit-form', {
   viewModel: function(params) {
-    // Accept either the full vm (recommended) or separate params
+    // Accept either full vm or separate params
     this.vm = params.vm || null;
 
-    // Form properties
+    // ----------------------------
+    // Assign core properties
+    // ----------------------------
     this.formTitle = params.formTitle || (this.vm && this.vm.formTitle) || "Edit Form";
     this.formConfig = params.formConfig || (this.vm && this.vm.formConfig) || { fields: [] };
     this.currentObject = params.currentObject || (this.vm && this.vm.currentObject);
     this.errors = params.errors || (this.vm && this.vm.errors) || ko.observable({});
     this.saveObject = params.saveObject || (this.vm && this.vm.saveObject);
 
-    // Submit handler
+    // ----------------------------
+    // submitHandler bound to form
+    // ----------------------------
     this.submitHandler = this.saveObject || function() {
-      console.error('generic-edit-form: No saveObject provided. Pass params.vm or params.saveObject.');
+      console.error('generic-edit-form: saveObject not provided.');
     };
 
-    // Navigate handler (fallback to vm.navigateToObjects or console.log)
+    // ----------------------------
+    // navigateToObjects passed down to actions
+    // ----------------------------
     this.navigateToObjects = params.navigateToObjects || (this.vm && this.vm.navigateToObjects) || function() {
       console.log('generic-edit-form: navigateToObjects not provided.');
     };
 
-    console.log('generic-edit-form: constructor called; submitHandler?', !!this.saveObject);
+    console.log('generic-edit-form: constructor called; submitHandler?', !!this.submitHandler);
+    console.log('generic-edit-form: navigateToObjects defined?', !!this.navigateToObjects);
   },
   template: `
     <div class="container">
       <generic-form-title params="formTitle: $component.formTitle"></generic-form-title>
 
-      <!-- Bind submit to $component.submitHandler -->
       <form data-bind="submit: $component.submitHandler">
         <generic-edit-form-fields 
           params="formConfig: $component.formConfig, 

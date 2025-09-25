@@ -158,8 +158,9 @@ function UserListMemberViewModel(params, config) {
     };
     self.invokeAction = function(action, row) {
         if (action && action.jsMethod && typeof self[action.jsMethod] === 'function') {
+			console.log("userListMember.js -> invokeAction: action=", action);
+			console.log("userListMember.js -> invokeAction: action.jsMethod=", action.jsMethod);
             if (/^edit(UserListMember|Object)$/.test(action.jsMethod)) {
-				console.log("userListMember.js -> invokeAction: action.jsMethod=", action.jsMethod);
 				self[action.jsMethod](ko.unwrap(row.id));
             } else {
 				self[action.jsMethod](row);
