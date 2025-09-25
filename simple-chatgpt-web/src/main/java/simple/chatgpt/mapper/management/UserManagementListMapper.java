@@ -11,23 +11,31 @@ import simple.chatgpt.pojo.management.UserManagementListPojo;
 @Mapper
 public interface UserManagementListMapper {
 
-    // ➕ CREATE
+    // ---------------- CREATE ----------------
     int insertList(@Param("params") Map<String, Object> params);
+    int createList(@Param("params") Map<String, Object> params);
 
-    // ✏️ UPDATE
+    // ---------------- UPDATE ----------------
     int updateList(@Param("params") Map<String, Object> params);
+    int updateListById(@Param("params") Map<String, Object> params);
 
-    // 🗑 DELETE
+    // ---------------- DELETE ----------------
     int deleteList(@Param("params") Map<String, Object> params);
+    int deleteListById(@Param("params") Map<String, Object> params);
 
-    // 📖 READ
+    // ---------------- READ ----------------
     UserManagementListPojo findListById(@Param("params") Map<String, Object> params);
-    List<UserManagementListPojo> findAllLists();
+    UserManagementListPojo getListById(@Param("params") Map<String, Object> params);
 
-    // 🔎 SEARCH / PAGINATION
+    List<UserManagementListPojo> findAllLists();
+    List<UserManagementListPojo> getAllLists();
+
+    // ---------------- SEARCH / PAGINATION ----------------
     List<UserManagementListPojo> findLists(@Param("params") Map<String, Object> params);
+    List<UserManagementListPojo> searchLists(@Param("params") Map<String, Object> params);
+
     long countLists(@Param("params") Map<String, Object> params);
 
-    // Legacy search method (if still used)
+    // ---------------- LEGACY ----------------
     List<UserManagementListPojo> searchUserLists(@Param("params") Map<String, Object> params);
 }
