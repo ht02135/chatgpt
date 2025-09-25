@@ -174,10 +174,12 @@ function UserListMemberViewModel(params, config) {
 
     self.saveUserListMember = async function() {
         console.log("userListMember.js -> saveUserListMember called");
+		console.log("userListMember.js -> saveUserListMember self.formConfig=",self.formConfig);
         if (!self.formConfig) return;
 
         self.errors({});
         const errs = self.validateForm(self.currentMember(), self.formConfig.fields);
+		console.log("userListMember.js -> saveUserListMember errs=",errs);
         if (Object.keys(errs).length > 0) {
             self.errors(errs);
             return;
@@ -194,6 +196,9 @@ function UserListMemberViewModel(params, config) {
                 url = `${API_USERLIST_MEMBER}/update?memberId=${encodeURIComponent(self.currentMember().id())}`;
                 method = 'PUT';
             }
+			console.log("userListMember.js -> saveUserListMember url=",url);
+			console.log("userListMember.js -> saveUserListMember method=",method);
+			console.log("userListMember.js -> saveUserListMember payload=",payload);
 
             await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
             self.navigateToMembers();

@@ -104,23 +104,24 @@
     </insert>
 
     <!-- ✏️ UPDATE -->
-    <update id="updateMemberById" parameterType="map">
-        UPDATE user_management_list_member
-        <set>
-            <if test="params.userName != null">user_name = #{params.userName},</if>
-            <if test="params.password != null">password = #{params.password},</if>
-            <if test="params.firstName != null">first_name = #{params.firstName},</if>
-            <if test="params.lastName != null">last_name = #{params.lastName},</if>
-            <if test="params.email != null">email = #{params.email},</if>
-            <if test="params.addressLine1 != null">address_line_1 = #{params.addressLine1},</if>
-            <if test="params.addressLine2 != null">address_line_2 = #{params.addressLine2},</if>
-            <if test="params.city != null">city = #{params.city},</if>
-            <if test="params.state != null">state = #{params.state},</if>
-            <if test="params.postCode != null">post_code = #{params.postCode},</if>
-            <if test="params.country != null">country = #{params.country},</if>
-        </set>
-        WHERE id = #{params.memberId}
-    </update>
+	<update id="updateMemberById" parameterType="map">
+    	UPDATE user_management_list_member
+    	<set>
+        	updated_at = NOW(),
+        	<if test="params.userName != null">user_name = #{params.userName},</if>
+        	<if test="params.password != null">password = #{params.password},</if>
+        	<if test="params.firstName != null">first_name = #{params.firstName},</if>
+        	<if test="params.lastName != null">last_name = #{params.lastName},</if>
+        	<if test="params.email != null">email = #{params.email},</if>
+        	<if test="params.addressLine1 != null">address_line_1 = #{params.addressLine1},</if>
+        	<if test="params.addressLine2 != null">address_line_2 = #{params.addressLine2},</if>
+        	<if test="params.city != null">city = #{params.city},</if>
+        	<if test="params.state != null">state = #{params.state},</if>
+        	<if test="params.postCode != null">post_code = #{params.postCode},</if>
+        	<if test="params.country != null">country = #{params.country},</if>
+    	</set>
+    	WHERE id = #{params.memberId}
+	</update>
 
     <update id="updateMemberByUserName" parameterType="map">
         UPDATE user_management_list_member

@@ -143,9 +143,12 @@ public class UserManagementListMemberServiceImpl implements UserManagementListMe
     @Override
     public UserManagementListMemberPojo updateMemberById(Map<String, Object> params) {
         logger.debug("updateMemberById called");
+        logger.debug("updateMemberById #############");
+        logger.debug("updateMemberById updated params={}", params);
         for (Map.Entry<String, Object> entry : params.entrySet()) {
             logger.debug("updateMemberById param {}={}", entry.getKey(), entry.getValue());
         }
+        logger.debug("updateMemberById #############");
 
         mapper.updateMemberById(params);
         logger.debug("updateMemberById updated member={}", params.get("member"));

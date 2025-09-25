@@ -92,6 +92,9 @@ public class UserManagementListMemberController {
         Map<String, Object> params = new HashMap<>();
         params.put("memberId", memberId); // <-- corrected key
         params.put("member", member);
+        logger.debug("updateMember #############");
+        logger.debug("updateMember params={}", params);
+        logger.debug("updateMember #############");
 
         UserManagementListMemberPojo updatedMember = memberService.updateMemberById(params);
         return ResponseEntity.ok(Response.success("Member updated successfully", updatedMember, HttpStatus.OK.value()));
