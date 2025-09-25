@@ -10,6 +10,7 @@ public class UserManagementListMemberPojo {
     private Long id;
     private Long listId;
     private String userName;
+    private String userKey;      // 🔹 newly added
     private String password;
     private String firstName;
     private String lastName;
@@ -27,14 +28,15 @@ public class UserManagementListMemberPojo {
     public UserManagementListMemberPojo() {}
 
     // Full constructor
-    public UserManagementListMemberPojo(Long id, Long listId, String userName, String password,
-                                        String firstName, String lastName, String email,
+    public UserManagementListMemberPojo(Long id, Long listId, String userName, String userKey,
+                                        String password, String firstName, String lastName, String email,
                                         String addressLine1, String addressLine2,
                                         String city, String state, String postCode, String country,
                                         Timestamp createdAt, Timestamp updatedAt) {
         this.id = id;
         this.listId = listId;
         this.userName = userName;
+        this.userKey = userKey;
         this.password = password;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -58,6 +60,9 @@ public class UserManagementListMemberPojo {
 
     public String getUserName() { return userName; }
     public void setUserName(String userName) { this.userName = userName; }
+
+    public String getUserKey() { return userKey; }
+    public void setUserKey(String userKey) { this.userKey = userKey; }
 
     public String getPassword() { return password; }
     public void setPassword(String password) { this.password = password; }
@@ -102,6 +107,9 @@ public class UserManagementListMemberPojo {
                 "id=" + id +
                 ", listId=" + listId +
                 ", userName='" + userName + '\'' +
+                ", userKey='" + userKey + '\'' +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
                 ", email='" + email + '\'' +
                 ", city='" + city + '\'' +
                 ", country='" + country + '\'' +

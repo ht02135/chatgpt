@@ -15,6 +15,7 @@ CREATE TABLE user_management_list_member (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     list_id BIGINT NOT NULL,  
     user_name VARCHAR(100) NOT NULL,
+    user_key VARCHAR(100) NOT NULL,
     password VARCHAR(255) NOT NULL,
     first_name VARCHAR(100),
     last_name VARCHAR(100),
@@ -31,3 +32,6 @@ CREATE TABLE user_management_list_member (
     CONSTRAINT uq_list_member UNIQUE (list_id, email),
     CONSTRAINT uq_list_member_username UNIQUE (list_id, user_name)
 );
+
+-- in case we just want to do alter
+ALTER TABLE user_management_list_member ADD COLUMN user_key VARCHAR(100) NOT NULL AFTER user_name;
