@@ -139,6 +139,12 @@
         <action name="Delete" label="Delete" visible="true" jsMethod="deleteUserList" />
     </actions>
 
+    <form id="searchUserList">
+        <field name="userListName" label="User List Name" visible="true" />
+        <field name="originalFileName" label="Original File Name" visible="true" />
+        <field name="description" label="Description" visible="true" />
+    </form>
+    
     <grid id="userLists">
         <column name="id" label="ID" visible="true" sortable="true" dbField="id" />
         <column name="userListName" label="User List Name" visible="true" sortable="true" dbField="user_list_name" />
@@ -147,10 +153,11 @@
         <column name="actions" label="Actions" actions="userList-actions" visible="true" sortable="false" />
     </grid>
     
-    <form id="searchUserList">
-        <field name="userListName" label="User List Name" visible="true" />
-        <field name="originalFileName" label="Original File Name" visible="true" />
-        <field name="description" label="Description" visible="true" />
+    <form id="editUserList">
+        <field name="id" label="ID" required="true" editable="false" />
+        <field name="userListName" label="User List Name" required="true" editable="false" />
+        <field name="originalFileName" label="Original File Name" required="true" editable="false" />
+        <field name="description" label="Description" required="true" editable="false" />
     </form>
 
     <actions id="userListMember-actions">
