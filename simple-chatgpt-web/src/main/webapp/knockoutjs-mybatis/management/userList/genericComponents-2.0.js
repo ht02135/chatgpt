@@ -371,3 +371,24 @@ ko.components.register('generic-edit-form', {
 });
 
 //-----------------------------------
+// customize-search-actions.js
+
+ko.components.register('customize-search-actions', {
+  viewModel: function(params) {
+    this.actions = params.actions;             // array of action configs
+    this.invokeAction = params.invokeAction;   // function(action, row)
+    this.rowContext = params.rowContext || {}; // optional row data, defaults to {}
+  },
+  template: `
+    <div class="form-actions" data-bind="foreach: $component.actions">
+      <a href="#"
+         data-bind="
+           text: label,
+           click: function() { $component.invokeAction($data, $component.rowContext) }"></a>
+      <!-- separator -->
+      <!-- ko if: $index() < $parent.actions.length - 1 --> | <!-- /ko -->
+    </div>
+  `
+});
+
+//-----------------------------------

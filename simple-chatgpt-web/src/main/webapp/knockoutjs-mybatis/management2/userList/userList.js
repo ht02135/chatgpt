@@ -264,6 +264,10 @@ function UserListViewModel(params, config) {
     self.addObject = function() { 
 		return self.addUserList(); 
 	};
+	self.uploadObject = function() { 
+		console.log("userList.js -> uploadObject called");
+		return self.loadUserLists(); 
+	};
     self.searchObjects = function() { 
 		return self.searchUserLists(); 
 	};

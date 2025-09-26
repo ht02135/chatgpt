@@ -23,11 +23,10 @@
     "></generic-search-form>
 
     <!-- Search Actions -->
-    <generic-search-actions params="
-        addObject: UserListVM.navigateToAddUserList,
-        searchObjects: UserListVM.searchUserLists,
-        resetSearch: UserListVM.resetSearch
-    "></generic-search-actions>
+	<customize-search-actions params="
+	    actions: UserListVM.actionGroupMap['search-userList-actions'],
+	    invokeAction: UserListVM.invokeAction
+	"></customize-search-actions>
 
     <!-- Grid -->
     <generic-grid params="

@@ -26,6 +26,19 @@
     <!-- User Management -->
     <!-- ========================= -->
 
+    <form id="searchUser">
+        <field name="userName" label="Username" visible="true" />
+        <field name="userKey" label="User Key" visible="true" />
+        <field name="firstName" label="First Name" visible="true" />
+        <field name="lastName" label="Last Name" visible="true" />
+        <field name="email" label="Email" regex="emailValidation" visible="true" />
+        <field name="addressLine1" label="Address Line 1" visible="true" />
+        <field name="addressLine2" label="Address Line 2" visible="true" />
+        <field name="city" label="City" visible="true" />
+        <field name="state" label="State" visible="true" />
+        <field name="postCode" label="Post Code" regex="postalCodeValidation" visible="true" />
+        <field name="country" label="Country" visible="true" />
+    </form>
     <actions id="user-actions">
         <action name="Edit" label="Edit" visible="true" jsMethod="editUser" />
         <action name="Delete" label="Delete" visible="true" jsMethod="deleteUser" />
@@ -44,20 +57,6 @@
         <column name="updatedAt" label="Updated At" visible="false" sortable="true" dbField="updated_at" />
         <column name="actions" label="Actions" actions="user-actions" visible="true" sortable="false" />
     </grid>
-
-    <form id="searchUser">
-        <field name="userName" label="Username" visible="true" />
-        <field name="userKey" label="User Key" visible="true" />
-        <field name="firstName" label="First Name" visible="true" />
-        <field name="lastName" label="Last Name" visible="true" />
-        <field name="email" label="Email" regex="emailValidation" visible="true" />
-        <field name="addressLine1" label="Address Line 1" visible="true" />
-        <field name="addressLine2" label="Address Line 2" visible="true" />
-        <field name="city" label="City" visible="true" />
-        <field name="state" label="State" visible="true" />
-        <field name="postCode" label="Post Code" regex="postalCodeValidation" visible="true" />
-        <field name="country" label="Country" visible="true" />
-    </form>
 
     <form id="addUser">
         <field name="userName" label="Username" visible="true" required="true" editable="true" />
@@ -96,13 +95,19 @@
     <!-- Property Management -->
     <!-- ========================= -->
 
+    <form id="searchProperty">
+        <field name="propertyName" label="Name" visible="true" required="true" editable="true" />
+        <field name="propertyKey" label="Key" visible="false" required="true" editable="true" />
+        <field name="type" label="Type" visible="true" required="true" editable="true" />
+    </form>
+
     <validators id="multiple-validators">
         <validator type="boolean" validRegexExpression="^(true|false)$" errorMessage="wrong boolean format" />
         <validator type="integer" validRegexExpression="^\d+$" errorMessage="wrong integer format" />
         <validator type="decimal" validRegexExpression="^[+-]?\d*\.?\d+$" errorMessage="wrong decimal format" />
         <validator type="string" validRegexExpression=".*" errorMessage="wrong string format" />
     </validators>
-
+        
     <actions id="property-actions">
         <action name="Edit" label="Edit" visible="true" jsMethod="editProperty" />
     </actions>
@@ -116,12 +121,6 @@
         <column name="actions" label="Actions" actions="property-actions" visible="true" sortable="false" />
     </grid>
 
-    <form id="searchProperty">
-        <field name="propertyName" label="Name" visible="true" required="true" editable="true" />
-        <field name="propertyKey" label="Key" visible="false" required="true" editable="true" />
-        <field name="type" label="Type" visible="true" required="true" editable="true" />
-    </form>
-
     <form id="editProperty">
         <field name="id" label="ID" visible="true" required="true" editable="false" />
         <field name="propertyName" label="Name" visible="true" required="true" editable="false" />
@@ -134,17 +133,23 @@
     <!-- User List Management -->
     <!-- ========================= -->
 
-    <actions id="userList-actions">
-        <action name="Edit" label="Edit" visible="true" jsMethod="editUserList" />
-        <action name="Delete" label="Delete" visible="true" jsMethod="deleteUserList" />
-    </actions>
-
+	<actions id="search-userList-actions">
+    	<action name="Upload" label="Upload" visible="true" jsMethod="uploadObject" />
+    	<action name="Search" label="Search" visible="true" jsMethod="searchObjects" />
+    	<action name="Reset" label="Reset" visible="true" jsMethod="resetSearch" />
+	</actions>
+	
     <form id="searchUserList">
         <field name="userListName" label="User List Name" visible="true" />
         <field name="originalFileName" label="Original File Name" visible="true" />
         <field name="description" label="Description" visible="true" />
     </form>
     
+    <actions id="userList-actions">
+        <action name="Edit" label="Edit" visible="true" jsMethod="editUserList" />
+        <action name="Delete" label="Delete" visible="true" jsMethod="deleteUserList" />
+    </actions>
+
     <grid id="userLists">
         <column name="id" label="ID" visible="true" sortable="true" dbField="id" />
         <column name="userListName" label="User List Name" visible="true" sortable="true" dbField="user_list_name" />
