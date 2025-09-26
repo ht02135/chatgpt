@@ -258,4 +258,5 @@ function UserListMemberViewModel(params, config) {
 	};
 }
 
-export { UserListMemberViewModel };
+// export them both together at the bottom
+export { UserListMember, UserListMemberViewModel };

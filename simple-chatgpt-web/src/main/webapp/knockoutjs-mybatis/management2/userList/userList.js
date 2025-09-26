@@ -293,4 +293,4 @@ function UserListViewModel(params, config) {
 }
 
 // ✅ export so JSP can import
-export { UserListViewModel };
+export { UserList, UserListViewModel };

@@ -52,8 +52,8 @@
 
 <!-- Initialization Script -->
 <script type="module">
-import { UserListViewModel } from './userList.js';
-import { UserListMemberViewModel } from './userListMember.js';
+import { UserList, UserListViewModel } from './userList.js';
+import { UserListMember, UserListMemberViewModel } from './userListMember.js';
 import configLoader from "./configLoader.js";
 import Validator from "./validation.js";
 
