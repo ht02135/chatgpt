@@ -88,12 +88,14 @@ public class UserManagementListController {
     ) {
         logger.debug("createList called");
 
+        // Log list object
         logger.debug("createList list={}", list);
         if (list != null) {
             logger.debug("createList list.userListName={}", list.getUserListName());
             logger.debug("createList list.description={}", list.getDescription());
         }
 
+        // Log members individually
         if (members != null) {
             for (UserManagementListMemberPojo m : members) {
                 logger.debug("createList member={}", m);
@@ -107,18 +109,26 @@ public class UserManagementListController {
         }
 
         try {
+            // Step 1: Create a map and put list + members
             Map<String, Object> params = new HashMap<>();
             params.put("list", list);
             params.put("members", members != null ? Arrays.asList(members) : null);
 
+            // Step 2: Wrap it using your project utility
             Map<String, Object> innerParams = getParamsMap(params);
+
+            // Step 3: Wrap for XML access
             Map<String, Object> wrapperParam = new HashMap<>();
             wrapperParam.put("params", innerParams);
 
+            // Logging for MyBatis XML
             logger.debug("createList #############");
             logger.debug("createList wrapperParam={}", wrapperParam);
             logger.debug("createList #############");
+
+            // Call service
             userManagementListService.createList(wrapperParam);
+
         } catch (Exception e) {
             logger.error("createList failed", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
