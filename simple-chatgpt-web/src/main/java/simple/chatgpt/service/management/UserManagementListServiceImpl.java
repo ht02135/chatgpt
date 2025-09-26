@@ -117,7 +117,7 @@ public class UserManagementListServiceImpl implements UserManagementListService 
         logger.debug("createList members={}", members);
         logger.debug("createList called #############");
 
-        // --- wrap list in 'params' to match XML ---
+        // --- wrap list in 'params' to match XML #{params.list.userListName} ---
         Map<String, Object> listWrapper = new HashMap<>();
         listWrapper.put("list", list);
         Map<String, Object> listParam = new HashMap<>();
@@ -134,15 +134,15 @@ public class UserManagementListServiceImpl implements UserManagementListService 
 
         if (members != null && !members.isEmpty()) {
             for (UserManagementListMemberPojo m : members) {
-                m.setListId(listId);
+                m.setListId(listId);  // ✅ set listId for each member
                 logger.debug("createList member listId set: member={}", m);
             }
 
-            // --- wrap members in 'params' to match XML batchInsertMembers ---
+            // --- wrap members in 'params' to match XML collection="params.member" ---
             Map<String, Object> memberWrapper = new HashMap<>();
-            memberWrapper.put("members", members);
+            memberWrapper.put("member", members);  // ✅ key = "member" matches your XML
             Map<String, Object> memberParam = new HashMap<>();
-            memberParam.put("params", memberWrapper);  // ✅ matches XML collection="params.members"
+            memberParam.put("params", memberWrapper);
 
             logger.debug("createList called #############");
             logger.debug("createList memberParam={}", memberParam);
@@ -151,7 +151,6 @@ public class UserManagementListServiceImpl implements UserManagementListService 
             memberMapper.batchInsertMembers(memberParam);
         }
     }
-
 
     @Override
     public void deleteList(Map<String, Object> params) {
