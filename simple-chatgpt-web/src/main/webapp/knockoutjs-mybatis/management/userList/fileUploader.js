@@ -10,25 +10,16 @@ class FileUploader {
         this.uploadUrl = uploadUrl;           // endpoint to POST the file
         this.formConfig = formConfig;         // optional fields for validation
         this.validator = validator;           // optional validator instance
-        this.selectedFile = ko.observable(null); // observable for file input
-    }
-
-    // -----------------------------
-    // Bind file input change event
-    // -----------------------------
-    onFileSelected(data, event) {
-        const file = event.target.files[0];
-        console.log("fileUploader.js -> onFileSelected: file=", file);
-        this.selectedFile(file);
     }
 
     // -----------------------------
     // Upload file with optional JSON payload
     // -----------------------------
     async upload(payloadObj = {}) {
-		console.log("fileUploader.js -> upload: #############");
+        console.log("fileUploader.js -> upload: #############");
         console.log("fileUploader.js -> upload: called");
-		console.log("fileUploader.js -> upload: #############");
+        console.log("fileUploader.js -> upload: #############");
+
         const errors = {};
 
         // Validate form fields
@@ -37,8 +28,11 @@ class FileUploader {
             Object.assign(errors, fieldErrors);
         }
 
-        // Validate file selection
-        if (!this.selectedFile()) {
+        // -----------------------------
+        // Prompt user for file
+        // -----------------------------
+        const file = await this.promptFile();
+        if (!file) {
             errors.file = "File is required";
         }
 
@@ -52,7 +46,7 @@ class FileUploader {
             // Append JSON payload as blob
             formData.append("list", new Blob([JSON.stringify(payloadObj)], { type: "application/json" }));
             // Append file
-            formData.append("file", this.selectedFile());
+            formData.append("file", file);
 
             const res = await fetch(this.uploadUrl, { method: 'POST', body: formData });
             const data = await res.json();
@@ -63,6 +57,25 @@ class FileUploader {
             console.error("fileUploader.js -> upload error:", err);
             return { success: false, errors: { network: err.message } };
         }
+    }
+
+    // -----------------------------
+    // Generic file prompt
+    // -----------------------------
+    promptFile() {
+        return new Promise(resolve => {
+            const input = document.createElement("input");
+            input.type = "file";
+            input.style.display = "none";
+
+            input.addEventListener("change", (event) => {
+                resolve(event.target.files[0] || null);
+                document.body.removeChild(input);
+            });
+
+            document.body.appendChild(input);
+            input.click();
+        });
     }
 }
 

@@ -1,3 +1,5 @@
+// userList.js
+
 import FileUploader from "./fileUploader.js";   // ✅ now works as ES module
 
 const API_USERLIST = '/chatgpt/api/management/userlists';
@@ -193,15 +195,15 @@ function UserListViewModel(params, config) {
 	
 	// hung: this will the the hook for upload user list
 	self.uploadUserList = async function() {
-		console.log("userList.js -> uploadUserList: #############");
+	    console.log("userList.js -> uploadUserList: #############");
 	    console.log("userList.js -> uploadUserList called");
-		console.log("userList.js -> uploadUserList: #############");
+	    console.log("userList.js -> uploadUserList: #############");
 
 	    try {
-	        // Create uploader instance for /import endpoint
+	        // hung: pass API endpoint only, uploader handles file prompt
 	        const uploader = new FileUploader(`${API_USERLIST}/import`, self.formConfig, self.validator);
 
-	        // Call upload with the current user list object
+	        // Call upload with current object payload
 	        const result = await uploader.upload(ko.toJS(self.currentUserList()));
 
 	        if (result.success) {
