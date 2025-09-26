@@ -194,36 +194,37 @@ function UserListViewModel(params, config) {
     };
 	
 	// hung: this will be the hook for upload user list
+	// hung: VM upload method using new FileUploader
 	self.uploadUserList = async function() {
-	    console.log("userList.js -> uploadUserList called");
+	    console.log("userList.js -> uploadUserList called #############");
 
 	    try {
-	        const uploader = new FileUploader(`${API_USERLIST}/import`, self.formConfig, self.validator);
+	        // 1️⃣ Create uploader and pass VM callback to provide payload
+	        const uploader = new FileUploader(`${API_USERLIST}/import`, (file) => {
+	            console.log("userList.js -> payloadProvider called for file=", file.name);
 
-	        // 1️⃣ VM handles file selection
-	        const file = await uploader.promptFile();
-	        if (!file) {
-	            self.errors({ file: "File is required" });
-	            return;
-	        }
+	            // Build payload from currentUserList or fallback from file
+	            let payloadObj = ko.toJS(self.currentUserList()) || {};
+	            if (!payloadObj.user_list_name) {
+	                const nameWithoutExt = file.name.replace(/\.[^/.]+$/, "");
+	                payloadObj.user_list_name = nameWithoutExt;
+	                payloadObj.original_file_name = file.name;
+	                payloadObj.description = nameWithoutExt;
+	            }
 
-	        // 2️⃣ VM builds payload
-	        let payloadObj = ko.toJS(self.currentUserList());
-	        if (!payloadObj.user_list_name) {
-	            const nameWithoutExt = file.name.replace(/\.[^/.]+$/, "");
-	            payloadObj.user_list_name = nameWithoutExt;
-	            payloadObj.original_file_name = file.name;
-	            payloadObj.description = nameWithoutExt;
-	        }
+	            console.log("userList.js -> payloadProvider returning payloadObj=", payloadObj);
+	            return payloadObj;
+	        });
 
-	        // 3️⃣ Call upload with file + payload
-	        const result = await uploader.upload(payloadObj, file);
+	        // 2️⃣ Call upload (uploader will prompt file and use payloadProvider)
+	        const result = await uploader.upload();
 
+	        // 3️⃣ Handle response
 	        if (result.success) {
 	            console.log("userList.js -> uploadUserList: import success", result);
 	            self.navigateToUserLists();
 	        } else {
-	            console.error("userList.js -> uploadUserList: errors", result.errors);
+	            console.error("userList.js -> uploadUserList: validation or server error", result.errors);
 	            self.errors(result.errors || {});
 	        }
 	    } catch (err) {

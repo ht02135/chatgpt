@@ -1,52 +1,58 @@
 // fileUploader.js
 
 class FileUploader {
-    constructor(uploadUrl, formConfig = null, validator = null) {
+    /**
+     * @param {string} uploadUrl - endpoint to POST the file
+     * @param {function(File): Object} payloadProvider - function that returns payload given a File
+     */
+    constructor(uploadUrl, payloadProvider) {
         console.log("fileUploader.js -> constructor:");
         console.log("  uploadUrl=", uploadUrl);
-        console.log("  formConfig=", formConfig);
-        console.log("  validator=", validator);
+        console.log("  payloadProvider=", payloadProvider);
 
-        this.uploadUrl = uploadUrl;           // endpoint to POST the file
-        this.formConfig = formConfig;         // optional fields for validation
-        this.validator = validator;           // optional validator instance
+        this.uploadUrl = uploadUrl;
+        this.payloadProvider = payloadProvider;
     }
 
     // -----------------------------
-    // Upload file + payload
+    // Upload file
     // -----------------------------
-    async upload(payloadObj, file) {
-        console.log("fileUploader.js -> upload called");
-        console.log("fileUploader.js -> payloadObj=", payloadObj);
-        console.log("fileUploader.js -> file=", file);
-
-        const errors = {};
-
-        // Optional form validation
-        if (this.validator && this.formConfig?.fields) {
-            const fieldErrors = this.validator.validateForm(payloadObj, this.formConfig.fields);
-            Object.assign(errors, fieldErrors);
-        }
-
-        if (!file) {
-            errors.file = "File is required";
-        }
-
-        if (Object.keys(errors).length > 0) {
-            console.log("fileUploader.js -> validation errors=", errors);
-            return { success: false, errors };
-        }
+    async upload() {
+        console.log("fileUploader.js -> upload called #############");
 
         try {
+            // -----------------------------
+            // 1️⃣ Prompt user for file
+            // -----------------------------
+            const file = await this.promptFile();
+            if (!file) {
+                console.error("fileUploader.js -> upload: no file selected");
+                return { success: false, errors: { file: "File is required" } };
+            }
+            console.log("fileUploader.js -> upload: file selected=", file.name);
+
+            // -----------------------------
+            // 2️⃣ Ask VM to provide payload
+            // -----------------------------
+            let payloadObj = {};
+            if (typeof this.payloadProvider === 'function') {
+                payloadObj = this.payloadProvider(file) || {};
+            }
+            console.log("fileUploader.js -> upload: payloadObj=", payloadObj);
+
+            // -----------------------------
+            // 3️⃣ Build FormData
+            // -----------------------------
             const formData = new FormData();
-            // Append JSON payload as blob
             formData.append("list", new Blob([JSON.stringify(payloadObj)], { type: "application/json" }));
-            // Append file
             formData.append("file", file);
 
+            // -----------------------------
+            // 4️⃣ POST
+            // -----------------------------
             const res = await fetch(this.uploadUrl, { method: 'POST', body: formData });
             const data = await res.json();
-            console.log("fileUploader.js -> upload response=", data);
+            console.log("fileUploader.js -> upload: response=", data);
 
             return data;
         } catch (err) {
