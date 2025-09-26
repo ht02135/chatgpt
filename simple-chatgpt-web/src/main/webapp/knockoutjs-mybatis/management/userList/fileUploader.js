@@ -26,7 +26,9 @@ class FileUploader {
     // Upload file with optional JSON payload
     // -----------------------------
     async upload(payloadObj = {}) {
+		console.log("fileUploader.js -> upload: #############");
         console.log("fileUploader.js -> upload: called");
+		console.log("fileUploader.js -> upload: #############");
         const errors = {};
 
         // Validate form fields

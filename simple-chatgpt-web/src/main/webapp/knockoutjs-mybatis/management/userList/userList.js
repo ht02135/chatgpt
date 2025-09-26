@@ -79,38 +79,30 @@ function UserListViewModel(params, config) {
     // ========================
     // Load UserLists
     // ========================
-    self.loadUserLists = async function() {
-        console.log("userList.js -> loadUserLists called");
-        console.log("userList.js -> loadUserLists: self.mode=", self.mode);
-        if (self.mode !== 'list') return;
+	self.uploadUserList = async function() {
+		console.log("userList.js -> uploadUserList: #############");
+	    console.log("userList.js -> uploadUserList called");
+		console.log("userList.js -> uploadUserList: #############");
 
-        try {
-            const qs = self.buildSearchQuery();
-			console.log("userList.js -> loadUserLists: qs=", qs);
-            const res = await fetch(`${API_USERLIST}?${qs}`, { headers: { 'Accept': 'application/json' } });
-			console.log("userList.js -> loadUserLists: #############=");
-			console.log("userList.js -> loadUserLists: res=", res);
-			console.log("userList.js -> loadUserLists: #############=");
-			const data = await res.json();
-			console.log("userList.js -> loadUserLists: data=", data);
+	    try {
+	        // Create uploader instance for /import endpoint
+	        const uploader = new FileUploader(`${API_USERLIST}/import`, self.formConfig, self.validator);
 
-            if (data.status === 'SUCCESS' && data.data) {
-                const paged = data.data;
-				console.log("userList.js -> loadUserLists: #############=");
-				console.log("userList.js -> loadUserLists: paged=", paged);
-				console.log("userList.js -> loadUserLists: #############=");
-                self.userLists(paged.items.map(u => new UserList(u, self.gridConfig?.columns.map(c => ({ name: c.name })) || [])));
-                if (paged.totalCount && self.total() !== paged.totalCount) self.total(paged.totalCount);
-            } else {
-                self.userLists([]);
-                self.total(0);
-            }
-        } catch (err) {
-            console.error('Load userLists error:', err);
-            self.userLists([]);
-            self.total(0);
-        }
-    };
+	        // Call upload with the current user list object
+	        const result = await uploader.upload(ko.toJS(self.currentUserList()));
+
+	        if (result.success) {
+	            console.log("userList.js -> uploadUserList: import success", result);
+	            self.navigateToUserLists();
+	        } else {
+	            console.error("userList.js -> uploadUserList: validation or server error", result.errors);
+	            self.errors(result.errors || {});
+	        }
+	    } catch (err) {
+	        console.error("userList.js -> uploadUserList: unexpected error", err);
+	        self.errors({ network: err.message });
+	    }
+	};
 
     // ========================
     // Search & Reset
