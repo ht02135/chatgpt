@@ -105,16 +105,23 @@ public class UserManagementListServiceImpl implements UserManagementListService 
     // ------------------ CRUD ------------------
     @Override
     public void createList(Map<String, Object> params) {
+    	logger.debug("createList called #############");
         logger.debug("createList called with params={}", params);
+        logger.debug("createList called #############");
 
         UserManagementListPojo list = (UserManagementListPojo) params.get("list");
         List<UserManagementListMemberPojo> members = (List<UserManagementListMemberPojo>) params.get("members");
 
+        logger.debug("createList called #############");
         logger.debug("createList list={}", list);
         logger.debug("createList members={}", members);
+        logger.debug("createList called #############");
 
         Map<String, Object> listParam = new HashMap<>();
         listParam.put("list", list);
+        logger.debug("createList called #############");
+        logger.debug("createList listParam={}", listParam);
+        logger.debug("createList called #############");
         listMapper.insertList(listParam);
 
         Long listId = list.getId();
@@ -127,6 +134,9 @@ public class UserManagementListServiceImpl implements UserManagementListService 
             }
             Map<String, Object> memberParam = new HashMap<>();
             memberParam.put("members", members);
+            logger.debug("createList called #############");
+            logger.debug("createList memberParam={}", memberParam);
+            logger.debug("createList called #############");
             memberMapper.batchInsertMembers(memberParam);
         }
     }

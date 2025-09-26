@@ -85,6 +85,7 @@ public class UserManagementListController {
     ) {
         logger.debug("createList called #############");
         logger.debug("createList list={}", list);
+        logger.debug("createList called #############");
         if (list != null) {
             logger.debug("createList list.userListName={}", list.getUserListName());
             logger.debug("createList list.description={}", list.getDescription());
@@ -92,11 +93,13 @@ public class UserManagementListController {
 
         if (members != null) {
             for (UserManagementListMemberPojo m : members) {
+            	logger.debug("createList called #############");
                 logger.debug("createList member={}", m);
                 logger.debug("createList member.userName={}", m.getUserName());
                 logger.debug("createList member.firstName={}", m.getFirstName());
                 logger.debug("createList member.lastName={}", m.getLastName());
                 logger.debug("createList member.email={}", m.getEmail());
+                logger.debug("createList called #############");
             }
         } else {
             logger.debug("createList members=null");
@@ -106,6 +109,9 @@ public class UserManagementListController {
             Map<String, Object> params = new HashMap<>();
             params.put("list", list);
             params.put("members", members != null ? Arrays.asList(members) : null);
+            logger.debug("createList called #############");
+            logger.debug("createList params={}",params);
+            logger.debug("createList called #############");
             userManagementListService.createList(params);
         } catch (Exception e) {
             logger.error("createList failed", e);
@@ -122,6 +128,7 @@ public class UserManagementListController {
     public ResponseEntity<Response<UserManagementListPojo>> getListById(@RequestParam Long listId) {
         logger.debug("getListById called #############");
         logger.debug("getListById listId={}", listId);
+        logger.debug("getListById called #############");
 
         Map<String, Object> params = new HashMap<>();
         params.put("listId", listId);
@@ -152,6 +159,7 @@ public class UserManagementListController {
     public ResponseEntity<Response<Void>> deleteList(@RequestParam Long listId) {
         logger.debug("deleteList called #############");
         logger.debug("deleteList listId={}", listId);
+        logger.debug("deleteList called #############");
 
         Map<String, Object> params = new HashMap<>();
         params.put("listId", listId);
@@ -169,6 +177,7 @@ public class UserManagementListController {
         logger.debug("importList called #############");
         logger.debug("importList list={}", list);
         logger.debug("importList fileName={}", file.getOriginalFilename());
+        logger.debug("importList called #############");
 
         try (var is = file.getInputStream()) {
             Map<String, Object> params = new HashMap<>();
@@ -200,6 +209,7 @@ public class UserManagementListController {
     public void exportListToCsv(@RequestParam Long listId, HttpServletResponse response) {
         logger.debug("exportListToCsv called #############");
         logger.debug("exportListToCsv listId={}", listId);
+        logger.debug("exportListToCsv called #############");
 
         response.setContentType("text/csv");
         response.setHeader("Content-Disposition", "attachment; filename=\"list_" + listId + ".csv\"");
@@ -219,6 +229,7 @@ public class UserManagementListController {
     public void exportListToExcel(@RequestParam Long listId, HttpServletResponse response) {
         logger.debug("exportListToExcel called #############");
         logger.debug("exportListToExcel listId={}", listId);
+        logger.debug("exportListToExcel called #############");
 
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
         response.setHeader("Content-Disposition", "attachment; filename=\"list_" + listId + ".xlsx\"");
@@ -241,6 +252,7 @@ public class UserManagementListController {
     ) {
         logger.debug("searchMembers called #############");
         logger.debug("searchMembers params={}", params);
+        logger.debug("searchMembers called #############");
 
         int page = 0;
         int size = 20;
@@ -279,6 +291,7 @@ public class UserManagementListController {
     public ResponseEntity<Response<Long>> countMembers(@RequestParam Map<String, Object> params) {
         logger.debug("countMembers called #############");
         logger.debug("countMembers params={}", params);
+        logger.debug("countMembers called #############");
 
         Map<String, Object> serviceParams = new HashMap<>(params);
         if (params.get("listId") != null) {
