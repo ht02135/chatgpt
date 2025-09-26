@@ -155,17 +155,17 @@
          #{params.member.state}, #{params.member.postCode}, #{params.member.country})
     </insert>
 
-    <insert id="batchInsertMembers" parameterType="map">
-        INSERT INTO user_management_list_member
-        (list_id, user_name, user_key, password, first_name, last_name, email, address_line_1, address_line_2, city, state, post_code, country)
-        VALUES
-        <foreach collection="params.list" item="item" separator=",">
-            (#{params.member.listId}, #{params.member.userName}, #{params.member.userKey}, #{params.member.password},
-             #{params.member.firstName}, #{params.member.lastName}, #{params.member.email},
-             #{params.member.addressLine1}, #{params.member.addressLine2}, #{params.member.city},
-             #{params.member.state}, #{params.member.postCode}, #{params.member.country})
-        </foreach>
-    </insert>
+	<insert id="batchInsertMembers" parameterType="map">
+    	INSERT INTO user_management_list_member
+    	(list_id, user_name, user_key, password, first_name, last_name, email, address_line_1, address_line_2, city, state, post_code, country)
+    	VALUES
+    	<foreach collection="params.members" item="member" separator=",">
+        	(#{member.listId}, #{member.userName}, #{member.userKey}, #{member.password},
+         	#{member.firstName}, #{member.lastName}, #{member.email},
+         	#{member.addressLine1}, #{member.addressLine2}, #{member.city},
+         	#{member.state}, #{member.postCode}, #{member.country})
+    	</foreach>
+	</insert>
 
     <!-- =======================
          READ
