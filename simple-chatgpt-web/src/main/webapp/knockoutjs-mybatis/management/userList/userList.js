@@ -1,4 +1,4 @@
-// userList.js
+import FileUploader from "./fileUploader.js";   // ✅ now works as ES module
 
 const API_USERLIST = '/chatgpt/api/management/userlists';
 
@@ -276,3 +276,6 @@ function UserListViewModel(params, config) {
 		return self.searchUserLists(); 
 	};
 }
+
+// ✅ export so JSP can import
+export { UserListViewModel };
