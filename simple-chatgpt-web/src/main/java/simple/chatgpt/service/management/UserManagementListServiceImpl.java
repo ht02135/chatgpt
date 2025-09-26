@@ -72,9 +72,9 @@ public class UserManagementListServiceImpl implements UserManagementListService 
         logger.debug("searchUserLists called with params={}", params);
 
         int page = 0, size = 20;
-        try { page = getInt((String) params.getOrDefault("page", "0")); }
+        try { page = getInt(params.getOrDefault("page", "0")); }
         catch (Exception e) { logger.warn("Invalid page param {}, defaulting to 0", params.get("page"), e); }
-        try { size = getInt((String) params.getOrDefault("size", "20")); }
+        try { size = getInt(params.getOrDefault("size", "20")); }
         catch (Exception e) { logger.warn("Invalid size param {}, defaulting to 20", params.get("size"), e); }
 
         int offset = page * size;
@@ -213,9 +213,9 @@ public class UserManagementListServiceImpl implements UserManagementListService 
         logger.debug("getMembersByListId listId={}", listId);
 
         int page = 0, size = 20;
-        try { page = getInt((String) params.getOrDefault("page", "0")); }
+        try { page = getInt(params.getOrDefault("page", "0")); }
         catch (Exception e) { logger.warn("Invalid page param {}, defaulting to 0", params.get("page"), e); }
-        try { size = getInt((String) params.getOrDefault("size", "20")); }
+        try { size = getInt(params.getOrDefault("size", "20")); }
         catch (Exception e) { logger.warn("Invalid size param {}, defaulting to 20", params.get("size"), e); }
 
         int offset = page * size;
@@ -241,9 +241,9 @@ public class UserManagementListServiceImpl implements UserManagementListService 
         logger.debug("searchMembers called with params={}", params);
 
         int page = 0, size = 20;
-        try { page = getInt((String) params.getOrDefault("page", "0")); }
+        try { page = getInt(params.getOrDefault("page", "0")); }
         catch (Exception e) { logger.warn("Invalid page param {}, defaulting to 0", params.get("page"), e); }
-        try { size = getInt((String) params.getOrDefault("size", "20")); }
+        try { size = getInt(params.getOrDefault("size", "20")); }
         catch (Exception e) { logger.warn("Invalid size param {}, defaulting to 20", params.get("size"), e); }
 
         int offset = page * size;
