@@ -5,8 +5,6 @@
     <meta charset="UTF-8">
     <title>User Lists</title>
 	<script src="../../../js/knockout-latest.js"></script>
-	<!-- only load userList.js once as a module -->
-	<script type="module" src="userList.js"></script>
 	<script src="genericComponents-2.0.js"></script>
     <link rel="stylesheet" href="userList.css">
 </head>
@@ -54,9 +52,10 @@
 
 <!-- Initialization Script -->
 <script type="module">
+import { UserListViewModel } from './userList.js';
+import { UserListMemberViewModel } from './userListMember.js';
 import configLoader from "./configLoader.js";
 import Validator from "./validation.js";
-import { UserListViewModel } from "./userList.js";  // import from userList.js module
 
 (async function () {
     console.log("Initializing User Lists page...");

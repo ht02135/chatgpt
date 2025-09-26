@@ -5,7 +5,6 @@
     <meta charset="UTF-8">
     <title>Add User List Member</title>
     <script src="../../../js/knockout-latest.js"></script>
-    <script src="userListMember.js"></script>
     <script src="genericComponents-2.0.js"></script>
     <link rel="stylesheet" href="userList.css">
 </head>
@@ -20,6 +19,8 @@
 	</generic-edit-form>
 
     <script type="module">
+		import { UserListViewModel } from './userList.js';
+		import { UserListMemberViewModel } from './userListMember.js';
         import configLoader from "./configLoader.js";
         import Validator from "./validation.js";
 
