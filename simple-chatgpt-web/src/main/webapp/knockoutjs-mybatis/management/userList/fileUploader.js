@@ -13,31 +13,27 @@ class FileUploader {
     }
 
     // -----------------------------
-    // Upload file with optional JSON payload
+    // Upload file + payload
     // -----------------------------
-    async upload(payloadObj = {}) {
-        console.log("fileUploader.js -> upload: #############");
-        console.log("fileUploader.js -> upload: called");
-        console.log("fileUploader.js -> upload: #############");
+    async upload(payloadObj, file) {
+        console.log("fileUploader.js -> upload called");
+        console.log("fileUploader.js -> payloadObj=", payloadObj);
+        console.log("fileUploader.js -> file=", file);
 
         const errors = {};
 
-        // Validate form fields
+        // Optional form validation
         if (this.validator && this.formConfig?.fields) {
             const fieldErrors = this.validator.validateForm(payloadObj, this.formConfig.fields);
             Object.assign(errors, fieldErrors);
         }
 
-        // -----------------------------
-        // Prompt user for file
-        // -----------------------------
-        const file = await this.promptFile();
         if (!file) {
             errors.file = "File is required";
         }
 
         if (Object.keys(errors).length > 0) {
-            console.log("fileUploader.js -> upload: validation errors=", errors);
+            console.log("fileUploader.js -> validation errors=", errors);
             return { success: false, errors };
         }
 
@@ -50,7 +46,7 @@ class FileUploader {
 
             const res = await fetch(this.uploadUrl, { method: 'POST', body: formData });
             const data = await res.json();
-            console.log("fileUploader.js -> upload: response=", data);
+            console.log("fileUploader.js -> upload response=", data);
 
             return data;
         } catch (err) {

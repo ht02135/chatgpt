@@ -193,24 +193,37 @@ function UserListViewModel(params, config) {
 		window.location.href = 'userLists.jsp';
     };
 	
-	// hung: this will the the hook for upload user list
+	// hung: this will be the hook for upload user list
 	self.uploadUserList = async function() {
-	    console.log("userList.js -> uploadUserList: #############");
 	    console.log("userList.js -> uploadUserList called");
-	    console.log("userList.js -> uploadUserList: #############");
 
 	    try {
-	        // hung: pass API endpoint only, uploader handles file prompt
 	        const uploader = new FileUploader(`${API_USERLIST}/import`, self.formConfig, self.validator);
 
-	        // Call upload with current object payload
-	        const result = await uploader.upload(ko.toJS(self.currentUserList()));
+	        // 1️⃣ VM handles file selection
+	        const file = await uploader.promptFile();
+	        if (!file) {
+	            self.errors({ file: "File is required" });
+	            return;
+	        }
+
+	        // 2️⃣ VM builds payload
+	        let payloadObj = ko.toJS(self.currentUserList());
+	        if (!payloadObj.user_list_name) {
+	            const nameWithoutExt = file.name.replace(/\.[^/.]+$/, "");
+	            payloadObj.user_list_name = nameWithoutExt;
+	            payloadObj.original_file_name = file.name;
+	            payloadObj.description = nameWithoutExt;
+	        }
+
+	        // 3️⃣ Call upload with file + payload
+	        const result = await uploader.upload(payloadObj, file);
 
 	        if (result.success) {
 	            console.log("userList.js -> uploadUserList: import success", result);
 	            self.navigateToUserLists();
 	        } else {
-	            console.error("userList.js -> uploadUserList: validation or server error", result.errors);
+	            console.error("userList.js -> uploadUserList: errors", result.errors);
 	            self.errors(result.errors || {});
 	        }
 	    } catch (err) {
