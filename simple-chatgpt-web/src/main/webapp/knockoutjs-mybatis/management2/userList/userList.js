@@ -1,5 +1,7 @@
 // userList.js
 
+import FileUploader from "./fileUploader.js";   // ✅ now works as ES module
+
 const API_USERLIST = '/chatgpt/api/management/userlists';
 
 function UserList(data, fields) {
@@ -191,19 +193,32 @@ function UserListViewModel(params, config) {
 		window.location.href = 'userLists.jsp';
     };
 	
-	// hung: this will the the hook for upload user list
+	// hung: VM upload method using new FileUploader
 	self.uploadUserList = async function() {
-		console.log("userList.js -> uploadUserList: #############");
-	    console.log("userList.js -> uploadUserList called");
-		console.log("userList.js -> uploadUserList: #############");
+	    console.log("userList.js -> uploadUserList called #############");
 
 	    try {
-	        // Create uploader instance for /import endpoint
-	        const uploader = new FileUploader(`${API_USERLIST}/import`, self.formConfig, self.validator);
+	        // 1️⃣ Create uploader and pass VM callback to provide payload
+	        const uploader = new FileUploader(`${API_USERLIST}/import`, (file) => {
+	            console.log("userList.js -> payloadProvider called for file=", file.name);
 
-	        // Call upload with the current user list object
-	        const result = await uploader.upload(ko.toJS(self.currentUserList()));
+	            // Build payload from currentUserList or fallback from file
+	            let payloadObj = ko.toJS(self.currentUserList()) || {};
+	            if (!payloadObj.userListName) {  // <-- use camelCase matching POJO
+	                const nameWithoutExt = file.name.replace(/\.[^/.]+$/, "");
+	                payloadObj.userListName = nameWithoutExt;
+	                payloadObj.originalFileName = file.name;
+	                payloadObj.description = nameWithoutExt;
+	            }
 
+	            console.log("userList.js -> payloadProvider returning payloadObj=", payloadObj);
+	            return payloadObj;
+	        });
+
+	        // 2️⃣ Call upload (uploader will prompt file and use payloadProvider)
+	        const result = await uploader.upload();
+
+	        // 3️⃣ Handle response
 	        if (result.success) {
 	            console.log("userList.js -> uploadUserList: import success", result);
 	            self.navigateToUserLists();
@@ -276,3 +291,6 @@ function UserListViewModel(params, config) {
 		return self.searchUserLists(); 
 	};
 }
+
+// ✅ export so JSP can import
+export { UserListViewModel };

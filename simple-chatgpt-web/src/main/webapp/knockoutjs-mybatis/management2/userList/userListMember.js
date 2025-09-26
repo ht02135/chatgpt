@@ -257,3 +257,5 @@ function UserListMemberViewModel(params, config) {
 		return self.searchUserListMembers(); 
 	};
 }
+
+export { UserListMemberViewModel };

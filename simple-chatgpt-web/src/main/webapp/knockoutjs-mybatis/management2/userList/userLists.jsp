@@ -5,7 +5,6 @@
     <meta charset="UTF-8">
     <title>User Lists</title>
 	<script src="../../../js/knockout-latest.js"></script>
-	<script src="userList.js"></script>
 	<script src="genericComponents-2.0.js"></script>
     <link rel="stylesheet" href="userList.css">
 </head>
@@ -53,6 +52,8 @@
 
 <!-- Initialization Script -->
 <script type="module">
+import { UserListViewModel } from './userList.js';
+import { UserListMemberViewModel } from './userListMember.js';
 import configLoader from "./configLoader.js";
 import Validator from "./validation.js";
 
@@ -64,8 +65,8 @@ import Validator from "./validation.js";
     const searchConfig   = await configLoader.getFormConfig("searchUserList");
     const actionGroupMap = await configLoader.getActionGroupMap();
 
-    // Initialize ViewModel (comes from userList.js, global function)
-    const UserListVM = new UserListViewModel(
+    // Initialize ViewModel (imported from userList.js)
+    window.UserListVM = new UserListViewModel(
         { mode: "list" },
         { grid: gridConfig, search: searchConfig, actionGroups: actionGroupMap }
     );
