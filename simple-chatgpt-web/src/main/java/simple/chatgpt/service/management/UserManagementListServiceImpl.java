@@ -105,7 +105,7 @@ public class UserManagementListServiceImpl implements UserManagementListService 
     // ------------------ CRUD ------------------
     @Override
     public void createList(Map<String, Object> params) {
-    	logger.debug("createList called #############");
+        logger.debug("createList called #############");
         logger.debug("createList called with params={}", params);
         logger.debug("createList called #############");
 
@@ -117,12 +117,17 @@ public class UserManagementListServiceImpl implements UserManagementListService 
         logger.debug("createList members={}", members);
         logger.debug("createList called #############");
 
+        // --- wrap list in 'params' to match XML ---
+        Map<String, Object> listWrapper = new HashMap<>();
+        listWrapper.put("list", list);
         Map<String, Object> listParam = new HashMap<>();
-        listParam.put("list", list);
+        listParam.put("params", listWrapper);  // ✅ now XML #{params.list.userListName} works
+
         logger.debug("createList called #############");
         logger.debug("createList listParam={}", listParam);
         logger.debug("createList called #############");
-        listMapper.insertList(listParam);
+
+        listMapper.insertList(listParam);  // generates listId
 
         Long listId = list.getId();
         logger.debug("createList generated listId={}", listId);
@@ -132,14 +137,21 @@ public class UserManagementListServiceImpl implements UserManagementListService 
                 m.setListId(listId);
                 logger.debug("createList member listId set: member={}", m);
             }
+
+            // --- wrap members in 'params' to match XML batchInsertMembers ---
+            Map<String, Object> memberWrapper = new HashMap<>();
+            memberWrapper.put("members", members);
             Map<String, Object> memberParam = new HashMap<>();
-            memberParam.put("members", members);
+            memberParam.put("params", memberWrapper);  // ✅ matches XML collection="params.members"
+
             logger.debug("createList called #############");
             logger.debug("createList memberParam={}", memberParam);
             logger.debug("createList called #############");
+
             memberMapper.batchInsertMembers(memberParam);
         }
     }
+
 
     @Override
     public void deleteList(Map<String, Object> params) {
