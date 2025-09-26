@@ -115,6 +115,9 @@ public class UserManagementListController {
             Map<String, Object> wrapperParam = new HashMap<>();
             wrapperParam.put("params", innerParams);
 
+            logger.debug("createList #############");
+            logger.debug("createList wrapperParam={}", wrapperParam);
+            logger.debug("createList #############");
             userManagementListService.createList(wrapperParam);
         } catch (Exception e) {
             logger.error("createList failed", e);
