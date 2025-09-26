@@ -66,10 +66,26 @@ public class UserManagementListServiceImpl implements UserManagementListService 
         this.downloadColumns = DownloadConfigLoader.getColumns(MEMBER_GRID_ID);
     }
 
+    // ------------------ helpers ------------------
+    @SuppressWarnings("unchecked")
+    private Map<String, Object> ensureParams(Map<String, Object> params) {
+        if (params == null) {
+            params = new HashMap<>();
+        }
+        Map<String, Object> innerParams = (Map<String, Object>) params.get("params");
+        if (innerParams == null) {
+            innerParams = new HashMap<>();
+            params.put("params", innerParams);
+        }
+        return innerParams;
+    }
+
     // ------------------ SEARCH ------------------
     @Override
     public PagedResult<UserManagementListPojo> searchUserLists(Map<String, Object> params) {
         logger.debug("searchUserLists called with params={}", params);
+
+        Map<String, Object> innerParams = ensureParams(params);
 
         int page = 0, size = 20;
         try { page = Integer.parseInt((String) params.getOrDefault("page", "0")); }
@@ -81,21 +97,20 @@ public class UserManagementListServiceImpl implements UserManagementListService 
         String sortField = (String) params.getOrDefault("sortField", "id");
         String sortDirection = ((String) params.getOrDefault("sortDirection", "ASC")).toUpperCase();
 
-        Map<String, Object> sqlParams = new HashMap<>(params);
-        sqlParams.put("offset", offset);
-        sqlParams.put("limit", size);
-        sqlParams.put("sortField", sortField);
-        sqlParams.put("sortDirection", sortDirection);
+        innerParams.put("offset", offset);
+        innerParams.put("limit", size);
+        innerParams.put("sortField", sortField);
+        innerParams.put("sortDirection", sortDirection);
 
         List<UserManagementListPojo> items = new ArrayList<>();
         long totalCount = 0;
         try {
-            items = listMapper.findLists(sqlParams);
-            totalCount = listMapper.countLists(sqlParams);
+            items = listMapper.findLists(params);
+            totalCount = listMapper.countLists(params);
             logger.debug("searchUserLists items={}", items);
             logger.debug("searchUserLists totalCount={}", totalCount);
         } catch (Exception e) {
-            logger.error("Error executing searchUserLists with params={}", sqlParams, e);
+            logger.error("Error executing searchUserLists with params={}", params, e);
             throw new RuntimeException(e);
         }
 
@@ -109,25 +124,17 @@ public class UserManagementListServiceImpl implements UserManagementListService 
         logger.debug("createList called with params={}", params);
         logger.debug("createList called #############");
 
+        Map<String, Object> innerParams = ensureParams(params);
+
         UserManagementListPojo list = (UserManagementListPojo) params.get("list");
         List<UserManagementListMemberPojo> members = (List<UserManagementListMemberPojo>) params.get("members");
 
-        logger.debug("createList called #############");
+        innerParams.put("list", list);
+
         logger.debug("createList list={}", list);
         logger.debug("createList members={}", members);
-        logger.debug("createList called #############");
 
-        // --- wrap list in 'params' to match XML #{params.list.userListName} ---
-        Map<String, Object> listWrapper = new HashMap<>();
-        listWrapper.put("list", list);
-        Map<String, Object> listParam = new HashMap<>();
-        listParam.put("params", listWrapper);  // ✅ now XML #{params.list.userListName} works
-
-        logger.debug("createList called #############");
-        logger.debug("createList listParam={}", listParam);
-        logger.debug("createList called #############");
-
-        listMapper.insertList(listParam);  // generates listId
+        listMapper.insertList(params);  // generates listId
 
         Long listId = list.getId();
         logger.debug("createList generated listId={}", listId);
@@ -138,16 +145,12 @@ public class UserManagementListServiceImpl implements UserManagementListService 
                 logger.debug("createList member listId set: member={}", m);
             }
 
-            // --- wrap members in 'params' to match XML collection="params.member" ---
             Map<String, Object> memberWrapper = new HashMap<>();
-            memberWrapper.put("member", members);  // ✅ key = "member" matches your XML
+            memberWrapper.put("members", members);
             Map<String, Object> memberParam = new HashMap<>();
             memberParam.put("params", memberWrapper);
 
-            logger.debug("createList called #############");
             logger.debug("createList memberParam={}", memberParam);
-            logger.debug("createList called #############");
-
             memberMapper.batchInsertMembers(memberParam);
         }
     }
@@ -156,19 +159,17 @@ public class UserManagementListServiceImpl implements UserManagementListService 
     public void deleteList(Map<String, Object> params) {
         logger.debug("deleteList called with params={}", params);
 
+        Map<String, Object> innerParams = ensureParams(params);
+
         Long listId = (Long) params.get("listId");
+        innerParams.put("listId", listId);
+
         logger.debug("deleteList listId={}", listId);
 
-        // Delete members first
-        Map<String, Object> memberParam = new HashMap<>();
-        memberParam.put("listId", listId);
-        memberMapper.deleteMembersByListId(memberParam);
+        memberMapper.deleteMembersByListId(params);
         logger.debug("deleteList deleted members for listId={}", listId);
 
-        // Delete list
-        Map<String, Object> listParam = new HashMap<>();
-        listParam.put("listId", listId);
-        listMapper.deleteList(listParam);
+        listMapper.deleteList(params);
         logger.debug("deleteList deleted list for listId={}", listId);
     }
 
@@ -176,20 +177,17 @@ public class UserManagementListServiceImpl implements UserManagementListService 
     public void updateList(Map<String, Object> params) {
         logger.debug("updateList called with params={}", params);
 
+        Map<String, Object> innerParams = ensureParams(params);
+
         UserManagementListPojo list = (UserManagementListPojo) params.get("list");
         List<UserManagementListMemberPojo> members = (List<UserManagementListMemberPojo>) params.get("members");
+
+        innerParams.put("list", list);
 
         logger.debug("updateList list={}", list);
         logger.debug("updateList members={}", members);
 
-        Map<String, Object> listParam = new HashMap<>();
-        listParam.put("listId", list.getId());
-        listParam.put("userListName", list.getUserListName());
-        listParam.put("filePath", list.getFilePath());
-        listParam.put("originalFileName", list.getOriginalFileName());
-        listParam.put("description", list.getDescription());
-
-        listMapper.updateList(listParam);
+        listMapper.updateList(params);
         logger.debug("updateList list updated for listId={}", list.getId());
 
         Long listId = list.getId();
@@ -204,7 +202,10 @@ public class UserManagementListServiceImpl implements UserManagementListService 
                 logger.debug("updateList member listId set: member={}", m);
             }
             Map<String, Object> insertParam = new HashMap<>();
-            insertParam.put("members", members);
+            Map<String, Object> insertWrapper = new HashMap<>();
+            insertWrapper.put("members", members);
+            insertParam.put("params", insertWrapper);
+
             memberMapper.batchInsertMembers(insertParam);
             logger.debug("updateList new members inserted for listId={}", listId);
         }
@@ -213,13 +214,15 @@ public class UserManagementListServiceImpl implements UserManagementListService 
     @Override
     public UserManagementListPojo getListById(Map<String, Object> params) {
         logger.debug("getListById called with params={}", params);
+
+        Map<String, Object> innerParams = ensureParams(params);
+
         Long listId = (Long) params.get("listId");
+        innerParams.put("listId", listId);
+
         logger.debug("getListById listId={}", listId);
 
-        Map<String, Object> sqlParams = new HashMap<>();
-        sqlParams.put("listId", listId);
-
-        UserManagementListPojo list = listMapper.findListById(sqlParams);
+        UserManagementListPojo list = listMapper.findListById(params);
         logger.debug("getListById result={}", list);
         return list;
     }
@@ -228,7 +231,12 @@ public class UserManagementListServiceImpl implements UserManagementListService 
     @Override
     public PagedResult<UserManagementListMemberPojo> getMembersByListId(Map<String, Object> params) {
         logger.debug("getMembersByListId called with params={}", params);
+
+        Map<String, Object> innerParams = ensureParams(params);
+
         Long listId = (Long) params.get("listId");
+        innerParams.put("listId", listId);
+
         logger.debug("getMembersByListId listId={}", listId);
 
         int page = 0;
@@ -239,18 +247,11 @@ public class UserManagementListServiceImpl implements UserManagementListService 
         catch (Exception e) { logger.warn("Invalid size param {}, defaulting to 20", params.get("size"), e); }
 
         int offset = page * size;
+        innerParams.put("offset", offset);
+        innerParams.put("limit", size);
 
-        Map<String, Object> sqlParams = new HashMap<>();
-        sqlParams.put("listId", listId);
-        sqlParams.put("offset", offset);
-        sqlParams.put("limit", size);
-
-        for (Map.Entry<String, Object> entry : sqlParams.entrySet()) {
-            logger.debug("getMembersByListId param {}={}", entry.getKey(), entry.getValue());
-        }
-
-        List<UserManagementListMemberPojo> members = memberMapper.findMembersByListId(sqlParams);
-        long total = memberMapper.countMembers(sqlParams);
+        List<UserManagementListMemberPojo> members = memberMapper.findMembersByListId(params);
+        long total = memberMapper.countMembers(params);
 
         logger.debug("getMembersByListId result size={} total={}", members.size(), total);
         return new PagedResult<>(members, total, page, size);
@@ -259,6 +260,8 @@ public class UserManagementListServiceImpl implements UserManagementListService 
     @Override
     public PagedResult<UserManagementListMemberPojo> searchMembers(Map<String, Object> params) {
         logger.debug("searchMembers called with params={}", params);
+
+        Map<String, Object> innerParams = ensureParams(params);
 
         int page = 0, size = 20;
         try { page = Integer.parseInt((String) params.getOrDefault("page", "0")); }
@@ -270,18 +273,13 @@ public class UserManagementListServiceImpl implements UserManagementListService 
         String sortField = (String) params.getOrDefault("sortField", "id");
         String sortDirection = ((String) params.getOrDefault("sortDirection", "ASC")).toUpperCase();
 
-        Map<String, Object> sqlParams = new HashMap<>(params);
-        sqlParams.put("offset", offset);
-        sqlParams.put("limit", size);
-        sqlParams.put("sortField", sortField);
-        sqlParams.put("sortDirection", sortDirection);
+        innerParams.put("offset", offset);
+        innerParams.put("limit", size);
+        innerParams.put("sortField", sortField);
+        innerParams.put("sortDirection", sortDirection);
 
-        for (Map.Entry<String, Object> entry : sqlParams.entrySet()) {
-            logger.debug("searchMembers param {}={}", entry.getKey(), entry.getValue());
-        }
-
-        List<UserManagementListMemberPojo> members = memberMapper.findMembers(sqlParams);
-        long total = memberMapper.countMembers(sqlParams); // fixed: use same filtered params
+        List<UserManagementListMemberPojo> members = memberMapper.findMembers(params);
+        long total = memberMapper.countMembers(params);
 
         logger.debug("searchMembers result size={} total={}", members.size(), total);
         return new PagedResult<>(members, total, page, size);
@@ -291,12 +289,9 @@ public class UserManagementListServiceImpl implements UserManagementListService 
     public long countMembers(Map<String, Object> params) {
         logger.debug("countMembers called with params={}", params);
 
-        Map<String, Object> sqlParams = new HashMap<>(params);
-        for (Map.Entry<String, Object> entry : sqlParams.entrySet()) {
-            logger.debug("countMembers param {}={}", entry.getKey(), entry.getValue());
-        }
+        ensureParams(params);
 
-        long count = memberMapper.countMembers(sqlParams);
+        long count = memberMapper.countMembers(params);
         logger.debug("countMembers result={}", count);
         return count;
     }
@@ -305,6 +300,8 @@ public class UserManagementListServiceImpl implements UserManagementListService 
     @Override
     public void importListFromCsv(Map<String, Object> params) throws Exception {
         logger.debug("importListFromCsv called with params={}", params);
+
+        ensureParams(params);
 
         InputStream inputStream = (InputStream) params.get("inputStream");
         UserManagementListPojo list = (UserManagementListPojo) params.get("list");
@@ -343,6 +340,8 @@ public class UserManagementListServiceImpl implements UserManagementListService 
     @Override
     public void exportListToCsv(Map<String, Object> params) throws Exception {
         logger.debug("exportListToCsv called with params={}", params);
+
+        ensureParams(params);
 
         Long listId = (Long) params.get("listId");
         OutputStream outputStream = (OutputStream) params.get("outputStream");
