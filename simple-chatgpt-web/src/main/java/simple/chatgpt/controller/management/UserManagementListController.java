@@ -171,18 +171,19 @@ public class UserManagementListController {
         logger.debug("importList fileName={}", file.getOriginalFilename());
 
         try (var is = file.getInputStream()) {
-            String filename = file.getOriginalFilename().toLowerCase();
             Map<String, Object> params = new HashMap<>();
-            params.put("list", list);
+            params.put("list", list);          // ✅ put Pojo into map
             params.put("inputStream", is);
             params.put("originalFileName", file.getOriginalFilename());
 
+            String filename = file.getOriginalFilename().toLowerCase();
             if (filename.endsWith(".csv")) {
-                userManagementListService.importListFromCsv(params);
+                userManagementListService.importListFromCsv(params); // mapper takes map
             } else if (filename.endsWith(".xlsx") || filename.endsWith(".xls")) {
                 userManagementListService.importListFromExcel(params);
             } else {
-                return ResponseEntity.badRequest().body(Response.error("Unsupported file type", null, HttpStatus.BAD_REQUEST.value()));
+                return ResponseEntity.badRequest()
+                        .body(Response.error("Unsupported file type", null, HttpStatus.BAD_REQUEST.value()));
             }
         } catch (Exception e) {
             logger.error("importList failed", e);
