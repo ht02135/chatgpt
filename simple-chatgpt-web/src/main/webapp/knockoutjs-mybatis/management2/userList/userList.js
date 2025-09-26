@@ -193,26 +193,29 @@ function UserListViewModel(params, config) {
 	
 	// hung: this will the the hook for upload user list
 	self.uploadUserList = async function() {
-		console.log("userList.js -> uploadUserList called");
-		if (!self.formConfig) return;
+		console.log("userList.js -> uploadUserList: #############");
+	    console.log("userList.js -> uploadUserList called");
+		console.log("userList.js -> uploadUserList: #############");
 
-		self.errors({});
-		const errs = self.validateForm(self.currentUserList(), self.formConfig.fields);
-		if (Object.keys(errs).length > 0) { self.errors(errs); return; }
+	    try {
+	        // Create uploader instance for /import endpoint
+	        const uploader = new FileUploader(`${API_USERLIST}/import`, self.formConfig, self.validator);
 
-		try {
-		    const uploadedFile = await FileUploader.upload("#fileInput");
-		    const payload = { ...ko.toJS(self.currentUserList()), file: uploadedFile };
+	        // Call upload with the current user list object
+	        const result = await uploader.upload(ko.toJS(self.currentUserList()));
 
-		    let url = `${API_USERLIST}/create`, method = 'POST';
-		    if (self.mode === 'edit' && self.currentUserList().id && self.currentUserList().id()) {
-		        url = `${API_USERLIST}/update?listId=${encodeURIComponent(self.currentUserList().id())}`;
-		        method = 'PUT';
-		    }
-		    await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-		    self.navigateToUserLists();
-		} catch (err) { console.error('Save userList error:', err); }
-    };
+	        if (result.success) {
+	            console.log("userList.js -> uploadUserList: import success", result);
+	            self.navigateToUserLists();
+	        } else {
+	            console.error("userList.js -> uploadUserList: validation or server error", result.errors);
+	            self.errors(result.errors || {});
+	        }
+	    } catch (err) {
+	        console.error("userList.js -> uploadUserList: unexpected error", err);
+	        self.errors({ network: err.message });
+	    }
+	};
 
     // Delete
     self.deleteUserList = async function(userList) {
