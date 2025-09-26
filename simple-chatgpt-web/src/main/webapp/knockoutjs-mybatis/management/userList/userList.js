@@ -193,7 +193,6 @@ function UserListViewModel(params, config) {
 		window.location.href = 'userLists.jsp';
     };
 	
-	// hung: this will be the hook for upload user list
 	// hung: VM upload method using new FileUploader
 	self.uploadUserList = async function() {
 	    console.log("userList.js -> uploadUserList called #############");
@@ -205,10 +204,10 @@ function UserListViewModel(params, config) {
 
 	            // Build payload from currentUserList or fallback from file
 	            let payloadObj = ko.toJS(self.currentUserList()) || {};
-	            if (!payloadObj.user_list_name) {
+	            if (!payloadObj.userListName) {  // <-- use camelCase matching POJO
 	                const nameWithoutExt = file.name.replace(/\.[^/.]+$/, "");
-	                payloadObj.user_list_name = nameWithoutExt;
-	                payloadObj.original_file_name = file.name;
+	                payloadObj.userListName = nameWithoutExt;
+	                payloadObj.originalFileName = file.name;
 	                payloadObj.description = nameWithoutExt;
 	            }
 
