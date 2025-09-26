@@ -58,7 +58,9 @@ public class UserManagementListMemberServiceImpl implements UserManagementListMe
         List<UserManagementListMemberPojo> members;
         long total = 0;
         try {
+        	logger.debug("searchMembers sqlParams={}", sqlParams);
             members = mapper.findMembers(sqlParams);
+            logger.debug("searchMembers params={}", params);
             total = mapper.countMembers(params);
             logger.debug("searchMembers result size={}", members != null ? members.size() : 0);
             logger.debug("searchMembers total count={}", total);
@@ -122,6 +124,7 @@ public class UserManagementListMemberServiceImpl implements UserManagementListMe
             logger.debug("createMember param {}={}", entry.getKey(), entry.getValue());
         }
 
+        logger.debug("createMember params={}", params);
         mapper.insertMember(params);
         logger.debug("createMember inserted member={}", params.get("member"));
         return (UserManagementListMemberPojo) params.get("member");
@@ -134,6 +137,7 @@ public class UserManagementListMemberServiceImpl implements UserManagementListMe
             logger.debug("batchCreateMembers param {}={}", entry.getKey(), entry.getValue());
         }
 
+        logger.debug("batchCreateMembers params={}", params);
         int count = mapper.batchInsertMembers(params);
         logger.debug("batchCreateMembers inserted count={}", count);
         return count;

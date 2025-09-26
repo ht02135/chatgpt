@@ -115,6 +115,7 @@ public class UserManagementListServiceImpl implements UserManagementListService 
 
         Map<String, Object> listParam = new HashMap<>();
         listParam.put("list", list);
+        logger.debug("createList listParam={}", listParam);
         listMapper.insertList(listParam);
 
         Long listId = list.getId();
@@ -127,6 +128,7 @@ public class UserManagementListServiceImpl implements UserManagementListService 
             }
             Map<String, Object> memberParam = new HashMap<>();
             memberParam.put("members", members);
+            logger.debug("createList members={}", members);
             memberMapper.batchInsertMembers(memberParam);
         }
     }

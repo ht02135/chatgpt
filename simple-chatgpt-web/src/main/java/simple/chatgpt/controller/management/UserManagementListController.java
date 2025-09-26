@@ -106,6 +106,7 @@ public class UserManagementListController {
             Map<String, Object> params = new HashMap<>();
             params.put("list", list);
             params.put("members", members != null ? Arrays.asList(members) : null);
+            logger.debug("createList params={}", params);
             userManagementListService.createList(params);
         } catch (Exception e) {
             logger.error("createList failed", e);
