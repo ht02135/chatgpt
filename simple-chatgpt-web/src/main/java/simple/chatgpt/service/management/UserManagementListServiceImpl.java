@@ -119,7 +119,9 @@ public class UserManagementListServiceImpl implements UserManagementListService 
         listMapper.insertList(listParam);
 
         Long listId = list.getId();
+        logger.debug("createList #############");
         logger.debug("createList generated listId={}", listId);
+        logger.debug("createList #############");
 
         if (members != null && !members.isEmpty()) {
             for (UserManagementListMemberPojo m : members) {
@@ -131,6 +133,10 @@ public class UserManagementListServiceImpl implements UserManagementListService 
             logger.debug("createList -> memberMapper.batchInsertMembers(memberParam): members={}", members);
             memberMapper.batchInsertMembers(memberParam);
         }
+        
+        logger.debug("createList #############");
+        logger.debug("createList DONE!!!");
+        logger.debug("createList #############");
     }
 
     @Override

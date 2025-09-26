@@ -113,6 +113,10 @@ public class UserManagementListController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Response.error("Create failed: " + e.getMessage(), null, 500));
         }
+        
+        logger.debug("createList #############");
+        logger.debug("createList DONE!!!");
+        logger.debug("createList #############");
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(Response.success("List created successfully", list, HttpStatus.CREATED.value()));
