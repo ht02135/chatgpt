@@ -148,8 +148,8 @@
     
     <actions id="userList-actions">
         <action name="Edit" label="Edit" visible="true" jsMethod="editUserList" />
-        <action name="ExportCSV" label="Export CSV" visible="true" jsMethod="exportCSV" />
-        <action name="ExportExcel" label="Export Excel" visible="true" jsMethod="exportExcel" />
+        <action name="ExportCSVUserList" label="Export CSV" visible="true" jsMethod="exportCSVUserList" />
+        <action name="ExportExcelUserList" label="Export Excel" visible="true" jsMethod="exportExcelUserList" />
         <action name="Delete" label="Delete" visible="true" jsMethod="deleteUserList" />
     </actions>
 

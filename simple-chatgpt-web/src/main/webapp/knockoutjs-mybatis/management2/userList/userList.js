@@ -159,11 +159,17 @@ function UserListViewModel(params, config) {
     // Navigation
     self.navigateToUserLists = function() { window.location.href = 'userLists.jsp'; };
     self.addUserList = function() { window.location.href = 'addUserList.jsp'; };
-    self.editUserList = function(listId) {
-		console.log("userList.js -> editUserListMember: listId=", ko.unwrap(listId));
-        localStorage.setItem('editUserListId', ko.unwrap(listId));
-        window.location.href = 'editUserList.jsp';
-    };
+
+	self.editUserList = function(userList) {
+		console.log("userList.js -> editUserList: #############");
+		console.log("userList.js -> editUserList: userList=", userList);
+		console.log("userList.js -> editUserList: ko.unwrap(userList.id)=", ko.unwrap(userList.id));
+		console.log("userList.js -> editUserList: #############");
+		
+		if (!confirm('Are you sure?')) return;
+	    localStorage.setItem('editUserListId', ko.unwrap(userList.id));
+	    window.location.href = 'editUserList.jsp';
+	};
 
     // Action Resolver
     self.getActionsForColumn = function(column) {
@@ -176,11 +182,7 @@ function UserListViewModel(params, config) {
         if (action && action.jsMethod && typeof self[action.jsMethod] === 'function') {
 			console.log("userList.js -> invokeAction: action=", action);
 			console.log("userList.js -> invokeAction: action.jsMethod=", action.jsMethod);
-			if (/^edit(UserList|Object)$/.test(action.jsMethod)) {
-				self[action.jsMethod](ko.unwrap(row.id));
-            } else {
-				self[action.jsMethod](row);
-			}
+			self[action.jsMethod](row);
         } else console.warn("No JS method found for action:", action);
     };
 
@@ -231,9 +233,45 @@ function UserListViewModel(params, config) {
 	        self.errors({ network: err.message });
 	    }
 	};
+	
+	/*
+	Hung : dont delete this
+	self.downloadSampleUserList = async function() {
+	    console.log("userList.js -> downloadSampleUserList called #############");
+	    window.location.href = 'data/management/user_lists/test_user_lists_1.csv';
+	};
+	*/
+	self.downloadSampleUserList = async function() {
+	    console.log("userList.js -> downloadSampleUserList called #############");
+	    // Hit the API endpoint that streams the file
+	    window.location.href = `${API_USERLIST}/download/sample`;
+	};
+	
+	self.exportCSVUserList = async function(userList) {
+		console.log("userList.js -> exportCSVUserList: #############");
+		console.log("userList.js -> exportCSVUserList: userList=", userList);
+		console.log("userList.js -> exportCSVUserList: ko.unwrap(userList.id)=", ko.unwrap(userList.id));
+		console.log("userList.js -> exportCSVUserList: #############");
+
+		if (!confirm('Are you sure?')) return;
+	};
+	
+	self.exportExcelUserList = async function(userList) {
+		console.log("userList.js -> exportCSVUserList: #############");
+		console.log("userList.js -> exportCSVUserList: userList=", userList);
+		console.log("userList.js -> exportCSVUserList: ko.unwrap(userList.id)=", ko.unwrap(userList.id));
+		console.log("userList.js -> exportCSVUserList: #############");
+
+		if (!confirm('Are you sure?')) return;
+	};
 
     // Delete
     self.deleteUserList = async function(userList) {
+		console.log("userList.js -> deleteUserList: #############");
+		console.log("userList.js -> deleteUserList: userList=", userList);
+		console.log("userList.js -> deleteUserList: ko.unwrap(userList.id)=", ko.unwrap(userList.id));
+		console.log("userList.js -> deleteUserList: #############");
+		
         if (!confirm('Are you sure?')) return;
         try {
             await fetch(`${API_USERLIST}/delete?listId=${encodeURIComponent(ko.unwrap(userList.id))}`, {
@@ -285,6 +323,10 @@ function UserListViewModel(params, config) {
 	self.uploadObject = function() { 
 		console.log("userList.js -> uploadObject called");
 		return self.uploadUserList(); 
+	};
+	self.downloadSampleObject = function() { 
+		console.log("userList.js -> downloadSampleObject called");
+		return self.downloadSampleUserList(); 
 	};
     self.searchObjects = function() { 
 		console.log("userList.js -> searchObjects called");

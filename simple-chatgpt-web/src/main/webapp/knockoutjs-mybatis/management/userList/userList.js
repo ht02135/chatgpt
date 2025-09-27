@@ -246,6 +246,24 @@ function UserListViewModel(params, config) {
 	    // Hit the API endpoint that streams the file
 	    window.location.href = `${API_USERLIST}/download/sample`;
 	};
+	
+	self.exportCSVUserList = async function(userList) {
+		console.log("userList.js -> exportCSVUserList: #############");
+		console.log("userList.js -> exportCSVUserList: userList=", userList);
+		console.log("userList.js -> exportCSVUserList: ko.unwrap(userList.id)=", ko.unwrap(userList.id));
+		console.log("userList.js -> exportCSVUserList: #############");
+
+		if (!confirm('Are you sure?')) return;
+	};
+	
+	self.exportExcelUserList = async function(userList) {
+		console.log("userList.js -> exportCSVUserList: #############");
+		console.log("userList.js -> exportCSVUserList: userList=", userList);
+		console.log("userList.js -> exportCSVUserList: ko.unwrap(userList.id)=", ko.unwrap(userList.id));
+		console.log("userList.js -> exportCSVUserList: #############");
+
+		if (!confirm('Are you sure?')) return;
+	};
 
     // Delete
     self.deleteUserList = async function(userList) {
