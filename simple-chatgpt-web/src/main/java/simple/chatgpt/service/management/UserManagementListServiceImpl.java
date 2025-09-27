@@ -293,15 +293,23 @@ public class UserManagementListServiceImpl implements UserManagementListService 
         logger.debug("importListFromCsv called with params={}", params);
 
         InputStream inputStream = (InputStream) params.get("inputStream");
+        
         UserManagementListPojo list = (UserManagementListPojo) params.get("list");
         String originalFileName = (String) params.get("originalFileName");
-
         logger.debug("importListFromCsv list={}", list);
         logger.debug("importListFromCsv originalFileName={}", originalFileName);
+        
+        Path path = getListFilePath(list.getId(), originalFileName);
+        list.setFilePath(path.toString());
+        logger.debug("importListFromCsv path={}", path);
+        logger.debug("importListFromCsv list={}", list);
 
         byte[] bytes = inputStream.readAllBytes();
+        try (OutputStream os = Files.newOutputStream(path)) {
+            os.write(bytes);
+        }
+        
         List<UserManagementListMemberPojo> members = new ArrayList<>();
-
         try (CSVReader reader = new CSVReader(new java.io.InputStreamReader(new java.io.ByteArrayInputStream(bytes)))) {
             reader.readNext();
             String[] row;
@@ -317,13 +325,14 @@ public class UserManagementListServiceImpl implements UserManagementListService 
         Map<String, Object> createParams = new HashMap<>();
         createParams.put("list", list);
         createParams.put("members", members);
+        logger.debug("importListFromCsv #############");
+        logger.debug("importListFromCsv createParams={}", createParams);
+        logger.debug("importListFromCsv #############");
         createList(createParams);
 
-        Path path = getListFilePath(list.getId(), originalFileName);
-        try (OutputStream os = Files.newOutputStream(path)) {
-            os.write(bytes);
-        }
-        list.setFilePath(path.toString());
+        logger.debug("importListFromCsv #############");
+        logger.debug("importListFromCsv DONE!!!");
+        logger.debug("importListFromCsv #############");
     }
 
     @Override
