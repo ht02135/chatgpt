@@ -253,7 +253,10 @@ function UserListViewModel(params, config) {
 		console.log("userList.js -> exportCSVUserList: ko.unwrap(userList.id)=", ko.unwrap(userList.id));
 		console.log("userList.js -> exportCSVUserList: #############");
 
-		if (!confirm('Are you sure?')) return;
+		if (!confirm('Are you sure you want to export CSV?')) return;
+		const id = ko.unwrap(userList.id);
+		console.log("Export CSV userListId=", id);
+		window.location.href = `${API_USERLIST}/export/csv?listId=${encodeURIComponent(id)}`;
 	};
 	
 	self.exportExcelUserList = async function(userList) {
@@ -262,7 +265,10 @@ function UserListViewModel(params, config) {
 		console.log("userList.js -> exportCSVUserList: ko.unwrap(userList.id)=", ko.unwrap(userList.id));
 		console.log("userList.js -> exportCSVUserList: #############");
 
-		if (!confirm('Are you sure?')) return;
+		if (!confirm('Are you sure you want to export Excel?')) return;
+		const id = ko.unwrap(userList.id);
+		console.log("Export Excel userListId=", id);
+		window.location.href = `${API_USERLIST}/export/excel?listId=${encodeURIComponent(id)}`;
 	};
 
     // Delete
