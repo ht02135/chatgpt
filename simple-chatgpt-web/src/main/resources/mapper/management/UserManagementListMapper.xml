@@ -6,6 +6,19 @@
 <mapper namespace="simple.chatgpt.mapper.management.UserManagementListMapper">
 
     <!-- =======================
+         ResultMap for POJO
+         ======================= -->
+	<resultMap id="UserManagementListResultMap" type="simple.chatgpt.pojo.management.UserManagementListPojo">
+    	<id property="id" column="id"/>
+    	<result property="userListName" column="user_list_name"/>
+    	<result property="filePath" column="file_path"/>
+    	<result property="originalFileName" column="original_file_name"/>
+    	<result property="description" column="description"/>
+    	<result property="createdAt" column="created_at"/>
+    	<result property="updatedAt" column="updated_at"/>
+	</resultMap>
+
+    <!-- =======================
          CREATE
          ======================= -->
     <insert id="insertList" parameterType="map" useGeneratedKeys="true" keyProperty="params.list.id">
