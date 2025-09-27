@@ -45,18 +45,11 @@ public class UserManagementListController {
     ) {
         logger.debug("searchUserLists called with params={}", params);
 
-        int page = 0;
-        int size = 20;
-        try {
-            if (params.get("page") != null) page = Integer.parseInt(params.get("page").toString());
-        } catch (NumberFormatException e) {
-            logger.warn("Invalid page param {}, defaulting to 0", params.get("page"), e);
-        }
-        try {
-            if (params.get("size") != null) size = Integer.parseInt(params.get("size").toString());
-        } catch (NumberFormatException e) {
-            logger.warn("Invalid size param {}, defaulting to 20", params.get("size"), e);
-        }
+        int page = 0, size = 20;
+        try { page = getInt(params.getOrDefault("page", "0")); }
+        catch (Exception e) { logger.warn("Invalid page param {}, defaulting to 0", params.get("page"), e); }
+        try { size = getInt(params.getOrDefault("size", "20")); }
+        catch (Exception e) { logger.warn("Invalid size param {}, defaulting to 20", params.get("size"), e); }
 
         int offset = page * size;
         String sortField = (String) params.getOrDefault("sortField", "id");
@@ -299,5 +292,29 @@ public class UserManagementListController {
 
         long count = userManagementListService.countMembers(serviceParams);
         return ResponseEntity.ok(Response.success("Count fetched successfully", count, HttpStatus.OK.value()));
+    }
+    
+    // ------------------ Helpers ------------------
+    private int getInt(Object object) {
+        if (object == null) {
+            return 0; // Treat null as 0
+        }
+
+        if (object instanceof Number) {
+            return ((Number) object).intValue();
+        } else if (object instanceof String) {
+            String s = (String) object;
+            try {
+                return Integer.parseInt(s);
+            } catch (NumberFormatException e) {
+                // Log the warning using the assumed logger
+                logger.warn("Invalid integer value: '{}', defaulting to 0", s, e);
+                return 0;
+            }
+        }
+
+        // Handle any other unexpected Object type by trying to parse its string representation
+        // or by simply returning 0. Given the original logic, returning 0 is safer.
+        return 0;
     }
 }
