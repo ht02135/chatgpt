@@ -118,8 +118,9 @@ public class UserManagementListController {
     // ------------------ GET LIST BY ID ------------------
     @GetMapping("/get")
     public ResponseEntity<Response<UserManagementListPojo>> getListById(@RequestParam Long listId) {
-        logger.debug("getListById called #############");
+        logger.debug("getListById #############");
         logger.debug("getListById listId={}", listId);
+        logger.debug("getListById #############");
 
         Map<String, Object> params = new HashMap<>();
         params.put("listId", listId);
@@ -128,6 +129,9 @@ public class UserManagementListController {
         if (list == null) {
             return ResponseEntity.ok(Response.error("List not found", null, HttpStatus.NOT_FOUND.value()));
         }
+        logger.debug("getListById #############");
+        logger.debug("getListById list={}", list);
+        logger.debug("getListById #############");
 
         return ResponseEntity.ok(Response.success("List fetched successfully", list, HttpStatus.OK.value()));
     }

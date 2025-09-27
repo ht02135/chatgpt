@@ -206,8 +206,14 @@ public class UserManagementListServiceImpl implements UserManagementListService 
         Map<String, Object> sqlParams = new HashMap<>();
         sqlParams.put("listId", listId);
 
+        logger.debug("getListById #############");
+        logger.debug("getListById sqlParams={}", sqlParams);
+        logger.debug("getListById #############");
         UserManagementListPojo list = listMapper.findListById(sqlParams);
+        logger.debug("getListById #############");
         logger.debug("getListById result={}", list);
+        logger.debug("getListById DONE!!!");
+        logger.debug("getListById #############");
         return list;
     }
 
