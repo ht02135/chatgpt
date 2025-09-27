@@ -1,9 +1,14 @@
 package simple.chatgpt.controller.management;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.logging.log4j.LogManager;
@@ -232,6 +237,40 @@ public class UserManagementListController {
         } catch (Exception e) {
             logger.error("exportListToExcel failed", e);
             response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+        }
+    }
+    
+    @GetMapping("/download/sample")
+    public void downloadSampleCsv(HttpServletRequest request, HttpServletResponse response) {
+        logger.debug("downloadSampleCsv called #############");
+
+        try {
+            // Relative path inside webapps/chatgpt
+            String relativePath = "/data/management/user_lists/test_user_lists_1.csv";
+            logger.debug("downloadSampleCsv relativePath={}", relativePath);
+
+            // Resolve absolute path from servlet context
+            String absolutePath = request.getServletContext().getRealPath(relativePath);
+            logger.debug("downloadSampleCsv absolutePath={}", absolutePath);
+
+            File file = new File(absolutePath);
+            if (!file.exists()) {
+                logger.error("downloadSampleCsv file not found at {}", absolutePath);
+                response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+                return;
+            }
+
+            response.setContentType("text/csv");
+            response.setHeader("Content-Disposition", "attachment; filename=\"" + file.getName() + "\"");
+
+            try (InputStream is = new FileInputStream(file);
+                 OutputStream os = response.getOutputStream()) {
+                is.transferTo(os);
+                os.flush();
+            }
+        } catch (Exception e) {
+            logger.error("downloadSampleCsv failed", e);
+            response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
     }
 

@@ -135,6 +135,7 @@
 
 	<actions id="search-userList-actions">
     	<action name="Upload" label="Upload" visible="true" jsMethod="uploadObject" />
+    	<action name="DownLoadSample" label="DownLoad Sample" visible="true" jsMethod="downloadSampleObject" />
     	<action name="Search" label="Search" visible="true" jsMethod="searchObjects" />
     	<action name="Reset" label="Reset" visible="true" jsMethod="resetSearch" />
 	</actions>

@@ -231,6 +231,19 @@ function UserListViewModel(params, config) {
 	        self.errors({ network: err.message });
 	    }
 	};
+	
+	/*
+	Hung : dont delete this
+	self.downloadSampleUserList = async function() {
+	    console.log("userList.js -> downloadSampleUserList called #############");
+	    window.location.href = 'data/management/user_lists/test_user_lists_1.csv';
+	};
+	*/
+	self.downloadSampleUserList = async function() {
+	    console.log("userList.js -> downloadSampleUserList called #############");
+	    // Hit the API endpoint that streams the file
+	    window.location.href = `${API_USERLIST}/download/sample`;
+	};
 
     // Delete
     self.deleteUserList = async function(userList) {
@@ -285,6 +298,10 @@ function UserListViewModel(params, config) {
 	self.uploadObject = function() { 
 		console.log("userList.js -> uploadObject called");
 		return self.uploadUserList(); 
+	};
+	self.downloadSampleObject = function() { 
+		console.log("userList.js -> downloadSampleObject called");
+		return self.downloadSampleUserList(); 
 	};
     self.searchObjects = function() { 
 		console.log("userList.js -> searchObjects called");
