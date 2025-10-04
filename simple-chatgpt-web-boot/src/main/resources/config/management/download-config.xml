@@ -1,0 +1,17 @@
+<download-config>
+    <grid id="userListMembers">
+        <column name="userName"     dbField="user_name" label="Username" visible="true" index="0"/>
+        <column name="userKey"      dbField="user_key"  label="User Key" visible="true" index="1"/>
+        <column name="password"     dbField="password" label="Password" visible="true" index="2"/>
+        <column name="firstName"    dbField="first_name" label="First Name" visible="true" index="3"/>
+        <column name="lastName"     dbField="last_name" label="Last Name" visible="true" index="4"/>
+        <column name="email"        dbField="email" label="Email" visible="true" index="5"/>
+        <column name="addressLine1" dbField="address_line_1" label="Address Line 1" visible="false" index="6"/>
+        <column name="addressLine2" dbField="address_line_2" label="Address Line 2" visible="false" index="7"/>
+        <column name="city"         dbField="city" label="City" visible="false" index="8"/>
+        <column name="state"        dbField="state" label="State" visible="false" index="9"/>
+        <column name="postCode"     dbField="post_code" label="Post Code" visible="false" index="10"/>
+        <column name="country"      dbField="country" label="Country" visible="false" index="11"/>
+    </grid>
+</download-config>
+

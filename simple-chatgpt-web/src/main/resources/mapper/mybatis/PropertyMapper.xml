@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="simple.chatgpt.mapper.mybatis.PropertyMapper">
+
+    <select id="selectValue" parameterType="string" resultType="string">
+        SELECT value FROM property WHERE `key` = #{key}
+    </select>
+
+    <insert id="insertPropertyFull">
+        INSERT INTO property (`key`, `type`, `value`) VALUES (#{key}, #{type}, #{value})
+    </insert>
+
+    <update id="updateProperty">
+        UPDATE property SET value = #{value} WHERE `key` = #{key}
+    </update>
+
+    <resultMap id="PropertyResultMap" type="simple.chatgpt.pojo.mybatis.MyBatisProperty">
+        <result property="key" column="key"/>
+        <result property="type" column="type"/>
+        <result property="value" column="value"/>
+    </resultMap>
+
+    <select id="selectAllProperties" resultMap="PropertyResultMap">
+        SELECT `key`, `type`, `value` FROM property
+    </select>
+
+    <select id="selectPropertiesPaged" resultMap="PropertyResultMap">
+        SELECT `key`, `type`, `value`
+        FROM property
+        <where>
+            <if test="key != null and key != ''">
+                AND `key` LIKE CONCAT('%', #{key}, '%')
+            </if>
+            <if test="type != null and type != ''">
+                AND `type` LIKE CONCAT('%', #{type}, '%')
+            </if>
+        </where>
+        <if test="sort != null and sort != ''">
+            ORDER BY `${sort}` ${order}
+        </if>
+        LIMIT #{size} OFFSET #{offset}
+    </select>
+
+    <select id="countProperties" resultType="int">
+        SELECT COUNT(*) FROM property
+        <where>
+            <if test="key != null and key != ''">
+                AND `key` LIKE CONCAT('%', #{key}, '%')
+            </if>
+            <if test="type != null and type != ''">
+                AND `type` LIKE CONCAT('%', #{type}, '%')
+            </if>
+        </where>
+    </select>
+
+    <select id="selectByKey" parameterType="string" resultMap="PropertyResultMap">
+        SELECT `key`, `type`, `value` FROM property WHERE `key` = #{key}
+    </select>
+
+</mapper>

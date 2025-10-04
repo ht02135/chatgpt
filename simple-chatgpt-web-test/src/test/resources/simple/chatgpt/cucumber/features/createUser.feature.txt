@@ -1,0 +1,29 @@
+# createUser.feature
+
+# hung: Feature file for testing user creation in addUser.jsp based on UserCreateIntegrationTest
+
+Feature: Create user
+  As an admin
+  I want to create a new user from the users page
+  So that the user appears in the user list
+
+  Scenario: Create a new user successfully
+    Given I am on the users page
+    And the user "testSelenium@yahoo.com" does not exist
+    When I click the Create button
+    And I am taken to the add user page
+    And I enter the username "testSelenium@yahoo.com"
+    And I enter the user key "testSelenium@yahoo.com"
+    And I enter the first name "Test"
+    And I enter the last name "Selenium"
+    And I enter the email "testSelenium@yahoo.com"
+    And I enter the password "ZAQ!zaq1"
+    And I enter the address line1 "123 Selenium Street"
+    And I enter the address line2 "Suite 456"
+    And I enter the city "TestCity"
+    And I enter the state "TS"
+    And I enter the postcode "99999"
+    And I enter the country "USA"
+    And I click Save
+    Then I should be back on the users page
+    And I should see the user "testSelenium@yahoo.com" in the grid

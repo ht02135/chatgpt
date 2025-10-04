@@ -1,0 +1,106 @@
+
+Spring Boot is a framework built on top of Spring that makes it much easier to build Java applications, especially web applications and microservices. Its key points:
+
+1>Auto-configuration: Automatically sets up components you need based on the libraries you have. For example, if you have spring-boot-starter-web, it automatically configures an embedded Tomcat server.
+
+2>Embedded server: You don’t need to deploy to an external server like Tomcat—Spring Boot runs your app standalone.
+
+3>Starter dependencies: Pre-packaged dependencies like spring-boot-starter-web, spring-boot-starter-data-jpa, etc., to easily pull in commonly used features.
+
+4>Production-ready features: Health checks, metrics, logging, etc., all built-in.
+
+5>Simplified configuration: You can configure everything via application.properties or application.yml.
+
+/////////////
+
+Spring Boot Starters for additional functionality:
+spring-boot-starter-data-jpa → for database access.
+spring-boot-starter-security → for auth.
+spring-boot-starter-validation → for input validation.
+spring-boot-starter-thymeleaf → if you want server-side templates.
+
+Actuator → for monitoring and management endpoints.
+
+Testing support → spring-boot-starter-test.
+
+//////////////
+
+Yes, I have heard about them. Profiles are a way to define different configurations for different environments (e.g., dev, test, prod).
+
+You define profile-specific properties files:
+application-dev.yml
+application-prod.yml
+
+Then in application.yml, you can set active profile:
+spring:
+  profiles:
+    active: dev
+    
+//////////////
+
+By default, Spring Boot includes an embedded server like Tomcat, Jetty, or Undertow if you use spring-boot-starter-web.
+
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-web</artifactId>
+</dependency>
+
+spring-boot-starter-web brings Tomcat by default as an embedded server.
+
+You don’t need a separate Tomcat installation.
+
+This is great for quick development or when you want a self-contained JAR:
+
+///////////////
+
+If you want to deploy to an external Tomcat, you cannot use the embedded Tomcat.
+
+1>Change packaging to WAR in pom.xml:
+<packaging>war</packaging>
+
+2>Exclude embedded Tomcat:
+
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-web</artifactId>
+    <exclusions>
+        <exclusion>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-tomcat</artifactId>
+        </exclusion>
+    </exclusions>
+</dependency>
+
+<dependency>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-tomcat</artifactId>
+    <scope>provided</scope>
+</dependency>
+
+3>provided scope means the server is provided by the container (external Tomcat), not bundled in your JAR/WAR.
+
+Extend SpringBootServletInitializer in your main class:
+
+@SpringBootApplication
+public class SimpleChatgptWebBootApplication extends SpringBootServletInitializer {
+
+    @Override
+    protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
+        return application.sources(SimpleChatgptWebBootApplication.class);
+    }
+
+    public static void main(String[] args) {
+        SpringApplication.run(SimpleChatgptWebBootApplication.class, args);
+    }
+}
+
+/////////////
+
+
+
+
+
+
+
+
+

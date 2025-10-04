@@ -1,0 +1,115 @@
+
+SimpleChatgptWebBootApplication.java
+
+(from web.xml)
+
+<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class> 
+→ replaced by @SpringBootApplication auto-context.
+
+<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class> 
+→ auto-configured by Spring Boot.
+
+<multipart-config> 
+→ explicit MultipartConfigElement bean in main class.
+
+<servlet-mapping url-pattern="/api/*"> 
+→ automatically handled by Spring Boot + WebConfig (/api/**).
+
+<welcome-file-list> 
+→ handled by Boot static resources, no explicit config needed.
+
+///////////////
+
+WebConfig.java
+
+(from api-servlet.xml)
+
+<context:component-scan base-package="simple.chatgpt.controller"/> 
+→ @ComponentScan("simple.chatgpt.controller").
+
+In Spring Boot, @SpringBootApplication (on SimpleChatgptWebBootApplication) 
+already implies: 
+@ComponentScan(basePackages = "simple.chatgpt")
+
+<mvc:annotation-driven> + <mvc:message-converters> 
+→ overridden configureMessageConverters with MappingJackson2HttpMessageConverter.
+
+<mvc:cors> 
+→ overridden addCorsMappings.
+
+<bean class="org.springframework.web.servlet.view.InternalResourceViewResolver"> 
+→ @Bean viewResolver().
+
+<bean id="multipartResolver" class="org.springframework.web.multipart.support.StandardServletMultipartResolver"/> 
+→ @Bean multipartResolver().
+
+///////////////
+
+ApplicationContextConfig.java
+
+(from applicationContext.xml)
+
+<context:component-scan base-package="simple.chatgpt" exclude ...> 
+→ @ComponentScan excluding controllers.
+
+In Spring Boot, @SpringBootApplication (on SimpleChatgptWebBootApplication) 
+already implies: 
+@ComponentScan(basePackages = "simple.chatgpt")
+
+<context:property-placeholder location="classpath:database.properties"/> 
+→ handled by @PropertySource or application.properties.
+
+<bean id="propertyCache" class="simple.chatgpt.util.GenericCache"> 
+→ @Bean propertyCache().
+
+<bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource"> 
+→ @Bean dataSource().
+
+<bean id="sessionFactory" class="org.springframework.orm.hibernate5.LocalSessionFactoryBean"> 
+→ @Bean sessionFactory().
+
+<bean id="mybatisSqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean"> 
+→ @Bean mybatisSqlSessionFactory().
+
+<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer"> 
+→ replaced by @MapperScan in main class.
+
+<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+ → @Bean sqlSessionFactory().
+
+<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer"> 
+→ replaced by @MapperScan.
+
+<bean id="transactionManager" class="org.springframework.orm.hibernate5.HibernateTransactionManager"> 
+→ @Bean transactionManager().
+
+<bean id="mybatisTransactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager"> 
+→ @Bean mybatisTransactionManager().
+
+<bean id="validator" class="org.springframework.validation.beanvalidation.LocalValidatorFactoryBean"/> 
+→ @Bean validator().
+
+///////////////
+
+TransactionConfig.java
+
+(from applicationContext.xml, only the AOP <tx:advice> and 
+<aop:config> parts if you keep XML-style transaction wiring)
+
+<tx:annotation-driven transaction-manager="transactionManager"/> 
+→ @EnableTransactionManagement (could stay in ApplicationContextConfig).
+
+<tx:advice id="mybatisTxAdvice" ...> + <aop:config> 
+→ Java-based transaction advice config.
+
+///////////////
+
+web.xml → SimpleChatgptWebBootApplication.java
+
+api-servlet.xml → WebConfig.java
+
+applicationContext.xml (beans, datasource, cache, validator, 
+factories, tx managers) → ApplicationContextConfig.java
+
+applicationContext.xml (transaction AOP advice & aop:config) → TransactionConfig.java
+

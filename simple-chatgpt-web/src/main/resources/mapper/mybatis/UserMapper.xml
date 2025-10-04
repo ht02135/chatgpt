@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="simple.chatgpt.mapper.mybatis.UserMapper">
+
+    <!-- Result Map for User -->
+    <resultMap id="UserResultMap" type="User">
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="email" column="email"/>
+        <result property="firstName" column="first_name"/>
+        <result property="lastName" column="last_name"/>
+        <result property="password" column="password"/>
+        <result property="addressLine1" column="address_line_1"/>
+        <result property="addressLine2" column="address_line_2"/>
+        <result property="city" column="city"/>
+        <result property="state" column="state"/>
+        <result property="postCode" column="post_code"/>
+        <result property="country" column="country"/>
+    </resultMap>
+
+    <!-- ============== XML-BASED METHODS (Complex queries) ============== -->
+
+    <!-- Select All Users with advanced sorting -->
+    <select id="selectAll" resultMap="UserResultMap">
+        SELECT id, name, email, first_name, last_name, password, address_line_1, address_line_2, city, state, post_code, country
+        FROM users
+        ORDER BY
+        CASE WHEN name IS NULL THEN 1 ELSE 0 END,
+        name ASC,
+        id ASC
+    </select>
+
+    <!-- Select User by Email with case-insensitive search -->
+    <select id="selectByEmail" parameterType="string" resultMap="UserResultMap">
+        SELECT id, name, email, first_name, last_name, password, address_line_1, address_line_2, city, state, post_code, country
+        FROM users
+        WHERE LOWER(email) = LOWER(#{email})
+        LIMIT 1
+    </select>
+
+    <!-- Count All Users -->
+    <select id="countAll" resultType="int">
+        SELECT COUNT(*)
+        FROM users
+        WHERE id IS NOT NULL
+    </select>
+
+    <!-- Check if Email Exists (case-insensitive) -->
+    <select id="countByEmail" parameterType="string" resultType="int">
+        SELECT COUNT(*)
+        FROM users
+        WHERE LOWER(email) = LOWER(#{email})
+    </select>
+
+    <!-- Select Users by Name Pattern (case-insensitive search) -->
+    <select id="selectByNameLike" parameterType="string" resultMap="UserResultMap">
+        SELECT id, name, email, first_name, last_name, password, address_line_1, address_line_2, city, state, post_code, country
+        FROM users
+        WHERE LOWER(name) LIKE LOWER(CONCAT('%', #{name}, '%'))
+        ORDER BY
+        CASE WHEN LOWER(name) LIKE LOWER(CONCAT(#{name}, '%')) THEN 1 ELSE 2 END,
+        name ASC
+    </select>
+
+    <!-- Select Users with Pagination and optional sorting -->
+    <select id="selectWithPagination" resultMap="UserResultMap">
+        SELECT id, name, email, first_name, last_name, password, address_line_1, address_line_2, city, state, post_code, country
+        FROM users
+        ORDER BY id ASC
+        LIMIT #{offset}, #{limit}
+    </select>
+
+    <!-- Select Users with Pagination and optional sorting (dynamic ORDER BY) -->
+    <select id="selectWithPagingAndSorting" resultMap="UserResultMap">
+        SELECT id, name, email, first_name, last_name, password, address_line_1, address_line_2, city, state, post_code, country
+        FROM users
+        <choose>
+            <when test="sortField == 'firstName'">
+                ORDER BY first_name ${sortOrder}
+            </when>
+            <when test="sortField == 'lastName'">
+                ORDER BY last_name ${sortOrder}
+            </when>
+            <when test="sortField == 'email'">
+                ORDER BY email ${sortOrder}
+            </when>
+            <when test="sortField == 'name'">
+                ORDER BY name ${sortOrder}
+            </when>
+            <otherwise>
+                ORDER BY id ${sortOrder}
+            </otherwise>
+        </choose>
+        LIMIT #{offset}, #{limit}
+    </select>
+
+    <!-- Dynamic Search with Multiple Criteria -->
+    <select id="selectByDynamicCriteria" parameterType="User" resultMap="UserResultMap">
+        SELECT id, name, email, first_name, last_name, password, address_line_1, address_line_2, city, state, post_code, country
+        FROM users
+        <where>
+            <if test="id != null and id > 0">
+                AND id = #{id}
+            </if>
+            <if test="name != null and name != ''">
+                AND LOWER(name) LIKE LOWER(CONCAT('%', #{name}, '%'))
+            </if>
+            <if test="email != null and email != ''">
+                AND LOWER(email) LIKE LOWER(CONCAT('%', #{email}, '%'))
+            </if>
+        </where>
+        ORDER BY
+        CASE WHEN name IS NULL THEN 1 ELSE 0 END,
+        name ASC,
+        id ASC
+    </select>
+
+    <!-- Select Users with Paging, Sorting, and Filtering -->
+    <select id="selectWithPagingSortingFiltering" resultMap="UserResultMap">
+        SELECT id, name, email, first_name, last_name, password, address_line_1, address_line_2, city, state, post_code, country
+        FROM users
+        <where>
+            <if test="firstName != null and firstName != ''">
+                AND LOWER(first_name) LIKE LOWER(CONCAT('%', #{firstName}, '%'))
+            </if>
+            <if test="lastName != null and lastName != ''">
+                AND LOWER(last_name) LIKE LOWER(CONCAT('%', #{lastName}, '%'))
+            </if>
+            <if test="email != null and email != ''">
+                AND LOWER(email) LIKE LOWER(CONCAT('%', #{email}, '%'))
+            </if>
+            <if test="addressLine1 != null and addressLine1 != ''">
+                AND LOWER(address_line_1) LIKE LOWER(CONCAT('%', #{addressLine1}, '%'))
+            </if>
+            <if test="addressLine2 != null and addressLine2 != ''">
+                AND LOWER(address_line_2) LIKE LOWER(CONCAT('%', #{addressLine2}, '%'))
+            </if>
+            <if test="city != null and city != ''">
+                AND LOWER(city) LIKE LOWER(CONCAT('%', #{city}, '%'))
+            </if>
+            <if test="state != null and state != ''">
+                AND LOWER(state) LIKE LOWER(CONCAT('%', #{state}, '%'))
+            </if>
+            <if test="country != null and country != ''">
+                AND LOWER(country) LIKE LOWER(CONCAT('%', #{country}, '%'))
+            </if>
+        </where>
+        <choose>
+            <when test="sortField == 'firstName'">
+                ORDER BY first_name ${sortOrder}
+            </when>
+            <when test="sortField == 'lastName'">
+                ORDER BY last_name ${sortOrder}
+            </when>
+            <when test="sortField == 'email'">
+                ORDER BY email ${sortOrder}
+            </when>
+            <when test="sortField == 'name'">
+                ORDER BY name ${sortOrder}
+            </when>
+            <otherwise>
+                ORDER BY id ${sortOrder}
+            </otherwise>
+        </choose>
+        LIMIT #{offset}, #{limit}
+    </select>
+
+    <!-- Count Users with Filtering -->
+    <select id="countWithFiltering" resultType="int">
+        SELECT COUNT(*) FROM users
+        <where>
+            <if test="firstName != null and firstName != ''">
+                AND LOWER(first_name) LIKE LOWER(CONCAT('%', #{firstName}, '%'))
+            </if>
+            <if test="lastName != null and lastName != ''">
+                AND LOWER(last_name) LIKE LOWER(CONCAT('%', #{lastName}, '%'))
+            </if>
+            <if test="email != null and email != ''">
+                AND LOWER(email) LIKE LOWER(CONCAT('%', #{email}, '%'))
+            </if>
+            <if test="addressLine1 != null and addressLine1 != ''">
+                AND LOWER(address_line_1) LIKE LOWER(CONCAT('%', #{addressLine1}, '%'))
+            </if>
+            <if test="addressLine2 != null and addressLine2 != ''">
+                AND LOWER(address_line_2) LIKE LOWER(CONCAT('%', #{addressLine2}, '%'))
+            </if>
+            <if test="city != null and city != ''">
+                AND LOWER(city) LIKE LOWER(CONCAT('%', #{city}, '%'))
+            </if>
+            <if test="state != null and state != ''">
+                AND LOWER(state) LIKE LOWER(CONCAT('%', #{state}, '%'))
+            </if>
+            <if test="country != null and country != ''">
+                AND LOWER(country) LIKE LOWER(CONCAT('%', #{country}, '%'))
+            </if>
+        </where>
+    </select>
+</mapper>

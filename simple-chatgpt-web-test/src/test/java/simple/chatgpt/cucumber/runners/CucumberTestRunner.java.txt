@@ -1,0 +1,15 @@
+package simple.chatgpt.cucumber.runners;
+
+import static io.cucumber.junit.platform.engine.Constants.GLUE_PROPERTY_NAME;
+
+import org.junit.platform.suite.api.ConfigurationParameter;
+import org.junit.platform.suite.api.IncludeEngines;
+import org.junit.platform.suite.api.SelectClasspathResource;
+import org.junit.platform.suite.api.Suite;
+
+@Suite
+@IncludeEngines("cucumber")
+@SelectClasspathResource("features")  // path relative to src/test/resources
+@ConfigurationParameter(key = GLUE_PROPERTY_NAME, value = "simple.chatgpt.cucumber.stepdefinitions")
+public class CucumberTestRunner {
+}

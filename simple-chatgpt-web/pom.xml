@@ -1,0 +1,413 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>com.simple</groupId>
+	<!-- Hung dont update, this is used to create chatgpt.war -->
+	<artifactId>simple-chatgpt-web</artifactId>
+	<version>1.0-SNAPSHOT</version>
+	<packaging>war</packaging>
+	
+	<!-- 
+	Hung: DONT REMOVE
+	this is tested with tomcat8.5 and jdk17
+	-->
+
+	<name>ChatGPT Spring MVC Application</name>
+	<description>Spring MVC application</description>
+
+	<properties>
+		<maven.compiler.source>11</maven.compiler.source>
+		<maven.compiler.target>11</maven.compiler.target>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<spring.version>5.3.30</spring.version>
+		<hibernate.version>5.6.9.Final</hibernate.version>
+		<jackson.version>2.15.2</jackson.version>
+		<aspectj.version>1.9.9.1</aspectj.version>
+		<log4j.version>2.20.0</log4j.version>
+		<mybatis.version>3.5.13</mybatis.version>
+		<mybatis.spring.version>2.1.0</mybatis.spring.version>
+		<selenium.version>4.24.0</selenium.version>
+		<webdrivermanager.version>5.9.2</webdrivermanager.version>
+		<junit.jupiter.version>5.10.2</junit.jupiter.version>
+	</properties>
+
+	<!-- ========================================================= -->
+	<!-- Hung: Force ASM 9.6 to avoid "Unsupported class file major version 69" -->
+	<!-- Plain English:
+         Any older ASM version bundled with Spring (or other dependencies) cannot read
+	Java 23 bytecode.
+         By adding this dependencyManagement section, Maven will always use ASM 9.6
+	everywhere.
+         This fixes Spring's LocalVariableTableParameterNameDiscoverer error without
+	upgrading Spring or Tomcat. -->
+	<!-- ========================================================= -->
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.ow2.asm</groupId>
+				<artifactId>asm</artifactId>
+				<version>9.6</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+	<dependencies>
+		<!-- ======================= Spring ======================= -->
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-core</artifactId>
+			<version>${spring.version}</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.ow2.asm</groupId>
+					<artifactId>asm</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-context</artifactId>
+			<version>${spring.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-beans</artifactId>
+			<version>${spring.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-web</artifactId>
+			<version>${spring.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-webmvc</artifactId>
+			<version>${spring.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-orm</artifactId>
+			<version>${spring.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-tx</artifactId>
+			<version>${spring.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-aop</artifactId>
+			<version>${spring.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-aspects</artifactId>
+			<version>${spring.version}</version>
+		</dependency>
+
+		<!-- ========================================================= -->
+		<!-- Hung: Added ASM 9.6 to fix "Unsupported class file major version
+		69" error -->
+		<!-- Plain English:
+             Spring 5.3.21 includes an older ASM library that cannot read Java 23 class
+		files.
+             When Tomcat 8.5 runs on a newer JDK (like Java 23), Spring's ASM fails while
+		inspecting
+             standard JDK classes (e.g., LinkedHashMap) and throws that error.
+             This newer ASM 9.6 library understands Java 23 bytecode, so it fixes the
+		problem
+             without upgrading Spring or Tomcat. -->
+		<!-- ========================================================= -->
+		<dependency>
+			<groupId>org.ow2.asm</groupId>
+			<artifactId>asm</artifactId>
+			<version>9.6</version>
+		</dependency>
+
+		<!-- ======================= AspectJ ======================= -->
+		<dependency>
+			<groupId>org.aspectj</groupId>
+			<artifactId>aspectjweaver</artifactId>
+			<version>${aspectj.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.aspectj</groupId>
+			<artifactId>aspectjrt</artifactId>
+			<version>${aspectj.version}</version>
+		</dependency>
+
+		<!-- ======================= MyBatis ======================= -->
+		<dependency>
+			<groupId>org.mybatis</groupId>
+			<artifactId>mybatis</artifactId>
+			<version>${mybatis.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.mybatis</groupId>
+			<artifactId>mybatis-spring</artifactId>
+			<version>${mybatis.spring.version}</version>
+		</dependency>
+
+		<!-- ======================= Hibernate ======================= -->
+		<dependency>
+			<groupId>org.hibernate</groupId>
+			<artifactId>hibernate-core</artifactId>
+			<version>${hibernate.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.hibernate.validator</groupId>
+			<artifactId>hibernate-validator</artifactId>
+			<version>6.2.5.Final</version>
+		</dependency>
+		<!-- Validation API (javax.validation.*) -->
+		<dependency>
+			<groupId>javax.validation</groupId>
+			<artifactId>validation-api</artifactId>
+			<version>2.0.1.Final</version>
+		</dependency>
+
+		<!-- Expression Language implementation compatible with javax.* -->
+		<dependency>
+			<groupId>org.glassfish</groupId>
+			<artifactId>javax.el</artifactId>
+			<version>3.0.1-b11</version>
+			<scope>provided</scope>
+		</dependency>
+
+		<!-- ======================= Database & Connection Pool
+		======================= -->
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+			<version>8.0.33</version>
+		</dependency>
+		<dependency>
+			<groupId>com.zaxxer</groupId>
+			<artifactId>HikariCP</artifactId>
+			<version>5.0.1</version>
+		</dependency>
+
+		<!-- ======================= Jackson ======================= -->
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-core</artifactId>
+			<version>${jackson.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+			<version>${jackson.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-annotations</artifactId>
+			<version>${jackson.version}</version>
+		</dependency>
+
+		<!-- ======================= Servlet & JSP ======================= -->
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>javax.servlet-api</artifactId>
+			<version>4.0.1</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>javax.servlet.jsp</groupId>
+			<artifactId>javax.servlet.jsp-api</artifactId>
+			<version>2.3.3</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>jstl</artifactId>
+			<version>1.2</version>
+		</dependency>
+
+		<!-- ======================= Logging ======================= -->
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-core</artifactId>
+			<version>${log4j.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-api</artifactId>
+			<version>${log4j.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-slf4j-impl</artifactId>
+			<version>${log4j.version}</version>
+		</dependency>
+
+		<!-- ======================= Validation & Annotations
+		======================= -->
+		<dependency>
+			<groupId>javax.annotation</groupId>
+			<artifactId>javax.annotation-api</artifactId>
+			<version>1.3.2</version>
+		</dependency>
+
+		<!-- ======================= File Handling (CSV / Excel)
+		======================= -->
+		<dependency>
+			<groupId>com.opencsv</groupId>
+			<artifactId>opencsv</artifactId>
+			<version>5.12.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi</artifactId>
+			<version>5.2.5</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi-ooxml</artifactId>
+			<version>5.2.5</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-logging</groupId>
+			<artifactId>commons-logging</artifactId>
+			<version>1.2</version>
+		</dependency>
+
+		<!-- ======================= Testing (JUnit 5 only)
+		======================= -->
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-api</artifactId>
+			<version>${junit.jupiter.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-engine</artifactId>
+			<version>${junit.jupiter.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-test</artifactId>
+			<version>${spring.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.junit.platform</groupId>
+			<artifactId>junit-platform-suite-api</artifactId>
+			<version>1.10.2</version>
+			<scope>test</scope>
+		</dependency>
+
+		<!-- ======================= Selenium ======================= -->
+		<dependency>
+			<groupId>org.seleniumhq.selenium</groupId>
+			<artifactId>selenium-java</artifactId>
+			<version>${selenium.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>io.github.bonigarcia</groupId>
+			<artifactId>webdrivermanager</artifactId>
+			<version>${webdrivermanager.version}</version>
+			<scope>test</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>ch.qos.logback</groupId>
+					<artifactId>logback-classic</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+
+		<!-- ======================= Cache ======================= -->
+		<dependency>
+			<groupId>com.github.ben-manes.caffeine</groupId>
+			<artifactId>caffeine</artifactId>
+			<version>3.1.8</version>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<finalName>chatgpt</finalName>
+		<plugins>
+			<!-- Compiler -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.11.0</version>
+				<configuration>
+					<source>11</source>
+					<target>11</target>
+					<encoding>UTF-8</encoding>
+				</configuration>
+			</plugin>
+
+			<!-- WAR -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-war-plugin</artifactId>
+				<version>3.3.1</version>
+				<configuration>
+					<failOnMissingWebXml>false</failOnMissingWebXml>
+				</configuration>
+			</plugin>
+
+			<!-- Surefire: JUnit 5 -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>3.1.2</version>
+				<configuration>
+					<useModulePath>false</useModulePath>
+				</configuration>
+			</plugin>
+
+			<!-- AspectJ -->
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>aspectj-maven-plugin</artifactId>
+				<version>1.14.0</version>
+				<configuration>
+					<complianceLevel>11</complianceLevel>
+					<source>11</source>
+					<target>11</target>
+					<showWeaveInfo>true</showWeaveInfo>
+					<verbose>true</verbose>
+					<Xlint>ignore</Xlint>
+					<encoding>UTF-8</encoding>
+				</configuration>
+				<executions>
+					<execution>
+						<goals>
+							<goal>compile</goal>
+							<goal>test-compile</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+
+			<!-- Tomcat -->
+			<plugin>
+				<groupId>org.apache.tomcat.maven</groupId>
+				<artifactId>tomcat7-maven-plugin</artifactId>
+				<version>2.2</version>
+				<configuration>
+					<port>8080</port>
+					<path>/chatgpt</path>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+
+	<repositories>
+		<repository>
+			<id>central</id>
+			<name>Maven Central</name>
+			<url>https://repo1.maven.org/maven2</url>
+		</repository>
+	</repositories>
+
+</project>

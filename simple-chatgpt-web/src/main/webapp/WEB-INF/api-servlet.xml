@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+           http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans.xsd
+           http://www.springframework.org/schema/context
+           http://www.springframework.org/schema/context/spring-context.xsd
+           http://www.springframework.org/schema/mvc
+           http://www.springframework.org/schema/mvc/spring-mvc.xsd">
+
+    <!-- Component Scanning for Controllers Only -->
+    <context:component-scan base-package="simple.chatgpt.controller"/>
+
+    <!-- Enable MVC with JSON Message Converter -->
+    <mvc:annotation-driven>
+        <mvc:message-converters>
+            <bean class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
+                <property name="supportedMediaTypes">
+                    <list>
+                        <value>application/json</value>
+                        <value>application/json;charset=UTF-8</value>
+                        <value>text/json</value>
+                    </list>
+                </property>
+            </bean>
+        </mvc:message-converters>
+    </mvc:annotation-driven>
+
+    <!-- CORS Configuration -->
+    <mvc:cors>
+        <mvc:mapping path="/api/**"
+                     allowed-origins="*"
+                     allowed-methods="GET,POST,PUT,DELETE,OPTIONS"
+                     allowed-headers="*" />
+    </mvc:cors>
+
+    <!-- View Resolver -->
+    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="prefix" value="/WEB-INF/jsp/" />
+        <property name="suffix" value=".jsp" />
+    </bean>
+
+    <!-- Multipart Resolver -->
+    <bean id="multipartResolver" class="org.springframework.web.multipart.support.StandardServletMultipartResolver"/>
+</beans>

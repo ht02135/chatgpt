@@ -1,0 +1,6 @@
+Feature: Hello World
+
+  Scenario: Say hello
+    Given I have a greeting
+    When I print the greeting
+    Then I should see "Hello, World!"

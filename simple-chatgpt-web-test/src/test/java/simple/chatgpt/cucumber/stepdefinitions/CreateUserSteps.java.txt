@@ -1,0 +1,211 @@
+package simple.chatgpt.cucumber.stepdefinitions;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.firefox.FirefoxDriver;
+
+import io.cucumber.java.After;
+import io.cucumber.java.Before;
+import io.cucumber.java.en.Given;
+import io.cucumber.java.en.Then;
+import io.cucumber.java.en.When;
+import simple.chatgpt.selenium.pom.UserCreateWDPage;
+import simple.chatgpt.selenium.pom.UsersWDPage;
+
+public class CreateUserSteps {
+
+    private static final Logger logger = LogManager.getLogger(CreateUserSteps.class);
+
+    private WebDriver driver;
+    private UsersWDPage usersPage;
+    private UserCreateWDPage createPage;
+    private final String baseUrl = "http://localhost:8080/chatgpt/management/jsp/user/";
+    private String currentUsername;
+
+    @Before
+    public void setUp() {
+        logger.debug("setUp called");
+        driver = new FirefoxDriver();
+        logger.debug("WebDriver initialized: driver={}", driver);
+
+        usersPage = new UsersWDPage(driver, baseUrl);
+        createPage = new UserCreateWDPage(driver, baseUrl);
+        logger.debug("Page objects initialized: usersPage={}, createPage={}", usersPage, createPage);
+    }
+
+    @After
+    public void tearDown() {
+        logger.debug("tearDown called");
+        if (driver != null) {
+            driver.quit();
+            logger.debug("WebDriver quit successfully");
+        }
+    }
+
+    @Given("I am on the users page")
+    public void i_am_on_the_users_page() {
+        logger.debug("i_am_on_the_users_page called");
+        usersPage.gotoMyPage();
+        if (!usersPage.isInMyOwnPage()) {
+            throw new AssertionError("Expected to be on users.jsp after navigation");
+        }
+    }
+
+    @Given("the user {string} does not exist")
+    public void the_user_does_not_exist(String username) {
+        logger.debug("the_user_does_not_exist called");
+        logger.debug("username={}", username);
+
+        currentUsername = username;
+
+        usersPage.enterSearchUsername(username);
+        usersPage.clickSearch();
+        if (usersPage.isUserPresentInGrid(username)) {
+            logger.debug("User {} already exists, deleting before create", username);
+            usersPage.clickDeleteForUser(username);
+
+            usersPage.enterSearchUsername(username);
+            usersPage.clickSearch();
+            usersPage.assertUserNotPresentInGrid(username);
+        }
+    }
+
+    @When("I click the Create button")
+    public void i_click_the_create_button() {
+        logger.debug("i_click_the_create_button called");
+        usersPage.clickCreate();
+    }
+
+    @When("I am taken to the add user page")
+    public void i_am_taken_to_the_add_user_page() {
+        logger.debug("i_am_taken_to_the_add_user_page called");
+        createPage.gotoMyPage();
+        if (!createPage.isInMyOwnPage()) {
+            throw new AssertionError("Expected to be on addUser.jsp after clicking Create");
+        }
+    }
+
+    @When("I enter the username {string}")
+    public void i_enter_the_username(String username) {
+        logger.debug("i_enter_the_username called");
+        logger.debug("username={}", username);
+
+        currentUsername = username;
+        createPage.enterUsername(username);
+    }
+
+    @When("I enter the user key {string}")
+    public void i_enter_the_user_key(String userKey) {
+        logger.debug("i_enter_the_user_key called");
+        logger.debug("userKey={}", userKey);
+
+        createPage.enterUserKey(userKey);
+    }
+
+    @When("I enter the first name {string}")
+    public void i_enter_the_first_name(String firstName) {
+        logger.debug("i_enter_the_first_name called");
+        logger.debug("firstName={}", firstName);
+
+        createPage.enterFirstName(firstName);
+    }
+
+    @When("I enter the last name {string}")
+    public void i_enter_the_last_name(String lastName) {
+        logger.debug("i_enter_the_last_name called");
+        logger.debug("lastName={}", lastName);
+
+        createPage.enterLastName(lastName);
+    }
+
+    @When("I enter the email {string}")
+    public void i_enter_the_email(String email) {
+        logger.debug("i_enter_the_email called");
+        logger.debug("email={}", email);
+
+        createPage.enterEmail(email);
+    }
+
+    @When("I enter the password {string}")
+    public void i_enter_the_password(String password) {
+        logger.debug("i_enter_the_password called");
+        logger.debug("password={}", password);
+
+        createPage.enterPassword(password);
+    }
+
+    @When("I enter the address line1 {string}")
+    public void i_enter_the_address_line1(String address1) {
+        logger.debug("i_enter_the_address_line1 called");
+        logger.debug("address1={}", address1);
+
+        createPage.enterAddress1(address1);
+    }
+
+    @When("I enter the address line2 {string}")
+    public void i_enter_the_address_line2(String address2) {
+        logger.debug("i_enter_the_address_line2 called");
+        logger.debug("address2={}", address2);
+
+        createPage.enterAddress2(address2);
+    }
+
+    @When("I enter the city {string}")
+    public void i_enter_the_city(String city) {
+        logger.debug("i_enter_the_city called");
+        logger.debug("city={}", city);
+
+        createPage.enterCity(city);
+    }
+
+    @When("I enter the state {string}")
+    public void i_enter_the_state(String state) {
+        logger.debug("i_enter_the_state called");
+        logger.debug("state={}", state);
+
+        createPage.enterState(state);
+    }
+
+    @When("I enter the postcode {string}")
+    public void i_enter_the_postcode(String postcode) {
+        logger.debug("i_enter_the_postcode called");
+        logger.debug("postcode={}", postcode);
+
+        createPage.enterPostCode(postcode);
+    }
+
+    @When("I enter the country {string}")
+    public void i_enter_the_country(String country) {
+        logger.debug("i_enter_the_country called");
+        logger.debug("country={}", country);
+
+        createPage.enterCountry(country);
+    }
+
+    @When("I click Save")
+    public void i_click_save() {
+        logger.debug("i_click_save called");
+        createPage.clickSave();
+    }
+
+    @Then("I should be back on the users page")
+    public void i_should_be_back_on_the_users_page() {
+        logger.debug("i_should_be_back_on_the_users_page called");
+        usersPage.gotoMyPage();
+        if (!usersPage.isInMyOwnPage()) {
+            throw new AssertionError("Expected to return to users.jsp after saving");
+        }
+    }
+
+    @Then("I should see the user {string} in the grid")
+    public void i_should_see_the_user_in_the_grid(String username) {
+        logger.debug("i_should_see_the_user_in_the_grid called");
+        logger.debug("username={}", username);
+
+        usersPage.enterSearchUsername(username);
+        usersPage.clickSearch();
+        usersPage.assertUserPresentInGrid(username);
+        logger.debug("User {} successfully created and verified", username);
+    }
+}

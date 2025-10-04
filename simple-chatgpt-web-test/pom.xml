@@ -1,0 +1,181 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>com.simple</groupId>
+	<!-- Hung dont update, this is used to create chatgpt-test.jar -->
+	<artifactId>simple-chatgpt-web-test</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<packaging>jar</packaging>
+
+	<name>ChatGPT Spring MVC Test Project</name>
+	<description>Tests for the ChatGPT Spring MVC Application</description>
+
+    <!-- 
+    hung: CUCUMBER IS DEAD
+    Reason: Cucumber 7.x+ fails to work with modern JUnit versions, dependencies are missing from public repos,
+    and trying to use it causes build failures and wasted time. 
+    Do NOT try to add Cucumber again — it is dead, broken, and unusable!
+    Never, never, never install or use it!
+    -->
+    
+	<properties>
+		<java.version>11</java.version>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<spring.version>5.3.21</spring.version>
+		<jackson.version>2.15.2</jackson.version>
+		<log4j.version>2.20.0</log4j.version>
+		<selenium.version>4.24.0</selenium.version>
+		<webdrivermanager.version>5.9.2</webdrivermanager.version>
+		<junit.jupiter.version>5.10.2</junit.jupiter.version>
+	</properties>
+
+	<dependencies>
+		<!-- Logging -->
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-core</artifactId>
+			<version>${log4j.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-api</artifactId>
+			<version>${log4j.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-slf4j-impl</artifactId>
+			<version>${log4j.version}</version>
+		</dependency>
+
+		<!-- Jackson -->
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-core</artifactId>
+			<version>${jackson.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+			<version>${jackson.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-annotations</artifactId>
+			<version>${jackson.version}</version>
+		</dependency>
+
+		<!-- Database -->
+		<dependency>
+			<groupId>mysql</groupId>
+			<artifactId>mysql-connector-java</artifactId>
+			<version>8.0.33</version>
+		</dependency>
+		<dependency>
+			<groupId>com.zaxxer</groupId>
+			<artifactId>HikariCP</artifactId>
+			<version>5.0.1</version>
+		</dependency>
+
+		<!-- JUnit 5 -->
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-api</artifactId>
+			<version>${junit.jupiter.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-engine</artifactId>
+			<version>${junit.jupiter.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+    		<groupId>org.junit.jupiter</groupId>
+    		<artifactId>junit-jupiter-params</artifactId>
+    		<version>${junit.jupiter.version}</version>
+    		<scope>test</scope>
+		</dependency>
+		
+		<!-- JUnit Platform Suite API for @Suite runner -->
+		<dependency>
+			<groupId>org.junit.platform</groupId>
+			<artifactId>junit-platform-suite-api</artifactId>
+			<version>1.10.2</version>
+			<scope>test</scope>
+		</dependency>
+
+		<dependency>
+			<groupId>org.springframework</groupId>
+			<artifactId>spring-test</artifactId>
+			<version>${spring.version}</version>
+			<scope>test</scope>
+		</dependency>
+
+		<!-- Selenium -->
+		<dependency>
+			<groupId>org.seleniumhq.selenium</groupId>
+			<artifactId>selenium-java</artifactId>
+			<version>${selenium.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>io.github.bonigarcia</groupId>
+			<artifactId>webdrivermanager</artifactId>
+			<version>${webdrivermanager.version}</version>
+			<scope>test</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>ch.qos.logback</groupId>
+					<artifactId>logback-classic</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+	</dependencies>
+
+	<build>
+		<finalName>chatgpt-test</finalName>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.11.0</version>
+				<configuration>
+					<source>11</source>
+					<target>11</target>
+					<encoding>UTF-8</encoding>
+				</configuration>
+			</plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.1.2</version>
+                <configuration>
+                    <useModulePath>false</useModulePath>
+                </configuration>
+            </plugin>
+			
+		</plugins>
+	</build>
+
+	<repositories>
+		<!-- Maven Central -->
+		<repository>
+			<id>central</id>
+			<name>Maven Central</name>
+			<url>https://repo1.maven.org/maven2</url>
+		</repository>
+
+		<!-- JCenter (deprecated but sometimes needed for old artifacts) -->
+		<repository>
+			<id>jcenter</id>
+			<name>JCenter</name>
+			<url>https://jcenter.bintray.com/</url>
+		</repository>
+	</repositories>
+
+</project>
+
