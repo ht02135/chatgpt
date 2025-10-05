@@ -9,9 +9,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import simple.chatgpt.mapper.management.security.RoleGroupRoleMappingMapper;
-import simple.chatgpt.mapper.management.security.UserManagementRoleGroupMappingMapper;
 import simple.chatgpt.pojo.management.security.RoleGroupRoleMappingPojo;
-import simple.chatgpt.pojo.management.security.UserManagementRoleGroupMappingPojo;
 import simple.chatgpt.util.GenericCache;
 
 @Service
@@ -20,26 +18,36 @@ public class RoleGroupRoleMappingServiceImpl implements RoleGroupRoleMappingServ
     private static final Logger logger = LogManager.getLogger(RoleGroupRoleMappingServiceImpl.class);
 
     private final RoleGroupRoleMappingMapper roleGroupRoleMappingMapper;
-    private final UserManagementRoleGroupMappingMapper userRoleGroupMappingMapper;
     private final GenericCache<Long, List<RoleGroupRoleMappingPojo>> roleGroupRoleMappingCache;
-    private final GenericCache<Long, List<UserManagementRoleGroupMappingPojo>> userRoleGroupMappingCache;
 
     @Autowired
     public RoleGroupRoleMappingServiceImpl(RoleGroupRoleMappingMapper roleGroupRoleMappingMapper,
-                                           UserManagementRoleGroupMappingMapper userRoleGroupMappingMapper,
-                                           @Qualifier("roleGroupRoleMappingCache") GenericCache<Long, List<RoleGroupRoleMappingPojo>> roleGroupRoleMappingCache,
-                                           @Qualifier("userRoleGroupMappingCache") GenericCache<Long, List<UserManagementRoleGroupMappingPojo>> userRoleGroupMappingCache) {
+                                           @Qualifier("roleGroupRoleMappingCache") GenericCache<Long, List<RoleGroupRoleMappingPojo>> roleGroupRoleMappingCache) {
         logger.debug("RoleGroupRoleMappingServiceImpl constructor called");
         logger.debug("RoleGroupRoleMappingServiceImpl roleGroupRoleMappingMapper={}", roleGroupRoleMappingMapper);
-        logger.debug("RoleGroupRoleMappingServiceImpl userRoleGroupMappingMapper={}", userRoleGroupMappingMapper);
         logger.debug("RoleGroupRoleMappingServiceImpl roleGroupRoleMappingCache={}", roleGroupRoleMappingCache);
-        logger.debug("RoleGroupRoleMappingServiceImpl userRoleGroupMappingCache={}", userRoleGroupMappingCache);
 
         this.roleGroupRoleMappingMapper = roleGroupRoleMappingMapper;
-        this.userRoleGroupMappingMapper = userRoleGroupMappingMapper;
         this.roleGroupRoleMappingCache = roleGroupRoleMappingCache;
-        this.userRoleGroupMappingCache = userRoleGroupMappingCache;
     }
+    
+    /*
+    hung: Note on initialization
+
+    RoleGroupRoleMappingServiceImpl does NOT need an initializeDB() method because:
+    1️ Initial loading of role-group → role mappings from configuration XML
+       is handled by RoleGroupManagementServiceImpl.initializeDB().
+    2️ RoleGroupManagementServiceImpl uses RoleGroupRoleMappingService
+       methods (addRoleToGroupIfNotExists) to populate the DB and cache.
+    3️ RoleGroupRoleMappingServiceImpl relies on its cache and mapper for
+       runtime operations (find, add, remove). Any updates made through the
+       service automatically manage caching.
+    4️ Adding an initDB here would duplicate logic, risk inconsistent state,
+       and violate single responsibility principle.
+
+    In short, this service focuses on CRUD and caching, while RoleGroupManagementServiceImpl
+    handles initial bootstrapping of mappings.
+    */
 
     @Override
     public List<RoleGroupRoleMappingPojo> findAllMappings() {
@@ -110,4 +118,35 @@ public class RoleGroupRoleMappingServiceImpl implements RoleGroupRoleMappingServ
         roleGroupRoleMappingCache.invalidate(roleGroupId);
         logger.debug("removeMappingByGroupAndRole invalidated cache for roleGroupId={}", roleGroupId);
     }
+    
+    public RoleGroupRoleMappingPojo addRoleToGroupIfNotExists(Long roleGroupId, Long roleId) {
+        logger.debug("addRoleToGroupIfNotExists called");
+        logger.debug("addRoleToGroupIfNotExists roleGroupId={} roleId={}", roleGroupId, roleId);
+
+        // 1️⃣ Check existing mappings for this group
+        List<RoleGroupRoleMappingPojo> existingMappings = findByRoleGroupId(roleGroupId);
+
+        boolean mappingExists = existingMappings.stream()
+                .anyMatch(m -> roleId.equals(m.getRoleId()));
+
+        if (mappingExists) {
+            logger.debug("Mapping already exists, skipping insert roleGroupId={} roleId={}", roleGroupId, roleId);
+            // Return existing mapping if needed, else null
+            return existingMappings.stream()
+                    .filter(m -> roleId.equals(m.getRoleId()))
+                    .findFirst()
+                    .orElse(null);
+        }
+
+        // 2️⃣ Mapping does not exist, create new
+        RoleGroupRoleMappingPojo mappingPojo = new RoleGroupRoleMappingPojo();
+        mappingPojo.setRoleGroupId(roleGroupId);
+        mappingPojo.setRoleId(roleId);
+
+        addRoleToGroup(mappingPojo); // uses existing method which also invalidates cache
+        logger.debug("Inserted new mapping roleGroupId={} roleId={}", roleGroupId, roleId);
+
+        return mappingPojo;
+    }
+
 }

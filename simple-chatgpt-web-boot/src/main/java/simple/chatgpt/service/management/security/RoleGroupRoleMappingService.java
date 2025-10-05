@@ -15,6 +15,9 @@ public interface RoleGroupRoleMappingService {
 
     // ➕ CREATE
     RoleGroupRoleMappingPojo addRoleToGroup(RoleGroupRoleMappingPojo mapping);
+    
+    // ➕ CREATE IF NOT EXISTS
+    RoleGroupRoleMappingPojo addRoleToGroupIfNotExists(Long roleGroupId, Long roleId);
 
     // 🗑 DELETE
     void removeMappingById(Long id);

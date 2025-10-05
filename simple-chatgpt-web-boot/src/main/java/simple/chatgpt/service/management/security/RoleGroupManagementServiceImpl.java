@@ -16,7 +16,6 @@ import simple.chatgpt.config.management.RoleRefConfig;
 import simple.chatgpt.config.management.loader.SecurityConfigLoader;
 import simple.chatgpt.mapper.management.security.RoleGroupManagementMapper;
 import simple.chatgpt.pojo.management.security.RoleGroupManagementPojo;
-import simple.chatgpt.pojo.management.security.RoleGroupRoleMappingPojo;
 import simple.chatgpt.pojo.management.security.RoleManagementPojo;
 import simple.chatgpt.util.GenericCache;
 import simple.chatgpt.util.PagedResult;
@@ -28,22 +27,20 @@ public class RoleGroupManagementServiceImpl implements RoleGroupManagementServic
 
     private final RoleGroupManagementMapper groupMapper;
     private final RoleGroupRoleMappingService roleGroupRoleMappingService;
-    private final RoleManagementService roleManagementService;  // <-- injected
+    private final RoleManagementService roleManagementService;
     private final SecurityConfigLoader securityConfigLoader;
 
     private final GenericCache<Long, RoleGroupManagementPojo> groupCache;
     private final GenericCache<String, Long> idToNameCache;
-    private final GenericCache<Long, List<RoleGroupRoleMappingPojo>> roleGroupRoleMappingCache;
 
     @Autowired
     public RoleGroupManagementServiceImpl(
             RoleGroupManagementMapper groupMapper,
             RoleGroupRoleMappingService roleGroupRoleMappingService,
-            RoleManagementService roleManagementService,   // <-- inject
+            RoleManagementService roleManagementService,
             SecurityConfigLoader securityConfigLoader,
             @Qualifier("groupCache") GenericCache<Long, RoleGroupManagementPojo> groupCache,
-            @Qualifier("idToNameCache") GenericCache<String, Long> idToNameCache,
-            @Qualifier("roleGroupRoleMappingCache") GenericCache<Long, List<RoleGroupRoleMappingPojo>> roleGroupRoleMappingCache) {
+            @Qualifier("idToNameCache") GenericCache<String, Long> idToNameCache) {
 
         logger.debug("RoleGroupManagementServiceImpl constructor called");
         logger.debug("groupMapper={}", groupMapper);
@@ -52,15 +49,13 @@ public class RoleGroupManagementServiceImpl implements RoleGroupManagementServic
         logger.debug("securityConfigLoader={}", securityConfigLoader);
         logger.debug("groupCache={}", groupCache);
         logger.debug("idToNameCache={}", idToNameCache);
-        logger.debug("roleGroupRoleMappingCache={}", roleGroupRoleMappingCache);
 
         this.groupMapper = groupMapper;
         this.roleGroupRoleMappingService = roleGroupRoleMappingService;
-        this.roleManagementService = roleManagementService;  // <-- final field
+        this.roleManagementService = roleManagementService;
         this.securityConfigLoader = securityConfigLoader;
         this.groupCache = groupCache;
         this.idToNameCache = idToNameCache;
-        this.roleGroupRoleMappingCache = roleGroupRoleMappingCache;
     }
 
     @PostConstruct
@@ -94,41 +89,25 @@ public class RoleGroupManagementServiceImpl implements RoleGroupManagementServic
             idToNameCache.put(groupName, groupPojo.getId());
             logger.debug("Cached role group id={} groupName={}", groupPojo.getId(), groupName);
 
-            // Load role → group mappings via service
+            // Ensure role → group mappings exist via mapping service
             for (RoleRefConfig ref : rgConfig.getRoles()) {
                 String roleName = ref.getName();
-
                 RoleManagementPojo role = roleManagementService.getByRoleName(roleName);
                 if (role == null) {
                     logger.warn("Role '{}' not found in DB, skipping mapping", roleName);
                     continue;
                 }
 
-                List<RoleGroupRoleMappingPojo> existingMappings =
-                        roleGroupRoleMappingService.findByRoleGroupId(groupPojo.getId());
-
-                boolean mappingExists = existingMappings.stream()
-                        .anyMatch(m -> role.getId().equals(m.getRoleId()));
-
-                if (!mappingExists) {
-                    RoleGroupRoleMappingPojo mappingPojo = new RoleGroupRoleMappingPojo();
-                    mappingPojo.setRoleGroupId(groupPojo.getId());
-                    mappingPojo.setRoleId(role.getId());
-                    roleGroupRoleMappingService.addRoleToGroup(mappingPojo);
-                    logger.debug("Inserted role → group mapping: groupName={} roleName={} roleId={}",
-                            groupName, roleName, role.getId());
-                }
+                List<RoleGroupManagementPojo> dummy = null; // just to satisfy any interface; mappings handled in mapping service
+                // Add mapping if missing
+                roleGroupRoleMappingService.addRoleToGroupIfNotExists(groupPojo.getId(), role.getId());
+                logger.debug("Ensured role → group mapping: groupName={} roleName={} roleId={}",
+                        groupName, roleName, role.getId());
             }
-
-            // Cache all mappings for this group
-            List<RoleGroupRoleMappingPojo> mappings = roleGroupRoleMappingService.findByRoleGroupId(groupPojo.getId());
-            roleGroupRoleMappingCache.put(groupPojo.getId(), mappings);
-            logger.debug("Cached mappings for groupName={} mappingCount={}", groupName, mappings.size());
         }
 
         logger.debug("initializeDB completed");
     }
-
 
     // ---------------- CRUD ----------------
 
@@ -195,9 +174,9 @@ public class RoleGroupManagementServiceImpl implements RoleGroupManagementServic
         if (existing != null) {
             idToNameCache.invalidate(existing.getGroupName());
             groupCache.invalidate(id);
-            roleGroupRoleMappingCache.invalidate(id);
+            // role → group mapping cache handled inside RoleGroupRoleMappingService
             groupMapper.deleteRoleGroupById(id);
-            logger.debug("Deleted role group and its mappings from DB and cache id={}", id);
+            logger.debug("Deleted role group from DB and cache id={}", id);
         }
     }
 
