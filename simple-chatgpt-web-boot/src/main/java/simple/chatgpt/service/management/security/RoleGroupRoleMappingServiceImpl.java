@@ -1,6 +1,7 @@
 package simple.chatgpt.service.management.security;
 
 import java.util.List;
+import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -17,20 +18,20 @@ public class RoleGroupRoleMappingServiceImpl implements RoleGroupRoleMappingServ
 
     private static final Logger logger = LogManager.getLogger(RoleGroupRoleMappingServiceImpl.class);
 
-    private final RoleGroupRoleMappingMapper roleGroupRoleMappingMapper;
-    private final GenericCache<Long, List<RoleGroupRoleMappingPojo>> roleGroupRoleMappingCache;
+    private final RoleGroupRoleMappingMapper mapper;
+    private final GenericCache<Long, List<RoleGroupRoleMappingPojo>> cache;
 
     @Autowired
-    public RoleGroupRoleMappingServiceImpl(RoleGroupRoleMappingMapper roleGroupRoleMappingMapper,
-                                           @Qualifier("roleGroupRoleMappingCache") GenericCache<Long, List<RoleGroupRoleMappingPojo>> roleGroupRoleMappingCache) {
+    public RoleGroupRoleMappingServiceImpl(RoleGroupRoleMappingMapper mapper,
+                                           @Qualifier("roleGroupRoleMappingCache") GenericCache<Long, List<RoleGroupRoleMappingPojo>> cache) {
         logger.debug("RoleGroupRoleMappingServiceImpl constructor called");
-        logger.debug("RoleGroupRoleMappingServiceImpl roleGroupRoleMappingMapper={}", roleGroupRoleMappingMapper);
-        logger.debug("RoleGroupRoleMappingServiceImpl roleGroupRoleMappingCache={}", roleGroupRoleMappingCache);
+        logger.debug("mapper={}", mapper);
+        logger.debug("cache={}", cache);
 
-        this.roleGroupRoleMappingMapper = roleGroupRoleMappingMapper;
-        this.roleGroupRoleMappingCache = roleGroupRoleMappingCache;
+        this.mapper = mapper;
+        this.cache = cache;
     }
-    
+
     /*
     hung: Note on initialization
 
@@ -48,105 +49,93 @@ public class RoleGroupRoleMappingServiceImpl implements RoleGroupRoleMappingServ
     In short, this service focuses on CRUD and caching, while RoleGroupManagementServiceImpl
     handles initial bootstrapping of mappings.
     */
-
+    
     @Override
-    public List<RoleGroupRoleMappingPojo> findAllMappings() {
-        logger.debug("findAllMappings called");
-        return roleGroupRoleMappingMapper.findAllMappings();
+    public List<RoleGroupRoleMappingPojo> findAllMappings(Map<String, Object> params) {
+        logger.debug("findAllMappings called params={}", params);
+        return mapper.findMappings(Map.of("params", params));
     }
 
     @Override
-    public List<RoleGroupRoleMappingPojo> findByRoleGroupId(Long roleGroupId) {
-        logger.debug("findByRoleGroupId called");
-        logger.debug("findByRoleGroupId roleGroupId={}", roleGroupId);
+    public List<RoleGroupRoleMappingPojo> findByRoleGroup(Map<String, Object> params) {
+        Long roleGroupId = (Long) params.get("roleGroupId");
+        logger.debug("findByRoleGroup called roleGroupId={}", roleGroupId);
 
-        return roleGroupRoleMappingCache.get(roleGroupId, k -> {
-            List<RoleGroupRoleMappingPojo> dbList = roleGroupRoleMappingMapper.findByRoleGroupId(k);
-            logger.debug("findByRoleGroupId loaded from DB size={}", dbList.size());
+        return cache.get(roleGroupId, k -> {
+            List<RoleGroupRoleMappingPojo> dbList = mapper.findByRoleGroupId(Map.of("params", Map.of("roleGroupId", k)));
+            logger.debug("findByRoleGroup loaded from DB size={}", dbList.size());
             return dbList;
         });
     }
 
     @Override
-    public List<RoleGroupRoleMappingPojo> findByRoleId(Long roleId) {
-        logger.debug("findByRoleId called");
-        logger.debug("findByRoleId roleId={}", roleId);
+    public List<RoleGroupRoleMappingPojo> findByRole(Map<String, Object> params) {
+        Long roleId = (Long) params.get("roleId");
+        logger.debug("findByRole called roleId={}", roleId);
 
-        return roleGroupRoleMappingMapper.findByRoleId(roleId);
+        return mapper.findByRoleId(Map.of("params", Map.of("roleId", roleId)));
     }
 
     @Override
-    public RoleGroupRoleMappingPojo addRoleToGroup(RoleGroupRoleMappingPojo mapping) {
-        logger.debug("addRoleToGroup called");
-        logger.debug("addRoleToGroup mapping={}", mapping);
+    public RoleGroupRoleMappingPojo addRoleToGroup(Map<String, Object> params) {
+        RoleGroupRoleMappingPojo mapping = (RoleGroupRoleMappingPojo) params.get("mapping");
+        logger.debug("addRoleToGroup called mapping={}", mapping);
 
-        roleGroupRoleMappingMapper.insertMapping(mapping);
+        mapper.insertMapping(Map.of("params", Map.of("mapping", mapping)));
         logger.debug("addRoleToGroup inserted mapping id={}", mapping.getId());
 
-        // invalidate cache for this role group
-        roleGroupRoleMappingCache.invalidate(mapping.getRoleGroupId());
+        cache.invalidate(mapping.getRoleGroupId());
         logger.debug("addRoleToGroup invalidated cache for roleGroupId={}", mapping.getRoleGroupId());
-
         return mapping;
     }
 
     @Override
-    public void removeMappingById(Long id) {
-        logger.debug("removeMappingById called");
-        logger.debug("removeMappingById id={}", id);
+    public RoleGroupRoleMappingPojo addRoleToGroupIfNotExists(Map<String, Object> params) {
+        Long roleGroupId = (Long) params.get("roleGroupId");
+        Long roleId = (Long) params.get("roleId");
+        logger.debug("addRoleToGroupIfNotExists called roleGroupId={} roleId={}", roleGroupId, roleId);
 
-        RoleGroupRoleMappingPojo mapping = roleGroupRoleMappingMapper.findAllMappings().stream()
-                .filter(m -> m.getId().equals(id))
+        List<RoleGroupRoleMappingPojo> existingMappings = findByRoleGroup(Map.of("roleGroupId", roleGroupId));
+        RoleGroupRoleMappingPojo existing = existingMappings.stream()
+                .filter(m -> roleId.equals(m.getRoleId()))
                 .findFirst().orElse(null);
 
-        if (mapping != null) {
-            roleGroupRoleMappingMapper.deleteMappingById(id);
-            logger.debug("removeMappingById deleted mapping id={}", id);
-            roleGroupRoleMappingCache.invalidate(mapping.getRoleGroupId());
-            logger.debug("removeMappingById invalidated cache for roleGroupId={}", mapping.getRoleGroupId());
+        if (existing != null) {
+            logger.debug("Mapping already exists, skipping insert roleGroupId={} roleId={}", roleGroupId, roleId);
+            return existing;
         }
+
+        RoleGroupRoleMappingPojo mapping = new RoleGroupRoleMappingPojo();
+        mapping.setRoleGroupId(roleGroupId);
+        mapping.setRoleId(roleId);
+
+        return addRoleToGroup(Map.of("mapping", mapping));
     }
 
     @Override
-    public void removeMappingByGroupAndRole(Long roleGroupId, Long roleId) {
-        logger.debug("removeMappingByGroupAndRole called");
-        logger.debug("removeMappingByGroupAndRole roleGroupId={} roleId={}", roleGroupId, roleId);
+    public void removeMapping(Map<String, Object> params) {
+        logger.debug("removeMapping called params={}", params);
 
-        roleGroupRoleMappingMapper.deleteMappingByGroupAndRole(roleGroupId, roleId);
-        logger.debug("removeMappingByGroupAndRole deleted mapping");
+        if (params.containsKey("id")) {
+            Long id = (Long) params.get("id");
+            RoleGroupRoleMappingPojo mapping = findAllMappings(Map.of()).stream()
+                    .filter(m -> id.equals(m.getId()))
+                    .findFirst().orElse(null);
 
-        roleGroupRoleMappingCache.invalidate(roleGroupId);
-        logger.debug("removeMappingByGroupAndRole invalidated cache for roleGroupId={}", roleGroupId);
-    }
-    
-    public RoleGroupRoleMappingPojo addRoleToGroupIfNotExists(Long roleGroupId, Long roleId) {
-        logger.debug("addRoleToGroupIfNotExists called");
-        logger.debug("addRoleToGroupIfNotExists roleGroupId={} roleId={}", roleGroupId, roleId);
+            if (mapping != null) {
+                mapper.deleteMappingById(Map.of("params", Map.of("id", id)));
+                logger.debug("removeMapping deleted mapping id={}", id);
+                cache.invalidate(mapping.getRoleGroupId());
+                logger.debug("removeMapping invalidated cache for roleGroupId={}", mapping.getRoleGroupId());
+            }
+        } else if (params.containsKey("roleGroupId") && params.containsKey("roleId")) {
+            Long roleGroupId = (Long) params.get("roleGroupId");
+            Long roleId = (Long) params.get("roleId");
 
-        // 1️⃣ Check existing mappings for this group
-        List<RoleGroupRoleMappingPojo> existingMappings = findByRoleGroupId(roleGroupId);
-
-        boolean mappingExists = existingMappings.stream()
-                .anyMatch(m -> roleId.equals(m.getRoleId()));
-
-        if (mappingExists) {
-            logger.debug("Mapping already exists, skipping insert roleGroupId={} roleId={}", roleGroupId, roleId);
-            // Return existing mapping if needed, else null
-            return existingMappings.stream()
-                    .filter(m -> roleId.equals(m.getRoleId()))
-                    .findFirst()
-                    .orElse(null);
+            mapper.deleteMappingByGroupAndRole(Map.of("params", Map.of("roleGroupId", roleGroupId, "roleId", roleId)));
+            logger.debug("removeMapping deleted mapping roleGroupId={} roleId={}", roleGroupId, roleId);
+            cache.invalidate(roleGroupId);
+            logger.debug("removeMapping invalidated cache for roleGroupId={}", roleGroupId);
         }
-
-        // 2️⃣ Mapping does not exist, create new
-        RoleGroupRoleMappingPojo mappingPojo = new RoleGroupRoleMappingPojo();
-        mappingPojo.setRoleGroupId(roleGroupId);
-        mappingPojo.setRoleId(roleId);
-
-        addRoleToGroup(mappingPojo); // uses existing method which also invalidates cache
-        logger.debug("Inserted new mapping roleGroupId={} roleId={}", roleGroupId, roleId);
-
-        return mappingPojo;
     }
-
 }

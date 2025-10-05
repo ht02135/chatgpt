@@ -7,24 +7,18 @@ import simple.chatgpt.util.PagedResult;
 
 public interface RoleGroupManagementService {
 
-    // 🔎 LIST / SEARCH
-    PagedResult<RoleGroupManagementPojo> searchRoleGroups(Map<String, String> params);
+    // 🔎 SEARCH / PAGINATION
+    PagedResult<RoleGroupManagementPojo> searchRoleGroups(Map<String, Object> params);
 
     // 📖 READ
-    RoleGroupManagementPojo getRoleGroupById(Long id);
-
-    RoleGroupManagementPojo getByGroupName(String groupName);
+    RoleGroupManagementPojo getRoleGroup(Map<String, Object> params); // params: roleGroupId or groupName
 
     // ➕ CREATE
-    RoleGroupManagementPojo createRoleGroup(RoleGroupManagementPojo group);
+    RoleGroupManagementPojo createRoleGroup(Map<String, Object> params); // params: group
 
     // ✏️ UPDATE
-    RoleGroupManagementPojo updateRoleGroupById(Long id, RoleGroupManagementPojo group);
-
-    RoleGroupManagementPojo updateRoleGroupByName(String groupName, RoleGroupManagementPojo group);
+    RoleGroupManagementPojo updateRoleGroup(Map<String, Object> params); // params: roleGroupId or groupName, group
 
     // 🗑 DELETE
-    void deleteRoleGroupById(Long id);
-
-    void deleteRoleGroupByName(String groupName);
+    void deleteRoleGroup(Map<String, Object> params); // params: roleGroupId or groupName
 }
