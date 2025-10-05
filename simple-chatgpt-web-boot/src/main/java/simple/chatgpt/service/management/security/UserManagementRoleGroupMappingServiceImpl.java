@@ -1,6 +1,7 @@
 package simple.chatgpt.service.management.security;
 
 import java.util.List;
+import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -40,56 +41,49 @@ public class UserManagementRoleGroupMappingServiceImpl implements UserManagement
     }
 
     @Override
-    public List<UserManagementRoleGroupMappingPojo> findByUserId(Long userId) {
+    public List<UserManagementRoleGroupMappingPojo> findByUserId(Map<String, Object> params) {
+        Long userId = (Long) params.get("userId");
         logger.debug("findByUserId called, userId={}", userId);
-        return userRoleGroupMappingCache.get(userId, k -> mappingMapper.findByUserId(k));
+
+        return userRoleGroupMappingCache.get(userId, k -> mappingMapper.findByUserId(Map.of("params", Map.of("userId", k))));
     }
 
     @Override
-    public List<UserManagementRoleGroupMappingPojo> findByRoleGroupId(Long roleGroupId) {
+    public List<UserManagementRoleGroupMappingPojo> findByRoleGroupId(Map<String, Object> params) {
+        Long roleGroupId = (Long) params.get("roleGroupId");
         logger.debug("findByRoleGroupId called, roleGroupId={}", roleGroupId);
-        return mappingMapper.findByRoleGroupId(roleGroupId);
+
+        return mappingMapper.findByRoleGroupId(Map.of("params", Map.of("roleGroupId", roleGroupId)));
     }
 
     @Override
-    public UserManagementRoleGroupMappingPojo addUserToRoleGroup(UserManagementRoleGroupMappingPojo mapping) {
+    public UserManagementRoleGroupMappingPojo addUserToRoleGroup(Map<String, Object> params) {
+        UserManagementRoleGroupMappingPojo mapping = (UserManagementRoleGroupMappingPojo) params.get("mapping");
         logger.debug("addUserToRoleGroup called, mapping={}", mapping);
-        mappingMapper.insertUserRoleGroup(mapping);
+
+        mappingMapper.insertUserRoleGroup(Map.of("params", Map.of("mapping", mapping)));
         userRoleGroupMappingCache.invalidate(mapping.getUserId());
         logger.debug("Inserted mapping and invalidated cache for userId={}", mapping.getUserId());
+
         return mapping;
     }
 
     @Override
-    public void removeMappingById(Long id) {
+    public void removeMappingById(Map<String, Object> params) {
+        Long id = (Long) params.get("id");
         logger.debug("removeMappingById called, id={}", id);
-        mappingMapper.deleteUserRoleGroupById(id);
-        // cache invalidation handled if needed outside
+
+        mappingMapper.deleteUserRoleGroupById(Map.of("params", Map.of("id", id)));
     }
 
     @Override
-    public void removeMappingByUserAndGroup(Long userId, Long roleGroupId) {
+    public void removeMappingByUserAndGroup(Map<String, Object> params) {
+        Long userId = (Long) params.get("userId");
+        Long roleGroupId = (Long) params.get("roleGroupId");
         logger.debug("removeMappingByUserAndGroup called, userId={} roleGroupId={}", userId, roleGroupId);
-        mappingMapper.deleteUserRoleGroupByUserAndGroup(userId, roleGroupId);
+
+        mappingMapper.deleteUserRoleGroupByUserAndGroup(Map.of("params", Map.of("userId", userId, "roleGroupId", roleGroupId)));
         userRoleGroupMappingCache.invalidate(userId);
         logger.debug("Deleted mapping and invalidated cache for userId={}", userId);
-    }
-
-    // Additional helper for PageRoleGroupManagementServiceImpl initialization
-    public void addUserRoleGroupMappingIfNotExists(Long roleGroupId, Long pageRoleGroupId) {
-        logger.debug("addUserRoleGroupMappingIfNotExists called, roleGroupId={} pageRoleGroupId={}", roleGroupId, pageRoleGroupId);
-
-        boolean exists = mappingMapper.findByRoleGroupId(roleGroupId).stream()
-                .anyMatch(m -> pageRoleGroupId.equals(m.getPageRoleGroupId()));
-
-        if (!exists) {
-            UserManagementRoleGroupMappingPojo mapping = new UserManagementRoleGroupMappingPojo();
-            mapping.setRoleGroupId(roleGroupId);
-            mapping.setPageRoleGroupId(pageRoleGroupId);
-            addUserToRoleGroup(mapping);
-            logger.debug("Inserted new user-role group mapping: roleGroupId={} pageRoleGroupId={}", roleGroupId, pageRoleGroupId);
-        } else {
-            logger.debug("Mapping already exists, skipping insert: roleGroupId={} pageRoleGroupId={}", roleGroupId, pageRoleGroupId);
-        }
     }
 }

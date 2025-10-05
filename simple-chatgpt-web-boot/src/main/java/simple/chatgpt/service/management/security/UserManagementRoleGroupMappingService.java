@@ -1,23 +1,21 @@
 package simple.chatgpt.service.management.security;
 
 import java.util.List;
+import java.util.Map;
 
 import simple.chatgpt.pojo.management.security.UserManagementRoleGroupMappingPojo;
 
 public interface UserManagementRoleGroupMappingService {
 
-    // 🔎 LIST / SEARCH
     List<UserManagementRoleGroupMappingPojo> findAll();
 
-    List<UserManagementRoleGroupMappingPojo> findByUserId(Long userId);
+    List<UserManagementRoleGroupMappingPojo> findByUserId(Map<String, Object> params);
 
-    List<UserManagementRoleGroupMappingPojo> findByRoleGroupId(Long roleGroupId);
+    List<UserManagementRoleGroupMappingPojo> findByRoleGroupId(Map<String, Object> params);
 
-    // ➕ CREATE
-    UserManagementRoleGroupMappingPojo addUserToRoleGroup(UserManagementRoleGroupMappingPojo mapping);
+    UserManagementRoleGroupMappingPojo addUserToRoleGroup(Map<String, Object> params);
 
-    // 🗑 DELETE
-    void removeMappingById(Long id);
+    void removeMappingById(Map<String, Object> params);
 
-    void removeMappingByUserAndGroup(Long userId, Long roleGroupId);
+    void removeMappingByUserAndGroup(Map<String, Object> params);
 }
