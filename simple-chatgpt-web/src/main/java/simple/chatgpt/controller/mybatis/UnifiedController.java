@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import simple.chatgpt.config.mybatis.ConfigLoader;
+import simple.chatgpt.config.mybatis.loader.ConfigLoader;
 import simple.chatgpt.pojo.mybatis.MyBatisProperty;
 import simple.chatgpt.pojo.mybatis.MyBatisUserUser;
 import simple.chatgpt.service.mybatis.MyBatisUserService;

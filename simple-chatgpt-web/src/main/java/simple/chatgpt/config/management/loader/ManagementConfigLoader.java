@@ -1,4 +1,4 @@
-package simple.chatgpt.config.management;
+package simple.chatgpt.config.management.loader;
 
 import java.io.InputStream;
 import java.util.ArrayList;

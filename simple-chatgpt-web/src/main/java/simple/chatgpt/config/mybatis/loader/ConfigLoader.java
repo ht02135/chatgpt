@@ -1,4 +1,4 @@
-package simple.chatgpt.config.mybatis;
+package simple.chatgpt.config.mybatis.loader;
 
 import java.io.InputStream;
 import java.util.ArrayList;

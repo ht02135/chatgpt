@@ -16,7 +16,7 @@ import simple.chatgpt.config.FormConfig;
 import simple.chatgpt.config.GridConfig;
 import simple.chatgpt.config.RegexConfig;
 import simple.chatgpt.config.ValidatorGroupConfig;
-import simple.chatgpt.config.management.ManagementConfigLoader;
+import simple.chatgpt.config.management.loader.ManagementConfigLoader;
 import simple.chatgpt.util.Response;
 
 @Controller
