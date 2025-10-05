@@ -1,30 +1,23 @@
 package simple.chatgpt.service.management.security;
 
 import java.util.Map;
-
 import simple.chatgpt.pojo.management.security.RoleManagementPojo;
 import simple.chatgpt.util.PagedResult;
 
 public interface RoleManagementService {
 
-    // 🔎 LIST / SEARCH
-    PagedResult<RoleManagementPojo> searchRoles(Map<String, String> params);
+    // ------------------ SEARCH / PAGINATION ------------------
+    PagedResult<RoleManagementPojo> searchRoles(Map<String, Object> params);
 
-    // 📖 READ
-    RoleManagementPojo getRoleById(Long id);
+    // ------------------ READ ------------------
+    RoleManagementPojo getRole(Map<String, Object> params); // params should include "roleId" or "roleName"
 
-    RoleManagementPojo getByRoleName(String roleName);
+    // ------------------ CREATE ------------------
+    RoleManagementPojo createRole(Map<String, Object> params); // params should include "role"
 
-    // ➕ CREATE
-    RoleManagementPojo createRole(RoleManagementPojo role);
+    // ------------------ UPDATE ------------------
+    RoleManagementPojo updateRole(Map<String, Object> params); // params should include "roleId" or "roleName", and "role"
 
-    // ✏️ UPDATE
-    RoleManagementPojo updateRoleById(Long id, RoleManagementPojo role);
-
-    RoleManagementPojo updateRoleByRoleName(String roleName, RoleManagementPojo role);
-
-    // 🗑 DELETE
-    void deleteRoleById(Long id);
-
-    void deleteRoleByRoleName(String roleName);
+    // ------------------ DELETE ------------------
+    void deleteRole(Map<String, Object> params); // params should include "roleId" or "roleName"
 }

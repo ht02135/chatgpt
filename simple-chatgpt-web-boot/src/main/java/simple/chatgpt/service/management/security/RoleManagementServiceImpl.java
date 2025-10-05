@@ -69,20 +69,19 @@ public class RoleManagementServiceImpl implements RoleManagementService {
             String description = roleConfig.getDescription();
             logger.debug("Processing roleConfig name={} description={}", roleName, description);
 
-            RoleManagementPojo existing = getRoleByName(roleName);
+            RoleManagementPojo existing = getRole(Map.of("roleName", roleName));
 
             RoleManagementPojo rolePojo = new RoleManagementPojo();
             rolePojo.setRoleName(roleName);
             rolePojo.setDescription(description);
 
             if (existing == null) {
-                mapper.insertRole(rolePojo);
+                mapper.insertRole(Map.of("params", Map.of("role", rolePojo)));
                 logger.debug("initializeDB inserted role id={} roleName={}", rolePojo.getId(), roleName);
             } else {
-            	logger.debug("initializeDB role already exists, skipping id={} roleName={}", existing.getId(), roleName);
+                logger.debug("initializeDB role already exists, skipping id={} roleName={}", existing.getId(), roleName);
             }
 
-            // Cache the role
             roleCache.put(rolePojo.getId(), rolePojo);
             idToNameCache.put(roleName, rolePojo.getId());
             logger.debug("initializeDB cached role id={} roleName={}", rolePojo.getId(), roleName);
@@ -92,45 +91,61 @@ public class RoleManagementServiceImpl implements RoleManagementService {
     }
 
     @Override
-    public PagedResult<RoleManagementPojo> searchRoles(Map<String, String> params) {
+    public PagedResult<RoleManagementPojo> searchRoles(Map<String, Object> params) {
         logger.debug("searchRoles called");
         logger.debug("searchRoles params={}", params);
 
-        List<RoleManagementPojo> items = mapper.searchRoles(params);
-        int totalCount = mapper.countRoles(params);
+        int page = params.get("page") != null ? (int) params.get("page") : 1;
+        int size = params.get("size") != null ? (int) params.get("size") : 20;
+        int offset = (page - 1) * size;
+
+        params.put("offset", offset);
+        params.put("limit", size);
+
+        List<RoleManagementPojo> items = mapper.searchRoles(Map.of("params", params));
+        long totalCount = mapper.countRoles(Map.of("params", params));
 
         logger.debug("searchRoles results size={}", items.size());
-        return new PagedResult<>(items, totalCount, 
-                                 params.containsKey("page") ? Integer.parseInt(params.get("page")) : 1,
-                                 params.containsKey("size") ? Integer.parseInt(params.get("size")) : items.size());
+        logger.debug("searchRoles totalCount={}", totalCount);
+
+        return new PagedResult<>(items, totalCount, page, size);
     }
 
     @Override
-    public RoleManagementPojo getRoleById(Long id) {
-        logger.debug("getRoleById called");
-        logger.debug("getRoleById id={}", id);
+    public RoleManagementPojo getRole(Map<String, Object> params) {
+        logger.debug("getRole called");
+        logger.debug("getRole params={}", params);
 
-        RoleManagementPojo cached = roleCache.get(id, k -> {
-            RoleManagementPojo dbRole = mapper.findRoleById(k);
+        Long roleId = (Long) params.get("roleId");
+        String roleName = (String) params.get("roleName");
+
+        if (roleId != null) {
+            return getRoleById(roleId);
+        } else if (roleName != null) {
+            return getRoleByName(Map.of("roleName", roleName));
+        }
+        return null;
+    }
+
+    private RoleManagementPojo getRoleById(Long id) {
+        logger.debug("getRoleById called id={}", id);
+
+        return roleCache.get(id, k -> {
+            RoleManagementPojo dbRole = mapper.findRoleById(Map.of("params", Map.of("roleId", k)));
             if (dbRole != null) {
                 idToNameCache.put(dbRole.getRoleName(), dbRole.getId());
                 logger.debug("getRoleById loaded from DB and cached id={} roleName={}", dbRole.getId(), dbRole.getRoleName());
             }
             return dbRole;
         });
-
-        if (cached != null) {
-            logger.debug("getRoleById returning role from cache id={}", id);
-        }
-        return cached;
     }
 
-    public RoleManagementPojo getRoleByName(String roleName) {
-        logger.debug("getRoleByName called");
-        logger.debug("getRoleByName roleName={}", roleName);
+    private RoleManagementPojo getRoleByName(Map<String, Object> params) {
+        String roleName = (String) params.get("roleName");
+        logger.debug("getRoleByName called roleName={}", roleName);
 
         Long id = idToNameCache.get(roleName, k -> {
-            RoleManagementPojo dbRole = mapper.findRoleByName(k);
+            RoleManagementPojo dbRole = mapper.findRoleByName(Map.of("params", Map.of("roleName", k)));
             if (dbRole != null) {
                 roleCache.put(dbRole.getId(), dbRole);
                 logger.debug("getRoleByName loaded from DB and cached roleName={} id={}", k, dbRole.getId());
@@ -139,21 +154,16 @@ public class RoleManagementServiceImpl implements RoleManagementService {
             return null;
         });
 
-        RoleManagementPojo cached = roleCache.get(id, k -> null);
-        if (cached != null) {
-            logger.debug("getRoleByName returning role from roleCache id={}", id);
-            return cached;
-        }
-
-        return null;
+        return roleCache.get(id, k -> null);
     }
 
     @Override
-    public RoleManagementPojo createRole(RoleManagementPojo role) {
-        logger.debug("createRole called");
-        logger.debug("createRole role={}", role);
+    public RoleManagementPojo createRole(Map<String, Object> params) {
+        logger.debug("createRole called params={}", params);
 
-        mapper.insertRole(role);
+        RoleManagementPojo role = (RoleManagementPojo) params.get("role");
+
+        mapper.insertRole(Map.of("params", Map.of("role", role)));
         logger.debug("createRole inserted role id={}", role.getId());
 
         roleCache.put(role.getId(), role);
@@ -164,67 +174,44 @@ public class RoleManagementServiceImpl implements RoleManagementService {
     }
 
     @Override
-    public RoleManagementPojo updateRoleById(Long id, RoleManagementPojo role) {
-        logger.debug("updateRoleById called");
-        logger.debug("updateRoleById id={}", id);
-        logger.debug("updateRoleById role={}", role);
+    public RoleManagementPojo updateRole(Map<String, Object> params) {
+        logger.debug("updateRole called params={}", params);
 
-        RoleManagementPojo existing = getRoleById(id);
+        RoleManagementPojo role = (RoleManagementPojo) params.get("role");
+
+        RoleManagementPojo existing = getRole(params);
         if (existing == null) {
-            logger.debug("updateRoleById no existing record id={}", id);
+            logger.debug("updateRole no existing record params={}", params);
             return null;
         }
 
-        role.setId(id);
-        mapper.updateRole(role);
-        logger.debug("updateRoleById updated DB id={}", id);
+        role.setId(existing.getId());
+        mapper.updateRole(Map.of("params", Map.of("role", role)));
+        logger.debug("updateRole updated DB id={}", existing.getId());
 
-        roleCache.put(id, role);
-        idToNameCache.put(role.getRoleName(), id);
-        logger.debug("updateRoleById updated cache id={} roleName={}", id, role.getRoleName());
+        roleCache.put(existing.getId(), role);
+        idToNameCache.put(role.getRoleName(), existing.getId());
+        logger.debug("updateRole updated cache id={} roleName={}", existing.getId(), role.getRoleName());
 
         return role;
     }
 
     @Override
-    public void deleteRoleById(Long id) {
-        logger.debug("deleteRoleById called");
-        logger.debug("deleteRoleById id={}", id);
+    public void deleteRole(Map<String, Object> params) {
+        logger.debug("deleteRole called params={}", params);
 
-        RoleManagementPojo existing = getRoleById(id);
+        RoleManagementPojo existing = getRole(params);
         if (existing != null) {
             idToNameCache.invalidate(existing.getRoleName());
-            roleCache.invalidate(id);
-            logger.debug("deleteRoleById removed from cache id={} roleName={}", id, existing.getRoleName());
-        }
-
-        mapper.deleteRoleById(id);
-        logger.debug("deleteRoleById deleted from DB id={}", id);
-    }
-
-    @Override
-    public RoleManagementPojo getByRoleName(String roleName) {
-        return getRoleByName(roleName);
-    }
-
-    @Override
-    public RoleManagementPojo updateRoleByRoleName(String roleName, RoleManagementPojo role) {
-        RoleManagementPojo existing = getRoleByName(roleName);
-        if (existing == null) {
-            logger.debug("updateRoleByRoleName no existing role roleName={}", roleName);
-            return null;
-        }
-        return updateRoleById(existing.getId(), role);
-    }
-
-    @Override
-    public void deleteRoleByRoleName(String roleName) {
-        RoleManagementPojo existing = getRoleByName(roleName);
-        if (existing != null) {
-            idToNameCache.invalidate(roleName);
             roleCache.invalidate(existing.getId());
-            mapper.deleteRoleByName(roleName);
-            logger.debug("deleteRoleByRoleName deleted roleName={} id={}", roleName, existing.getId());
+
+            if (params.containsKey("roleId")) {
+                mapper.deleteRoleById(Map.of("params", Map.of("roleId", existing.getId())));
+            } else if (params.containsKey("roleName")) {
+                mapper.deleteRoleByName(Map.of("params", Map.of("roleName", existing.getRoleName())));
+            }
+
+            logger.debug("deleteRole deleted role id={} roleName={}", existing.getId(), existing.getRoleName());
         }
     }
 }
