@@ -603,4 +603,149 @@
 			editable="false" />
 	</form>
 
+	<!-- ========================= -->
+	<!-- User Role Group Management -->
+	<!-- ========================= -->
+
+	<actions id="search-user-role-group-actions">
+		<action name="Create" label="Create" visible="true"
+			jsMethod="addUserRoleGroup" />
+		<action name="Search" label="Search" visible="true"
+			jsMethod="searchUserRoleGroups" />
+		<action name="Reset" label="Reset" visible="true"
+			jsMethod="resetUserRoleGroupSearch" />
+	</actions>
+
+	<form id="searchUserRoleGroup">
+		<field name="userId" label="User" type="select"
+			source="user_management" visible="true" />
+		<field name="roleGroupId" label="Role Group" type="select"
+			source="role_group_management" visible="true" />
+	</form>
+
+	<actions id="user-role-group-actions">
+		<action name="Edit" label="Edit" visible="true"
+			jsMethod="editUserRoleGroup" />
+		<action name="Delete" label="Delete" visible="true"
+			jsMethod="deleteUserRoleGroup" />
+	</actions>
+
+	<grid id="userRoleGroups">
+		<column name="id" label="ID" visible="true" sortable="true"
+			dbField="id" />
+		<column name="userName" label="User" visible="true"
+			sortable="true" dbField="user_id" />
+		<column name="roleGroupName" label="Role Group" visible="true"
+			sortable="true" dbField="role_group_id" />
+		<column name="createdAt" label="Created At" visible="true"
+			sortable="true" dbField="created_at" />
+		<column name="updatedAt" label="Updated At" visible="false"
+			sortable="true" dbField="updated_at" />
+		<column name="actions" label="Actions"
+			actions="user-role-group-actions" visible="true" sortable="false" />
+	</grid>
+
+	<actions id="user-role-group-form-actions">
+		<action name="Save" label="Save" visible="true"
+			jsMethod="saveUserRoleGroup" />
+		<action name="Cancel" label="Cancel" visible="true"
+			jsMethod="navigateToUserRoleGroups" />
+	</actions>
+
+	<form id="addUserRoleGroup">
+		<field name="userId" label="User" type="select"
+			source="user_management" visible="true" required="true"
+			editable="true" />
+		<field name="roleGroupId" label="Role Group" type="select"
+			source="role_group_management" visible="true" required="true"
+			editable="true" />
+	</form>
+
+	<form id="editUserRoleGroup">
+		<field name="id" label="ID" visible="true" editable="false" />
+		<field name="userId" label="User" type="select"
+			source="user_management" visible="true" required="true"
+			editable="true" />
+		<field name="roleGroupId" label="Role Group" type="select"
+			source="role_group_management" visible="true" required="true"
+			editable="true" />
+		<field name="createdAt" label="Created At" visible="true"
+			editable="false" />
+		<field name="updatedAt" label="Updated At" visible="true"
+			editable="false" />
+	</form>
+
+	<!-- ========================= -->
+	<!-- Role Group Role Management -->
+	<!-- ========================= -->
+
+	<actions id="search-role-group-role-actions">
+		<action name="Create" label="Create" visible="true"
+			jsMethod="addRoleToGroup" />
+		<action name="Search" label="Search" visible="true"
+			jsMethod="searchRoleGroupRoles" />
+		<action name="Reset" label="Reset" visible="true"
+			jsMethod="resetRoleGroupRoleSearch" />
+	</actions>
+
+	<form id="searchRoleGroupRole">
+		<field name="roleGroupId" label="Role Group" type="select"
+			source="role_group_management" visible="true" />
+		<field name="roleId" label="Role" type="select"
+			source="role_management" visible="true" />
+	</form>
+
+	<actions id="role-group-role-actions">
+		<action name="Edit" label="Edit" visible="true"
+			jsMethod="editRoleGroupRole" />
+		<action name="Delete" label="Delete" visible="true"
+			jsMethod="deleteRoleGroupRole" />
+	</actions>
+
+	<grid id="roleGroupRoles">
+		<column name="id" label="ID" visible="true" sortable="true"
+			dbField="id" />
+		<column name="roleGroupName" label="Role Group" visible="true"
+			sortable="true" dbField="role_group_id" />
+		<column name="roleName" label="Role" visible="true"
+			sortable="true" dbField="role_id" />
+		<column name="createdAt" label="Created At" visible="true"
+			sortable="true" dbField="created_at" />
+		<column name="updatedAt" label="Updated At" visible="false"
+			sortable="true" dbField="updated_at" />
+		<column name="actions" label="Actions"
+			actions="role-group-role-actions" visible="true" sortable="false" />
+	</grid>
+
+	<actions id="role-group-role-form-actions">
+		<action name="Save" label="Save" visible="true"
+			jsMethod="saveRoleGroupRole" />
+		<action name="Cancel" label="Cancel" visible="true"
+			jsMethod="navigateToRoleGroupRoles" />
+	</actions>
+
+	<form id="addRoleGroupRole">
+		<field name="roleGroupId" label="Role Group" type="select"
+			source="role_group_management" visible="true" required="true"
+			editable="true" />
+		<field name="roleId" label="Role" type="select"
+			source="role_management" visible="true" required="true"
+			editable="true" />
+	</form>
+
+	<form id="editRoleGroupRole">
+		<field name="id" label="ID" visible="true" editable="false" />
+		<field name="roleGroupId" label="Role Group" type="select"
+			source="role_group_management" visible="true" required="true"
+			editable="true" />
+		<field name="roleId" label="Role" type="select"
+			source="role_management" visible="true" required="true"
+			editable="true" />
+		<field name="createdAt" label="Created At" visible="true"
+			editable="false" />
+		<field name="updatedAt" label="Updated At" visible="true"
+			editable="false" />
+	</form>
+
+
 </config>
