@@ -1,4 +1,4 @@
-package simple.chatgpt.upload.management.loader;
+package simple.chatgpt.config.management.loader;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -22,36 +22,37 @@ import simple.chatgpt.service.management.PropertyManagementService;
 import simple.chatgpt.util.PropertyKey;
 
 @Component
-public class UploadConfigLoader {
+public class DownloadConfigLoader {
 
-    private static final Logger logger = LogManager.getLogger(UploadConfigLoader.class);
+    private static final Logger logger = LogManager.getLogger(DownloadConfigLoader.class);
 
     private final PropertyManagementService propertyService;
     private final Map<String, List<ColumnConfig>> gridConfigs = new HashMap<>();
 
-    private static final String DEFAULT_CONFIG_FILE = "/config/management/upload-config.xml";
+    // Default fallback config
+    private static final String DEFAULT_CONFIG_FILE = "/config/management/download-config.xml";
 
-    public UploadConfigLoader(PropertyManagementService propertyService) {
+    public DownloadConfigLoader(PropertyManagementService propertyService) {
         this.propertyService = propertyService;
     }
 
     @PostConstruct
     private void init() {
     	
-        logger.debug("init called #############");
+    	logger.debug("init called #############");
         String configFilePath = DEFAULT_CONFIG_FILE;
         try {
-            configFilePath = propertyService.getString(PropertyKey.UPLOAD_CONFIG_RELATIVE_PATH);
-            logger.debug("UploadConfigLoader: Loaded property UPLOAD_CONFIG_RELATIVE_PATH={}", configFilePath);
+            configFilePath = propertyService.getString(PropertyKey.DOWNLOAD_CONFIG_RELATIVE_PATH);
+            logger.debug("DownloadConfigLoader: Loaded property DOWNLOAD_CONFIG_RELATIVE_PATH={}", configFilePath);
         } catch (Exception e) {
-            logger.error("UploadConfigLoader: Failed to fetch UPLOAD_CONFIG_RELATIVE_PATH, using default {}", configFilePath, e);
+            logger.error("DownloadConfigLoader: Failed to fetch DOWNLOAD_CONFIG_RELATIVE_PATH, using default {}", configFilePath, e);
         }
         logger.debug("init: configFilePath={}", configFilePath);
         logger.debug("init called #############");
 
-        try (InputStream inputStream = UploadConfigLoader.class.getResourceAsStream(configFilePath)) {
+        try (InputStream inputStream = DownloadConfigLoader.class.getResourceAsStream(configFilePath)) {
             if (inputStream == null) {
-                throw new RuntimeException("Could not find upload config: " + configFilePath);
+                throw new RuntimeException("Could not find download config: " + configFilePath);
             }
 
             Document document = DocumentBuilderFactory.newInstance()
@@ -71,25 +72,22 @@ public class UploadConfigLoader {
                     Element col = (Element) colNodes.item(j);
 
                     String name = col.getAttribute("name");
-                    String dbField = col.hasAttribute("dbField") ? col.getAttribute("dbField") : null;
+                    String dbField = col.getAttribute("dbField");
                     String label = col.hasAttribute("label") ? col.getAttribute("label") : name;
-
+                    boolean visible = Boolean.parseBoolean(col.getAttribute("visible"));
                     String indexAttr = col.getAttribute("index");
+
                     int idx = -1;
                     if (indexAttr != null && !indexAttr.isEmpty()) {
                         try { idx = Integer.parseInt(indexAttr); }
                         catch (NumberFormatException nfe) {
-                            logger.warn("Invalid index '{}' for column '{}' in grid '{}', using -1", indexAttr, name, gridId);
+                            logger.warn("Invalid index '{}' for column '{}' in grid '{}', treating as no-index",
+                                    indexAttr, name, gridId);
+                            idx = -1;
                         }
                     }
 
-                    ColumnConfig cfg = new ColumnConfig(name, label, true, false, dbField, null, idx);
-
-                    // Log upload-specific attributes
-                    String requiredAttr = col.getAttribute("required");
-                    String regexAttr = col.getAttribute("regex");
-                    logger.debug("Loaded column for upload grid '{}': name={}, dbField={}, index={}, required={}, regex={}",
-                            gridId, name, dbField, idx, requiredAttr, regexAttr);
+                    ColumnConfig cfg = new ColumnConfig(name, label, visible, true, dbField, null, idx);
 
                     if (idx >= 0) {
                         while (indexed.size() <= idx) indexed.add(null);
@@ -97,6 +95,8 @@ public class UploadConfigLoader {
                     } else {
                         noIndex.add(cfg);
                     }
+
+                    logger.debug("Loaded column for grid '{}': name={}, label={}, index={}", gridId, name, label, idx);
                 }
 
                 List<ColumnConfig> finalColumns = new ArrayList<>();
@@ -104,18 +104,17 @@ public class UploadConfigLoader {
                 finalColumns.addAll(noIndex);
 
                 gridConfigs.put(gridId, finalColumns);
-                logger.debug("Upload grid '{}' loaded with {} columns (indexed: {}, noIndex: {})",
-                        gridId, finalColumns.size(), indexed.size(), noIndex.size());
+                logger.debug("Grid '{}' loaded with {} columns", gridId, finalColumns.size());
             }
 
         } catch (Exception e) {
-            logger.error("Failed to load upload configuration from {}", configFilePath, e);
+            logger.error("Failed to load download configuration from {}", configFilePath, e);
             throw new RuntimeException(e);
         }
     }
 
     /**
-     * Get the column configuration for a given upload grid.
+     * Get the column configuration for a given grid.
      */
     public List<ColumnConfig> getColumns(String gridId) {
         return gridConfigs.getOrDefault(gridId, Collections.emptyList());

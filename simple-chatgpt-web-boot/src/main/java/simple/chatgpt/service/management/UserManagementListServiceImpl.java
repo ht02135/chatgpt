@@ -25,12 +25,12 @@ import com.opencsv.CSVReader;
 import com.opencsv.CSVWriter;
 
 import simple.chatgpt.config.management.ColumnConfig;
-import simple.chatgpt.download.management.loader.DownloadConfigLoader;
+import simple.chatgpt.config.management.loader.DownloadConfigLoader;
+import simple.chatgpt.config.management.loader.UploadConfigLoader;
 import simple.chatgpt.mapper.management.UserManagementListMapper;
 import simple.chatgpt.mapper.management.UserManagementListMemberMapper;
 import simple.chatgpt.pojo.management.UserManagementListMemberPojo;
 import simple.chatgpt.pojo.management.UserManagementListPojo;
-import simple.chatgpt.upload.management.loader.UploadConfigLoader;
 import simple.chatgpt.util.PagedResult;
 
 @Service

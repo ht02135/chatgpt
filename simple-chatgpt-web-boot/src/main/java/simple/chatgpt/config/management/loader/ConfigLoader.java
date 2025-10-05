@@ -1,4 +1,4 @@
-package simple.chatgpt.config.management;
+package simple.chatgpt.config.management.loader;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -9,6 +9,16 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
+
+import simple.chatgpt.config.management.ActionConfig;
+import simple.chatgpt.config.management.ActionGroupConfig;
+import simple.chatgpt.config.management.ColumnConfig;
+import simple.chatgpt.config.management.FieldConfig;
+import simple.chatgpt.config.management.FormConfig;
+import simple.chatgpt.config.management.GridConfig;
+import simple.chatgpt.config.management.RegexConfig;
+import simple.chatgpt.config.management.ValidatorConfig;
+import simple.chatgpt.config.management.ValidatorGroupConfig;
 
 public class ConfigLoader {
 

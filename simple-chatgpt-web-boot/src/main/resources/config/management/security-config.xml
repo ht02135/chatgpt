@@ -28,7 +28,7 @@
     <page-role-groups>
         <page-role-group url-pattern="/property/**" role-group="ADMIN_ROLE_GROUP"/>
         <page-role-group url-pattern="/user/**" role-group="USER_ROLE_GROUP"/>
-        <page-role-group url-pattern="/userList/.*" role-group="ADMIN_ROLE_GROUP"/>
+        <page-role-group url-pattern="/userList/**" role-group="ADMIN_ROLE_GROUP"/>
     </page-role-groups>
     
     <!-- 

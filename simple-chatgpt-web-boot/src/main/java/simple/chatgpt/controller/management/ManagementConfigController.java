@@ -14,9 +14,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import simple.chatgpt.config.management.ActionGroupConfig;
 import simple.chatgpt.config.management.FormConfig;
 import simple.chatgpt.config.management.GridConfig;
-import simple.chatgpt.config.management.ManagementConfigLoader;
 import simple.chatgpt.config.management.RegexConfig;
 import simple.chatgpt.config.management.ValidatorGroupConfig;
+import simple.chatgpt.config.management.loader.ManagementConfigLoader;
 import simple.chatgpt.util.Response;
 
 @Controller
