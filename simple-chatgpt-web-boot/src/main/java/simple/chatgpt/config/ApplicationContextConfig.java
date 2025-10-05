@@ -67,6 +67,38 @@ public class ApplicationContextConfig {
         logger.debug("propertyCache created with expireAfterMinutes={} maximumSize={}", 30L, 1000L);
         return cache;
     }
+    
+    @Bean
+    public GenericCache roleCache() {
+        logger.debug("roleCache called");
+        GenericCache cache = new GenericCache(30L, 1000L);
+        logger.debug("roleCache created with expireAfterMinutes={} maximumSize={}", 30L, 1000L);
+        return cache;
+    }
+
+    @Bean
+    public GenericCache roleGroupCache() {
+        logger.debug("roleGroupCache called");
+        GenericCache cache = new GenericCache(30L, 1000L);
+        logger.debug("roleGroupCache created with expireAfterMinutes={} maximumSize={}", 30L, 1000L);
+        return cache;
+    }
+
+    @Bean
+    public GenericCache pageRoleGroupCache() {
+        logger.debug("pageRoleGroupCache called");
+        GenericCache cache = new GenericCache(30L, 1000L);
+        logger.debug("pageRoleGroupCache created with expireAfterMinutes={} maximumSize={}", 30L, 1000L);
+        return cache;
+    }
+    
+    @Bean
+    public GenericCache idToNameCache() {
+        logger.debug("idToNameCache called");
+        GenericCache cache = new GenericCache(30L, 1000L);
+        logger.debug("idToNameCache created with expireAfterMinutes={} maximumSize={}", 30L, 1000L);
+        return cache;
+    }
 
     // FROM applicationContext.xml: dataSource bean
     @Bean
