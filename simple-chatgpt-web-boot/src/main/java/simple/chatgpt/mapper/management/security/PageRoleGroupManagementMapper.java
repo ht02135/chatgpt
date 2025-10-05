@@ -22,6 +22,7 @@ public interface PageRoleGroupManagementMapper {
 
     // ---------------- READ ----------------
     List<PageRoleGroupManagementPojo> findAllPageRoleGroups();
+    PageRoleGroupManagementPojo findById(@Param("params") Map<String, Object> params);
     PageRoleGroupManagementPojo findByUrlPattern(@Param("params") Map<String, Object> params);
     List<PageRoleGroupManagementPojo> findByRoleGroupId(@Param("params") Map<String, Object> params);
 

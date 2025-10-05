@@ -56,6 +56,15 @@
         FROM page_role_group_management
         ORDER BY created_at DESC
     </select>
+    
+	<!-- ----------------------
+    READ BY ID
+    ---------------------- -->
+	<select id="findById" parameterType="map" resultMap="PageRoleGroupManagementResultMap">
+    	SELECT id, url_pattern, role_group_id, created_at, updated_at
+    	FROM page_role_group_management
+    	WHERE id = #{params.id}
+	</select>
 
     <select id="findByUrlPattern" parameterType="map" resultMap="PageRoleGroupManagementResultMap">
         SELECT id, url_pattern, role_group_id, created_at, updated_at

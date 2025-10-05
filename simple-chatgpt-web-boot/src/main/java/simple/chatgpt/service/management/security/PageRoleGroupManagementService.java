@@ -9,23 +9,23 @@ import simple.chatgpt.util.PagedResult;
 public interface PageRoleGroupManagementService {
 
     // 🔎 LIST / SEARCH
-    PagedResult<PageRoleGroupManagementPojo> searchPageRoleGroups(Map<String, String> params);
+    PagedResult<PageRoleGroupManagementPojo> searchPageRoleGroups(Map<String, Object> params);
 
-    List<PageRoleGroupManagementPojo> findAll();
+    List<PageRoleGroupManagementPojo> findAll(Map<String, Object> params);
 
     // 📖 READ
-    PageRoleGroupManagementPojo getById(Long id);
+    PageRoleGroupManagementPojo getById(Map<String, Object> params);
 
-    PageRoleGroupManagementPojo getByUrlPattern(String urlPattern);
+    PageRoleGroupManagementPojo getByUrlPattern(Map<String, Object> params);
 
-    List<PageRoleGroupManagementPojo> getByRoleGroupId(Long roleGroupId);
+    List<PageRoleGroupManagementPojo> getByRoleGroupId(Map<String, Object> params);
 
     // ➕ CREATE
-    PageRoleGroupManagementPojo create(PageRoleGroupManagementPojo pageRoleGroup);
+    PageRoleGroupManagementPojo create(Map<String, Object> params);
 
     // ✏️ UPDATE
-    PageRoleGroupManagementPojo updateById(Long id, PageRoleGroupManagementPojo pageRoleGroup);
+    PageRoleGroupManagementPojo update(Map<String, Object> params);
 
     // 🗑 DELETE
-    void deleteById(Long id);
+    void delete(Map<String, Object> params);
 }
