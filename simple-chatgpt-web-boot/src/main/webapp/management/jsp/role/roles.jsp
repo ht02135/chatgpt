@@ -12,39 +12,44 @@
 <div id="rolesPage">
     <h1>Role Management</h1>
 
-    <customize-search-form 
-        params="searchConfig: RoleVM.searchConfig, 
-                searchParams: RoleVM.searchParams, 
-                errors: RoleVM.errors, 
-                searchObjects: RoleVM.searchObjects,
-                coreCount: 5">
-    </customize-search-form>
+    <!-- Search Form -->
+    <customize-search-form params="
+        searchConfig: RoleVM.searchConfig, 
+        searchParams: RoleVM.searchParams, 
+        errors: RoleVM.errors, 
+        searchObjects: RoleVM.searchRoles,
+        coreCount: 3
+    "></customize-search-form>
 
-    <customize-search-actions
-        params="actions: RoleVM.actionGroupMap['search-role-actions'],
-                invokeAction: RoleVM.invokeAction">
-    </customize-search-actions>
+    <!-- Search Actions -->
+    <customize-search-actions params="
+        actions: RoleVM.actionGroupMap['search-role-actions'],
+        invokeAction: RoleVM.invokeAction
+    "></customize-search-actions>
 
-    <customize-grid 
-        params="gridConfig: RoleVM.gridConfig, 
-                items: RoleVM.objects, 
-                sortField: RoleVM.sortField, 
-                sortOrder: RoleVM.sortOrder, 
-                setSort: RoleVM.setSort, 
-                getActionsForColumn: RoleVM.getActionsForColumn, 
-                invokeAction: RoleVM.invokeAction">
-    </customize-grid>
+    <!-- Grid -->
+    <customize-grid params="
+        gridConfig: RoleVM.gridConfig,
+        items: RoleVM.roles,
+        sortField: RoleVM.sortField,
+        sortOrder: RoleVM.sortOrder,
+        setSort: RoleVM.setSort,
+        getActionsForColumn: RoleVM.getActionsForColumn,
+        invokeAction: RoleVM.invokeAction
+    "></customize-grid>
 
-    <customize-grid-pagination 
-        params="page: RoleVM.page, 
-                maxPage: RoleVM.maxPage, 
-                prevPage: RoleVM.prevPage, 
-                nextPage: RoleVM.nextPage, 
-                size: RoleVM.size, 
-                total: RoleVM.total">
-    </customize-grid-pagination>
+    <!-- Pagination -->
+    <customize-grid-pagination params="
+        page: RoleVM.page,
+        maxPage: RoleVM.maxPage,
+        prevPage: RoleVM.prevPage,
+        nextPage: RoleVM.nextPage,
+        size: RoleVM.size,
+        total: RoleVM.total
+    "></customize-grid-pagination>
 </div>
 
+<!-- Initialization Script -->
 <script type="module">
 import { Role, RoleViewModel } from './role.js';
 import configLoader from "../../js/configLoader.js";
@@ -53,19 +58,27 @@ import Validator from "../../js/validation.js";
 (async function () {
     console.log("Initializing Roles page...");
 
+    // Load configs
     const gridConfig     = await configLoader.getGridConfig("roles");
     const searchConfig   = await configLoader.getFormConfig("searchRole");
     const actionGroupMap = await configLoader.getActionGroupMap();
 
+    // Initialize ViewModel
     window.RoleVM = new RoleViewModel(
         { mode: "list" },
         { grid: gridConfig, search: searchConfig, actionGroups: actionGroupMap }
     );
 
+    // Build Validator
     RoleVM.validator = await Validator.build(configLoader);
+
+    // Initialize observable for errors
     RoleVM.errors = ko.observable({});
 
+    // Apply Knockout bindings
     ko.applyBindings({ RoleVM });
+
+    // Initial load of Roles
     await RoleVM.loadRoles();
 })();
 </script>
