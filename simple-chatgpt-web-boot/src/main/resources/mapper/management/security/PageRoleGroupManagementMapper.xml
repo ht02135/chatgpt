@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="simple.chatgpt.mapper.management.security.PageRoleGroupManagementMapper">
+
+    <resultMap id="PageRoleGroupManagementResultMap" type="simple.chatgpt.pojo.management.PageRoleGroupManagementPojo">
+        <id property="id" column="id"/>
+        <result property="urlPattern" column="url_pattern"/>
+        <result property="roleGroupId" column="role_group_id"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
+    <!-- SELECT -->
+    <select id="findAllPageRoleGroups" resultMap="PageRoleGroupManagementResultMap">
+        SELECT * FROM page_role_group_management
+    </select>
+
+    <select id="findByUrlPattern" resultMap="PageRoleGroupManagementResultMap">
+        SELECT * FROM page_role_group_management WHERE url_pattern = #{urlPattern}
+    </select>
+
+    <select id="findByRoleGroupId" resultMap="PageRoleGroupManagementResultMap">
+        SELECT * FROM page_role_group_management WHERE role_group_id = #{roleGroupId}
+    </select>
+
+    <!-- INSERT -->
+    <insert id="insertPageRoleGroup" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO page_role_group_management (url_pattern, role_group_id)
+        VALUES (#{urlPattern}, #{roleGroupId})
+    </insert>
+
+    <!-- UPDATE -->
+    <update id="updatePageRoleGroup">
+        UPDATE page_role_group_management
+        <set>
+            <if test="urlPattern != null">url_pattern = #{urlPattern},</if>
+            <if test="roleGroupId != null">role_group_id = #{roleGroupId},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <!-- DELETE -->
+    <delete id="deletePageRoleGroupById">DELETE FROM page_role_group_management WHERE id = #{id}</delete>
+
+</mapper>

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<security-config>
+
+    <!-- ========================= -->
+    <!-- Base Roles -->
+    <!-- ========================= -->
+    <roles>
+        <role name="ADMIN_ROLE" description="Admin privileges"/>
+        <role name="USER_ROLE" description="Standard user privileges"/>
+    </roles>
+
+    <!-- ========================= -->
+    <!-- Role Groups -->
+    <!-- ========================= -->
+    <role-groups>
+        <role-group name="ADMIN_ROLE_GROUP">
+            <role-ref name="ADMIN_ROLE"/>
+        </role-group>
+
+        <role-group name="USER_ROLE_GROUP">
+            <role-ref name="USER_ROLE"/>
+        </role-group>
+    </role-groups>
+
+    <!-- ========================= -->
+    <!-- Page → Role Group mapping -->
+    <!-- ========================= -->
+    <page-role-groups>
+        <page-role-group url-pattern="/property/**" role-group="ADMIN_ROLE_GROUP"/>
+        <page-role-group url-pattern="/user/**" role-group="USER_ROLE_GROUP"/>
+        <page-role-group url-pattern="/userList/.*" role-group="ADMIN_ROLE_GROUP"/>
+    </page-role-groups>
+    
+    <!-- 
+    i will use above to load initial role, role-group, page-role-group into
+    db.  later i will add ui to manage more of them...
+    -->
+
+</security-config>

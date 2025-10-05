@@ -22,11 +22,6 @@
         <result property="state" column="state"/>
         <result property="postCode" column="post_code"/>
         <result property="country" column="country"/>
-        <result property="active" column="active"/>
-        <result property="locked" column="locked"/>
-        <result property="lastLoginIp" column="last_login_ip"/>
-        <result property="lastLoginAt" column="last_login_at"/>
-        <result property="jwtSecretVersion" column="jwt_secret_version"/>
         <result property="createdAt" column="created_at"/>
         <result property="updatedAt" column="updated_at"/>
     </resultMap>
@@ -67,12 +62,6 @@
             </if>
             <if test="country != null and country != ''">
                 AND country LIKE CONCAT('%', #{country}, '%')
-            </if>
-            <if test="active != null">
-                AND active = #{active}
-            </if>
-            <if test="locked != null">
-                AND locked = #{locked}
             </if>
         </where>
         <if test="sortField != null and sortDirection != null">
@@ -120,12 +109,6 @@
             <if test="country != null and country != ''">
                 AND country LIKE CONCAT('%', #{country}, '%')
             </if>
-            <if test="active != null">
-                AND active = #{active}
-            </if>
-            <if test="locked != null">
-                AND locked = #{locked}
-            </if>
         </where>
     </select>
 
@@ -146,12 +129,10 @@
     <insert id="insertUser" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO user_management
         (user_name, user_key, password, first_name, last_name, email, address_line_1,
-         address_line_2, city, state, post_code, country, active, locked, last_login_ip,
-         last_login_at, jwt_secret_version)
+         address_line_2, city, state, post_code, country)
         VALUES
         (#{userName}, #{userKey}, #{password}, #{firstName}, #{lastName}, #{email},
-         #{addressLine1}, #{addressLine2}, #{city}, #{state}, #{postCode}, #{country},
-         #{active}, #{locked}, #{lastLoginIp}, #{lastLoginAt}, #{jwtSecretVersion})
+         #{addressLine1}, #{addressLine2}, #{city}, #{state}, #{postCode}, #{country})
     </insert>
 
     <!-- ✏️ UPDATE -->
@@ -170,11 +151,6 @@
             <if test="state != null">state = #{state},</if>
             <if test="postCode != null">post_code = #{postCode},</if>
             <if test="country != null">country = #{country},</if>
-            <if test="active != null">active = #{active},</if>
-            <if test="locked != null">locked = #{locked},</if>
-            <if test="lastLoginIp != null">last_login_ip = #{lastLoginIp},</if>
-            <if test="lastLoginAt != null">last_login_at = #{lastLoginAt},</if>
-            <if test="jwtSecretVersion != null">jwt_secret_version = #{jwtSecretVersion},</if>
         </set>
         WHERE id = #{id}
     </update>
@@ -193,11 +169,6 @@
             <if test="state != null">state = #{state},</if>
             <if test="postCode != null">post_code = #{postCode},</if>
             <if test="country != null">country = #{country},</if>
-            <if test="active != null">active = #{active},</if>
-            <if test="locked != null">locked = #{locked},</if>
-            <if test="lastLoginIp != null">last_login_ip = #{lastLoginIp},</if>
-            <if test="lastLoginAt != null">last_login_at = #{lastLoginAt},</if>
-            <if test="jwtSecretVersion != null">jwt_secret_version = #{jwtSecretVersion},</if>
         </set>
         WHERE user_name = #{userName}
     </update>
@@ -216,11 +187,6 @@
             <if test="state != null">state = #{state},</if>
             <if test="postCode != null">post_code = #{postCode},</if>
             <if test="country != null">country = #{country},</if>
-            <if test="active != null">active = #{active},</if>
-            <if test="locked != null">locked = #{locked},</if>
-            <if test="lastLoginIp != null">last_login_ip = #{lastLoginIp},</if>
-            <if test="lastLoginAt != null">last_login_at = #{lastLoginAt},</if>
-            <if test="jwtSecretVersion != null">jwt_secret_version = #{jwtSecretVersion},</if>
         </set>
         WHERE user_key = #{userKey}
     </update>

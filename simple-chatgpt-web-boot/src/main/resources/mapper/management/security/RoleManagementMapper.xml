@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="simple.chatgpt.mapper.management.security.RoleManagementMapper">
+
+    <resultMap id="RoleManagementResultMap" type="simple.chatgpt.pojo.management.RoleManagementPojo">
+        <id property="id" column="id"/>
+        <result property="roleName" column="role_name"/>
+        <result property="description" column="description"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
+    <!-- SELECT -->
+    <select id="findAllRoles" resultMap="RoleManagementResultMap">
+        SELECT * FROM role_management
+    </select>
+
+    <select id="findRoleById" resultMap="RoleManagementResultMap">
+        SELECT * FROM role_management WHERE id = #{id}
+    </select>
+
+    <select id="findRoleByName" resultMap="RoleManagementResultMap">
+        SELECT * FROM role_management WHERE role_name = #{roleName}
+    </select>
+
+    <!-- INSERT -->
+    <insert id="insertRole" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO role_management (role_name, description)
+        VALUES (#{roleName}, #{description})
+    </insert>
+
+    <!-- UPDATE -->
+    <update id="updateRole">
+        UPDATE role_management
+        <set>
+            <if test="roleName != null">role_name = #{roleName},</if>
+            <if test="description != null">description = #{description},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <!-- DELETE -->
+    <delete id="deleteRoleById">DELETE FROM role_management WHERE id = #{id}</delete>
+    <delete id="deleteRoleByName">DELETE FROM role_management WHERE role_name = #{roleName}</delete>
+
+</mapper>
