@@ -11,30 +11,26 @@ import simple.chatgpt.pojo.management.security.RoleManagementPojo;
 @Mapper
 public interface RoleManagementMapper {
 
-    // 🔹 Fetch all roles
+    // ---------------- CREATE ----------------
+    int insertRole(@Param("params") Map<String, Object> params);
+
+    // ---------------- UPDATE ----------------
+    int updateRole(@Param("params") Map<String, Object> params);
+
+    // ---------------- DELETE ----------------
+    int deleteRoleById(@Param("params") Map<String, Object> params);
+    int deleteRoleByName(@Param("params") Map<String, Object> params);
+
+    // ---------------- READ ----------------
+    RoleManagementPojo findRoleById(@Param("params") Map<String, Object> params);
+    RoleManagementPojo findRoleByName(@Param("params") Map<String, Object> params);
+
     List<RoleManagementPojo> findAllRoles();
+    List<RoleManagementPojo> getAllRoles();
 
-    // 🔹 Fetch role by ID
-    RoleManagementPojo findRoleById(@Param("id") Long id);
+    // ---------------- SEARCH / PAGINATION ----------------
+    List<RoleManagementPojo> findRoles(@Param("params") Map<String, Object> params);
+    List<RoleManagementPojo> searchRoles(@Param("params") Map<String, Object> params);
 
-    // 🔹 Fetch role by roleName
-    RoleManagementPojo findRoleByName(@Param("roleName") String roleName);
-
-    // 🔹 Search roles with parameters
-    List<RoleManagementPojo> searchRoles(Map<String, String> params);
-
-    // 🔹 Count roles with parameters
-    int countRoles(Map<String, String> params);
-
-    // 🔹 Insert a new role
-    int insertRole(RoleManagementPojo role);
-
-    // 🔹 Update an existing role
-    int updateRole(RoleManagementPojo role);
-
-    // 🔹 Delete role by ID
-    int deleteRoleById(@Param("id") Long id);
-
-    // 🔹 Delete role by roleName
-    int deleteRoleByName(@Param("roleName") String roleName);
+    long countRoles(@Param("params") Map<String, Object> params);
 }

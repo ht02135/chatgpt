@@ -5,7 +5,10 @@
 
 <mapper namespace="simple.chatgpt.mapper.management.security.RoleGroupRoleMappingMapper">
 
-    <resultMap id="RoleGroupRoleMappingResultMap" type="simple.chatgpt.pojo.management.RoleGroupRoleMappingPojo">
+    <!-- =======================
+         RESULT MAP
+         ======================= -->
+    <resultMap id="RoleGroupRoleMappingResultMap" type="simple.chatgpt.pojo.management.security.RoleGroupRoleMappingPojo">
         <id property="id" column="id"/>
         <result property="roleGroupId" column="role_group_id"/>
         <result property="roleId" column="role_id"/>
@@ -13,30 +16,97 @@
         <result property="updatedAt" column="updated_at"/>
     </resultMap>
 
-    <!-- SELECT -->
-    <select id="findAllMappings" resultMap="RoleGroupRoleMappingResultMap">
-        SELECT * FROM role_group_role_mapping
-    </select>
-
-    <select id="findByRoleGroupId" resultMap="RoleGroupRoleMappingResultMap">
-        SELECT * FROM role_group_role_mapping WHERE role_group_id = #{roleGroupId}
-    </select>
-
-    <select id="findByRoleId" resultMap="RoleGroupRoleMappingResultMap">
-        SELECT * FROM role_group_role_mapping WHERE role_id = #{roleId}
-    </select>
-
-    <!-- INSERT -->
-    <insert id="insertMapping" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO role_group_role_mapping (role_group_id, role_id)
-        VALUES (#{roleGroupId}, #{roleId})
+    <!-- =======================
+         CREATE
+         ======================= -->
+    <insert id="insertMapping" parameterType="map" useGeneratedKeys="true" keyProperty="params.mapping.id">
+        INSERT INTO role_group_role_mapping (role_group_id, role_id, created_at, updated_at)
+        VALUES (#{params.mapping.roleGroupId}, #{params.mapping.roleId}, NOW(), NOW())
     </insert>
 
-    <!-- DELETE -->
-    <delete id="deleteMappingById">DELETE FROM role_group_role_mapping WHERE id = #{id}</delete>
-    <delete id="deleteMappingByGroupAndRole">
-        DELETE FROM role_group_role_mapping
-        WHERE role_group_id = #{roleGroupId} AND role_id = #{roleId}
+    <!-- =======================
+         DELETE
+         ======================= -->
+    <delete id="deleteMappingById" parameterType="map">
+        DELETE FROM role_group_role_mapping WHERE id = #{params.id}
     </delete>
+
+    <delete id="deleteMappingByGroupAndRole" parameterType="map">
+        DELETE FROM role_group_role_mapping
+        WHERE role_group_id = #{params.roleGroupId} AND role_id = #{params.roleId}
+    </delete>
+
+    <!-- =======================
+         READ
+         ======================= -->
+    <select id="findAllMappings" resultMap="RoleGroupRoleMappingResultMap">
+        SELECT id, role_group_id, role_id, created_at, updated_at
+        FROM role_group_role_mapping
+        ORDER BY created_at DESC
+    </select>
+
+    <select id="findByRoleGroupId" parameterType="map" resultMap="RoleGroupRoleMappingResultMap">
+        SELECT id, role_group_id, role_id, created_at, updated_at
+        FROM role_group_role_mapping
+        WHERE role_group_id = #{params.roleGroupId}
+        ORDER BY created_at DESC
+    </select>
+
+    <select id="findByRoleId" parameterType="map" resultMap="RoleGroupRoleMappingResultMap">
+        SELECT id, role_group_id, role_id, created_at, updated_at
+        FROM role_group_role_mapping
+        WHERE role_id = #{params.roleId}
+        ORDER BY created_at DESC
+    </select>
+
+    <!-- =======================
+         SQL FILTER FRAGMENT
+         ======================= -->
+    <sql id="RoleGroupRoleMappingFilter">
+        <where>
+            <if test="params.roleGroupId != null">
+                AND role_group_id = #{params.roleGroupId}
+            </if>
+            <if test="params.roleId != null">
+                AND role_id = #{params.roleId}
+            </if>
+        </where>
+    </sql>
+
+    <!-- =======================
+         SEARCH / PAGINATION
+         ======================= -->
+    <select id="findMappings" parameterType="map" resultMap="RoleGroupRoleMappingResultMap">
+        SELECT id, role_group_id, role_id, created_at, updated_at
+        FROM role_group_role_mapping
+        <include refid="RoleGroupRoleMappingFilter"/>
+        <if test="params.sortField != null and params.sortDirection != null">
+            ORDER BY ${params.sortField} ${params.sortDirection}
+        </if>
+        <if test="params.offset != null and params.limit != null">
+            LIMIT #{params.offset}, #{params.limit}
+        </if>
+    </select>
+
+    <select id="searchMappings" parameterType="map" resultMap="RoleGroupRoleMappingResultMap">
+        SELECT id, role_group_id, role_id, created_at, updated_at
+        FROM role_group_role_mapping
+        <include refid="RoleGroupRoleMappingFilter"/>
+        <if test="params.sortField != null and params.sortDirection != null">
+            ORDER BY ${params.sortField} ${params.sortDirection}
+        </if>
+        <if test="params.offset != null and params.limit != null">
+            LIMIT #{params.offset}, #{params.limit}
+        </if>
+    </select>
+
+    <!-- =======================
+         COUNT (FOR PAGINATION)
+         ======================= -->
+    <select id="countMappings" parameterType="map" resultType="long">
+        SELECT COUNT(*)
+        FROM role_group_role_mapping
+        <include refid="RoleGroupRoleMappingFilter"/>
+    </select>
 
 </mapper>
