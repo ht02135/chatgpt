@@ -1,4 +1,4 @@
-package simple.chatgpt.service.management;
+package simple.chatgpt.service.management.security;
 
 import java.util.Map;
 
