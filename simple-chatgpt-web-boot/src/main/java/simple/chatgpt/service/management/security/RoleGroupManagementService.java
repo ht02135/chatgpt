@@ -1,24 +1,33 @@
 package simple.chatgpt.service.management.security;
 
+import java.util.List;
 import java.util.Map;
 
 import simple.chatgpt.pojo.management.security.RoleGroupManagementPojo;
-import simple.chatgpt.util.PagedResult;
 
 public interface RoleGroupManagementService {
 
-    // 🔎 SEARCH / PAGINATION
-    PagedResult<RoleGroupManagementPojo> searchRoleGroups(Map<String, Object> params);
+    // ---------------- CREATE ----------------
+    int insertRoleGroup(Map<String, Object> params);
 
-    // 📖 READ
-    RoleGroupManagementPojo getRoleGroup(Map<String, Object> params); // params: roleGroupId or groupName
+    // ---------------- UPDATE ----------------
+    int updateRoleGroup(Map<String, Object> params);
 
-    // ➕ CREATE
-    RoleGroupManagementPojo createRoleGroup(Map<String, Object> params); // params: group
+    // ---------------- DELETE ----------------
+    int deleteRoleGroupById(Map<String, Object> params);
+    int deleteRoleGroupByName(Map<String, Object> params);
 
-    // ✏️ UPDATE
-    RoleGroupManagementPojo updateRoleGroup(Map<String, Object> params); // params: roleGroupId or groupName, group
+    // ---------------- READ ----------------
+    RoleGroupManagementPojo findRoleGroupById(Map<String, Object> params);
+    RoleGroupManagementPojo findRoleGroupByName(Map<String, Object> params);
 
-    // 🗑 DELETE
-    void deleteRoleGroup(Map<String, Object> params); // params: roleGroupId or groupName
+    List<RoleGroupManagementPojo> findAllRoleGroups();
+    List<RoleGroupManagementPojo> getAllRoleGroups();
+
+    // ---------------- SEARCH / PAGINATION ----------------
+    List<RoleGroupManagementPojo> findRoleGroups(Map<String, Object> params);
+    List<RoleGroupManagementPojo> searchRoleGroups(Map<String, Object> params);
+
+    // ---------------- COUNT ----------------
+    long countRoleGroups(Map<String, Object> params);
 }

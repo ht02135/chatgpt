@@ -12,25 +12,26 @@ import simple.chatgpt.pojo.management.security.RoleGroupManagementPojo;
 public interface RoleGroupManagementMapper {
 
     // ---------------- CREATE ----------------
-    int insertRoleGroup(@Param("params") Map<String, Object> params);
+    int insertRoleGroup(@Param("params") Map<String, Object> params); // matches <insert id="insertRoleGroup">
 
     // ---------------- UPDATE ----------------
-    int updateRoleGroup(@Param("params") Map<String, Object> params);
+    int updateRoleGroup(@Param("params") Map<String, Object> params); // matches <update id="updateRoleGroup">
 
     // ---------------- DELETE ----------------
-    int deleteRoleGroupById(@Param("params") Map<String, Object> params);
-    int deleteRoleGroupByName(@Param("params") Map<String, Object> params);
+    int deleteRoleGroupById(@Param("params") Map<String, Object> params);   // matches <delete id="deleteRoleGroupById">
+    int deleteRoleGroupByName(@Param("params") Map<String, Object> params); // matches <delete id="deleteRoleGroupByName">
 
     // ---------------- READ ----------------
-    RoleGroupManagementPojo findRoleGroupById(@Param("params") Map<String, Object> params);
-    RoleGroupManagementPojo findRoleGroupByName(@Param("params") Map<String, Object> params);
+    RoleGroupManagementPojo findRoleGroupById(@Param("params") Map<String, Object> params);   // matches <select id="findRoleGroupById">
+    RoleGroupManagementPojo findRoleGroupByName(@Param("params") Map<String, Object> params); // matches <select id="findRoleGroupByName">
 
-    List<RoleGroupManagementPojo> findAllRoleGroups();
-    List<RoleGroupManagementPojo> getAllRoleGroups();
+    List<RoleGroupManagementPojo> findAllRoleGroups(); // matches <select id="findAllRoleGroups">
+    List<RoleGroupManagementPojo> getAllRoleGroups();  // matches <select id="getAllRoleGroups">
 
     // ---------------- SEARCH / PAGINATION ----------------
-    List<RoleGroupManagementPojo> findRoleGroups(@Param("params") Map<String, Object> params);
-    List<RoleGroupManagementPojo> searchRoleGroups(@Param("params") Map<String, Object> params);
+    List<RoleGroupManagementPojo> findRoleGroups(@Param("params") Map<String, Object> params);   // matches <select id="findRoleGroups">
+    List<RoleGroupManagementPojo> searchRoleGroups(@Param("params") Map<String, Object> params); // matches <select id="searchRoleGroups">
 
-    long countRoleGroups(@Param("params") Map<String, Object> params);
+    // ---------------- COUNT ----------------
+    long countRoleGroups(@Param("params") Map<String, Object> params); // matches <select id="countRoleGroups">
 }
