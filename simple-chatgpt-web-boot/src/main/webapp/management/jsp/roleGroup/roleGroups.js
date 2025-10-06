@@ -80,7 +80,7 @@ function RoleGroupViewModel(params, config) {
         try {
             const qs = self.buildSearchQuery();
             console.log("roleGroups.js -> loadRoleGroups: qs=", qs);
-            const res = await fetch(`${API_ROLE_GROUP}/search?${qs}`, { headers: { 'Accept': 'application/json' } });
+            const res = await fetch(`${API_ROLE_GROUP}/searchRoleGroups?${qs}`, { headers: { 'Accept': 'application/json' } });
             const data = await res.json();
             console.log("roleGroups.js -> loadRoleGroups: response=", data);
 
@@ -170,9 +170,9 @@ function RoleGroupViewModel(params, config) {
 
         const payload = ko.toJS(self.currentRoleGroup());
         try {
-            let url = `${API_ROLE_GROUP}/insert`, method='POST';  // ✅ updated
+            let url = `${API_ROLE_GROUP}/insertRoleGroup`, method='POST';
             if (self.mode==='edit' && self.currentRoleGroup().id && self.currentRoleGroup().id()) {
-                url = `${API_ROLE_GROUP}/update?roleGroupId=${encodeURIComponent(self.currentRoleGroup().id())}`; // ✅ updated
+                url = `${API_ROLE_GROUP}/updateRoleGroup?roleGroupId=${encodeURIComponent(self.currentRoleGroup().id())}`;
                 method = 'PUT';
             }
             console.log("roleGroups.js -> saveRoleGroup: url=", url, "method=", method, "payload=", payload);
@@ -186,7 +186,7 @@ function RoleGroupViewModel(params, config) {
         try {
             const id = ko.unwrap(roleGroup.id);
             console.log("roleGroups.js -> deleteRoleGroup: id=", id);
-            await fetch(`${API_ROLE_GROUP}/deleteById?roleGroupId=${encodeURIComponent(id)}`, { method:'DELETE', headers:{'Accept':'application/json'} }); // ✅ updated
+            await fetch(`${API_ROLE_GROUP}/deleteRoleGroupById?roleGroupId=${encodeURIComponent(id)}`, { method:'DELETE', headers:{'Accept':'application/json'} });
             self.loadRoleGroups();
         } catch(err) { console.error('Delete role group error:', err); }
     };
@@ -194,7 +194,7 @@ function RoleGroupViewModel(params, config) {
     self.loadRoleGroupById = async function(id) {
         console.log("roleGroups.js -> loadRoleGroupById id=", id);
         try {
-            const res = await fetch(`${API_ROLE_GROUP}/findById?roleGroupId=${encodeURIComponent(id)}`, { headers:{'Accept':'application/json'} }); // ✅ updated
+            const res = await fetch(`${API_ROLE_GROUP}/findRoleGroupById?roleGroupId=${encodeURIComponent(id)}`, { headers:{'Accept':'application/json'} });
             const data = await res.json();
             console.log("roleGroups.js -> loadRoleGroupById data=", data);
             if (data.status==='SUCCESS' && data.data) self.currentRoleGroup(new RoleGroup(data.data, self.formConfig?.fields || []));

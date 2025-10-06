@@ -151,3 +151,19 @@ public class PageRoleGroupManagementController {
         return ResponseEntity.ok(Response.success("Page role groups count fetched successfully", count, HttpStatus.OK.value()));
     }
 }
+
+/*
+HUNG : DONT REMOVE
+Heres the updated mapping between JS calls and the controller URLs for your pageRoleGroup.js setup:
+
+JS Call	Controller URL associated with a valid method	Controller Method Exists	Suggestion / Fix
+Save mapping (create)	/management/pagerolegroups/insertPageRoleGroup	Yes	✅ JS already updated to call this
+Save mapping (update)	/management/pagerolegroups/updatePageRoleGroup?id=...	Yes	✅ JS already updated to call this
+Delete mapping (by ID)	/management/pagerolegroups/deletePageRoleGroupById?id=...	Yes	✅ JS already updated to call this
+Load mapping by ID	/management/pagerolegroups/findById?id=...	Yes	✅ JS already updated to call this
+Load mappings (search / list)	/management/pagerolegroups/searchPageRoleGroups?params...	Yes	✅ JS already calls /searchPageRoleGroups
+Optional: list all mappings	/management/pagerolegroups/findAllPageRoleGroups	Yes	JS currently does not call; could add a loadAll method if needed
+Optional: list by role group	/management/pagerolegroups/findByRoleGroupId?roleGroupId=...	Yes	JS currently does not call; could add helper if filtering by role group
+Optional: find mapping by URL pattern	/management/pagerolegroups/findByUrlPattern?urlPattern=...	Yes	JS currently does not call; could add helper if needed
+Count mappings	/management/pagerolegroups/countPageRoleGroups?params...	Yes	JS currently does not call; could add if needed
+*/

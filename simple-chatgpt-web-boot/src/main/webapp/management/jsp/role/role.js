@@ -170,9 +170,9 @@ function RoleViewModel(params, config) {
 
         const payload = ko.toJS(self.currentRole());
         try {
-            let url = `${API_ROLE}/insert`, method='POST';
+            let url = `${API_ROLE}/insertRole`, method='POST';
             if (self.mode==='edit' && self.currentRole().id && self.currentRole().id()) {
-                url = `${API_ROLE}/update?roleId=${encodeURIComponent(self.currentRole().id())}`;
+                url = `${API_ROLE}/updateRole?roleId=${encodeURIComponent(self.currentRole().id())}`;
                 method = 'PUT';
             }
             console.log("role.js -> saveRole: url=", url, "method=", method, "payload=", payload);

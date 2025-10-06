@@ -1,3 +1,5 @@
+// roleGroupRole.js
+
 // detect context path dynamically from browser URL
 const ROLE_GROUP_ROLE_CONTEXT_PATH = "/" + window.location.pathname.split("/")[1];
 const API_ROLE_GROUP_ROLE = `${ROLE_GROUP_ROLE_CONTEXT_PATH}/api/management/rolegrouprolemappings`;
@@ -60,7 +62,6 @@ function RoleGroupRoleViewModel(params, config) {
         if (self.searchConfig?.fields) {
             self.searchConfig.fields.forEach(f => {
                 const val = self.searchParams[f.name]();
-                console.log("roleGroupRoles.js -> buildSearchQuery param", f.name, "=", val);
                 if (val && val.toString().trim()) params.append(f.name, val.toString().trim());
             });
         }
@@ -76,10 +77,8 @@ function RoleGroupRoleViewModel(params, config) {
 
         try {
             const qs = self.buildSearchQuery();
-            console.log("roleGroupRoles.js -> loadRoleGroupRoles: query string=", qs);
             const res = await fetch(`${API_ROLE_GROUP_ROLE}/searchMappings?${qs}`, { headers: { 'Accept': 'application/json' } });
             const data = await res.json();
-            console.log("roleGroupRoles.js -> loadRoleGroupRoles: response=", data);
 
             if (data.status === 'SUCCESS' && data.data) {
                 const paged = data.data;
@@ -96,22 +95,22 @@ function RoleGroupRoleViewModel(params, config) {
         }
     };
 
-    self.addRoleToGroup = function() {
-        console.log("roleGroupRoles.js -> addRoleToGroup called");
-        window.location.href = 'addRoleGroupRole.jsp';
-    };
-
+    // ========================
+    // Client-side navigation
+    // ========================
+    self.addRoleToGroup = function() { window.location.href = 'addRoleGroupRole.jsp'; };
     self.editRoleGroupRole = function(row) {
-        console.log("roleGroupRoles.js -> editRoleGroupRole: row=", row);
         localStorage.setItem('editRoleGroupRoleId', ko.unwrap(row.id));
         window.location.href = 'editRoleGroupRole.jsp';
     };
 
+    // ========================
+    // Delete
+    // ========================
     self.deleteRoleGroupRole = async function(row) {
         if (!confirm('Are you sure you want to delete this mapping?')) return;
         try {
             const id = ko.unwrap(row.id);
-            console.log("roleGroupRoles.js -> deleteRoleGroupRole id=", id);
             await fetch(`${API_ROLE_GROUP_ROLE}/deleteById?id=${encodeURIComponent(id)}`, { method: 'DELETE', headers: { 'Accept': 'application/json' } });
             self.loadRoleGroupRoles();
         } catch (err) {
@@ -119,13 +118,14 @@ function RoleGroupRoleViewModel(params, config) {
         }
     };
 
+    // ========================
+    // Save
+    // ========================
     self.saveRoleGroupRole = async function() {
-        console.log("roleGroupRoles.js -> saveRoleGroupRole called, currentRoleGroupRole=", ko.toJS(self.currentRoleGroupRole()));
         if (!self.formConfig) return;
 
         self.errors({});
         const errs = self.validator ? self.validator.validateForm(self.currentRoleGroupRole(), self.formConfig.fields) : {};
-        console.log("roleGroupRoles.js -> saveRoleGroupRole validation errs=", errs);
         if (Object.keys(errs).length > 0) { self.errors(errs); return; }
 
         const payload = ko.toJS(self.currentRoleGroupRole());
@@ -135,7 +135,6 @@ function RoleGroupRoleViewModel(params, config) {
                 url = `${API_ROLE_GROUP_ROLE}/addIfNotExists?roleGroupId=${encodeURIComponent(self.currentRoleGroupRole().roleGroupId())}&roleId=${encodeURIComponent(self.currentRoleGroupRole().roleId())}`;
                 method = 'POST';
             }
-            console.log("roleGroupRoles.js -> saveRoleGroupRole: url=", url, "method=", method, "payload=", payload);
             await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
             self.navigateToRoleGroupRoles();
         } catch (err) {
@@ -143,12 +142,13 @@ function RoleGroupRoleViewModel(params, config) {
         }
     };
 
+    // ========================
+    // Load by ID
+    // ========================
     self.loadRoleGroupRoleById = async function(id) {
-        console.log("roleGroupRoles.js -> loadRoleGroupRoleById id=", id);
         try {
             const res = await fetch(`${API_ROLE_GROUP_ROLE}/listAll`, { headers: { 'Accept': 'application/json' } });
             const data = await res.json();
-            console.log("roleGroupRoles.js -> loadRoleGroupRoleById response=", data);
             if (data.status === 'SUCCESS' && data.data) {
                 const found = data.data.items.find(r => r.id === id);
                 if (found) self.currentRoleGroupRole(new RoleGroupRole(found, self.formConfig?.fields || []));
@@ -165,11 +165,9 @@ function RoleGroupRoleViewModel(params, config) {
         self.page(1);
         self.loadRoleGroupRoles();
     };
-
     self.nextPage = function() { if (self.page() < self.maxPage()) { self.page(self.page() + 1); self.loadRoleGroupRoles(); } };
     self.prevPage = function() { if (self.page() > 1) { self.page(self.page() - 1); self.loadRoleGroupRoles(); } };
     self.size.subscribe(() => { self.page(1); self.loadRoleGroupRoles(); });
-
     self.setSort = function(field) {
         if (self.sortField() === field) self.sortOrder(self.sortOrder() === 'ASC' ? 'DESC' : 'ASC');
         else { self.sortField(field); self.sortOrder('ASC'); }
@@ -178,7 +176,7 @@ function RoleGroupRoleViewModel(params, config) {
     };
 
     // ========================
-    // Navigation
+    // Navigation wrapper
     // ========================
     self.navigateToRoleGroupRoles = function() { window.location.href = 'roleGroupRoles.jsp'; };
 

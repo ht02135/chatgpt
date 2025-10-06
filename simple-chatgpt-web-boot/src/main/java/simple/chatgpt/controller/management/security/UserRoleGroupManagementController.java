@@ -146,3 +146,19 @@ public class UserRoleGroupManagementController {
         return ResponseEntity.ok(Response.success("Count fetched successfully", count, HttpStatus.OK.value()));
     }
 }
+
+/*
+HUNG : DoNT REMOVE
+JS method name	JS API call	Controller API	Do we need to update JS API call	Suggestion
+Save mapping (create)	/add	/management/userrolegroups/insertUserRoleGroup	Yes	Update JS to call /insertUserRoleGroup instead of /add
+Save mapping (update)	/update	/management/userrolegroups/updateUserRoleGroup	Yes	JS can call /updateUserRoleGroup if you implement update logic
+Delete mapping (by ID)	/delete	/management/userrolegroups/deleteUserRoleGroupById	Yes	Update JS to call /deleteUserRoleGroupById instead of /delete
+Delete mapping (by user & group)	N/A	/management/userrolegroups/deleteUserRoleGroupByUserAndGroup	Yes	Add JS method to call /deleteUserRoleGroupByUserAndGroup if needed
+Load mapping by ID	/get	/management/userrolegroups/findByUserId or /findByRoleGroupId	Yes	Update JS to call /findByUserId or /findByRoleGroupId instead of /get
+Load mappings (search/list)	/search	/management/userrolegroups/findUserRoleGroups	Yes	Update JS to call /findUserRoleGroups instead of /search
+Optional: list all mappings	N/A	/management/userrolegroups/findAllUserRoleGroups	No	Could add a JS loadAll method if needed
+Optional: list by user	N/A	/management/userrolegroups/findByUserId	No	Use this if filtering by user
+Optional: list by role group	N/A	/management/userrolegroups/findByRoleGroupId	No	Use this if filtering by role group
+Optional: search mappings with filters	N/A	/management/userrolegroups/searchUserRoleGroups	No	Already correct; JS can call this
+Count mappings	N/A	/management/userrolegroups/countUserRoleGroups	No	Could add if needed
+*/
