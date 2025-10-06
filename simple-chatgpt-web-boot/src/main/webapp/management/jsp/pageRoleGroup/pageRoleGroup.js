@@ -112,7 +112,7 @@ function PageRoleGroupViewModel(params, config) {
         try {
             const id = ko.unwrap(row.id);
             console.log("pageRoleGroup.js -> deletePageRoleGroup id=", id);
-            await fetch(`${API_PAGE_ROLE_GROUP}/delete?id=${encodeURIComponent(id)}`, { method: 'DELETE', headers: { 'Accept':'application/json' } });
+            await fetch(`${API_PAGE_ROLE_GROUP}/deletePageRoleGroupById?id=${encodeURIComponent(id)}`, { method: 'DELETE', headers: { 'Accept':'application/json' } });
             self.loadPageRoleGroups();
         } catch(err) { console.error('Delete pageRoleGroup error:', err); }
     };
@@ -128,9 +128,9 @@ function PageRoleGroupViewModel(params, config) {
 
         const payload = ko.toJS(self.currentPageRoleGroup());
         try {
-            let url = `${API_PAGE_ROLE_GROUP}/create`, method='POST';
+            let url = `${API_PAGE_ROLE_GROUP}/insertPageRoleGroup`, method='POST';
             if (self.mode==='edit' && self.currentPageRoleGroup().id && self.currentPageRoleGroup().id()) {
-                url = `${API_PAGE_ROLE_GROUP}/update?id=${encodeURIComponent(self.currentPageRoleGroup().id())}`;
+                url = `${API_PAGE_ROLE_GROUP}/updatePageRoleGroup?id=${encodeURIComponent(self.currentPageRoleGroup().id())}`;
                 method='PUT';
             }
             console.log("pageRoleGroup.js -> savePageRoleGroup url=", url, "method=", method, "payload=", payload);
@@ -142,7 +142,7 @@ function PageRoleGroupViewModel(params, config) {
     self.loadPageRoleGroupById = async function(id) {
         console.log("pageRoleGroup.js -> loadPageRoleGroupById id=", id);
         try {
-            const res = await fetch(`${API_PAGE_ROLE_GROUP}/getById?id=${encodeURIComponent(id)}`, { headers: {'Accept':'application/json'} });
+            const res = await fetch(`${API_PAGE_ROLE_GROUP}/findById?id=${encodeURIComponent(id)}`, { headers: {'Accept':'application/json'} });
             const data = await res.json();
             console.log("pageRoleGroup.js -> loadPageRoleGroupById data=", data);
             if (data.status==='SUCCESS' && data.data) self.currentPageRoleGroup(new PageRoleGroup(data.data, self.formConfig?.fields || []));
