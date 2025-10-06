@@ -1,6 +1,5 @@
 package simple.chatgpt.controller.management.security;
 
-import java.util.List;
 import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
@@ -18,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import simple.chatgpt.pojo.management.security.RoleGroupRoleMappingPojo;
 import simple.chatgpt.service.management.security.RoleGroupRoleMappingService;
+import simple.chatgpt.util.PagedResult;
 import simple.chatgpt.util.Response;
 
 @RestController
@@ -39,8 +39,7 @@ public class RoleGroupRoleMappingController {
     public ResponseEntity<Response<Integer>> insertMapping(@RequestBody RoleGroupRoleMappingPojo mapping) {
         logger.debug("insertMapping called mapping={}", mapping);
 
-        Map<String, Object> params = Map.of("mapping", mapping);
-        int result = mappingService.insertMapping(params);
+        int result = mappingService.insertMapping(Map.of("mapping", mapping));
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(Response.success("Mapping inserted successfully", result, HttpStatus.CREATED.value()));
@@ -53,8 +52,9 @@ public class RoleGroupRoleMappingController {
     ) {
         logger.debug("addRoleToGroupIfNotExists called, roleGroupId={}, roleId={}", roleGroupId, roleId);
 
-        Map<String, Object> params = Map.of("roleGroupId", roleGroupId, "roleId", roleId);
-        RoleGroupRoleMappingPojo result = mappingService.addRoleToGroupIfNotExists(params);
+        RoleGroupRoleMappingPojo result = mappingService.addRoleToGroupIfNotExists(
+                Map.of("roleGroupId", roleGroupId, "roleId", roleId)
+        );
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(Response.success("Role added to role group if not exists successfully", result, HttpStatus.CREATED.value()));
@@ -86,33 +86,31 @@ public class RoleGroupRoleMappingController {
     // ---------------- READ ----------------
 
     @GetMapping("/listAll")
-    public ResponseEntity<Response<List<RoleGroupRoleMappingPojo>>> findAllMappings() {
+    public ResponseEntity<Response<PagedResult<RoleGroupRoleMappingPojo>>> findAllMappings() {
         logger.debug("findAllMappings called");
 
-        List<RoleGroupRoleMappingPojo> result = mappingService.findAllMappings();
-        logger.debug("findAllMappings result size={}", result.size());
+        PagedResult<RoleGroupRoleMappingPojo> result = mappingService.findAllMappings();
+        logger.debug("findAllMappings result size={}", result.getItems().size());
 
         return ResponseEntity.ok(Response.success("Mappings fetched successfully", result, HttpStatus.OK.value()));
     }
 
     @GetMapping("/listByRoleGroup")
-    public ResponseEntity<Response<List<RoleGroupRoleMappingPojo>>> findByRoleGroupId(@RequestParam Long roleGroupId) {
+    public ResponseEntity<Response<PagedResult<RoleGroupRoleMappingPojo>>> findByRoleGroupId(@RequestParam Long roleGroupId) {
         logger.debug("findByRoleGroupId called, roleGroupId={}", roleGroupId);
 
-        Map<String, Object> params = Map.of("roleGroupId", roleGroupId);
-        List<RoleGroupRoleMappingPojo> result = mappingService.findByRoleGroupId(params);
-        logger.debug("findByRoleGroupId result size={}", result.size());
+        PagedResult<RoleGroupRoleMappingPojo> result = mappingService.findByRoleGroupId(Map.of("roleGroupId", roleGroupId));
+        logger.debug("findByRoleGroupId result size={}", result.getItems().size());
 
         return ResponseEntity.ok(Response.success("Mappings fetched successfully", result, HttpStatus.OK.value()));
     }
 
     @GetMapping("/listByRole")
-    public ResponseEntity<Response<List<RoleGroupRoleMappingPojo>>> findByRoleId(@RequestParam Long roleId) {
+    public ResponseEntity<Response<PagedResult<RoleGroupRoleMappingPojo>>> findByRoleId(@RequestParam Long roleId) {
         logger.debug("findByRoleId called, roleId={}", roleId);
 
-        Map<String, Object> params = Map.of("roleId", roleId);
-        List<RoleGroupRoleMappingPojo> result = mappingService.findByRoleId(params);
-        logger.debug("findByRoleId result size={}", result.size());
+        PagedResult<RoleGroupRoleMappingPojo> result = mappingService.findByRoleId(Map.of("roleId", roleId));
+        logger.debug("findByRoleId result size={}", result.getItems().size());
 
         return ResponseEntity.ok(Response.success("Mappings fetched successfully", result, HttpStatus.OK.value()));
     }
@@ -120,21 +118,21 @@ public class RoleGroupRoleMappingController {
     // ---------------- SEARCH / PAGINATION ----------------
 
     @GetMapping("/findMappings")
-    public ResponseEntity<Response<List<RoleGroupRoleMappingPojo>>> findMappings(@RequestParam Map<String, Object> params) {
+    public ResponseEntity<Response<PagedResult<RoleGroupRoleMappingPojo>>> findMappings(@RequestParam Map<String, Object> params) {
         logger.debug("findMappings called, params={}", params);
 
-        List<RoleGroupRoleMappingPojo> result = mappingService.findMappings(params);
-        logger.debug("findMappings result size={}", result.size());
+        PagedResult<RoleGroupRoleMappingPojo> result = mappingService.findMappings(params);
+        logger.debug("findMappings result size={}", result.getItems().size());
 
         return ResponseEntity.ok(Response.success("Mappings fetched successfully", result, HttpStatus.OK.value()));
     }
 
     @GetMapping("/searchMappings")
-    public ResponseEntity<Response<List<RoleGroupRoleMappingPojo>>> searchMappings(@RequestParam Map<String, Object> params) {
+    public ResponseEntity<Response<PagedResult<RoleGroupRoleMappingPojo>>> searchMappings(@RequestParam Map<String, Object> params) {
         logger.debug("searchMappings called, params={}", params);
 
-        List<RoleGroupRoleMappingPojo> result = mappingService.searchMappings(params);
-        logger.debug("searchMappings result size={}", result.size());
+        PagedResult<RoleGroupRoleMappingPojo> result = mappingService.searchMappings(params);
+        logger.debug("searchMappings result size={}", result.getItems().size());
 
         return ResponseEntity.ok(Response.success("Mappings fetched successfully", result, HttpStatus.OK.value()));
     }
