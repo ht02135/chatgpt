@@ -51,6 +51,12 @@ public class UserManagementServiceImpl implements UserManagementService {
     @PostConstruct
     public void initializeDB() {
         logger.debug("initializeDB called");
+        
+        if (securityConfigLoader == null) {
+            logger.error("Missing required beans: securityConfigLoader={}", 
+                securityConfigLoader);
+            return;
+        }
 
         List<UserConfig> users = securityConfigLoader.getUsers();
         logger.debug("initializeDB users size={}", users.size());

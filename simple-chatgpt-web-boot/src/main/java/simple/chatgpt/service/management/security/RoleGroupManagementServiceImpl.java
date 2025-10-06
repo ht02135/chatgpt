@@ -66,6 +66,12 @@ public class RoleGroupManagementServiceImpl implements RoleGroupManagementServic
     public void initializeDB() {
         logger.debug("initializeDB called");
 
+        if (securityConfigLoader == null || groupCache == null || idToNameCache == null) {
+            logger.error("Missing required beans: securityConfigLoader={}, roleCache={}, idToNameCache={}", 
+                securityConfigLoader, groupCache, idToNameCache);
+            return;
+        }
+        
         List<RoleGroupConfig> definedGroups = securityConfigLoader.getRoleGroups();
         logger.debug("Loaded role groups from config, size={}", definedGroups.size());
 

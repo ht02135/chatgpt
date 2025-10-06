@@ -66,6 +66,12 @@ public class PageRoleGroupManagementServiceImpl implements PageRoleGroupManageme
     private void initializeDB() {
         logger.debug("initializeDB called for PageRoleGroupManagementService");
 
+        if (securityConfigLoader == null || pageRoleGroupCache == null || roleGroupCache == null) {
+            logger.error("Missing required beans: securityConfigLoader={}, roleCache={}, idToNameCache={}", 
+                securityConfigLoader, pageRoleGroupCache, roleGroupCache);
+            return;
+        }
+        
         List<PageRoleGroupConfig> pageConfigs = securityConfigLoader.getPageRoleGroups();
         logger.debug("Loaded page-role group configs from XML, size={}", pageConfigs.size());
 

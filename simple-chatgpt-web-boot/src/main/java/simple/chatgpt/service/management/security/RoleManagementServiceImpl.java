@@ -60,6 +60,12 @@ public class RoleManagementServiceImpl implements RoleManagementService {
 
     public void initializeDB() {
         logger.debug("initializeDB called");
+        
+        if (securityConfigLoader == null || roleCache == null || idToNameCache == null) {
+            logger.error("Missing required beans: securityConfigLoader={}, roleCache={}, idToNameCache={}", 
+                securityConfigLoader, roleCache, idToNameCache);
+            return;
+        }
 
         List<RoleConfig> definedRoles = securityConfigLoader.getRoles();
         logger.debug("Loaded roles from config, size={}", definedRoles.size());
