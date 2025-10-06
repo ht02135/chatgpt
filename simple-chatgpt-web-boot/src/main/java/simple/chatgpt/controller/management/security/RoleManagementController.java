@@ -169,3 +169,18 @@ public class RoleManagementController {
         return ResponseEntity.ok(Response.success("Roles count fetched", count, HttpStatus.OK.value()));
     }
 }
+
+/*
+Here’s the table you asked for, filled out for all main role-related JS calls from role.js:
+
+JS Call (role.js)	Controller URL associated with a valid method	Controller Method Exists	Suggestion / Fix
+Save role (create)	/management/roles/insert	✅ Yes	Update JS to call /insert instead of /create
+Save role (update)	/management/roles/update	✅ Yes	JS already uses correct URL; ensure roleId query param is sent
+Delete role	/management/roles/deleteById	✅ Yes	Update JS to call /deleteById instead of /delete
+Load role by ID	/management/roles/findById	✅ Yes	Update JS to call /findById instead of /get
+Load roles (search / list)	/management/roles/searchRoles	✅ Yes	Update JS to call /searchRoles instead of /search
+Optional: list all roles	/management/roles/findAll	✅ Yes	Use /findAll if needed for full role list
+Optional: get all roles	/management/roles/getAll	✅ Yes	Use /getAll if needed
+Optional: find roles with filters	/management/roles/findRoles	✅ Yes	Already correct; no change needed
+Count roles	/management/roles/count	✅ Yes	JS currently not calling; use if needed
+*/
