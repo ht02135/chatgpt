@@ -1,6 +1,5 @@
 package simple.chatgpt.controller.management.security;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -34,24 +33,19 @@ public class RoleGroupRoleMappingController {
         logger.debug("RoleGroupRoleMappingController constructor called, mappingService={}", mappingService);
     }
 
-    // ➕ ADD ROLE TO ROLE GROUP
+    // ---------------- CREATE ----------------
+
     @PostMapping("/add")
-    public ResponseEntity<Response<RoleGroupRoleMappingPojo>> addRoleToGroup(
-            @RequestBody RoleGroupRoleMappingPojo mapping
-    ) {
-        logger.debug("addRoleToGroup called");
-        logger.debug("addRoleToGroup mapping={}", mapping);
+    public ResponseEntity<Response<Integer>> insertMapping(@RequestBody RoleGroupRoleMappingPojo mapping) {
+        logger.debug("insertMapping called mapping={}", mapping);
 
-        Map<String, Object> params = new HashMap<>();
-        params.put("mapping", mapping);
-
-        RoleGroupRoleMappingPojo created = mappingService.addRoleToGroup(params);
+        Map<String, Object> params = Map.of("mapping", mapping);
+        int result = mappingService.insertMapping(params);
 
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(Response.success("Role added to role group successfully", created, HttpStatus.CREATED.value()));
+                .body(Response.success("Mapping inserted successfully", result, HttpStatus.CREATED.value()));
     }
 
-    // ➕ ADD ROLE TO GROUP IF NOT EXISTS
     @PostMapping("/addIfNotExists")
     public ResponseEntity<Response<RoleGroupRoleMappingPojo>> addRoleToGroupIfNotExists(
             @RequestParam Long roleGroupId,
@@ -59,71 +53,101 @@ public class RoleGroupRoleMappingController {
     ) {
         logger.debug("addRoleToGroupIfNotExists called, roleGroupId={}, roleId={}", roleGroupId, roleId);
 
-        Map<String, Object> params = new HashMap<>();
-        params.put("roleGroupId", roleGroupId);
-        params.put("roleId", roleId);
-
-        RoleGroupRoleMappingPojo created = mappingService.addRoleToGroupIfNotExists(params);
+        Map<String, Object> params = Map.of("roleGroupId", roleGroupId, "roleId", roleId);
+        RoleGroupRoleMappingPojo result = mappingService.addRoleToGroupIfNotExists(params);
 
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(Response.success("Role added to role group if not exists successfully", created, HttpStatus.CREATED.value()));
+                .body(Response.success("Role added to role group if not exists successfully", result, HttpStatus.CREATED.value()));
     }
 
-    // 🗑 REMOVE MAPPING
-    @DeleteMapping("/remove")
-    public ResponseEntity<Response<Void>> removeMapping(
-            @RequestParam(required = false) Long id,
-            @RequestParam(required = false) Long roleGroupId,
-            @RequestParam(required = false) Long roleId
+    // ---------------- DELETE ----------------
+
+    @DeleteMapping("/deleteById")
+    public ResponseEntity<Response<Integer>> deleteMappingById(@RequestParam Long id) {
+        logger.debug("deleteMappingById called, id={}", id);
+
+        int result = mappingService.deleteMappingById(Map.of("id", id));
+
+        return ResponseEntity.ok(Response.success("Mapping deleted successfully", result, HttpStatus.OK.value()));
+    }
+
+    @DeleteMapping("/deleteByGroupAndRole")
+    public ResponseEntity<Response<Integer>> deleteMappingByGroupAndRole(
+            @RequestParam Long roleGroupId,
+            @RequestParam Long roleId
     ) {
-        logger.debug("removeMapping called, id={}, roleGroupId={}, roleId={}", id, roleGroupId, roleId);
+        logger.debug("deleteMappingByGroupAndRole called, roleGroupId={}, roleId={}", roleGroupId, roleId);
 
-        Map<String, Object> params = new HashMap<>();
-        if (id != null) params.put("id", id);
-        if (roleGroupId != null) params.put("roleGroupId", roleGroupId);
-        if (roleId != null) params.put("roleId", roleId);
+        int result = mappingService.deleteMappingByGroupAndRole(Map.of("roleGroupId", roleGroupId, "roleId", roleId));
 
-        mappingService.removeMapping(params);
-
-        return ResponseEntity.ok(Response.success("Mapping removed successfully", null, HttpStatus.OK.value()));
+        return ResponseEntity.ok(Response.success("Mapping deleted successfully", result, HttpStatus.OK.value()));
     }
 
-    // 🔍 LIST ALL MAPPINGS
-    @GetMapping("/list")
-    public ResponseEntity<Response<List<RoleGroupRoleMappingPojo>>> listAll(
-            @RequestParam Map<String, Object> requestParams
-    ) {
-        logger.debug("listAll called, requestParams={}", requestParams);
+    // ---------------- READ ----------------
 
-        Map<String, Object> params = new HashMap<>(requestParams);
-        List<RoleGroupRoleMappingPojo> mappings = mappingService.findAllMappings(params);
+    @GetMapping("/listAll")
+    public ResponseEntity<Response<List<RoleGroupRoleMappingPojo>>> findAllMappings() {
+        logger.debug("findAllMappings called");
 
-        return ResponseEntity.ok(Response.success("Mappings fetched successfully", mappings, HttpStatus.OK.value()));
+        List<RoleGroupRoleMappingPojo> result = mappingService.findAllMappings();
+        logger.debug("findAllMappings result size={}", result.size());
+
+        return ResponseEntity.ok(Response.success("Mappings fetched successfully", result, HttpStatus.OK.value()));
     }
 
-    // 🔍 LIST BY ROLE GROUP
     @GetMapping("/listByRoleGroup")
-    public ResponseEntity<Response<List<RoleGroupRoleMappingPojo>>> listByRoleGroup(@RequestParam Long roleGroupId) {
-        logger.debug("listByRoleGroup called, roleGroupId={}", roleGroupId);
+    public ResponseEntity<Response<List<RoleGroupRoleMappingPojo>>> findByRoleGroupId(@RequestParam Long roleGroupId) {
+        logger.debug("findByRoleGroupId called, roleGroupId={}", roleGroupId);
 
-        Map<String, Object> params = new HashMap<>();
-        params.put("roleGroupId", roleGroupId);
+        Map<String, Object> params = Map.of("roleGroupId", roleGroupId);
+        List<RoleGroupRoleMappingPojo> result = mappingService.findByRoleGroupId(params);
+        logger.debug("findByRoleGroupId result size={}", result.size());
 
-        List<RoleGroupRoleMappingPojo> mappings = mappingService.findByRoleGroup(params);
-
-        return ResponseEntity.ok(Response.success("Mappings for role group fetched successfully", mappings, HttpStatus.OK.value()));
+        return ResponseEntity.ok(Response.success("Mappings fetched successfully", result, HttpStatus.OK.value()));
     }
 
-    // 🔍 LIST BY ROLE
     @GetMapping("/listByRole")
-    public ResponseEntity<Response<List<RoleGroupRoleMappingPojo>>> listByRole(@RequestParam Long roleId) {
-        logger.debug("listByRole called, roleId={}", roleId);
+    public ResponseEntity<Response<List<RoleGroupRoleMappingPojo>>> findByRoleId(@RequestParam Long roleId) {
+        logger.debug("findByRoleId called, roleId={}", roleId);
 
-        Map<String, Object> params = new HashMap<>();
-        params.put("roleId", roleId);
+        Map<String, Object> params = Map.of("roleId", roleId);
+        List<RoleGroupRoleMappingPojo> result = mappingService.findByRoleId(params);
+        logger.debug("findByRoleId result size={}", result.size());
 
-        List<RoleGroupRoleMappingPojo> mappings = mappingService.findByRole(params);
+        return ResponseEntity.ok(Response.success("Mappings fetched successfully", result, HttpStatus.OK.value()));
+    }
 
-        return ResponseEntity.ok(Response.success("Mappings for role fetched successfully", mappings, HttpStatus.OK.value()));
+    // ---------------- SEARCH / PAGINATION ----------------
+
+    @GetMapping("/findMappings")
+    public ResponseEntity<Response<List<RoleGroupRoleMappingPojo>>> findMappings(@RequestParam Map<String, Object> params) {
+        logger.debug("findMappings called, params={}", params);
+
+        List<RoleGroupRoleMappingPojo> result = mappingService.findMappings(params);
+        logger.debug("findMappings result size={}", result.size());
+
+        return ResponseEntity.ok(Response.success("Mappings fetched successfully", result, HttpStatus.OK.value()));
+    }
+
+    @GetMapping("/searchMappings")
+    public ResponseEntity<Response<List<RoleGroupRoleMappingPojo>>> searchMappings(@RequestParam Map<String, Object> params) {
+        logger.debug("searchMappings called, params={}", params);
+
+        List<RoleGroupRoleMappingPojo> result = mappingService.searchMappings(params);
+        logger.debug("searchMappings result size={}", result.size());
+
+        return ResponseEntity.ok(Response.success("Mappings fetched successfully", result, HttpStatus.OK.value()));
+    }
+
+    // ---------------- COUNT ----------------
+
+    @GetMapping("/countMappings")
+    public ResponseEntity<Response<Long>> countMappings(@RequestParam Map<String, Object> params) {
+        logger.debug("countMappings called, params={}", params);
+
+        long count = mappingService.countMappings(params);
+        logger.debug("countMappings result={}", count);
+
+        return ResponseEntity.ok(Response.success("Count fetched successfully", count, HttpStatus.OK.value()));
     }
 }
