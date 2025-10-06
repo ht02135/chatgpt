@@ -121,6 +121,7 @@ public class SecurityConfigLoader {
         }
     }
 
+    // ---------------- GETTERS ----------------
     public List<RoleConfig> getRoles() {
         return roles;
     }

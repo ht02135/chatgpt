@@ -17,6 +17,9 @@ public class UserConfig {
     private boolean locked;
     private String roleGroup;
 
+    // 🔹 No-args constructor for XML loader or reflection
+    public UserConfig() {}
+
     public UserConfig(String userName, String userKey, String password,
                       String firstName, String lastName, String email,
                       String addressLine1, String addressLine2,
@@ -39,6 +42,7 @@ public class UserConfig {
         this.roleGroup = roleGroup;
     }
 
+    // 🔹 Getters
     public String getUserName() { return userName; }
     public String getUserKey() { return userKey; }
     public String getPassword() { return password; }
@@ -55,8 +59,15 @@ public class UserConfig {
     public boolean isLocked() { return locked; }
     public String getRoleGroup() { return roleGroup; }
 
+    // 🔹 Setter for roleGroup if needed dynamically
+    public void setRoleGroup(String roleGroup) { this.roleGroup = roleGroup; }
+
     @Override
     public String toString() {
-        return "UserConfig{userName='" + userName + "', roleGroup='" + roleGroup + "'}";
+        return "UserConfig{" +
+                "userName='" + userName + '\'' +
+                ", roleGroup='" + roleGroup + '\'' +
+                ", email='" + email + '\'' +
+                '}';
     }
 }

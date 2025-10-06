@@ -15,6 +15,10 @@ import simple.chatgpt.config.management.loader.SecurityConfigLoader;
 import simple.chatgpt.config.management.security.UserConfig;
 import simple.chatgpt.mapper.management.UserManagementMapper;
 import simple.chatgpt.pojo.management.UserManagementPojo;
+import simple.chatgpt.pojo.management.security.RoleGroupManagementPojo;
+import simple.chatgpt.pojo.management.security.UserManagementRoleGroupMappingPojo;
+import simple.chatgpt.service.management.security.RoleGroupManagementService;
+import simple.chatgpt.service.management.security.UserManagementRoleGroupMappingService;
 import simple.chatgpt.util.PagedResult;
 
 @Service
@@ -24,15 +28,24 @@ public class UserManagementServiceImpl implements UserManagementService {
 
     private final UserManagementMapper userManagementMapper;
     private final SecurityConfigLoader securityConfigLoader;
+    private final RoleGroupManagementService roleGroupService;
+    private final UserManagementRoleGroupMappingService mappingService;
 
     @Autowired
-    public UserManagementServiceImpl(UserManagementMapper userManagementMapper, SecurityConfigLoader securityConfigLoader) {
+    public UserManagementServiceImpl(UserManagementMapper userManagementMapper,
+                                     SecurityConfigLoader securityConfigLoader,
+                                     RoleGroupManagementService roleGroupService,
+                                     UserManagementRoleGroupMappingService mappingService) {
         logger.debug("UserManagementServiceImpl constructor called");
         logger.debug("userManagementMapper={}", userManagementMapper);
         logger.debug("securityConfigLoader={}", securityConfigLoader);
+        logger.debug("roleGroupService={}", roleGroupService);
+        logger.debug("mappingService={}", mappingService);
 
         this.userManagementMapper = userManagementMapper;
         this.securityConfigLoader = securityConfigLoader;
+        this.roleGroupService = roleGroupService;
+        this.mappingService = mappingService;
     }
 
     @PostConstruct
@@ -45,30 +58,48 @@ public class UserManagementServiceImpl implements UserManagementService {
         for (UserConfig u : users) {
             logger.debug("initializeDB processing user userName={}", u.getUserName());
 
+            // ----------- CREATE OR FETCH USER -----------
             UserManagementPojo existing = userManagementMapper.findByUserName(u.getUserName());
-            if (existing != null) {
-                logger.debug("User already exists, skipping userName={}", u.getUserName());
-                continue;
+            if (existing == null) {
+                UserManagementPojo user = new UserManagementPojo();
+                user.setUserName(u.getUserName());
+                user.setUserKey(u.getUserKey());
+                user.setPassword(u.getPassword()); // 🔒 optionally encode later
+                user.setFirstName(u.getFirstName());
+                user.setLastName(u.getLastName());
+                user.setEmail(u.getEmail());
+                user.setAddressLine1(u.getAddressLine1());
+                user.setAddressLine2(u.getAddressLine2());
+                user.setCity(u.getCity());
+                user.setState(u.getState());
+                user.setPostCode(u.getPostCode());
+                user.setCountry(u.getCountry());
+                user.setActive(u.isActive());
+                user.setLocked(u.isLocked());
+
+                userManagementMapper.insertUser(user);
+                existing = user;
+                logger.debug("Inserted default user userName={}", user.getUserName());
+            } else {
+                logger.debug("User already exists, skipping creation userName={}", u.getUserName());
             }
 
-            UserManagementPojo user = new UserManagementPojo();
-            user.setUserName(u.getUserName());
-            user.setUserKey(u.getUserKey());
-            user.setPassword(u.getPassword()); // 🔒 optionally encode later
-            user.setFirstName(u.getFirstName());
-            user.setLastName(u.getLastName());
-            user.setEmail(u.getEmail());
-            user.setAddressLine1(u.getAddressLine1());
-            user.setAddressLine2(u.getAddressLine2());
-            user.setCity(u.getCity());
-            user.setState(u.getState());
-            user.setPostCode(u.getPostCode());
-            user.setCountry(u.getCountry());
-            user.setActive(u.isActive());
-            user.setLocked(u.isLocked());
+            // ----------- MAP USER TO ROLE-GROUP -----------
+            String roleGroupName = u.getRoleGroup();
+            if (roleGroupName != null && !roleGroupName.isEmpty()) {
+                RoleGroupManagementPojo group = roleGroupService.getRoleGroup(Map.of("groupName", roleGroupName));
+                if (group != null) {
+                    UserManagementRoleGroupMappingPojo mapping = new UserManagementRoleGroupMappingPojo();
+                    mapping.setUserId(existing.getId());
+                    mapping.setRoleGroupId(group.getId());
 
-            userManagementMapper.insertUser(user);
-            logger.debug("Inserted default user userName={}", user.getUserName());
+                    mappingService.addUserToRoleGroup(Map.of("mapping", mapping));
+                    logger.debug("Mapped user userName={} to roleGroup={} mappingId={}",
+                            u.getUserName(), roleGroupName, mapping.getId());
+                } else {
+                    logger.warn("Role-group '{}' not found, skipping mapping for user '{}'", roleGroupName, u.getUserName());
+                }
+            }
         }
 
         logger.debug("initializeDB completed");
