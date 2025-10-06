@@ -79,7 +79,7 @@ public class PageRoleGroupManagementServiceImpl implements PageRoleGroupManageme
                 pagePojo = new PageRoleGroupManagementPojo();
                 pagePojo.setUrlPattern(urlPattern);
 
-                RoleGroupManagementPojo roleGroup = roleGroupService.getRoleGroup(Map.of("groupName", roleGroupName));
+                RoleGroupManagementPojo roleGroup = roleGroupService.findRoleGroupByName(Map.of("groupName", roleGroupName));
                 if (roleGroup == null) {
                     logger.warn("Role group '{}' not found, skipping page-role mapping for '{}'", roleGroupName, urlPattern);
                     continue;
@@ -122,10 +122,25 @@ public class PageRoleGroupManagementServiceImpl implements PageRoleGroupManageme
         return new PagedResult<>(items, totalCount, page, size);
     }
 
-    @Override
-    public List<PageRoleGroupManagementPojo> findAll(Map<String, Object> params) {
-        logger.debug("findAll called, params={}", params);
-        return pageMapper.findPageRoleGroups(Map.of("params", params));
+    public PagedResult<PageRoleGroupManagementPojo> findAll(Map<String, Object> params) {
+        logger.debug("findAll called");
+        logger.debug("findAll params={}", params);
+
+        int page = params.get("page") != null ? (int) params.get("page") : 1;
+        int size = params.get("size") != null ? (int) params.get("size") : 20;
+        int offset = (page - 1) * size;
+
+        params.put("offset", offset);
+        params.put("limit", size);
+
+        // ✅ Call mapper
+        List<PageRoleGroupManagementPojo> items = pageMapper.findPageRoleGroups(Map.of("params", params));
+        long totalCount = pageMapper.countPageRoleGroups(Map.of("params", params));
+
+        logger.debug("findAll results size={}", items.size());
+        logger.debug("findAll totalCount={}", totalCount);
+
+        return new PagedResult<>(items, totalCount, page, size);
     }
 
     @Override

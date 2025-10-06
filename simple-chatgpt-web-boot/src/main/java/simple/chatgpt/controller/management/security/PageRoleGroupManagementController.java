@@ -1,6 +1,7 @@
 package simple.chatgpt.controller.management.security;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
@@ -32,7 +33,8 @@ public class PageRoleGroupManagementController {
 
     public PageRoleGroupManagementController(PageRoleGroupManagementService pageRoleGroupService) {
         this.pageRoleGroupService = pageRoleGroupService;
-        logger.debug("PageRoleGroupManagementController constructor called, pageRoleGroupService={}", pageRoleGroupService);
+        logger.debug("PageRoleGroupManagementController constructor called");
+        logger.debug("pageRoleGroupService={}", pageRoleGroupService);
     }
 
     // ➕ CREATE PAGE ROLE GROUP
@@ -45,65 +47,71 @@ public class PageRoleGroupManagementController {
         params.put("pageRoleGroup", pageRoleGroup);
 
         PageRoleGroupManagementPojo created = pageRoleGroupService.create(params);
+        logger.debug("create result={}", created);
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(Response.success("Page role group created successfully", created, HttpStatus.CREATED.value()));
     }
 
     // 📖 GET PAGE ROLE GROUP BY ID
-    @GetMapping("/get")
+    @GetMapping("/getById")
     public ResponseEntity<Response<PageRoleGroupManagementPojo>> getById(@RequestParam Long id) {
-        logger.debug("getById called, id={}", id);
+        logger.debug("getById called");
+        logger.debug("getById id={}", id);
 
-        Map<String, Object> params = new HashMap<>();
-        params.put("id", id);
-
+        Map<String, Object> params = Map.of("id", id);
         PageRoleGroupManagementPojo group = pageRoleGroupService.getById(params);
+        logger.debug("getById result={}", group);
+
         if (group == null) {
-            return ResponseEntity.ok(Response.error("Page role group not found", null, HttpStatus.NOT_FOUND.value()));
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Response.error("Page role group not found", null, HttpStatus.NOT_FOUND.value()));
         }
 
         return ResponseEntity.ok(Response.success("Page role group fetched successfully", group, HttpStatus.OK.value()));
     }
 
-    // 📝 UPDATE PAGE ROLE GROUP
-    @PutMapping("/update")
-    public ResponseEntity<Response<PageRoleGroupManagementPojo>> update(
-            @RequestParam Long id,
-            @RequestBody PageRoleGroupManagementPojo pageRoleGroup
-    ) {
-        logger.debug("update called, id={}", id);
-        logger.debug("update pageRoleGroup={}", pageRoleGroup);
+    // 📖 GET PAGE ROLE GROUP BY URL PATTERN
+    @GetMapping("/getByUrlPattern")
+    public ResponseEntity<Response<PageRoleGroupManagementPojo>> getByUrlPattern(@RequestParam String urlPattern) {
+        logger.debug("getByUrlPattern called");
+        logger.debug("getByUrlPattern urlPattern={}", urlPattern);
 
-        Map<String, Object> params = new HashMap<>();
-        params.put("id", id);
-        params.put("pageRoleGroup", pageRoleGroup);
+        Map<String, Object> params = Map.of("urlPattern", urlPattern);
+        PageRoleGroupManagementPojo group = pageRoleGroupService.getByUrlPattern(params);
+        logger.debug("getByUrlPattern result={}", group);
 
-        PageRoleGroupManagementPojo updated = pageRoleGroupService.update(params);
-        return ResponseEntity.ok(Response.success("Page role group updated successfully", updated, HttpStatus.OK.value()));
+        if (group == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Response.error("Page role group not found", null, HttpStatus.NOT_FOUND.value()));
+        }
+
+        return ResponseEntity.ok(Response.success("Page role group fetched successfully", group, HttpStatus.OK.value()));
     }
 
-    // 🗑 DELETE PAGE ROLE GROUP
-    @DeleteMapping("/delete")
-    public ResponseEntity<Response<Void>> delete(@RequestParam Long id) {
-        logger.debug("delete called, id={}", id);
+    // 📖 GET PAGE ROLE GROUPS BY ROLE GROUP ID
+    @GetMapping("/getByRoleGroupId")
+    public ResponseEntity<Response<List<PageRoleGroupManagementPojo>>> getByRoleGroupId(@RequestParam Long roleGroupId) {
+        logger.debug("getByRoleGroupId called");
+        logger.debug("getByRoleGroupId roleGroupId={}", roleGroupId);
 
-        Map<String, Object> params = new HashMap<>();
-        params.put("id", id);
+        Map<String, Object> params = Map.of("roleGroupId", roleGroupId);
+        List<PageRoleGroupManagementPojo> list = pageRoleGroupService.getByRoleGroupId(params);
+        logger.debug("getByRoleGroupId result size={}", list.size());
 
-        pageRoleGroupService.delete(params);
-        return ResponseEntity.ok(Response.success("Page role group deleted successfully", null, HttpStatus.OK.value()));
+        return ResponseEntity.ok(Response.success("Page role groups fetched successfully", list, HttpStatus.OK.value()));
     }
 
     // 🔍 SEARCH / PAGINATION
-    @GetMapping("/search")
-    public ResponseEntity<Response<PagedResult<PageRoleGroupManagementPojo>>> search(@RequestParam Map<String, Object> requestParams) {
-        logger.debug("search called, requestParams={}", requestParams);
+    @GetMapping("/searchPageRoleGroups")
+    public ResponseEntity<Response<PagedResult<PageRoleGroupManagementPojo>>> searchPageRoleGroups(@RequestParam Map<String, Object> requestParams) {
+        logger.debug("searchPageRoleGroups called");
+        logger.debug("searchPageRoleGroups requestParams={}", requestParams);
 
         Map<String, Object> params = new HashMap<>(requestParams);
-        int page = requestParams.get("page") != null ? Integer.parseInt(requestParams.get("page").toString()) : 0;
+        int page = requestParams.get("page") != null ? Integer.parseInt(requestParams.get("page").toString()) : 1;
         int size = requestParams.get("size") != null ? Integer.parseInt(requestParams.get("size").toString()) : 20;
-        int offset = page * size;
+        int offset = (page - 1) * size;
 
         params.put("page", page);
         params.put("size", size);
@@ -113,6 +121,63 @@ public class PageRoleGroupManagementController {
         params.put("sortDirection", requestParams.getOrDefault("sortDirection", "ASC"));
 
         PagedResult<PageRoleGroupManagementPojo> paged = pageRoleGroupService.searchPageRoleGroups(params);
+        logger.debug("searchPageRoleGroups result size={}", paged.getItems().size());
+        logger.debug("searchPageRoleGroups totalCount={}", paged.getTotalCount());
+
         return ResponseEntity.ok(Response.success("Page role groups fetched successfully", paged, HttpStatus.OK.value()));
+    }
+
+    // 🔍 LIST ALL PAGE ROLE GROUPS (Paged)
+    @GetMapping("/findAll")
+    public ResponseEntity<Response<PagedResult<PageRoleGroupManagementPojo>>> findAll(@RequestParam Map<String, Object> requestParams) {
+        logger.debug("findAll called");
+        logger.debug("findAll requestParams={}", requestParams);
+
+        Map<String, Object> params = new HashMap<>(requestParams);
+        int page = requestParams.get("page") != null ? Integer.parseInt(requestParams.get("page").toString()) : 1;
+        int size = requestParams.get("size") != null ? Integer.parseInt(requestParams.get("size").toString()) : 20;
+        int offset = (page - 1) * size;
+
+        params.put("page", page);
+        params.put("size", size);
+        params.put("offset", offset);
+        params.put("limit", size);
+
+        PagedResult<PageRoleGroupManagementPojo> paged = pageRoleGroupService.findAll(params);
+        logger.debug("findAll result size={}", paged.getItems().size());
+        logger.debug("findAll totalCount={}", paged.getTotalCount());
+
+        return ResponseEntity.ok(Response.success("All page role groups fetched successfully", paged, HttpStatus.OK.value()));
+    }
+
+    // 📝 UPDATE PAGE ROLE GROUP
+    @PutMapping("/update")
+    public ResponseEntity<Response<PageRoleGroupManagementPojo>> update(@RequestParam Long id,
+                                                                         @RequestBody PageRoleGroupManagementPojo pageRoleGroup) {
+        logger.debug("update called");
+        logger.debug("update id={}", id);
+        logger.debug("update pageRoleGroup={}", pageRoleGroup);
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("id", id);
+        params.put("pageRoleGroup", pageRoleGroup);
+
+        PageRoleGroupManagementPojo updated = pageRoleGroupService.update(params);
+        logger.debug("update result={}", updated);
+
+        return ResponseEntity.ok(Response.success("Page role group updated successfully", updated, HttpStatus.OK.value()));
+    }
+
+    // 🗑 DELETE PAGE ROLE GROUP
+    @DeleteMapping("/delete")
+    public ResponseEntity<Response<Void>> delete(@RequestParam Long id) {
+        logger.debug("delete called");
+        logger.debug("delete id={}", id);
+
+        Map<String, Object> params = Map.of("id", id);
+        pageRoleGroupService.delete(params);
+        logger.debug("delete completed for id={}", id);
+
+        return ResponseEntity.ok(Response.success("Page role group deleted successfully", null, HttpStatus.OK.value()));
     }
 }

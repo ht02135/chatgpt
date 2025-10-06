@@ -8,10 +8,11 @@ import simple.chatgpt.util.PagedResult;
 
 public interface PageRoleGroupManagementService {
 
-    // 🔎 LIST / SEARCH
+    // 🔎 SEARCH / PAGINATION
     PagedResult<PageRoleGroupManagementPojo> searchPageRoleGroups(Map<String, Object> params);
 
-    List<PageRoleGroupManagementPojo> findAll(Map<String, Object> params);
+    // 🔍 LIST ALL
+    PagedResult<PageRoleGroupManagementPojo> findAll(Map<String, Object> params);
 
     // 📖 READ
     PageRoleGroupManagementPojo getById(Map<String, Object> params);
