@@ -51,10 +51,17 @@ public class RoleManagementServiceImpl implements RoleManagementService {
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
         this.validator = factory.getValidator();
         logger.debug("Validator initialized");
+        
+        logger.debug("constructor called ##############");
+        logger.debug("constructor called");
+        logger.debug("constructor called ##############");
     }
 
     @PostConstruct
     public void postConstruct() {
+        logger.debug("postConstruct called ##############");
+        logger.debug("postConstruct called");
+        logger.debug("postConstruct called ##############");
         initializeDB();
     }
 
