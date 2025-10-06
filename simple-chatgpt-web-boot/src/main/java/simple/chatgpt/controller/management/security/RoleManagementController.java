@@ -1,7 +1,6 @@
 package simple.chatgpt.controller.management.security;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
@@ -121,25 +120,25 @@ public class RoleManagementController {
         return ResponseEntity.ok(Response.success("Role found by Name", role, HttpStatus.OK.value()));
     }
 
+    // ---------------- LIST / PAGINATION ----------------
     @GetMapping("/findAll")
-    public ResponseEntity<Response<List<RoleManagementPojo>>> findAllRoles() {
-        logger.debug("findAllRoles called");
-        List<RoleManagementPojo> roles = roleService.findAllRoles();
-        logger.debug("findAllRoles returned {} roles", roles.size());
+    public ResponseEntity<Response<PagedResult<RoleManagementPojo>>> findAllRoles(@RequestParam Map<String, Object> requestParams) {
+        logger.debug("findAllRoles called requestParams={}", requestParams);
+        PagedResult<RoleManagementPojo> result = roleService.findAllRoles(requestParams);
+        logger.debug("findAllRoles returned {} items", result.getItems().size());
 
-        return ResponseEntity.ok(Response.success("All roles fetched", roles, HttpStatus.OK.value()));
+        return ResponseEntity.ok(Response.success("All roles fetched", result, HttpStatus.OK.value()));
     }
 
     @GetMapping("/getAll")
-    public ResponseEntity<Response<List<RoleManagementPojo>>> getAllRoles() {
-        logger.debug("getAllRoles called");
-        List<RoleManagementPojo> roles = roleService.getAllRoles();
-        logger.debug("getAllRoles returned {} roles", roles.size());
+    public ResponseEntity<Response<PagedResult<RoleManagementPojo>>> getAllRoles(@RequestParam Map<String, Object> requestParams) {
+        logger.debug("getAllRoles called requestParams={}", requestParams);
+        PagedResult<RoleManagementPojo> result = roleService.getAllRoles(requestParams);
+        logger.debug("getAllRoles returned {} items", result.getItems().size());
 
-        return ResponseEntity.ok(Response.success("All roles fetched", roles, HttpStatus.OK.value()));
+        return ResponseEntity.ok(Response.success("All roles fetched", result, HttpStatus.OK.value()));
     }
 
-    // ---------------- SEARCH / PAGINATION ----------------
     @GetMapping("/findRoles")
     public ResponseEntity<Response<PagedResult<RoleManagementPojo>>> findRoles(@RequestParam Map<String, Object> requestParams) {
         logger.debug("findRoles called requestParams={}", requestParams);
