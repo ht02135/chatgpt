@@ -3,6 +3,8 @@ package simple.chatgpt.config.management;
 import java.util.ArrayList;
 import java.util.List;
 
+import simple.chatgpt.config.management.validation.ValidatorConfig;
+
 public class ValidatorGroupConfig {
     private String id;
     private List<ValidatorConfig> validators = new ArrayList<>();

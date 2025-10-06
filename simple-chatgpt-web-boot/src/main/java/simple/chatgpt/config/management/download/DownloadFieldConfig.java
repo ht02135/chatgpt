@@ -1,4 +1,4 @@
-package simple.chatgpt.config.management;
+package simple.chatgpt.config.management.download;
 
 public class DownloadFieldConfig {
     private String name;

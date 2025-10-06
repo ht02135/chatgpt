@@ -23,8 +23,8 @@ import simple.chatgpt.config.management.FieldConfig;
 import simple.chatgpt.config.management.FormConfig;
 import simple.chatgpt.config.management.GridConfig;
 import simple.chatgpt.config.management.RegexConfig;
-import simple.chatgpt.config.management.ValidatorConfig;
 import simple.chatgpt.config.management.ValidatorGroupConfig;
+import simple.chatgpt.config.management.validation.ValidatorConfig;
 import simple.chatgpt.service.management.PropertyManagementService;
 import simple.chatgpt.util.PropertyKey;
 

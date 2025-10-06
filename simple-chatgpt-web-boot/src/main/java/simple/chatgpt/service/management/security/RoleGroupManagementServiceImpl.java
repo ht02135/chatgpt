@@ -11,9 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import simple.chatgpt.config.management.RoleGroupConfig;
-import simple.chatgpt.config.management.RoleRefConfig;
 import simple.chatgpt.config.management.loader.SecurityConfigLoader;
+import simple.chatgpt.config.management.security.RoleGroupConfig;
+import simple.chatgpt.config.management.security.RoleRefConfig;
 import simple.chatgpt.mapper.management.security.RoleGroupManagementMapper;
 import simple.chatgpt.pojo.management.security.RoleGroupManagementPojo;
 import simple.chatgpt.pojo.management.security.RoleManagementPojo;

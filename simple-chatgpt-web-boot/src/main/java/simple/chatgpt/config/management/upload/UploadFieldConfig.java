@@ -1,4 +1,4 @@
-package simple.chatgpt.config.management;
+package simple.chatgpt.config.management.upload;
 
 public class UploadFieldConfig {
     private String name;

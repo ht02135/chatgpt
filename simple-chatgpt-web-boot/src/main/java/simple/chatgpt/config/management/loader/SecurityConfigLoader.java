@@ -14,10 +14,10 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-import simple.chatgpt.config.management.PageRoleGroupConfig;
-import simple.chatgpt.config.management.RoleConfig;
-import simple.chatgpt.config.management.RoleGroupConfig;
-import simple.chatgpt.config.management.RoleRefConfig;
+import simple.chatgpt.config.management.security.PageRoleGroupConfig;
+import simple.chatgpt.config.management.security.RoleConfig;
+import simple.chatgpt.config.management.security.RoleGroupConfig;
+import simple.chatgpt.config.management.security.RoleRefConfig;
 
 @Component
 public class SecurityConfigLoader {

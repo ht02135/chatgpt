@@ -1,4 +1,4 @@
-package simple.chatgpt.config.management;
+package simple.chatgpt.config.management.security;
 
 public class RoleConfig {
     private String name;

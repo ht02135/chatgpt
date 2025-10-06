@@ -1,4 +1,4 @@
-package simple.chatgpt.config.management;
+package simple.chatgpt.config.management.security;
 
 import java.util.ArrayList;
 import java.util.List;

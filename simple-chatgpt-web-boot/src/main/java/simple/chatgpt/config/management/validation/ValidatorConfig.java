@@ -1,4 +1,4 @@
-package simple.chatgpt.config.management;
+package simple.chatgpt.config.management.validation;
 
 public class ValidatorConfig {
     private String type;
