@@ -46,6 +46,7 @@ public class SecurityConfigLoader {
                     .parse(inputStream);
 
             // ===== Load roles =====
+            logger.debug("init Load roles ##############");
             NodeList roleNodes = document.getElementsByTagName("role");
             for (int i = 0; i < roleNodes.getLength(); i++) {
                 Element e = (Element) roleNodes.item(i);
@@ -56,8 +57,10 @@ public class SecurityConfigLoader {
                 logger.debug("Loaded role name={}", name);
                 logger.debug("Loaded role description={}", desc);
             }
+            logger.debug("init Load roles ##############");
 
             // ===== Load role-groups =====
+            logger.debug("init Load role-groups ##############");
             NodeList groupNodes = document.getElementsByTagName("role-group");
             for (int i = 0; i < groupNodes.getLength(); i++) {
                 Element g = (Element) groupNodes.item(i);
@@ -74,8 +77,10 @@ public class SecurityConfigLoader {
                 logger.debug("Loaded role group name={}", groupName);
                 logger.debug("Role group roles size={}", rg.getRoles().size());
             }
+            logger.debug("init Load role-groups ##############");
 
             // ===== Load page-role-groups =====
+            logger.debug("init Load page-role-groups ##############");
             NodeList pageNodes = document.getElementsByTagName("page-role-group");
             for (int i = 0; i < pageNodes.getLength(); i++) {
                 Element p = (Element) pageNodes.item(i);
@@ -86,8 +91,10 @@ public class SecurityConfigLoader {
                 logger.debug("Loaded page-role-group urlPattern={}", urlPattern);
                 logger.debug("Loaded page-role-group roleGroup={}", group);
             }
+            logger.debug("init Load page-role-groups ##############");
 
             // ===== Load users =====
+            logger.debug("init Load users ##############");
             NodeList userNodes = document.getElementsByTagName("user");
             for (int i = 0; i < userNodes.getLength(); i++) {
                 Element u = (Element) userNodes.item(i);
@@ -114,27 +121,44 @@ public class SecurityConfigLoader {
                 logger.debug("Loaded user userName={}", user.getUserName());
                 logger.debug("Loaded user roleGroup={}", user.getRoleGroup());
             }
+            logger.debug("init Load users ##############");
 
         } catch (Exception e) {
             logger.error("Failed to load security configuration", e);
             throw new RuntimeException(e);
         }
+        
+        logger.debug("init ##############");
+        logger.debug("init DONE!!!");
+        logger.debug("init ##############");
     }
 
     // ---------------- GETTERS ----------------
     public List<RoleConfig> getRoles() {
+    	logger.debug("getRoles called ##############");
+    	logger.debug("getRoles called roles={}", roles);
+    	logger.debug("getRoles called ##############");
         return roles;
     }
 
     public List<RoleGroupConfig> getRoleGroups() {
+    	logger.debug("getRoleGroups called ##############");
+    	logger.debug("getRoleGroups called roleGroups={}", roleGroups);
+    	logger.debug("getRoleGroups called ##############");
         return roleGroups;
     }
 
     public List<PageRoleGroupConfig> getPageRoleGroups() {
+    	logger.debug("getPageRoleGroups called ##############");
+    	logger.debug("getPageRoleGroups called pageRoleGroups={}", pageRoleGroups);
+    	logger.debug("getPageRoleGroups called ##############");
         return pageRoleGroups;
     }
 
     public List<UserConfig> getUsers() {
+    	logger.debug("getUsers called ##############");
+    	logger.debug("getUsers called users={}", users);
+    	logger.debug("getUsers called ##############");
         return users;
     }
 }

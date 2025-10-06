@@ -69,8 +69,10 @@ public class RoleManagementServiceImpl implements RoleManagementService {
         logger.debug("initializeDB called");
         
         if (securityConfigLoader == null || roleCache == null || idToNameCache == null) {
+        	logger.debug("initializeDB called ##############");
             logger.error("Missing required beans: securityConfigLoader={}, roleCache={}, idToNameCache={}", 
                 securityConfigLoader, roleCache, idToNameCache);
+            logger.debug("initializeDB called ##############");
             return;
         }
 
