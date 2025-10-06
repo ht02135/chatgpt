@@ -22,8 +22,8 @@ public interface RoleManagementService {
     RoleManagementPojo findRoleByName(Map<String, Object> params); // matches mapper.findRoleByName
 
     // ---------------- FETCH ALL ----------------
-    PagedResult<RoleManagementPojo> findAllRoles(Map<String, Object> params); // matches mapper.findAllRoles
-    PagedResult<RoleManagementPojo> getAllRoles(Map<String, Object> params);  // matches mapper.getAllRoles
+    PagedResult<RoleManagementPojo> findAllRoles(); // matches mapper.findAllRoles
+    PagedResult<RoleManagementPojo> getAllRoles();  // matches mapper.getAllRoles
 
     // ---------------- SEARCH / PAGINATION ----------------
     PagedResult<RoleManagementPojo> findRoles(Map<String, Object> params);   // matches mapper.findRoles

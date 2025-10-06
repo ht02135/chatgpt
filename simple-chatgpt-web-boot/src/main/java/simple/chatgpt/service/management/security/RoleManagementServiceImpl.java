@@ -91,43 +91,29 @@ public class RoleManagementServiceImpl implements RoleManagementService {
 
     // -------------------- PAGED METHODS --------------------
     @Override
-    public PagedResult<RoleManagementPojo> findAllRoles(Map<String, Object> params) {
-        logger.debug("findAllRoles called, params={}", params);
+    public PagedResult<RoleManagementPojo> findAllRoles() {
+        logger.debug("findAllRoles called");
 
-        int page = params.get("page") != null ? (int) params.get("page") : 1;
-        int size = params.get("size") != null ? (int) params.get("size") : 20;
-        int offset = (page - 1) * size;
+        List<RoleManagementPojo> items = roleMapper.findAllRoles();
+        long totalCount = items != null ? items.size() : 0;
 
-        params.put("offset", offset);
-        params.put("limit", size);
+        logger.debug("findAllRoles results size={}", totalCount);
 
-        List<RoleManagementPojo> items = roleMapper.findRoles(Map.of("params", params));
-        long totalCount = roleMapper.countRoles(Map.of("params", params));
-
-        logger.debug("findAllRoles results size={}", items.size());
-        logger.debug("findAllRoles totalCount={}", totalCount);
-
-        return new PagedResult<>(items, totalCount, page, size);
+        // Default pagination (page=1, size=totalCount)
+        return new PagedResult<>(items, totalCount, 1, (int) totalCount);
     }
 
     @Override
-    public PagedResult<RoleManagementPojo> getAllRoles(Map<String, Object> params) {
-        logger.debug("getAllRoles called, params={}", params);
+    public PagedResult<RoleManagementPojo> getAllRoles() {
+        logger.debug("getAllRoles called");
 
-        int page = params.get("page") != null ? (int) params.get("page") : 1;
-        int size = params.get("size") != null ? (int) params.get("size") : 20;
-        int offset = (page - 1) * size;
+        List<RoleManagementPojo> items = roleMapper.getAllRoles();
+        long totalCount = items != null ? items.size() : 0;
 
-        params.put("offset", offset);
-        params.put("limit", size);
+        logger.debug("getAllRoles results size={}", totalCount);
 
-        List<RoleManagementPojo> items = roleMapper.findRoles(Map.of("params", params));
-        long totalCount = roleMapper.countRoles(Map.of("params", params));
-
-        logger.debug("getAllRoles results size={}", items.size());
-        logger.debug("getAllRoles totalCount={}", totalCount);
-
-        return new PagedResult<>(items, totalCount, page, size);
+        // Default pagination (page=1, size=totalCount)
+        return new PagedResult<>(items, totalCount, 1, (int) totalCount);
     }
 
     @Override

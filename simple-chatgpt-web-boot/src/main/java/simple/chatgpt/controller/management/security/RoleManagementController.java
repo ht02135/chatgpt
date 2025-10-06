@@ -122,18 +122,20 @@ public class RoleManagementController {
 
     // ---------------- LIST / PAGINATION ----------------
     @GetMapping("/findAll")
-    public ResponseEntity<Response<PagedResult<RoleManagementPojo>>> findAllRoles(@RequestParam Map<String, Object> requestParams) {
-        logger.debug("findAllRoles called requestParams={}", requestParams);
-        PagedResult<RoleManagementPojo> result = roleService.findAllRoles(requestParams);
+    public ResponseEntity<Response<PagedResult<RoleManagementPojo>>> findAllRoles() {
+        logger.debug("findAllRoles called");
+
+        PagedResult<RoleManagementPojo> result = roleService.findAllRoles();
         logger.debug("findAllRoles returned {} items", result.getItems().size());
 
         return ResponseEntity.ok(Response.success("All roles fetched", result, HttpStatus.OK.value()));
     }
 
     @GetMapping("/getAll")
-    public ResponseEntity<Response<PagedResult<RoleManagementPojo>>> getAllRoles(@RequestParam Map<String, Object> requestParams) {
-        logger.debug("getAllRoles called requestParams={}", requestParams);
-        PagedResult<RoleManagementPojo> result = roleService.getAllRoles(requestParams);
+    public ResponseEntity<Response<PagedResult<RoleManagementPojo>>> getAllRoles() {
+        logger.debug("getAllRoles called");
+
+        PagedResult<RoleManagementPojo> result = roleService.getAllRoles();
         logger.debug("getAllRoles returned {} items", result.getItems().size());
 
         return ResponseEntity.ok(Response.success("All roles fetched", result, HttpStatus.OK.value()));
