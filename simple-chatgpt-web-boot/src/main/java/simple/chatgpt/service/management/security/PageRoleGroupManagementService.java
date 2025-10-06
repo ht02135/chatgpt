@@ -7,25 +7,29 @@ import simple.chatgpt.util.PagedResult;
 
 public interface PageRoleGroupManagementService {
 
-    // 🔎 SEARCH / PAGINATION
+    // ---------------- CREATE ----------------
+    PageRoleGroupManagementPojo insertPageRoleGroup(Map<String, Object> params);
+
+    // ---------------- UPDATE ----------------
+    PageRoleGroupManagementPojo updatePageRoleGroup(Map<String, Object> params);
+
+    // ---------------- DELETE ----------------
+    void deletePageRoleGroupById(Map<String, Object> params);
+
+    // ---------------- READ ----------------
+    PagedResult<PageRoleGroupManagementPojo> findAllPageRoleGroups();
+
+    PageRoleGroupManagementPojo findById(Map<String, Object> params);
+
+    PageRoleGroupManagementPojo findByUrlPattern(Map<String, Object> params);
+
+    PagedResult<PageRoleGroupManagementPojo> findByRoleGroupId(Map<String, Object> params);
+
+    // ---------------- SEARCH / PAGINATION ----------------
+    PagedResult<PageRoleGroupManagementPojo> findPageRoleGroups(Map<String, Object> params);
+
     PagedResult<PageRoleGroupManagementPojo> searchPageRoleGroups(Map<String, Object> params);
 
-    // 🔍 LIST ALL
-    PagedResult<PageRoleGroupManagementPojo> findAll(Map<String, Object> params);
-
-    // 📖 READ
-    PageRoleGroupManagementPojo getById(Map<String, Object> params);
-
-    PageRoleGroupManagementPojo getByUrlPattern(Map<String, Object> params);
-
-    PagedResult<PageRoleGroupManagementPojo> getByRoleGroupId(Map<String, Object> params);
-
-    // ➕ CREATE
-    PageRoleGroupManagementPojo create(Map<String, Object> params);
-
-    // ✏️ UPDATE
-    PageRoleGroupManagementPojo update(Map<String, Object> params);
-
-    // 🗑 DELETE
-    void delete(Map<String, Object> params);
+    // ---------------- COUNT ----------------
+    long countPageRoleGroups(Map<String, Object> params);
 }
