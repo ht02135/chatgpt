@@ -1,7 +1,6 @@
 package simple.chatgpt.controller.management.security;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
@@ -18,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import simple.chatgpt.pojo.management.security.UserManagementRoleGroupMappingPojo;
 import simple.chatgpt.service.management.security.UserManagementRoleGroupMappingService;
+import simple.chatgpt.util.PagedResult;
 import simple.chatgpt.util.Response;
 
 @RestController
@@ -79,36 +79,55 @@ public class UserRoleGroupManagementController {
         return ResponseEntity.ok(Response.success("Mapping removed successfully", null, HttpStatus.OK.value()));
     }
 
-    // 🔍 LIST ALL MAPPINGS
+    // 🔍 LIST ALL MAPPINGS (returns PagedResult)
     @GetMapping("/list")
-    public ResponseEntity<Response<List<UserManagementRoleGroupMappingPojo>>> listAll() {
-        logger.debug("listAll called");
+    public ResponseEntity<Response<PagedResult<UserManagementRoleGroupMappingPojo>>> listAll(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "20") int size
+    ) {
+        logger.debug("listAll called, page={}, size={}", page, size);
 
-        List<UserManagementRoleGroupMappingPojo> mappings = mappingService.findAll();
-        return ResponseEntity.ok(Response.success("Mappings fetched successfully", mappings, HttpStatus.OK.value()));
+        Map<String, Object> params = new HashMap<>();
+        params.put("page", page);
+        params.put("size", size);
+
+        PagedResult<UserManagementRoleGroupMappingPojo> paged = mappingService.findAll();
+        return ResponseEntity.ok(Response.success("Mappings fetched successfully", paged, HttpStatus.OK.value()));
     }
 
-    // 🔍 LIST BY USER ID
+    // 🔍 LIST BY USER ID (returns PagedResult)
     @GetMapping("/listByUser")
-    public ResponseEntity<Response<List<UserManagementRoleGroupMappingPojo>>> listByUserId(@RequestParam Long userId) {
-        logger.debug("listByUserId called, userId={}", userId);
+    public ResponseEntity<Response<PagedResult<UserManagementRoleGroupMappingPojo>>> listByUserId(
+            @RequestParam Long userId,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "20") int size
+    ) {
+        logger.debug("listByUserId called, userId={}, page={}, size={}", userId, page, size);
 
         Map<String, Object> params = new HashMap<>();
         params.put("userId", userId);
+        params.put("page", page);
+        params.put("size", size);
 
-        List<UserManagementRoleGroupMappingPojo> mappings = mappingService.findByUserId(params);
-        return ResponseEntity.ok(Response.success("Mappings for user fetched successfully", mappings, HttpStatus.OK.value()));
+        PagedResult<UserManagementRoleGroupMappingPojo> paged = mappingService.findByUserId(params);
+        return ResponseEntity.ok(Response.success("Mappings for user fetched successfully", paged, HttpStatus.OK.value()));
     }
 
-    // 🔍 LIST BY ROLE GROUP ID
+    // 🔍 LIST BY ROLE GROUP ID (returns PagedResult)
     @GetMapping("/listByRoleGroup")
-    public ResponseEntity<Response<List<UserManagementRoleGroupMappingPojo>>> listByRoleGroupId(@RequestParam Long roleGroupId) {
-        logger.debug("listByRoleGroupId called, roleGroupId={}", roleGroupId);
+    public ResponseEntity<Response<PagedResult<UserManagementRoleGroupMappingPojo>>> listByRoleGroupId(
+            @RequestParam Long roleGroupId,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "20") int size
+    ) {
+        logger.debug("listByRoleGroupId called, roleGroupId={}, page={}, size={}", roleGroupId, page, size);
 
         Map<String, Object> params = new HashMap<>();
         params.put("roleGroupId", roleGroupId);
+        params.put("page", page);
+        params.put("size", size);
 
-        List<UserManagementRoleGroupMappingPojo> mappings = mappingService.findByRoleGroupId(params);
-        return ResponseEntity.ok(Response.success("Mappings for role group fetched successfully", mappings, HttpStatus.OK.value()));
+        PagedResult<UserManagementRoleGroupMappingPojo> paged = mappingService.findByRoleGroupId(params);
+        return ResponseEntity.ok(Response.success("Mappings for role group fetched successfully", paged, HttpStatus.OK.value()));
     }
 }

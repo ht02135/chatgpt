@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import simple.chatgpt.mapper.management.security.UserManagementRoleGroupMappingMapper;
 import simple.chatgpt.pojo.management.security.UserManagementRoleGroupMappingPojo;
 import simple.chatgpt.util.GenericCache;
+import simple.chatgpt.util.PagedResult;
 
 @Service
 public class UserManagementRoleGroupMappingServiceImpl implements UserManagementRoleGroupMappingService {
@@ -34,28 +35,7 @@ public class UserManagementRoleGroupMappingServiceImpl implements UserManagement
         this.userRoleGroupMappingCache = userRoleGroupMappingCache;
     }
 
-    @Override
-    public List<UserManagementRoleGroupMappingPojo> findAll() {
-        logger.debug("findAll called");
-        return mappingMapper.findAllUserRoleGroups();
-    }
-
-    @Override
-    public List<UserManagementRoleGroupMappingPojo> findByUserId(Map<String, Object> params) {
-        Long userId = (Long) params.get("userId");
-        logger.debug("findByUserId called, userId={}", userId);
-
-        return userRoleGroupMappingCache.get(userId, k -> mappingMapper.findByUserId(Map.of("params", Map.of("userId", k))));
-    }
-
-    @Override
-    public List<UserManagementRoleGroupMappingPojo> findByRoleGroupId(Map<String, Object> params) {
-        Long roleGroupId = (Long) params.get("roleGroupId");
-        logger.debug("findByRoleGroupId called, roleGroupId={}", roleGroupId);
-
-        return mappingMapper.findByRoleGroupId(Map.of("params", Map.of("roleGroupId", roleGroupId)));
-    }
-
+    // ---------------- CREATE ----------------
     @Override
     public UserManagementRoleGroupMappingPojo addUserToRoleGroup(Map<String, Object> params) {
         UserManagementRoleGroupMappingPojo mapping = (UserManagementRoleGroupMappingPojo) params.get("mapping");
@@ -68,6 +48,19 @@ public class UserManagementRoleGroupMappingServiceImpl implements UserManagement
         return mapping;
     }
 
+    // ---------------- UPDATE ----------------
+    public UserManagementRoleGroupMappingPojo updateUserRoleGroup(Map<String, Object> params) {
+        UserManagementRoleGroupMappingPojo mapping = (UserManagementRoleGroupMappingPojo) params.get("mapping");
+        logger.debug("updateUserRoleGroup called, mapping={}", mapping);
+
+        mappingMapper.updateUserRoleGroup(Map.of("params", Map.of("mapping", mapping)));
+        userRoleGroupMappingCache.invalidate(mapping.getUserId());
+        logger.debug("Updated mapping and invalidated cache for userId={}", mapping.getUserId());
+
+        return mapping;
+    }
+
+    // ---------------- DELETE ----------------
     @Override
     public void removeMappingById(Map<String, Object> params) {
         Long id = (Long) params.get("id");
@@ -85,5 +78,69 @@ public class UserManagementRoleGroupMappingServiceImpl implements UserManagement
         mappingMapper.deleteUserRoleGroupByUserAndGroup(Map.of("params", Map.of("userId", userId, "roleGroupId", roleGroupId)));
         userRoleGroupMappingCache.invalidate(userId);
         logger.debug("Deleted mapping and invalidated cache for userId={}", userId);
+    }
+
+    // ---------------- READ ----------------
+    @Override
+    public PagedResult<UserManagementRoleGroupMappingPojo> findAll() {
+        logger.debug("findAll called");
+
+        List<UserManagementRoleGroupMappingPojo> items = mappingMapper.findAllUserRoleGroups();
+        long totalCount = items.size();
+
+        logger.debug("findAll result size={}", items.size());
+        return new PagedResult<>(items, totalCount, 1, (int) totalCount);
+    }
+
+    @Override
+    public PagedResult<UserManagementRoleGroupMappingPojo> findByUserId(Map<String, Object> params) {
+        Long userId = (Long) params.get("userId");
+        logger.debug("findByUserId called, userId={}", userId);
+
+        List<UserManagementRoleGroupMappingPojo> items = userRoleGroupMappingCache.get(userId,
+                k -> mappingMapper.findByUserId(Map.of("params", Map.of("userId", k))));
+        long totalCount = items.size();
+
+        logger.debug("findByUserId result size={}", items.size());
+        return new PagedResult<>(items, totalCount, 1, (int) totalCount);
+    }
+
+    @Override
+    public PagedResult<UserManagementRoleGroupMappingPojo> findByRoleGroupId(Map<String, Object> params) {
+        Long roleGroupId = (Long) params.get("roleGroupId");
+        logger.debug("findByRoleGroupId called, roleGroupId={}", roleGroupId);
+
+        List<UserManagementRoleGroupMappingPojo> items = mappingMapper.findByRoleGroupId(Map.of("params", Map.of("roleGroupId", roleGroupId)));
+        long totalCount = items.size();
+
+        logger.debug("findByRoleGroupId result size={}", items.size());
+        return new PagedResult<>(items, totalCount, 1, (int) totalCount);
+    }
+
+    // ---------------- SEARCH / PAGINATION ----------------
+    public PagedResult<UserManagementRoleGroupMappingPojo> findUserRoleGroups(Map<String, Object> params) {
+        logger.debug("findUserRoleGroups called, params={}", params);
+
+        List<UserManagementRoleGroupMappingPojo> items = mappingMapper.findUserRoleGroups(Map.of("params", params));
+        long totalCount = mappingMapper.countUserRoleGroups(Map.of("params", params));
+
+        logger.debug("findUserRoleGroups result size={}", items.size());
+        return new PagedResult<>(items, totalCount, (int) params.getOrDefault("page", 1), (int) params.getOrDefault("size", 20));
+    }
+
+    public PagedResult<UserManagementRoleGroupMappingPojo> searchUserRoleGroups(Map<String, Object> params) {
+        logger.debug("searchUserRoleGroups called, params={}", params);
+
+        List<UserManagementRoleGroupMappingPojo> items = mappingMapper.searchUserRoleGroups(Map.of("params", params));
+        long totalCount = mappingMapper.countUserRoleGroups(Map.of("params", params));
+
+        logger.debug("searchUserRoleGroups result size={}", items.size());
+        return new PagedResult<>(items, totalCount, (int) params.getOrDefault("page", 1), (int) params.getOrDefault("size", 20));
+    }
+
+    // ---------------- COUNT ----------------
+    public long countUserRoleGroups(Map<String, Object> params) {
+        logger.debug("countUserRoleGroups called, params={}", params);
+        return mappingMapper.countUserRoleGroups(Map.of("params", params));
     }
 }
