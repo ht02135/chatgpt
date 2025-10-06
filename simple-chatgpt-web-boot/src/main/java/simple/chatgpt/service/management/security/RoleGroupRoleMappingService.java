@@ -8,14 +8,14 @@ import simple.chatgpt.util.PagedResult;
 public interface RoleGroupRoleMappingService {
 
     // ---------------- CREATE ----------------
-    int insertMapping(Map<String, Object> params);
+	RoleGroupRoleMappingPojo insertMapping(Map<String, Object> params);
 
     // ✅ Create if not exists
     RoleGroupRoleMappingPojo addRoleToGroupIfNotExists(Map<String, Object> params); // roleGroupId, roleId
 
     // ---------------- DELETE ----------------
-    int deleteMappingById(Map<String, Object> params);
-    int deleteMappingByGroupAndRole(Map<String, Object> params);
+    void deleteMappingById(Map<String, Object> params);
+    void deleteMappingByGroupAndRole(Map<String, Object> params);
 
     // ---------------- READ ----------------
     PagedResult<RoleGroupRoleMappingPojo> findAllMappings();

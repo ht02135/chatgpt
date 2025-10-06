@@ -73,10 +73,10 @@ public class RoleGroupManagementServiceImpl implements RoleGroupManagementServic
             String groupName = rgConfig.getName();
             RoleGroupManagementPojo existingGroup = getRoleGroup(Map.of("groupName", groupName));
 
-            RoleGroupManagementPojo groupPojo = new RoleGroupManagementPojo();
-            groupPojo.setGroupName(groupName);
-
+            RoleGroupManagementPojo groupPojo;
             if (existingGroup == null) {
+                groupPojo = new RoleGroupManagementPojo();
+                groupPojo.setGroupName(groupName);
                 insertRoleGroup(Map.of("group", groupPojo));
                 logger.debug("Inserted new role group id={} groupName={}", groupPojo.getId(), groupName);
             } else {
@@ -106,30 +106,50 @@ public class RoleGroupManagementServiceImpl implements RoleGroupManagementServic
 
     // =================== CREATE ===================
     @Override
-    public int insertRoleGroup(Map<String, Object> params) {
+    public RoleGroupManagementPojo insertRoleGroup(Map<String, Object> params) {
         logger.debug("insertRoleGroup called, params={}", params);
-        return groupMapper.insertRoleGroup(params);
+        RoleGroupManagementPojo group = (RoleGroupManagementPojo) params.get("group");
+        groupMapper.insertRoleGroup(Map.of("params", Map.of("group", group)));
+        groupCache.put(group.getId(), group);
+        idToNameCache.put(group.getGroupName(), group.getId());
+        return group;
     }
 
     // =================== UPDATE ===================
     @Override
-    public int updateRoleGroup(Map<String, Object> params) {
+    public RoleGroupManagementPojo updateRoleGroup(Map<String, Object> params) {
         logger.debug("updateRoleGroup called, params={}", params);
-        return groupMapper.updateRoleGroup(params);
+        RoleGroupManagementPojo group = (RoleGroupManagementPojo) params.get("group");
+        groupMapper.updateRoleGroup(Map.of("params", Map.of("group", group)));
+        groupCache.put(group.getId(), group);
+        return group;
     }
 
     // =================== DELETE ===================
     @Override
-    public int deleteRoleGroupById(Map<String, Object> params) {
+    public void deleteRoleGroupById(Map<String, Object> params) {
         logger.debug("deleteRoleGroupById called, params={}", params);
-        return groupMapper.deleteRoleGroupById(params);
+        Long id = (Long) params.get("roleGroupId");
+        groupCache.invalidate(id);
+        groupMapper.deleteRoleGroupById(Map.of("params", Map.of("roleGroupId", id)));
     }
 
     @Override
-    public int deleteRoleGroupByName(Map<String, Object> params) {
+    public void deleteRoleGroupByName(Map<String, Object> params) {
         logger.debug("deleteRoleGroupByName called, params={}", params);
-        return groupMapper.deleteRoleGroupByName(params);
+
+        String groupName = (String) params.get("groupName");
+
+        // Use the mappingFunction version of get
+        Long id = idToNameCache.get(groupName, k -> null);
+
+        if (id != null) {
+            groupCache.invalidate(id);
+        }
+
+        groupMapper.deleteRoleGroupByName(Map.of("params", Map.of("groupName", groupName)));
     }
+
 
     // =================== READ ===================
     @Override
@@ -144,56 +164,34 @@ public class RoleGroupManagementServiceImpl implements RoleGroupManagementServic
         return groupMapper.findRoleGroupByName(params);
     }
 
-    // ---------------- LIST ALL / PAGINATION ----------------
-
     @Override
     public PagedResult<RoleGroupManagementPojo> findAllRoleGroups() {
         logger.debug("findAllRoleGroups called");
-
         List<RoleGroupManagementPojo> items = groupMapper.findAllRoleGroups();
-        logger.debug("findAllRoleGroups items={}", items);
-
         long totalCount = items != null ? items.size() : 0;
-        logger.debug("findAllRoleGroups totalCount={}", totalCount);
-
-        int page = 1;
-        int size = (int) totalCount;
-
-        return new PagedResult<>(items, totalCount, page, size);
+        return new PagedResult<>(items, totalCount, 1, (int) totalCount);
     }
 
     @Override
     public PagedResult<RoleGroupManagementPojo> getAllRoleGroups() {
         logger.debug("getAllRoleGroups called");
-
         List<RoleGroupManagementPojo> items = groupMapper.getAllRoleGroups();
-        logger.debug("getAllRoleGroups items={}", items);
-
         long totalCount = items != null ? items.size() : 0;
-        logger.debug("getAllRoleGroups totalCount={}", totalCount);
-
-        int page = 1;
-        int size = (int) totalCount;
-
-        return new PagedResult<>(items, totalCount, page, size);
+        return new PagedResult<>(items, totalCount, 1, (int) totalCount);
     }
 
-    // ---------------- SEARCH / PAGINATION ----------------
+    // =================== SEARCH / PAGINATION ===================
     @Override
     public PagedResult<RoleGroupManagementPojo> findRoleGroups(Map<String, Object> params) {
         logger.debug("findRoleGroups called, params={}", params);
         int page = params.get("page") != null ? (int) params.get("page") : 1;
         int size = params.get("size") != null ? (int) params.get("size") : 20;
         int offset = (page - 1) * size;
-
         params.put("offset", offset);
         params.put("limit", size);
 
         List<RoleGroupManagementPojo> items = groupMapper.findRoleGroups(params);
         long totalCount = groupMapper.countRoleGroups(params);
-
-        logger.debug("findRoleGroups results size={}", items.size());
-        logger.debug("findRoleGroups totalCount={}", totalCount);
 
         return new PagedResult<>(items, totalCount, page, size);
     }
@@ -204,15 +202,11 @@ public class RoleGroupManagementServiceImpl implements RoleGroupManagementServic
         int page = params.get("page") != null ? (int) params.get("page") : 1;
         int size = params.get("size") != null ? (int) params.get("size") : 20;
         int offset = (page - 1) * size;
-
         params.put("offset", offset);
         params.put("limit", size);
 
         List<RoleGroupManagementPojo> items = groupMapper.searchRoleGroups(params);
         long totalCount = groupMapper.countRoleGroups(params);
-
-        logger.debug("searchRoleGroups results size={}", items.size());
-        logger.debug("searchRoleGroups totalCount={}", totalCount);
 
         return new PagedResult<>(items, totalCount, page, size);
     }
@@ -225,7 +219,6 @@ public class RoleGroupManagementServiceImpl implements RoleGroupManagementServic
     }
 
     // =================== HELPER ===================
-
     public RoleGroupManagementPojo getRoleGroup(Map<String, Object> params) {
         logger.debug("getRoleGroup called, params={}", params);
         Long id = (Long) params.get("roleGroupId");

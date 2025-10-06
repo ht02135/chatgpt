@@ -8,17 +8,17 @@ import simple.chatgpt.util.PagedResult;
 public interface UserManagementRoleGroupMappingService {
 
     // ---------------- CREATE ----------------
-    UserManagementRoleGroupMappingPojo addUserToRoleGroup(Map<String, Object> params);
+    UserManagementRoleGroupMappingPojo insertUserRoleGroup(Map<String, Object> params);
 
     // ---------------- UPDATE ----------------
     UserManagementRoleGroupMappingPojo updateUserRoleGroup(Map<String, Object> params);
 
     // ---------------- DELETE ----------------
-    void removeMappingById(Map<String, Object> params);
-    void removeMappingByUserAndGroup(Map<String, Object> params);
+    void deleteUserRoleGroupById(Map<String, Object> params);
+    void deleteUserRoleGroupByUserAndGroup(Map<String, Object> params);
 
     // ---------------- READ ----------------
-    PagedResult<UserManagementRoleGroupMappingPojo> findAll();
+    PagedResult<UserManagementRoleGroupMappingPojo> findAllUserRoleGroups();
     PagedResult<UserManagementRoleGroupMappingPojo> findByUserId(Map<String, Object> params);
     PagedResult<UserManagementRoleGroupMappingPojo> findByRoleGroupId(Map<String, Object> params);
 

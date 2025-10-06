@@ -28,10 +28,16 @@ public class RoleGroupRoleMappingServiceImpl implements RoleGroupRoleMappingServ
 
     // ---------------- CREATE ----------------
     @Override
-    public int insertMapping(Map<String, Object> params) {
+    public RoleGroupRoleMappingPojo insertMapping(Map<String, Object> params) {
         logger.debug("insertMapping called");
         logger.debug("insertMapping params={}", params);
-        return mapper.insertMapping(params);
+
+        int rowsInserted = mapper.insertMapping(params);
+        logger.debug("insertMapping rowsInserted={}", rowsInserted);
+
+        // Extract mapping object from params if needed
+        RoleGroupRoleMappingPojo mapping = (RoleGroupRoleMappingPojo) params.get("mapping");
+        return mapping;
     }
 
     @Override
@@ -62,29 +68,24 @@ public class RoleGroupRoleMappingServiceImpl implements RoleGroupRoleMappingServ
         mapping.setRoleGroupId(roleGroupId);
         mapping.setRoleId(roleId);
 
-        int rowsInserted = insertMapping(Map.of("mapping", mapping));
-        if (rowsInserted < 1) {
-            logger.warn("Failed to insert mapping roleGroupId={} roleId={}", roleGroupId, roleId);
-            return null;
-        }
-
+        insertMapping(Map.of("mapping", mapping));
         logger.debug("Inserted new mapping successfully: {}", mapping);
         return mapping;
     }
 
     // ---------------- DELETE ----------------
     @Override
-    public int deleteMappingById(Map<String, Object> params) {
+    public void deleteMappingById(Map<String, Object> params) {
         logger.debug("deleteMappingById called");
         logger.debug("deleteMappingById params={}", params);
-        return mapper.deleteMappingById(params);
+        mapper.deleteMappingById(params);
     }
 
     @Override
-    public int deleteMappingByGroupAndRole(Map<String, Object> params) {
+    public void deleteMappingByGroupAndRole(Map<String, Object> params) {
         logger.debug("deleteMappingByGroupAndRole called");
         logger.debug("deleteMappingByGroupAndRole params={}", params);
-        return mapper.deleteMappingByGroupAndRole(params);
+        mapper.deleteMappingByGroupAndRole(params);
     }
 
     // ---------------- READ ----------------
