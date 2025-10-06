@@ -164,3 +164,18 @@ public class RoleGroupManagementController {
         return ResponseEntity.ok(Response.success("Count fetched successfully", count, HttpStatus.OK.value()));
     }
 }
+
+/*
+Here’s a comprehensive mapping table for roleGroups.js (and role group mappings) based on your JS calls and the controller methods you provided:
+
+JS Call (roleGroups.js)	Controller URL associated with a valid method	Controller Method Exists	Suggestion / Fix
+Save role group (create)	/management/rolegroups/insert	✅ Yes	Update JS to call /insert instead of /create
+Save role group (update)	/management/rolegroups/update	✅ Yes	JS already uses correct URL; ensure roleGroupId query param is sent
+Delete role group	/management/rolegroups/deleteById	✅ Yes	Update JS to call /deleteById instead of /delete
+Load role group by ID	/management/rolegroups/findById	✅ Yes	Update JS to call /findById instead of /get
+Load role groups (search / list)	/management/rolegroups/searchRoleGroups	✅ Yes	Update JS to call /search instead of /searchRoleGroups (controller uses /search)
+Optional: list all role groups	/management/rolegroups/findAll	✅ Yes	Use /findAll if needed for full role group list
+Optional: get all role groups	/management/rolegroups/getAll	✅ Yes	Use /getAll if needed
+Optional: find role groups with filters	/management/rolegroups/findRoles	✅ Yes	Already correct; no change needed
+Count role groups	/management/rolegroups/count	✅ Yes	JS currently not calling; use if needed
+*/
