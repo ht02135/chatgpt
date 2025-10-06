@@ -1,9 +1,9 @@
 package simple.chatgpt.service.management.security;
 
-import java.util.List;
 import java.util.Map;
 
 import simple.chatgpt.pojo.management.security.RoleGroupManagementPojo;
+import simple.chatgpt.util.PagedResult;
 
 public interface RoleGroupManagementService {
 
@@ -21,12 +21,12 @@ public interface RoleGroupManagementService {
     RoleGroupManagementPojo findRoleGroupById(Map<String, Object> params);
     RoleGroupManagementPojo findRoleGroupByName(Map<String, Object> params);
 
-    List<RoleGroupManagementPojo> findAllRoleGroups();
-    List<RoleGroupManagementPojo> getAllRoleGroups();
+    PagedResult<RoleGroupManagementPojo> findAllRoleGroups();
+    PagedResult<RoleGroupManagementPojo> getAllRoleGroups();
 
     // ---------------- SEARCH / PAGINATION ----------------
-    List<RoleGroupManagementPojo> findRoleGroups(Map<String, Object> params);
-    List<RoleGroupManagementPojo> searchRoleGroups(Map<String, Object> params);
+    PagedResult<RoleGroupManagementPojo> findRoleGroups(Map<String, Object> params);
+    PagedResult<RoleGroupManagementPojo> searchRoleGroups(Map<String, Object> params);
 
     // ---------------- COUNT ----------------
     long countRoleGroups(Map<String, Object> params);

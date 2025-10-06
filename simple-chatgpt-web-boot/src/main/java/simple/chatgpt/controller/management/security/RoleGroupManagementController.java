@@ -1,7 +1,6 @@
 package simple.chatgpt.controller.management.security;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
@@ -20,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import simple.chatgpt.pojo.management.security.RoleGroupManagementPojo;
 import simple.chatgpt.service.management.security.RoleGroupManagementService;
+import simple.chatgpt.util.PagedResult;
 import simple.chatgpt.util.Response;
 
 @RestController
@@ -107,37 +107,52 @@ public class RoleGroupManagementController {
         return ResponseEntity.ok(Response.success("Role group fetched successfully", group, HttpStatus.OK.value()));
     }
 
+    // ---------------- LIST ALL ----------------
     @GetMapping("/findAll")
-    public ResponseEntity<Response<List<RoleGroupManagementPojo>>> findAllRoleGroups() {
+    public ResponseEntity<Response<PagedResult<RoleGroupManagementPojo>>> findAllRoleGroups() {
         logger.debug("findAllRoleGroups called");
 
-        List<RoleGroupManagementPojo> groups = roleGroupService.findAllRoleGroups();
-        return ResponseEntity.ok(Response.success("All role groups fetched successfully", groups, HttpStatus.OK.value()));
+        PagedResult<RoleGroupManagementPojo> result = roleGroupService.findAllRoleGroups();
+        logger.debug("findAllRoleGroups result items={}", result.getItems());
+        logger.debug("findAllRoleGroups totalCount={}", result.getTotalCount());
+
+        return ResponseEntity.ok(Response.success("All role groups fetched successfully", result, HttpStatus.OK.value()));
     }
 
     @GetMapping("/getAll")
-    public ResponseEntity<Response<List<RoleGroupManagementPojo>>> getAllRoleGroups() {
+    public ResponseEntity<Response<PagedResult<RoleGroupManagementPojo>>> getAllRoleGroups() {
         logger.debug("getAllRoleGroups called");
 
-        List<RoleGroupManagementPojo> groups = roleGroupService.getAllRoleGroups();
-        return ResponseEntity.ok(Response.success("All role groups fetched successfully", groups, HttpStatus.OK.value()));
+        PagedResult<RoleGroupManagementPojo> result = roleGroupService.getAllRoleGroups();
+        logger.debug("getAllRoleGroups result items={}", result.getItems());
+        logger.debug("getAllRoleGroups totalCount={}", result.getTotalCount());
+
+        return ResponseEntity.ok(Response.success("All role groups fetched successfully", result, HttpStatus.OK.value()));
     }
 
     // ---------------- SEARCH / PAGINATION ----------------
     @GetMapping("/find")
-    public ResponseEntity<Response<List<RoleGroupManagementPojo>>> findRoleGroups(@RequestParam Map<String, Object> params) {
-        logger.debug("findRoleGroups called, params={}", params);
+    public ResponseEntity<Response<PagedResult<RoleGroupManagementPojo>>> findRoleGroups(@RequestParam Map<String, Object> params) {
+        logger.debug("findRoleGroups called");
+        logger.debug("findRoleGroups params={}", params);
 
-        List<RoleGroupManagementPojo> groups = roleGroupService.findRoleGroups(params);
-        return ResponseEntity.ok(Response.success("Filtered role groups fetched successfully", groups, HttpStatus.OK.value()));
+        PagedResult<RoleGroupManagementPojo> result = roleGroupService.findRoleGroups(params);
+        logger.debug("findRoleGroups result items={}", result.getItems());
+        logger.debug("findRoleGroups totalCount={}", result.getTotalCount());
+
+        return ResponseEntity.ok(Response.success("Filtered role groups fetched successfully", result, HttpStatus.OK.value()));
     }
 
     @GetMapping("/search")
-    public ResponseEntity<Response<List<RoleGroupManagementPojo>>> searchRoleGroups(@RequestParam Map<String, Object> params) {
-        logger.debug("searchRoleGroups called, params={}", params);
+    public ResponseEntity<Response<PagedResult<RoleGroupManagementPojo>>> searchRoleGroups(@RequestParam Map<String, Object> params) {
+        logger.debug("searchRoleGroups called");
+        logger.debug("searchRoleGroups params={}", params);
 
-        List<RoleGroupManagementPojo> groups = roleGroupService.searchRoleGroups(params);
-        return ResponseEntity.ok(Response.success("Searched role groups fetched successfully", groups, HttpStatus.OK.value()));
+        PagedResult<RoleGroupManagementPojo> result = roleGroupService.searchRoleGroups(params);
+        logger.debug("searchRoleGroups result items={}", result.getItems());
+        logger.debug("searchRoleGroups totalCount={}", result.getTotalCount());
+
+        return ResponseEntity.ok(Response.success("Searched role groups fetched successfully", result, HttpStatus.OK.value()));
     }
 
     // ---------------- COUNT ----------------

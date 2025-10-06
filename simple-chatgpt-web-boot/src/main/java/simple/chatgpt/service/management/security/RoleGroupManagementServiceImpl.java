@@ -18,6 +18,7 @@ import simple.chatgpt.mapper.management.security.RoleGroupManagementMapper;
 import simple.chatgpt.pojo.management.security.RoleGroupManagementPojo;
 import simple.chatgpt.pojo.management.security.RoleManagementPojo;
 import simple.chatgpt.util.GenericCache;
+import simple.chatgpt.util.PagedResult;
 
 @Service
 public class RoleGroupManagementServiceImpl implements RoleGroupManagementService {
@@ -143,29 +144,77 @@ public class RoleGroupManagementServiceImpl implements RoleGroupManagementServic
         return groupMapper.findRoleGroupByName(params);
     }
 
+    // ---------------- LIST ALL / PAGINATION ----------------
+
     @Override
-    public List<RoleGroupManagementPojo> findAllRoleGroups() {
+    public PagedResult<RoleGroupManagementPojo> findAllRoleGroups() {
         logger.debug("findAllRoleGroups called");
-        return groupMapper.findAllRoleGroups();
+
+        List<RoleGroupManagementPojo> items = groupMapper.findAllRoleGroups();
+        logger.debug("findAllRoleGroups items={}", items);
+
+        long totalCount = items != null ? items.size() : 0;
+        logger.debug("findAllRoleGroups totalCount={}", totalCount);
+
+        int page = 1;
+        int size = (int) totalCount;
+
+        return new PagedResult<>(items, totalCount, page, size);
     }
 
     @Override
-    public List<RoleGroupManagementPojo> getAllRoleGroups() {
+    public PagedResult<RoleGroupManagementPojo> getAllRoleGroups() {
         logger.debug("getAllRoleGroups called");
-        return groupMapper.getAllRoleGroups();
+
+        List<RoleGroupManagementPojo> items = groupMapper.getAllRoleGroups();
+        logger.debug("getAllRoleGroups items={}", items);
+
+        long totalCount = items != null ? items.size() : 0;
+        logger.debug("getAllRoleGroups totalCount={}", totalCount);
+
+        int page = 1;
+        int size = (int) totalCount;
+
+        return new PagedResult<>(items, totalCount, page, size);
     }
 
-    // =================== SEARCH / PAGINATION ===================
+    // ---------------- SEARCH / PAGINATION ----------------
     @Override
-    public List<RoleGroupManagementPojo> findRoleGroups(Map<String, Object> params) {
+    public PagedResult<RoleGroupManagementPojo> findRoleGroups(Map<String, Object> params) {
         logger.debug("findRoleGroups called, params={}", params);
-        return groupMapper.findRoleGroups(params);
+        int page = params.get("page") != null ? (int) params.get("page") : 1;
+        int size = params.get("size") != null ? (int) params.get("size") : 20;
+        int offset = (page - 1) * size;
+
+        params.put("offset", offset);
+        params.put("limit", size);
+
+        List<RoleGroupManagementPojo> items = groupMapper.findRoleGroups(params);
+        long totalCount = groupMapper.countRoleGroups(params);
+
+        logger.debug("findRoleGroups results size={}", items.size());
+        logger.debug("findRoleGroups totalCount={}", totalCount);
+
+        return new PagedResult<>(items, totalCount, page, size);
     }
 
     @Override
-    public List<RoleGroupManagementPojo> searchRoleGroups(Map<String, Object> params) {
+    public PagedResult<RoleGroupManagementPojo> searchRoleGroups(Map<String, Object> params) {
         logger.debug("searchRoleGroups called, params={}", params);
-        return groupMapper.searchRoleGroups(params);
+        int page = params.get("page") != null ? (int) params.get("page") : 1;
+        int size = params.get("size") != null ? (int) params.get("size") : 20;
+        int offset = (page - 1) * size;
+
+        params.put("offset", offset);
+        params.put("limit", size);
+
+        List<RoleGroupManagementPojo> items = groupMapper.searchRoleGroups(params);
+        long totalCount = groupMapper.countRoleGroups(params);
+
+        logger.debug("searchRoleGroups results size={}", items.size());
+        logger.debug("searchRoleGroups totalCount={}", totalCount);
+
+        return new PagedResult<>(items, totalCount, page, size);
     }
 
     // =================== COUNT ===================
