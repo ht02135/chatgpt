@@ -149,3 +149,20 @@ public class RoleGroupRoleMappingController {
         return ResponseEntity.ok(Response.success("Count fetched successfully", count, HttpStatus.OK.value()));
     }
 }
+
+/*
+Here’s the updated mapping between JS calls and the controller URLs for your roleGroupRoles.js setup:
+
+JS Call	Controller URL associated with a valid method	Controller Method Exists	Suggestion / Fix
+Save mapping (create)	/management/rolegrouprolemappings/add	✅ Yes	Update JS to call /add instead of /create
+Save mapping (update)	/management/rolegrouprolemappings/addIfNotExists	✅ Yes	JS can call /addIfNotExists if using "add only if not exists" logic
+Delete mapping (by ID)	/management/rolegrouprolemappings/deleteById	✅ Yes	Update JS to call /deleteById instead of /delete
+Delete mapping (by group & role)	/management/rolegrouprolemappings/deleteByGroupAndRole	✅ Yes	Add JS method to call /deleteByGroupAndRole if needed
+Load mapping by ID	/management/rolegrouprolemappings/listAll + filter	✅ Yes	JS currently uses /get; update to /listAll or /listByRoleGroup with filtering
+Load mappings (search / list)	/management/rolegrouprolemappings/searchMappings	✅ Yes	Update JS to call /searchMappings instead of /search
+Optional: list all mappings	/management/rolegrouprolemappings/listAll	✅ Yes	Use /listAll for full list if needed
+Optional: list by role group	/management/rolegrouprolemappings/listByRoleGroup	✅ Yes	Use /listByRoleGroup if filtering by group
+Optional: list by role	/management/rolegrouprolemappings/listByRole	✅ Yes	Use /listByRole if filtering by role
+Optional: find mappings with filters	/management/rolegrouprolemappings/findMappings	✅ Yes	Already correct; JS can call /findMappings
+Count mappings	/management/rolegrouprolemappings/countMappings	✅ Yes	JS currently not calling; use /countMappings if needed
+*/

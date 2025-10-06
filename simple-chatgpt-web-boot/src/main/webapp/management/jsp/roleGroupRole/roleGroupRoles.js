@@ -1,8 +1,6 @@
-// roleGroupRoles.js
-
 // detect context path dynamically from browser URL
 const ROLE_GROUP_ROLE_CONTEXT_PATH = "/" + window.location.pathname.split("/")[1];
-const API_ROLE_GROUP_ROLE = `${ROLE_GROUP_ROLE_CONTEXT_PATH}/api/management/roleGroupRoles`;
+const API_ROLE_GROUP_ROLE = `${ROLE_GROUP_ROLE_CONTEXT_PATH}/api/management/rolegrouprolemappings`;
 
 function RoleGroupRole(data, fields) {
     console.log("roleGroupRoles.js -> RoleGroupRole: constructor called");
@@ -17,7 +15,7 @@ function RoleGroupRoleViewModel(params, config) {
     const self = this;
 
     // ========================
-    // Mode & Config
+    // Mode & Configs
     // ========================
     self.mode = params.mode || 'list';
     self.gridConfig = config?.grid;
@@ -32,7 +30,6 @@ function RoleGroupRoleViewModel(params, config) {
     self.currentRoleGroupRole = ko.observable(new RoleGroupRole({}, self.formConfig?.fields || []));
     self.errors = ko.observable({});
 
-    // Search fields
     self.searchParams = {};
     if (self.searchConfig?.fields) {
         self.searchConfig.fields.forEach(f => self.searchParams[f.name] = ko.observable(''));
@@ -63,6 +60,7 @@ function RoleGroupRoleViewModel(params, config) {
         if (self.searchConfig?.fields) {
             self.searchConfig.fields.forEach(f => {
                 const val = self.searchParams[f.name]();
+                console.log("roleGroupRoles.js -> buildSearchQuery param", f.name, "=", val);
                 if (val && val.toString().trim()) params.append(f.name, val.toString().trim());
             });
         }
@@ -78,7 +76,8 @@ function RoleGroupRoleViewModel(params, config) {
 
         try {
             const qs = self.buildSearchQuery();
-            const res = await fetch(`${API_ROLE_GROUP_ROLE}/search?${qs}`, { headers: { 'Accept': 'application/json' } });
+            console.log("roleGroupRoles.js -> loadRoleGroupRoles: query string=", qs);
+            const res = await fetch(`${API_ROLE_GROUP_ROLE}/searchMappings?${qs}`, { headers: { 'Accept': 'application/json' } });
             const data = await res.json();
             console.log("roleGroupRoles.js -> loadRoleGroupRoles: response=", data);
 
@@ -112,7 +111,8 @@ function RoleGroupRoleViewModel(params, config) {
         if (!confirm('Are you sure you want to delete this mapping?')) return;
         try {
             const id = ko.unwrap(row.id);
-            await fetch(`${API_ROLE_GROUP_ROLE}/delete?roleGroupRoleId=${encodeURIComponent(id)}`, { method: 'DELETE', headers: { 'Accept': 'application/json' } });
+            console.log("roleGroupRoles.js -> deleteRoleGroupRole id=", id);
+            await fetch(`${API_ROLE_GROUP_ROLE}/deleteById?id=${encodeURIComponent(id)}`, { method: 'DELETE', headers: { 'Accept': 'application/json' } });
             self.loadRoleGroupRoles();
         } catch (err) {
             console.error('Delete roleGroupRole error:', err);
@@ -125,27 +125,33 @@ function RoleGroupRoleViewModel(params, config) {
 
         self.errors({});
         const errs = self.validator ? self.validator.validateForm(self.currentRoleGroupRole(), self.formConfig.fields) : {};
+        console.log("roleGroupRoles.js -> saveRoleGroupRole validation errs=", errs);
         if (Object.keys(errs).length > 0) { self.errors(errs); return; }
 
         const payload = ko.toJS(self.currentRoleGroupRole());
         try {
-            let url = `${API_ROLE_GROUP_ROLE}/create`, method = 'POST';
+            let url = `${API_ROLE_GROUP_ROLE}/add`, method = 'POST';
             if (self.mode === 'edit' && self.currentRoleGroupRole().id && self.currentRoleGroupRole().id()) {
-                url = `${API_ROLE_GROUP_ROLE}/update?roleGroupRoleId=${encodeURIComponent(self.currentRoleGroupRole().id())}`;
-                method = 'PUT';
+                url = `${API_ROLE_GROUP_ROLE}/addIfNotExists?roleGroupId=${encodeURIComponent(self.currentRoleGroupRole().roleGroupId())}&roleId=${encodeURIComponent(self.currentRoleGroupRole().roleId())}`;
+                method = 'POST';
             }
+            console.log("roleGroupRoles.js -> saveRoleGroupRole: url=", url, "method=", method, "payload=", payload);
             await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
             self.navigateToRoleGroupRoles();
-        } catch (err) { console.error('Save roleGroupRole error:', err); }
+        } catch (err) {
+            console.error('Save roleGroupRole error:', err);
+        }
     };
 
     self.loadRoleGroupRoleById = async function(id) {
         console.log("roleGroupRoles.js -> loadRoleGroupRoleById id=", id);
         try {
-            const res = await fetch(`${API_ROLE_GROUP_ROLE}/get?roleGroupRoleId=${encodeURIComponent(id)}`, { headers: { 'Accept': 'application/json' } });
+            const res = await fetch(`${API_ROLE_GROUP_ROLE}/listAll`, { headers: { 'Accept': 'application/json' } });
             const data = await res.json();
+            console.log("roleGroupRoles.js -> loadRoleGroupRoleById response=", data);
             if (data.status === 'SUCCESS' && data.data) {
-                self.currentRoleGroupRole(new RoleGroupRole(data.data, self.formConfig?.fields || []));
+                const found = data.data.items.find(r => r.id === id);
+                if (found) self.currentRoleGroupRole(new RoleGroupRole(found, self.formConfig?.fields || []));
             }
         } catch (err) { console.error('Load roleGroupRole error:', err); }
     };
@@ -181,7 +187,7 @@ function RoleGroupRoleViewModel(params, config) {
     // ========================
     if (self.mode === 'edit') {
         const editId = localStorage.getItem('editRoleGroupRoleId');
-        if (editId) self.loadRoleGroupRoleById(editId);
+        if (editId) self.loadRoleGroupRoleById(parseInt(editId, 10));
     } else if (self.mode === 'add') {
         self.currentRoleGroupRole(new RoleGroupRole({}, self.formConfig?.fields || []));
     } else {
