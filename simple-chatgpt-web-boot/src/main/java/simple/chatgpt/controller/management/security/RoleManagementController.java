@@ -171,7 +171,8 @@ public class RoleManagementController {
 }
 
 /*
-Here’s the table you asked for, filled out for all main role-related JS calls from role.js:
+HUNG : DONT REMOVE
+Heres the table you asked for, filled out for all main role-related JS calls from role.js:
 
 JS Call (role.js)	Controller URL associated with a valid method	Controller Method Exists	Suggestion / Fix
 Save role (create)	/management/roles/insert	✅ Yes	Update JS to call /insert instead of /create

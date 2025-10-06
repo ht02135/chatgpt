@@ -93,7 +93,7 @@ public class UserManagementServiceImpl implements UserManagementService {
                     mapping.setUserId(existing.getId());
                     mapping.setRoleGroupId(group.getId());
 
-                    mappingService.addUserToRoleGroup(Map.of("mapping", mapping));
+                    mappingService.insertUserRoleGroup(Map.of("mapping", mapping));
                     logger.debug("Mapped user userName={} to roleGroup={} mappingId={}",
                             u.getUserName(), roleGroupName, mapping.getId());
                 } else {

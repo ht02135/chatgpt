@@ -68,6 +68,16 @@ public class PageRoleGroupManagementController {
     }
 
     // ---------------- READ ----------------
+    @GetMapping("/findAllPageRoleGroups")
+    public ResponseEntity<Response<PagedResult<PageRoleGroupManagementPojo>>> findAllPageRoleGroups() {
+        logger.debug("findAllPageRoleGroups called");
+
+        PagedResult<PageRoleGroupManagementPojo> paged = pageRoleGroupService.findAllPageRoleGroups();
+        logger.debug("findAllPageRoleGroups returned {} items, totalCount={}", paged.getItems().size(), paged.getTotalCount());
+
+        return ResponseEntity.ok(Response.success("All page role groups fetched successfully", paged, HttpStatus.OK.value()));
+    }
+
     @GetMapping("/findById")
     public ResponseEntity<Response<PageRoleGroupManagementPojo>> findById(@RequestParam Long id) {
         logger.debug("findById called, id={}", id);
@@ -111,33 +121,23 @@ public class PageRoleGroupManagementController {
 
     // ---------------- SEARCH / PAGINATION ----------------
     @GetMapping("/findPageRoleGroups")
-    public ResponseEntity<Response<PagedResult<PageRoleGroupManagementPojo>>> findPageRoleGroups(@RequestParam Map<String, Object> requestParams) {
-        logger.debug("findPageRoleGroups called, requestParams={}", requestParams);
+    public ResponseEntity<Response<PagedResult<PageRoleGroupManagementPojo>>> findPageRoleGroups(@RequestParam Map<String, Object> params) {
+        logger.debug("findPageRoleGroups called, params={}", params);
 
-        PagedResult<PageRoleGroupManagementPojo> paged = pageRoleGroupService.findPageRoleGroups(requestParams);
-
+        PagedResult<PageRoleGroupManagementPojo> paged = pageRoleGroupService.findPageRoleGroups(params);
         logger.debug("findPageRoleGroups returned {} items, totalCount={}", paged.getItems().size(), paged.getTotalCount());
+
         return ResponseEntity.ok(Response.success("Page role groups fetched successfully", paged, HttpStatus.OK.value()));
     }
 
     @GetMapping("/searchPageRoleGroups")
-    public ResponseEntity<Response<PagedResult<PageRoleGroupManagementPojo>>> searchPageRoleGroups(@RequestParam Map<String, Object> requestParams) {
-        logger.debug("searchPageRoleGroups called, requestParams={}", requestParams);
+    public ResponseEntity<Response<PagedResult<PageRoleGroupManagementPojo>>> searchPageRoleGroups(@RequestParam Map<String, Object> params) {
+        logger.debug("searchPageRoleGroups called, params={}", params);
 
-        PagedResult<PageRoleGroupManagementPojo> paged = pageRoleGroupService.searchPageRoleGroups(requestParams);
-
+        PagedResult<PageRoleGroupManagementPojo> paged = pageRoleGroupService.searchPageRoleGroups(params);
         logger.debug("searchPageRoleGroups returned {} items, totalCount={}", paged.getItems().size(), paged.getTotalCount());
+
         return ResponseEntity.ok(Response.success("Page role groups fetched successfully", paged, HttpStatus.OK.value()));
-    }
-
-    @GetMapping("/findAllPageRoleGroups")
-    public ResponseEntity<Response<PagedResult<PageRoleGroupManagementPojo>>> findAllPageRoleGroups() {
-        logger.debug("findAllPageRoleGroups called");
-
-        PagedResult<PageRoleGroupManagementPojo> paged = pageRoleGroupService.findAllPageRoleGroups();
-
-        logger.debug("findAllPageRoleGroups returned {} items, totalCount={}", paged.getItems().size(), paged.getTotalCount());
-        return ResponseEntity.ok(Response.success("All page role groups fetched successfully", paged, HttpStatus.OK.value()));
     }
 
     // ---------------- COUNT ----------------
@@ -146,6 +146,8 @@ public class PageRoleGroupManagementController {
         logger.debug("countPageRoleGroups called, params={}", params);
 
         long count = pageRoleGroupService.countPageRoleGroups(params);
+        logger.debug("countPageRoleGroups result={}", count);
+
         return ResponseEntity.ok(Response.success("Page role groups count fetched successfully", count, HttpStatus.OK.value()));
     }
 }

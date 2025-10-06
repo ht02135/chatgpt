@@ -37,51 +37,47 @@ public class RoleGroupManagementController {
 
     // ---------------- CREATE ----------------
     @PostMapping("/insert")
-    public ResponseEntity<Response<Integer>> insertRoleGroup(@RequestBody RoleGroupManagementPojo group) {
-        logger.debug("insertRoleGroup called");
-        logger.debug("insertRoleGroup group={}", group);
+    public ResponseEntity<Response<RoleGroupManagementPojo>> insertRoleGroup(@RequestBody RoleGroupManagementPojo group) {
+        logger.debug("insertRoleGroup called, group={}", group);
 
         Map<String, Object> params = new HashMap<>();
         params.put("group", group);
 
-        int result = roleGroupService.insertRoleGroup(params);
+        RoleGroupManagementPojo inserted = roleGroupService.insertRoleGroup(params);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(Response.success("Role group inserted successfully", result, HttpStatus.CREATED.value()));
+                .body(Response.success("Role group inserted successfully", inserted, HttpStatus.CREATED.value()));
     }
 
     // ---------------- UPDATE ----------------
     @PutMapping("/update")
-    public ResponseEntity<Response<Integer>> updateRoleGroup(
-            @RequestBody Map<String, Object> params
-    ) {
-        logger.debug("updateRoleGroup called");
-        logger.debug("updateRoleGroup params={}", params);
+    public ResponseEntity<Response<RoleGroupManagementPojo>> updateRoleGroup(@RequestBody Map<String, Object> params) {
+        logger.debug("updateRoleGroup called, params={}", params);
 
-        int result = roleGroupService.updateRoleGroup(params);
-        return ResponseEntity.ok(Response.success("Role group updated successfully", result, HttpStatus.OK.value()));
+        RoleGroupManagementPojo updated = roleGroupService.updateRoleGroup(params);
+        return ResponseEntity.ok(Response.success("Role group updated successfully", updated, HttpStatus.OK.value()));
     }
 
     // ---------------- DELETE ----------------
     @DeleteMapping("/deleteById")
-    public ResponseEntity<Response<Integer>> deleteRoleGroupById(@RequestParam Long roleGroupId) {
+    public ResponseEntity<Response<Void>> deleteRoleGroupById(@RequestParam Long roleGroupId) {
         logger.debug("deleteRoleGroupById called, roleGroupId={}", roleGroupId);
 
         Map<String, Object> params = new HashMap<>();
         params.put("roleGroupId", roleGroupId);
 
-        int result = roleGroupService.deleteRoleGroupById(params);
-        return ResponseEntity.ok(Response.success("Role group deleted by ID successfully", result, HttpStatus.OK.value()));
+        roleGroupService.deleteRoleGroupById(params); // service returns void
+        return ResponseEntity.ok(Response.success("Role group deleted by ID successfully", null, HttpStatus.OK.value()));
     }
 
     @DeleteMapping("/deleteByName")
-    public ResponseEntity<Response<Integer>> deleteRoleGroupByName(@RequestParam String groupName) {
+    public ResponseEntity<Response<Void>> deleteRoleGroupByName(@RequestParam String groupName) {
         logger.debug("deleteRoleGroupByName called, groupName={}", groupName);
 
         Map<String, Object> params = new HashMap<>();
         params.put("groupName", groupName);
 
-        int result = roleGroupService.deleteRoleGroupByName(params);
-        return ResponseEntity.ok(Response.success("Role group deleted by name successfully", result, HttpStatus.OK.value()));
+        roleGroupService.deleteRoleGroupByName(params); // service returns void
+        return ResponseEntity.ok(Response.success("Role group deleted by name successfully", null, HttpStatus.OK.value()));
     }
 
     // ---------------- READ ----------------
@@ -133,8 +129,7 @@ public class RoleGroupManagementController {
     // ---------------- SEARCH / PAGINATION ----------------
     @GetMapping("/find")
     public ResponseEntity<Response<PagedResult<RoleGroupManagementPojo>>> findRoleGroups(@RequestParam Map<String, Object> params) {
-        logger.debug("findRoleGroups called");
-        logger.debug("findRoleGroups params={}", params);
+        logger.debug("findRoleGroups called, params={}", params);
 
         PagedResult<RoleGroupManagementPojo> result = roleGroupService.findRoleGroups(params);
         logger.debug("findRoleGroups result items={}", result.getItems());
@@ -145,8 +140,7 @@ public class RoleGroupManagementController {
 
     @GetMapping("/search")
     public ResponseEntity<Response<PagedResult<RoleGroupManagementPojo>>> searchRoleGroups(@RequestParam Map<String, Object> params) {
-        logger.debug("searchRoleGroups called");
-        logger.debug("searchRoleGroups params={}", params);
+        logger.debug("searchRoleGroups called, params={}", params);
 
         PagedResult<RoleGroupManagementPojo> result = roleGroupService.searchRoleGroups(params);
         logger.debug("searchRoleGroups result items={}", result.getItems());
@@ -166,16 +160,17 @@ public class RoleGroupManagementController {
 }
 
 /*
-Here’s a comprehensive mapping table for roleGroups.js (and role group mappings) based on your JS calls and the controller methods you provided:
+HUNG : DONT REMOVE
+Heres a comprehensive mapping table for roleGroups.js (and role group mappings) based on your JS calls and the controller methods you provided:
 
 JS Call (roleGroups.js)	Controller URL associated with a valid method	Controller Method Exists	Suggestion / Fix
-Save role group (create)	/management/rolegroups/insert	✅ Yes	Update JS to call /insert instead of /create
-Save role group (update)	/management/rolegroups/update	✅ Yes	JS already uses correct URL; ensure roleGroupId query param is sent
-Delete role group	/management/rolegroups/deleteById	✅ Yes	Update JS to call /deleteById instead of /delete
-Load role group by ID	/management/rolegroups/findById	✅ Yes	Update JS to call /findById instead of /get
-Load role groups (search / list)	/management/rolegroups/searchRoleGroups	✅ Yes	Update JS to call /search instead of /searchRoleGroups (controller uses /search)
-Optional: list all role groups	/management/rolegroups/findAll	✅ Yes	Use /findAll if needed for full role group list
-Optional: get all role groups	/management/rolegroups/getAll	✅ Yes	Use /getAll if needed
-Optional: find role groups with filters	/management/rolegroups/findRoles	✅ Yes	Already correct; no change needed
-Count role groups	/management/rolegroups/count	✅ Yes	JS currently not calling; use if needed
+Save role group (create)	/management/rolegroups/insert	? Yes	Update JS to call /insert instead of /create
+Save role group (update)	/management/rolegroups/update	? Yes	JS already uses correct URL; ensure roleGroupId query param is sent
+Delete role group	/management/rolegroups/deleteById	? Yes	Update JS to call /deleteById instead of /delete
+Load role group by ID	/management/rolegroups/findById	? Yes	Update JS to call /findById instead of /get
+Load role groups (search / list)	/management/rolegroups/searchRoleGroups	? Yes	Update JS to call /search instead of /searchRoleGroups (controller uses /search)
+Optional: list all role groups	/management/rolegroups/findAll	? Yes	Use /findAll if needed for full role group list
+Optional: get all role groups	/management/rolegroups/getAll	? Yes	Use /getAll if needed
+Optional: find role groups with filters	/management/rolegroups/findRoles	? Yes	Already correct; no change needed
+Count role groups	/management/rolegroups/count	? Yes	JS currently not calling; use if needed
 */
