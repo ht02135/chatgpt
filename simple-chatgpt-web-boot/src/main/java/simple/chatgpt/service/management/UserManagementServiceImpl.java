@@ -87,7 +87,7 @@ public class UserManagementServiceImpl implements UserManagementService {
             // ----------- MAP USER TO ROLE-GROUP -----------
             String roleGroupName = u.getRoleGroup();
             if (roleGroupName != null && !roleGroupName.isEmpty()) {
-                RoleGroupManagementPojo group = roleGroupService.getRoleGroup(Map.of("groupName", roleGroupName));
+                RoleGroupManagementPojo group = roleGroupService.findRoleGroupByName(Map.of("groupName", roleGroupName));
                 if (group != null) {
                     UserManagementRoleGroupMappingPojo mapping = new UserManagementRoleGroupMappingPojo();
                     mapping.setUserId(existing.getId());
