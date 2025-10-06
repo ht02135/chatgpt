@@ -18,6 +18,7 @@ import simple.chatgpt.config.management.security.PageRoleGroupConfig;
 import simple.chatgpt.config.management.security.RoleConfig;
 import simple.chatgpt.config.management.security.RoleGroupConfig;
 import simple.chatgpt.config.management.security.RoleRefConfig;
+import simple.chatgpt.config.management.security.UserConfig;
 
 @Component
 public class SecurityConfigLoader {
@@ -27,6 +28,7 @@ public class SecurityConfigLoader {
     private List<RoleConfig> roles = new ArrayList<>();
     private List<RoleGroupConfig> roleGroups = new ArrayList<>();
     private List<PageRoleGroupConfig> pageRoleGroups = new ArrayList<>();
+    private List<UserConfig> users = new ArrayList<>();
 
     private static final String DEFAULT_CONFIG_FILE = "/config/management/security-config.xml";
 
@@ -51,7 +53,8 @@ public class SecurityConfigLoader {
                 String desc = e.getAttribute("description");
                 RoleConfig role = new RoleConfig(name, desc);
                 roles.add(role);
-                logger.debug("Loaded role: name={}, description={}", name, desc);
+                logger.debug("Loaded role name={}", name);
+                logger.debug("Loaded role description={}", desc);
             }
 
             // ===== Load role-groups =====
@@ -68,7 +71,8 @@ public class SecurityConfigLoader {
                 }
 
                 roleGroups.add(rg);
-                logger.debug("Loaded role group: name={}, roles={}", groupName, rg.getRoles().size());
+                logger.debug("Loaded role group name={}", groupName);
+                logger.debug("Role group roles size={}", rg.getRoles().size());
             }
 
             // ===== Load page-role-groups =====
@@ -79,7 +83,36 @@ public class SecurityConfigLoader {
                 String group = p.getAttribute("role-group");
                 PageRoleGroupConfig prg = new PageRoleGroupConfig(urlPattern, group);
                 pageRoleGroups.add(prg);
-                logger.debug("Loaded page-role-group: urlPattern={}, roleGroup={}", urlPattern, group);
+                logger.debug("Loaded page-role-group urlPattern={}", urlPattern);
+                logger.debug("Loaded page-role-group roleGroup={}", group);
+            }
+
+            // ===== Load users =====
+            NodeList userNodes = document.getElementsByTagName("user");
+            for (int i = 0; i < userNodes.getLength(); i++) {
+                Element u = (Element) userNodes.item(i);
+
+                UserConfig user = new UserConfig(
+                    u.getAttribute("user_name"),
+                    u.getAttribute("user_key"),
+                    u.getAttribute("password"),
+                    u.getAttribute("first_name"),
+                    u.getAttribute("last_name"),
+                    u.getAttribute("email"),
+                    u.getAttribute("address_line_1"),
+                    u.getAttribute("address_line_2"),
+                    u.getAttribute("city"),
+                    u.getAttribute("state"),
+                    u.getAttribute("post_code"),
+                    u.getAttribute("country"),
+                    Boolean.parseBoolean(u.getAttribute("active")),
+                    Boolean.parseBoolean(u.getAttribute("locked")),
+                    u.getAttribute("role-group")
+                );
+
+                users.add(user);
+                logger.debug("Loaded user userName={}", user.getUserName());
+                logger.debug("Loaded user roleGroup={}", user.getRoleGroup());
             }
 
         } catch (Exception e) {
@@ -98,5 +131,9 @@ public class SecurityConfigLoader {
 
     public List<PageRoleGroupConfig> getPageRoleGroups() {
         return pageRoleGroups;
+    }
+
+    public List<UserConfig> getUsers() {
+        return users;
     }
 }

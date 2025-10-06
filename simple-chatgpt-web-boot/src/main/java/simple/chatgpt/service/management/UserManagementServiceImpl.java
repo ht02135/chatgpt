@@ -4,10 +4,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.PostConstruct;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import simple.chatgpt.config.management.loader.SecurityConfigLoader;
+import simple.chatgpt.config.management.security.UserConfig;
 import simple.chatgpt.mapper.management.UserManagementMapper;
 import simple.chatgpt.pojo.management.UserManagementPojo;
 import simple.chatgpt.util.PagedResult;
@@ -18,9 +23,55 @@ public class UserManagementServiceImpl implements UserManagementService {
     private static final Logger logger = LogManager.getLogger(UserManagementServiceImpl.class);
 
     private final UserManagementMapper userManagementMapper;
+    private final SecurityConfigLoader securityConfigLoader;
 
-    public UserManagementServiceImpl(UserManagementMapper userManagementMapper) {
+    @Autowired
+    public UserManagementServiceImpl(UserManagementMapper userManagementMapper, SecurityConfigLoader securityConfigLoader) {
+        logger.debug("UserManagementServiceImpl constructor called");
+        logger.debug("userManagementMapper={}", userManagementMapper);
+        logger.debug("securityConfigLoader={}", securityConfigLoader);
+
         this.userManagementMapper = userManagementMapper;
+        this.securityConfigLoader = securityConfigLoader;
+    }
+
+    @PostConstruct
+    public void initializeDB() {
+        logger.debug("initializeDB called");
+
+        List<UserConfig> users = securityConfigLoader.getUsers();
+        logger.debug("initializeDB users size={}", users.size());
+
+        for (UserConfig u : users) {
+            logger.debug("initializeDB processing user userName={}", u.getUserName());
+
+            UserManagementPojo existing = userManagementMapper.findByUserName(u.getUserName());
+            if (existing != null) {
+                logger.debug("User already exists, skipping userName={}", u.getUserName());
+                continue;
+            }
+
+            UserManagementPojo user = new UserManagementPojo();
+            user.setUserName(u.getUserName());
+            user.setUserKey(u.getUserKey());
+            user.setPassword(u.getPassword()); // 🔒 optionally encode later
+            user.setFirstName(u.getFirstName());
+            user.setLastName(u.getLastName());
+            user.setEmail(u.getEmail());
+            user.setAddressLine1(u.getAddressLine1());
+            user.setAddressLine2(u.getAddressLine2());
+            user.setCity(u.getCity());
+            user.setState(u.getState());
+            user.setPostCode(u.getPostCode());
+            user.setCountry(u.getCountry());
+            user.setActive(u.isActive());
+            user.setLocked(u.isLocked());
+
+            userManagementMapper.insertUser(user);
+            logger.debug("Inserted default user userName={}", user.getUserName());
+        }
+
+        logger.debug("initializeDB completed");
     }
 
     // 🔎 LIST / SEARCH
