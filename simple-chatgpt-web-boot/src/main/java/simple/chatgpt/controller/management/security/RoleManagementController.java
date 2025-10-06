@@ -1,6 +1,7 @@
 package simple.chatgpt.controller.management.security;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
@@ -35,85 +36,135 @@ public class RoleManagementController {
         logger.debug("RoleManagementController constructor called, roleService={}", roleService);
     }
 
-    // ➕ CREATE ROLE
-    @PostMapping("/create")
-    public ResponseEntity<Response<RoleManagementPojo>> createRole(@RequestBody RoleManagementPojo role) {
-        logger.debug("createRole called");
-        logger.debug("createRole role={}", role);
-
+    // ---------------- CREATE ----------------
+    @PostMapping("/insert")
+    public ResponseEntity<Response<RoleManagementPojo>> insertRole(@RequestBody RoleManagementPojo role) {
+        logger.debug("insertRole called role={}", role);
         Map<String, Object> params = new HashMap<>();
         params.put("role", role);
-        RoleManagementPojo createdRole = roleService.createRole(params);
+
+        RoleManagementPojo insertedRole = roleService.insertRole(params);
+        logger.debug("insertRole result={}", insertedRole);
 
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(Response.success("Role created successfully", createdRole, HttpStatus.CREATED.value()));
+                .body(Response.success("Role inserted successfully", insertedRole, HttpStatus.CREATED.value()));
     }
 
-    // 📖 GET ROLE BY ID
-    @GetMapping("/get")
-    public ResponseEntity<Response<RoleManagementPojo>> getRoleById(@RequestParam Long roleId) {
-        logger.debug("getRoleById called, roleId={}", roleId);
-
-        Map<String, Object> params = new HashMap<>();
-        params.put("roleId", roleId);
-
-        RoleManagementPojo role = roleService.getRole(params);
-        if (role == null) {
-            return ResponseEntity.ok(Response.error("Role not found", null, HttpStatus.NOT_FOUND.value()));
-        }
-
-        return ResponseEntity.ok(Response.success("Role fetched successfully", role, HttpStatus.OK.value()));
-    }
-
-    // 📝 UPDATE ROLE
+    // ---------------- UPDATE ----------------
     @PutMapping("/update")
-    public ResponseEntity<Response<RoleManagementPojo>> updateRole(
-            @RequestParam Long roleId,
-            @RequestBody RoleManagementPojo role
-    ) {
-        logger.debug("updateRole called, roleId={}", roleId);
-        logger.debug("updateRole role={}", role);
-
+    public ResponseEntity<Response<RoleManagementPojo>> updateRole(@RequestBody RoleManagementPojo role,
+                                                                   @RequestParam(required = false) Long roleId,
+                                                                   @RequestParam(required = false) String roleName) {
+        logger.debug("updateRole called role={}, roleId={}, roleName={}", role, roleId, roleName);
         Map<String, Object> params = new HashMap<>();
-        params.put("roleId", roleId);
         params.put("role", role);
+        if (roleId != null) params.put("roleId", roleId);
+        if (roleName != null) params.put("roleName", roleName);
 
         RoleManagementPojo updatedRole = roleService.updateRole(params);
+        logger.debug("updateRole result={}", updatedRole);
+
         return ResponseEntity.ok(Response.success("Role updated successfully", updatedRole, HttpStatus.OK.value()));
     }
 
-    // 🗑 DELETE ROLE
-    @DeleteMapping("/delete")
-    public ResponseEntity<Response<Void>> deleteRole(@RequestParam Long roleId) {
-        logger.debug("deleteRole called, roleId={}", roleId);
+    // ---------------- DELETE ----------------
+    @DeleteMapping("/deleteById")
+    public ResponseEntity<Response<Void>> deleteRoleById(@RequestParam Long roleId) {
+        logger.debug("deleteRoleById called roleId={}", roleId);
+        Map<String, Object> params = Map.of("roleId", roleId);
 
-        Map<String, Object> params = new HashMap<>();
-        params.put("roleId", roleId);
+        roleService.deleteRoleById(params);
+        logger.debug("deleteRoleById completed for roleId={}", roleId);
 
-        roleService.deleteRole(params);
-        return ResponseEntity.ok(Response.success("Role deleted successfully", null, HttpStatus.OK.value()));
+        return ResponseEntity.ok(Response.success("Role deleted by ID successfully", null, HttpStatus.OK.value()));
     }
 
-    // 🔍 SEARCH / PAGINATION
-    @GetMapping("/search")
-    public ResponseEntity<Response<PagedResult<RoleManagementPojo>>> searchRoles(
-            @RequestParam Map<String, Object> requestParams
-    ) {
-        logger.debug("searchRoles called, requestParams={}", requestParams);
+    @DeleteMapping("/deleteByName")
+    public ResponseEntity<Response<Void>> deleteRoleByName(@RequestParam String roleName) {
+        logger.debug("deleteRoleByName called roleName={}", roleName);
+        Map<String, Object> params = Map.of("roleName", roleName);
 
-        Map<String, Object> params = new HashMap<>(requestParams);
-        int page = requestParams.get("page") != null ? Integer.parseInt(requestParams.get("page").toString()) : 0;
-        int size = requestParams.get("size") != null ? Integer.parseInt(requestParams.get("size").toString()) : 20;
-        int offset = page * size;
+        roleService.deleteRoleByName(params);
+        logger.debug("deleteRoleByName completed for roleName={}", roleName);
 
-        params.put("page", page);
-        params.put("size", size);
-        params.put("offset", offset);
-        params.put("limit", size);
-        params.put("sortField", requestParams.getOrDefault("sortField", "id"));
-        params.put("sortDirection", requestParams.getOrDefault("sortDirection", "ASC"));
+        return ResponseEntity.ok(Response.success("Role deleted by Name successfully", null, HttpStatus.OK.value()));
+    }
 
-        PagedResult<RoleManagementPojo> pagedRoles = roleService.searchRoles(params);
-        return ResponseEntity.ok(Response.success("Roles fetched successfully", pagedRoles, HttpStatus.OK.value()));
+    // ---------------- READ ----------------
+    @GetMapping("/findById")
+    public ResponseEntity<Response<RoleManagementPojo>> findRoleById(@RequestParam Long roleId) {
+        logger.debug("findRoleById called roleId={}", roleId);
+        Map<String, Object> params = Map.of("roleId", roleId);
+
+        RoleManagementPojo role = roleService.findRoleById(params);
+        logger.debug("findRoleById result={}", role);
+
+        if (role == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Response.error("Role not found by ID", null, HttpStatus.NOT_FOUND.value()));
+        }
+        return ResponseEntity.ok(Response.success("Role found by ID", role, HttpStatus.OK.value()));
+    }
+
+    @GetMapping("/findByName")
+    public ResponseEntity<Response<RoleManagementPojo>> findRoleByName(@RequestParam String roleName) {
+        logger.debug("findRoleByName called roleName={}", roleName);
+        Map<String, Object> params = Map.of("roleName", roleName);
+
+        RoleManagementPojo role = roleService.findRoleByName(params);
+        logger.debug("findRoleByName result={}", role);
+
+        if (role == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Response.error("Role not found by Name", null, HttpStatus.NOT_FOUND.value()));
+        }
+        return ResponseEntity.ok(Response.success("Role found by Name", role, HttpStatus.OK.value()));
+    }
+
+    @GetMapping("/findAll")
+    public ResponseEntity<Response<List<RoleManagementPojo>>> findAllRoles() {
+        logger.debug("findAllRoles called");
+        List<RoleManagementPojo> roles = roleService.findAllRoles();
+        logger.debug("findAllRoles returned {} roles", roles.size());
+
+        return ResponseEntity.ok(Response.success("All roles fetched", roles, HttpStatus.OK.value()));
+    }
+
+    @GetMapping("/getAll")
+    public ResponseEntity<Response<List<RoleManagementPojo>>> getAllRoles() {
+        logger.debug("getAllRoles called");
+        List<RoleManagementPojo> roles = roleService.getAllRoles();
+        logger.debug("getAllRoles returned {} roles", roles.size());
+
+        return ResponseEntity.ok(Response.success("All roles fetched", roles, HttpStatus.OK.value()));
+    }
+
+    // ---------------- SEARCH / PAGINATION ----------------
+    @GetMapping("/findRoles")
+    public ResponseEntity<Response<PagedResult<RoleManagementPojo>>> findRoles(@RequestParam Map<String, Object> requestParams) {
+        logger.debug("findRoles called requestParams={}", requestParams);
+        PagedResult<RoleManagementPojo> result = roleService.findRoles(requestParams);
+        logger.debug("findRoles returned {} items", result.getItems().size());
+
+        return ResponseEntity.ok(Response.success("Roles found", result, HttpStatus.OK.value()));
+    }
+
+    @GetMapping("/searchRoles")
+    public ResponseEntity<Response<PagedResult<RoleManagementPojo>>> searchRoles(@RequestParam Map<String, Object> requestParams) {
+        logger.debug("searchRoles called requestParams={}", requestParams);
+        PagedResult<RoleManagementPojo> result = roleService.searchRoles(requestParams);
+        logger.debug("searchRoles returned {} items", result.getItems().size());
+
+        return ResponseEntity.ok(Response.success("Roles searched", result, HttpStatus.OK.value()));
+    }
+
+    // ---------------- COUNT ----------------
+    @GetMapping("/count")
+    public ResponseEntity<Response<Long>> countRoles(@RequestParam Map<String, Object> requestParams) {
+        logger.debug("countRoles called requestParams={}", requestParams);
+        long count = roleService.countRoles(requestParams);
+        logger.debug("countRoles result={}", count);
+
+        return ResponseEntity.ok(Response.success("Roles count fetched", count, HttpStatus.OK.value()));
     }
 }

@@ -32,5 +32,6 @@ public interface RoleManagementMapper {
     List<RoleManagementPojo> findRoles(@Param("params") Map<String, Object> params);
     List<RoleManagementPojo> searchRoles(@Param("params") Map<String, Object> params);
 
+    // ---------------- COUNT ----------------
     long countRoles(@Param("params") Map<String, Object> params);
 }
