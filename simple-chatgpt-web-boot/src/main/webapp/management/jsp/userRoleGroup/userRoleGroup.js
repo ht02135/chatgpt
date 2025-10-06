@@ -114,7 +114,15 @@ function UserRoleGroupViewModel(params, config) {
             console.error('Save user role group error:', err);
         }
     };
-
+	
+	// ========================
+	// Navigation
+	// ========================
+	self.navigateToUserRoleGroups = function() {
+	    console.log("userRoleGroup.js -> navigateToUserRoleGroups called");
+	    window.location.href = 'userRoleGroups.jsp'; // adjust URL if different
+	};
+	
     // ========================
     // Delete
     // ========================
