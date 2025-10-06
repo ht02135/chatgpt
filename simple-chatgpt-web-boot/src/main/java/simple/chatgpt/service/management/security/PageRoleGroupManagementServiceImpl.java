@@ -159,10 +159,24 @@ public class PageRoleGroupManagementServiceImpl implements PageRoleGroupManageme
     }
 
     @Override
-    public List<PageRoleGroupManagementPojo> getByRoleGroupId(Map<String, Object> params) {
-        Long roleGroupId = (Long) params.get("roleGroupId");
+    public PagedResult<PageRoleGroupManagementPojo> getByRoleGroupId(Map<String, Object> params) {
+        Long roleGroupId = params.get("roleGroupId") != null ? ((Number) params.get("roleGroupId")).longValue() : null;
         logger.debug("getByRoleGroupId called, roleGroupId={}", roleGroupId);
-        return pageMapper.findByRoleGroupId(Map.of("params", Map.of("roleGroupId", roleGroupId)));
+
+        if (roleGroupId == null) {
+            logger.warn("getByRoleGroupId called with null roleGroupId");
+            return new PagedResult<PageRoleGroupManagementPojo>(List.of(), 0, 1, 20);
+        }
+
+        // Fetch list from mapper
+        List<PageRoleGroupManagementPojo> items = pageMapper.findByRoleGroupId(Map.of("params", Map.of("roleGroupId", roleGroupId)));
+        long totalCount = items.size(); // optionally use a mapper count method
+
+        logger.debug("getByRoleGroupId results size={}", items.size());
+        logger.debug("getByRoleGroupId totalCount={}", totalCount);
+
+        // PagedResult(List<T> items, long totalCount, int page, int size)
+        return new PagedResult<PageRoleGroupManagementPojo>(items, totalCount, 1, (int) totalCount); // single page
     }
 
     @Override

@@ -1,6 +1,5 @@
 package simple.chatgpt.service.management.security;
 
-import java.util.List;
 import java.util.Map;
 
 import simple.chatgpt.pojo.management.security.PageRoleGroupManagementPojo;
@@ -19,7 +18,7 @@ public interface PageRoleGroupManagementService {
 
     PageRoleGroupManagementPojo getByUrlPattern(Map<String, Object> params);
 
-    List<PageRoleGroupManagementPojo> getByRoleGroupId(Map<String, Object> params);
+    PagedResult<PageRoleGroupManagementPojo> getByRoleGroupId(Map<String, Object> params);
 
     // ➕ CREATE
     PageRoleGroupManagementPojo create(Map<String, Object> params);
