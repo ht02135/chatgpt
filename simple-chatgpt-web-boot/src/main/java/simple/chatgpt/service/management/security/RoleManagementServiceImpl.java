@@ -280,20 +280,20 @@ public class RoleManagementServiceImpl implements RoleManagementService {
 
     // -------------------- Private Helpers --------------------
     private RoleManagementPojo internalFindRoleById(Long id) {
-        logger.debug("internalFindRoleByName called id={}", id);
+        logger.debug("internalFindRoleById called id={}", id);
         return roleCache.get(id, k -> {
         	logger.debug("internalFindRoleByName roleCache.get called k={}", k);
             RoleManagementPojo dbRole = roleMapper.findRoleById(ParamWrapper.wrap("roleId", k));
             if (dbRole != null) {
-            	logger.debug("internalFindRoleByName roleCache.get ##############");
-                logger.debug("internalFindRoleByName roleCache.get id=k={} LOAD from DB", k);
-                logger.debug("internalFindRoleByName roleCache.get dbRole != null dbRole={}", dbRole);
-                logger.debug("internalFindRoleByName roleCache.get ##############");
+            	logger.debug("internalFindRoleById roleCache.get ##############");
+                logger.debug("internalFindRoleById roleCache.get id=k={} LOAD from DB", k);
+                logger.debug("internalFindRoleById roleCache.get dbRole != null dbRole={}", dbRole);
+                logger.debug("internalFindRoleById roleCache.get ##############");
             } else {
-            	logger.debug("internalFindRoleByName roleCache.get ##############");
-            	logger.debug("internalFindRoleByName roleCache.get id=k={} NOT LOAD from DB", k);
-                logger.debug("internalFindRoleByName roleCache.get dbRole is NULL !!!!");
-                logger.debug("internalFindRoleByName roleCache.get ##############");
+            	logger.debug("internalFindRoleById roleCache.get ##############");
+            	logger.debug("internalFindRoleById roleCache.get id=k={} NOT LOAD from DB", k);
+                logger.debug("internalFindRoleById roleCache.get dbRole is NULL !!!!");
+                logger.debug("internalFindRoleById roleCache.get ##############");
             }
             return dbRole;
         });
@@ -305,25 +305,41 @@ public class RoleManagementServiceImpl implements RoleManagementService {
         String roleName = ParamWrapper.unwrap(params, "roleName");
         logger.debug("internalFindRoleByName called roleName={}", roleName);
 
+        // Step 1: get ID from nameToIdCache
         Long id = nameToIdCache.get(roleName, k -> {
             logger.debug("internalFindRoleByName nameToIdCache.get k={}", k);
+
             RoleManagementPojo dbRole = roleMapper.findRoleByName(ParamWrapper.wrap("roleName", k));
             if (dbRole != null) {
-            	logger.debug("internalFindRoleByName nameToIdCache.get ##############");
+                logger.debug("internalFindRoleByName nameToIdCache.get ##############");
                 logger.debug("internalFindRoleByName nameToIdCache.get LOADED roleName=k={} LOAD from DB", k);
                 logger.debug("internalFindRoleByName nameToIdCache.get dbRole != null, dbRole={}", dbRole);
                 logger.debug("internalFindRoleByName nameToIdCache.get ##############");
-                return dbRole.getId();
+                return dbRole.getId(); // store the ID in nameToIdCache
             } else {
-            	logger.debug("internalFindRoleByName nameToIdCache.get ##############");
-            	logger.debug("internalFindRoleByName nameToIdCache.get LOADED roleName=k={} NOT LOAD from DB", k);
+                logger.debug("internalFindRoleByName nameToIdCache.get ##############");
+                logger.debug("internalFindRoleByName nameToIdCache.get LOADED roleName=k={} NOT LOAD from DB", k);
                 logger.debug("internalFindRoleByName nameToIdCache.getdbRole is NULL !!!!");
                 logger.debug("internalFindRoleByName nameToIdCache.get ##############");
-                return (long) -1;
+                return -1L; // sentinel for not found
             }
         });
 
-        return roleCache.get(id, k -> null); // roleCache.get(id, k -> null);
+        // Step 2: get full object from roleCache
+        if (id == null || id == -1L) {
+            logger.debug("internalFindRoleByName returning null for roleName={}", roleName);
+            return null;
+        }
+
+        RoleManagementPojo dbRole = roleCache.get(id, k -> {
+            logger.debug("internalFindRoleByName roleCache.get k={}", k);
+            RoleManagementPojo roleFromDb = roleMapper.findRoleById(ParamWrapper.wrap("roleId", k));
+            logger.debug("internalFindRoleByName roleCache.get loaded roleFromDb={}", roleFromDb);
+            return roleFromDb; // Caffeine caches automatically
+        });
+
+        logger.debug("internalFindRoleByName returning dbRole={}", dbRole);
+        return dbRole;
     }
 
     private RoleManagementPojo internalGetRole(Map<String, Object> params) {
