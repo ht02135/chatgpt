@@ -19,12 +19,8 @@ public interface RoleManagementControllerApi {
     // ---------------- DELETE ----------------
     ResponseEntity<Response<Void>> deleteRoleById(Long roleId);
 
-    ResponseEntity<Response<Void>> deleteRoleByName(String roleName);
-
     // ---------------- READ ----------------
     ResponseEntity<Response<RoleManagementPojo>> findRoleById(Long roleId);
-
-    ResponseEntity<Response<RoleManagementPojo>> findRoleByName(String roleName);
 
     // ---------------- LIST / PAGINATION ----------------
     ResponseEntity<Response<PagedResult<RoleManagementPojo>>> findAllRoles();

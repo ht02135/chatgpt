@@ -79,17 +79,6 @@ public class RoleManagementController implements RoleManagementControllerApi {
         return ResponseEntity.ok(Response.success("Role deleted by ID successfully", null, HttpStatus.OK.value()));
     }
 
-    @DeleteMapping("/deleteByName")
-    public ResponseEntity<Response<Void>> deleteRoleByName(@RequestParam String roleName) {
-        logger.debug("deleteRoleByName called roleName={}", roleName);
-        Map<String, Object> params = ParamWrapper.wrap("roleName", roleName);
-
-        roleService.deleteRoleByName(params);
-        logger.debug("deleteRoleByName completed for roleName={}", roleName);
-
-        return ResponseEntity.ok(Response.success("Role deleted by Name successfully", null, HttpStatus.OK.value()));
-    }
-
     // ---------------- READ ----------------
     @GetMapping("/findById")
     public ResponseEntity<Response<RoleManagementPojo>> findRoleById(@RequestParam Long roleId) {
@@ -104,21 +93,6 @@ public class RoleManagementController implements RoleManagementControllerApi {
                     .body(Response.error("Role not found by ID", null, HttpStatus.NOT_FOUND.value()));
         }
         return ResponseEntity.ok(Response.success("Role found by ID", role, HttpStatus.OK.value()));
-    }
-
-    @GetMapping("/findByName")
-    public ResponseEntity<Response<RoleManagementPojo>> findRoleByName(@RequestParam String roleName) {
-        logger.debug("findRoleByName called roleName={}", roleName);
-        Map<String, Object> params = ParamWrapper.wrap("roleName", roleName);
-
-        RoleManagementPojo role = roleService.findRoleByName(params);
-        logger.debug("findRoleByName result={}", role);
-
-        if (role == null) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Response.error("Role not found by Name", null, HttpStatus.NOT_FOUND.value()));
-        }
-        return ResponseEntity.ok(Response.success("Role found by Name", role, HttpStatus.OK.value()));
     }
 
     // ---------------- LIST / PAGINATION ----------------
