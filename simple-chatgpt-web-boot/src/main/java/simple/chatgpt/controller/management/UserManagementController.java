@@ -32,6 +32,8 @@ public class UserManagementController {
     private final UserManagementService userManagementService;
 
     public UserManagementController(UserManagementService userManagementService) {
+        logger.debug("UserManagementController constructor called");
+        logger.debug("UserManagementController userManagementService={}", userManagementService);
         this.userManagementService = userManagementService;
     }
 
@@ -48,7 +50,8 @@ public class UserManagementController {
     public ResponseEntity<Response<PagedResult<UserManagementPojo>>> searchUsers(
             @RequestParam Map<String, String> params
     ) {
-        logger.debug("searchUsers called with params={}", params);
+        logger.debug("searchUsers called");
+        logger.debug("searchUsers params={}", params);
 
         /*
         Hung : DONT REMOVE THIS CODE
@@ -56,16 +59,21 @@ public class UserManagementController {
         int page = 0;
         int size = 20;
         try {
-            page = SafeConverter.toIntOrDefault(params.get("page"), 0); 
+            page = SafeConverter.toIntOrDefault(params.get("page"), 0);
+            logger.debug("searchUsers page={}", page);
         } catch (NumberFormatException e) {
             logger.warn("Invalid page param {}, defaulting to 0", params.get("page"), e);
         }
+
         try {
             size = SafeConverter.toIntOrDefault(params.get("size"), 20);
+            logger.debug("searchUsers size={}", size);
         } catch (NumberFormatException e) {
             logger.warn("Invalid size param {}, defaulting to 20", params.get("size"), e);
         }
+
         int offset = page * size;
+        logger.debug("searchUsers offset={}", offset);
 
         params.put("offset", String.valueOf(offset));
         params.put("limit", String.valueOf(size));
@@ -73,6 +81,8 @@ public class UserManagementController {
         params.put("sortDirection", params.getOrDefault("sortDirection", "asc"));
 
         PagedResult<UserManagementPojo> users = userManagementService.searchUsers(params);
+        logger.debug("searchUsers result={}", users);
+
         return ResponseEntity.ok(Response.success("Fetched successfully", users, HttpStatus.OK.value()));
     }
 
@@ -83,7 +93,10 @@ public class UserManagementController {
             @RequestParam(required = false) String userName,
             @RequestParam(required = false) String userKey
     ) {
-        logger.debug("getUser called with id={}, userName={}, userKey={}", id, userName, userKey);
+        logger.debug("getUser called");
+        logger.debug("getUser id={}", id);
+        logger.debug("getUser userName={}", userName);
+        logger.debug("getUser userKey={}", userKey);
 
         UserManagementPojo user = null;
 
@@ -96,9 +109,11 @@ public class UserManagementController {
         }
 
         if (user == null) {
+            logger.debug("getUser: User not found");
             return ResponseEntity.ok(Response.error("User not found", null, HttpStatus.NOT_FOUND.value()));
         }
 
+        logger.debug("getUser result={}", user);
         return ResponseEntity.ok(Response.success("Fetched successfully", user, HttpStatus.OK.value()));
     }
 
@@ -107,12 +122,11 @@ public class UserManagementController {
     public ResponseEntity<Response<UserManagementPojo>> createUser(
             @Valid @RequestBody UserManagementPojo user) {
 
-        logger.debug("#############");
-        logger.debug("createUser called with user={}", user);
+        logger.debug("createUser called");
+        logger.debug("createUser user={}", user);
 
         UserManagementPojo created = userManagementService.createUser(user);
         logger.debug("createUser created={}", created);
-        logger.debug("#############");
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -127,11 +141,14 @@ public class UserManagementController {
             @RequestParam(required = false) String userKey,
             @Valid @RequestBody UserManagementPojo user
     ) {
-        logger.debug("updateUser called with id={}, userName={}, userKey={}, user={}", id, userName, userKey, user);
+        logger.debug("updateUser called");
+        logger.debug("updateUser id={}", id);
+        logger.debug("updateUser userName={}", userName);
+        logger.debug("updateUser userKey={}", userKey);
+        logger.debug("updateUser user={}", user);
 
         UserManagementPojo updated = null;
 
-        logger.debug("#############");
         if (id != null) {
             updated = userManagementService.updateUserById(id, user);
         } else if (userName != null) {
@@ -139,11 +156,11 @@ public class UserManagementController {
         } else if (userKey != null) {
             updated = userManagementService.updateUserByUserKey(userKey, user);
         } else {
+            logger.debug("updateUser: No key provided");
             return ResponseEntity.ok(Response.error("At least one key must be provided for update", null, HttpStatus.BAD_REQUEST.value()));
         }
-        logger.debug("updateUser updated={}", updated);
-        logger.debug("#############");
 
+        logger.debug("updateUser updated={}", updated);
         return ResponseEntity.ok(Response.success("User updated successfully", updated, HttpStatus.OK.value()));
     }
 
@@ -154,7 +171,10 @@ public class UserManagementController {
             @RequestParam(required = false) String userName,
             @RequestParam(required = false) String userKey
     ) {
-        logger.debug("deleteUser called with id={}, userName={}, userKey={}", id, userName, userKey);
+        logger.debug("deleteUser called");
+        logger.debug("deleteUser id={}", id);
+        logger.debug("deleteUser userName={}", userName);
+        logger.debug("deleteUser userKey={}", userKey);
 
         if (id != null) {
             userManagementService.deleteUserById(id);
@@ -163,9 +183,11 @@ public class UserManagementController {
         } else if (userKey != null) {
             userManagementService.deleteUserByUserKey(userKey);
         } else {
+            logger.debug("deleteUser: No key provided");
             return ResponseEntity.ok(Response.error("At least one key must be provided for delete", null, HttpStatus.BAD_REQUEST.value()));
         }
 
+        logger.debug("deleteUser: success");
         return ResponseEntity.ok(Response.success("User deleted successfully", null, HttpStatus.OK.value()));
     }
 }
