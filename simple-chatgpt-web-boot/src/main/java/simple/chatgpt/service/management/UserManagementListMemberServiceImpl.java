@@ -51,8 +51,8 @@ public class UserManagementListMemberServiceImpl implements UserManagementListMe
         }
         int offset = page * size;
         
-        String sortField = (String) params.getOrDefault("sortField", "id");
-        String sortDirection = ((String) params.getOrDefault("sortDirection", "ASC")).toUpperCase();
+        String sortField = ParamWrapper.unwrap(params, "sortField", "id");
+        String sortDirection = ParamWrapper.unwrap(params, "sortDirection", "ASC").toUpperCase();
 
         Map<String, Object> sqlParams = new HashMap<>(params);
         sqlParams.put("offset", offset);
@@ -67,7 +67,7 @@ public class UserManagementListMemberServiceImpl implements UserManagementListMe
         List<UserManagementListMemberPojo> members;
         long total = 0;
         try {
-        	logger.debug("searchMembers sqlParams={}", sqlParams);
+            logger.debug("searchMembers sqlParams={}", sqlParams);
             members = mapper.findMembers(sqlParams);
             logger.debug("searchMembers params={}", params);
             total = mapper.countMembers(params);
@@ -137,13 +137,11 @@ public class UserManagementListMemberServiceImpl implements UserManagementListMe
         logger.debug("createMember params={}", params);
         logger.debug("createMember #############");
         mapper.insertMember(params);
-        logger.debug("createMember inserted member={}", params.get("member"));
-        
         logger.debug("createMember #############");
         logger.debug("createMember DONE!!!");
         logger.debug("createMember #############");
         
-        return (UserManagementListMemberPojo) params.get("member");
+        return (UserManagementListMemberPojo) ParamWrapper.unwrap(params, "member");
     }
 
     @Override
@@ -171,8 +169,7 @@ public class UserManagementListMemberServiceImpl implements UserManagementListMe
         logger.debug("updateMemberById #############");
 
         mapper.updateMemberById(params);
-        logger.debug("updateMemberById updated member={}", params.get("member"));
-        return (UserManagementListMemberPojo) params.get("member");
+        return (UserManagementListMemberPojo) ParamWrapper.unwrap(params, "member");
     }
 
     @Override
@@ -183,8 +180,7 @@ public class UserManagementListMemberServiceImpl implements UserManagementListMe
         }
 
         mapper.updateMemberByUserName(params);
-        logger.debug("updateMemberByUserName updated member={}", params.get("member"));
-        return (UserManagementListMemberPojo) params.get("member");
+        return (UserManagementListMemberPojo) ParamWrapper.unwrap(params, "member");
     }
 
     // ------------------ DELETE ------------------
@@ -196,7 +192,6 @@ public class UserManagementListMemberServiceImpl implements UserManagementListMe
         }
 
         mapper.deleteMemberById(params);
-        logger.debug("deleteMemberById completed for id={}", params.get("id"));
     }
 
     @Override
@@ -207,7 +202,6 @@ public class UserManagementListMemberServiceImpl implements UserManagementListMe
         }
 
         mapper.deleteMemberByUserName(params);
-        logger.debug("deleteMemberByUserName completed for userName={}", params.get("userName"));
     }
 
     @Override
@@ -218,7 +212,6 @@ public class UserManagementListMemberServiceImpl implements UserManagementListMe
         }
 
         mapper.deleteMembersByListId(params);
-        logger.debug("deleteMembersByListId completed for listId={}", params.get("listId"));
     }
     
 }
