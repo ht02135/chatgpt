@@ -53,23 +53,21 @@ public class UserManagementController {
 		logger.debug("searchUsers called");
 		logger.debug("searchUsers params={}", params);
 
-		/*
-		 * Hung : DONT REMOVE THIS CODE
-		 */
-		int page = 0;
-		int size = 20;
-		try {
-		    page = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "page", "0"), 0);
-		    logger.debug("searchUsers page={}", page);
-		} catch (NumberFormatException e) {
-		    logger.warn("Invalid page param {}, defaulting to 0", ParamWrapper.unwrap(params, "page", "0"), e);
-		}
-		try {
-		    size = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "size", "20"), 20);
-		    logger.debug("searchUsers size={}", size);
-		} catch (NumberFormatException e) {
-		    logger.warn("Invalid size param {}, defaulting to 20", ParamWrapper.unwrap(params, "size", "20"), e);
-		}
+        /*
+        hung: DONT REMOVE THIS CODE
+        */
+        int page = 0;
+        int size = 20;
+        try {
+            page = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "page", 0), 0); 
+        } catch (NumberFormatException e) {
+            logger.warn("Invalid page param {}, defaulting to 0", ParamWrapper.unwrap(params, "page", 0), e);
+        }
+        try {
+            size = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "size", 20), 20);
+        } catch (NumberFormatException e) {
+            logger.warn("Invalid size param {}, defaulting to 20", ParamWrapper.unwrap(params, "size", 20), e);
+        }
 		int offset = page * size;
 		logger.debug("searchUsers offset={}", offset);
 

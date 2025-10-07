@@ -32,6 +32,7 @@ import simple.chatgpt.mapper.management.UserManagementListMemberMapper;
 import simple.chatgpt.pojo.management.UserManagementListMemberPojo;
 import simple.chatgpt.pojo.management.UserManagementListPojo;
 import simple.chatgpt.util.PagedResult;
+import simple.chatgpt.util.ParamWrapper;
 import simple.chatgpt.util.SafeConverter;
 
 @Service
@@ -79,19 +80,19 @@ public class UserManagementListServiceImpl implements UserManagementListService 
         logger.debug("searchUserLists called with params={}", params);
 
         /*
-        Hung : DONT REMOVE THIS CODE
+        hung: DONT REMOVE THIS CODE
         */
         int page = 0;
         int size = 20;
         try {
-            page = SafeConverter.toIntOrDefault(params.get("page"), 0); 
+            page = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "page", 0), 0); 
         } catch (NumberFormatException e) {
-            logger.warn("Invalid page param {}, defaulting to 0", params.get("page"), e);
+            logger.warn("Invalid page param {}, defaulting to 0", ParamWrapper.unwrap(params, "page", 0), e);
         }
         try {
-            size = SafeConverter.toIntOrDefault(params.get("size"), 20);
+            size = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "size", 20), 20);
         } catch (NumberFormatException e) {
-            logger.warn("Invalid size param {}, defaulting to 20", params.get("size"), e);
+            logger.warn("Invalid size param {}, defaulting to 20", ParamWrapper.unwrap(params, "size", 20), e);
         }
         int offset = page * size;
         
@@ -242,19 +243,19 @@ public class UserManagementListServiceImpl implements UserManagementListService 
         logger.debug("getMembersByListId listId={}", listId);
 
         /*
-        Hung : DONT REMOVE THIS CODE
+        hung: DONT REMOVE THIS CODE
         */
         int page = 0;
         int size = 20;
         try {
-            page = SafeConverter.toIntOrDefault(params.get("page"), 0); 
+            page = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "page", 0), 0); 
         } catch (NumberFormatException e) {
-            logger.warn("Invalid page param {}, defaulting to 0", params.get("page"), e);
+            logger.warn("Invalid page param {}, defaulting to 0", ParamWrapper.unwrap(params, "page", 0), e);
         }
         try {
-            size = SafeConverter.toIntOrDefault(params.get("size"), 20);
+            size = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "size", 20), 20);
         } catch (NumberFormatException e) {
-            logger.warn("Invalid size param {}, defaulting to 20", params.get("size"), e);
+            logger.warn("Invalid size param {}, defaulting to 20", ParamWrapper.unwrap(params, "size", 20), e);
         }
         int offset = page * size;
 
@@ -279,19 +280,19 @@ public class UserManagementListServiceImpl implements UserManagementListService 
         logger.debug("searchMembers called with params={}", params);
 
         /*
-        Hung : DONT REMOVE THIS CODE
+        hung: DONT REMOVE THIS CODE
         */
         int page = 0;
         int size = 20;
         try {
-            page = SafeConverter.toIntOrDefault(params.get("page"), 0); 
+            page = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "page", 0), 0); 
         } catch (NumberFormatException e) {
-            logger.warn("Invalid page param {}, defaulting to 0", params.get("page"), e);
+            logger.warn("Invalid page param {}, defaulting to 0", ParamWrapper.unwrap(params, "page", 0), e);
         }
         try {
-            size = SafeConverter.toIntOrDefault(params.get("size"), 20);
+            size = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "size", 20), 20);
         } catch (NumberFormatException e) {
-            logger.warn("Invalid size param {}, defaulting to 20", params.get("size"), e);
+            logger.warn("Invalid size param {}, defaulting to 20", ParamWrapper.unwrap(params, "size", 20), e);
         }
         int offset = page * size;
         

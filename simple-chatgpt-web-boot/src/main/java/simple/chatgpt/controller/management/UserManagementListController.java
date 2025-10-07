@@ -30,6 +30,7 @@ import simple.chatgpt.pojo.management.UserManagementListPojo;
 import simple.chatgpt.service.management.PropertyManagementService;
 import simple.chatgpt.service.management.UserManagementListService;
 import simple.chatgpt.util.PagedResult;
+import simple.chatgpt.util.ParamWrapper;
 import simple.chatgpt.util.PropertyKey;
 import simple.chatgpt.util.Response;
 import simple.chatgpt.util.SafeConverter;
@@ -41,11 +42,11 @@ public class UserManagementListController {
     private static final Logger logger = LogManager.getLogger(UserManagementListController.class);
 
     private final UserManagementListService userManagementListService;
-    private final PropertyManagementService propertyService; // ✅ Inject PropertyService
+    private final PropertyManagementService propertyService;
 
     // Constructor injection
     public UserManagementListController(UserManagementListService userManagementListService,
-    		PropertyManagementService propertyService) {
+                                        PropertyManagementService propertyService) {
         this.userManagementListService = userManagementListService;
         this.propertyService = propertyService;
     }
@@ -58,24 +59,24 @@ public class UserManagementListController {
         logger.debug("searchUserLists called with params={}", params);
 
         /*
-        Hung : DONT REMOVE THIS CODE
+        hung: DONT REMOVE THIS CODE
         */
         int page = 0;
         int size = 20;
         try {
-            page = SafeConverter.toIntOrDefault(params.get("page"), 0); 
+            page = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "page", 0), 0); 
         } catch (NumberFormatException e) {
-            logger.warn("Invalid page param {}, defaulting to 0", params.get("page"), e);
+            logger.warn("Invalid page param {}, defaulting to 0", ParamWrapper.unwrap(params, "page", 0), e);
         }
         try {
-            size = SafeConverter.toIntOrDefault(params.get("size"), 20);
+            size = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "size", 20), 20);
         } catch (NumberFormatException e) {
-            logger.warn("Invalid size param {}, defaulting to 20", params.get("size"), e);
+            logger.warn("Invalid size param {}, defaulting to 20", ParamWrapper.unwrap(params, "size", 20), e);
         }
         int offset = page * size;
         
-        String sortField = (String) params.getOrDefault("sortField", "id");
-        String sortDirection = ((String) params.getOrDefault("sortDirection", "ASC")).toUpperCase();
+        String sortField = ParamWrapper.unwrap(params, "sortField", "id");
+        String sortDirection = ParamWrapper.unwrap(params, "sortDirection", "ASC").toUpperCase();
 
         params.put("page", page);
         params.put("size", size);
@@ -304,24 +305,24 @@ public class UserManagementListController {
         logger.debug("searchMembers params={}", params);
 
         /*
-        Hung : DONT REMOVE THIS CODE
+        hung: DONT REMOVE THIS CODE
         */
         int page = 0;
         int size = 20;
         try {
-            page = SafeConverter.toIntOrDefault(params.get("page"), 0); 
+            page = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "page", 0), 0); 
         } catch (NumberFormatException e) {
-            logger.warn("Invalid page param {}, defaulting to 0", params.get("page"), e);
+            logger.warn("Invalid page param {}, defaulting to 0", ParamWrapper.unwrap(params, "page", 0), e);
         }
         try {
-            size = SafeConverter.toIntOrDefault(params.get("size"), 20);
+            size = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "size", 20), 20);
         } catch (NumberFormatException e) {
-            logger.warn("Invalid size param {}, defaulting to 20", params.get("size"), e);
-        }
+            logger.warn("Invalid size param {}, defaulting to 20", ParamWrapper.unwrap(params, "size", 20), e);
+        }      
         int offset = page * size;
         
-        String sortField = (String) params.getOrDefault("sortField", "id");
-        String sortDirection = ((String) params.getOrDefault("sortDirection", "ASC")).toUpperCase();
+        String sortField = ParamWrapper.unwrap(params, "sortField", "id");
+        String sortDirection = ParamWrapper.unwrap(params, "sortDirection", "ASC").toUpperCase();
 
         Map<String, Object> serviceParams = new HashMap<>(params);
         serviceParams.put("page", page);
@@ -374,7 +375,6 @@ public class UserManagementListController {
             try {
                 return Integer.parseInt(s);
             } catch (NumberFormatException e) {
-                // Log the warning using the assumed logger
                 logger.warn("Invalid integer value: '{}', defaulting to 0", s, e);
                 return 0;
             }

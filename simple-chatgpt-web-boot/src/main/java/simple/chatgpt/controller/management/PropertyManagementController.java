@@ -59,26 +59,22 @@ public class PropertyManagementController {
         logger.debug("searchProperties params={}", params);
 
         /*
-          hung: DONT REMOVE THIS CODE
+        hung: DONT REMOVE THIS CODE
         */
         int page = 0;
         int size = 20;
-
         try {
-            page = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "page", "0"), 0);
-            logger.debug("searchProperties page={}", page);
+            page = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "page", 0), 0); 
         } catch (NumberFormatException e) {
-            logger.warn("Invalid page param {}, defaulting to 0", ParamWrapper.unwrap(params, "page"), e);
+            logger.warn("Invalid page param {}, defaulting to 0", ParamWrapper.unwrap(params, "page", 0), e);
         }
-
         try {
-            size = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "size", "20"), 20);
-            logger.debug("searchProperties size={}", size);
+            size = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "size", 20), 20);
         } catch (NumberFormatException e) {
-            logger.warn("Invalid size param {}, defaulting to 20", ParamWrapper.unwrap(params, "size"), e);
+            logger.warn("Invalid size param {}, defaulting to 20", ParamWrapper.unwrap(params, "size", 20), e);
         }
-
         int offset = page * size;
+        
         logger.debug("searchProperties offset={}", offset);
 
         params.put("offset", String.valueOf(offset));
