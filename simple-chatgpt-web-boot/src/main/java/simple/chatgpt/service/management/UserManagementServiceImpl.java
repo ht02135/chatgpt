@@ -70,6 +70,7 @@ public class UserManagementServiceImpl implements UserManagementService {
                 .stream()
                 .collect(Collectors.toMap(RoleGroupManagementPojo::getGroupName, rg -> rg));
         logger.debug("initializeDB fetched role groups size={}", roleGroupByName.size());
+        logger.debug("initializeDB fetched roleGroupByName={}", roleGroupByName);
 
         for (UserConfig u : users) {
             logger.debug("initializeDB processing user userName={}", u.getUserName());
@@ -93,9 +94,17 @@ public class UserManagementServiceImpl implements UserManagementService {
                 user.setActive(u.isActive());
                 user.setLocked(u.isLocked());
 
+                logger.debug("initializeDB ##############");
+                logger.debug("initializeDB before insertUser user={}", user);
                 userManagementMapper.insertUser(user);
+                logger.debug("initializeDB after insertUser user={}", user);
+                logger.debug("initializeDB ##############");
+                
                 existing = user;
+                logger.debug("initializeDB ##############");
                 logger.debug("Inserted default user userName={}", user.getUserName());
+                logger.debug("Inserted default user existing={}", existing);
+                logger.debug("initializeDB ##############");
             } else {
                 logger.debug("User already exists, skipping creation userName={}", u.getUserName());
             }
@@ -109,6 +118,9 @@ public class UserManagementServiceImpl implements UserManagementService {
                     mapping.setUserId(existing.getId());
                     mapping.setRoleGroupId(group.getId());
 
+                    logger.debug("initializeDB ##############");
+                    logger.debug("initializeDB mapping={}", mapping);
+                    logger.debug("initializeDB ##############");
                     mappingService.insertUserRoleGroup(ParamWrapper.wrap("mapping", mapping));
                     logger.debug("Mapped user userName={} to roleGroup={} mappingId={}",
                             u.getUserName(), roleGroupName, mapping.getId());
