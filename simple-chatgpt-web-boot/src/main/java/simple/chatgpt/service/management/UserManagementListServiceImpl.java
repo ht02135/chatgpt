@@ -525,24 +525,4 @@ public class UserManagementListServiceImpl implements UserManagementListService 
         }
     }
     
-    private int getInt(Object object) {
-        if (object == null) {
-            return 0; // Treat null as 0
-        }
-
-        if (object instanceof Number) {
-            return ((Number) object).intValue();
-        } else if (object instanceof String) {
-            String s = (String) object;
-            try {
-                return Integer.parseInt(s);
-            } catch (NumberFormatException e) {
-                // Log the warning using the assumed logger
-                logger.warn("Invalid integer value: '{}', defaulting to 0", s, e);
-                return 0;
-            }
-        }
-
-        return 0;
-    }
 }
