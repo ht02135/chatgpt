@@ -64,7 +64,7 @@ public class UserManagementListController {
         int page = 0;
         int size = 20;
         try {
-            page = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "page", 0), 0); 
+            page = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "page", 0), 0);
         } catch (NumberFormatException e) {
             logger.warn("Invalid page param {}, defaulting to 0", ParamWrapper.unwrap(params, "page", 0), e);
         }
@@ -74,7 +74,7 @@ public class UserManagementListController {
             logger.warn("Invalid size param {}, defaulting to 20", ParamWrapper.unwrap(params, "size", 20), e);
         }
         int offset = page * size;
-        
+
         String sortField = ParamWrapper.unwrap(params, "sortField", "id");
         String sortDirection = ParamWrapper.unwrap(params, "sortDirection", "ASC").toUpperCase();
 
@@ -129,7 +129,7 @@ public class UserManagementListController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Response.error("Create failed: " + e.getMessage(), null, 500));
         }
-        
+
         logger.debug("createList #############");
         logger.debug("createList DONE!!!");
         logger.debug("createList #############");
@@ -146,12 +146,13 @@ public class UserManagementListController {
         logger.debug("getListById #############");
 
         Map<String, Object> params = new HashMap<>();
-        params.put("listId", listId);
+        params.put("listId", listId); // ✅ use typed value directly
 
         UserManagementListPojo list = userManagementListService.getListById(params);
         if (list == null) {
             return ResponseEntity.ok(Response.error("List not found", null, HttpStatus.NOT_FOUND.value()));
         }
+
         logger.debug("getListById #############");
         logger.debug("getListById list={}", list);
         logger.debug("getListById #############");
@@ -207,7 +208,8 @@ public class UserManagementListController {
             } else if (filename.endsWith(".xlsx") || filename.endsWith(".xls")) {
                 userManagementListService.importListFromExcel(params);
             } else {
-                return ResponseEntity.badRequest().body(Response.error("Unsupported file type", null, HttpStatus.BAD_REQUEST.value()));
+                return ResponseEntity.badRequest()
+                        .body(Response.error("Unsupported file type", null, HttpStatus.BAD_REQUEST.value()));
             }
         } catch (Exception e) {
             logger.error("importList failed", e);
@@ -257,7 +259,8 @@ public class UserManagementListController {
             response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
     }
-    
+
+    // ------------------ DOWNLOAD SAMPLE CSV ------------------
     @GetMapping("/download/sample")
     public void downloadSampleCsv(HttpServletRequest request, HttpServletResponse response) {
         logger.debug("downloadSampleCsv called #############");
@@ -310,7 +313,7 @@ public class UserManagementListController {
         int page = 0;
         int size = 20;
         try {
-            page = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "page", 0), 0); 
+            page = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "page", 0), 0);
         } catch (NumberFormatException e) {
             logger.warn("Invalid page param {}, defaulting to 0", ParamWrapper.unwrap(params, "page", 0), e);
         }
@@ -318,9 +321,9 @@ public class UserManagementListController {
             size = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "size", 20), 20);
         } catch (NumberFormatException e) {
             logger.warn("Invalid size param {}, defaulting to 20", ParamWrapper.unwrap(params, "size", 20), e);
-        }      
+        }
         int offset = page * size;
-        
+
         String sortField = ParamWrapper.unwrap(params, "sortField", "id");
         String sortDirection = ParamWrapper.unwrap(params, "sortDirection", "ASC").toUpperCase();
 
@@ -346,11 +349,12 @@ public class UserManagementListController {
         logger.debug("countMembers params={}", params);
 
         Map<String, Object> serviceParams = new HashMap<>(params);
-        if (params.get("listId") != null) {
+        Long listId = ParamWrapper.unwrap(params, "listId", null);
+        if (listId != null) {
             try {
-                serviceParams.put("listId", Long.parseLong(params.get("listId").toString()));
+                serviceParams.put("listId", listId);
             } catch (NumberFormatException e) {
-                logger.warn("Invalid listId {}, defaulting to null", params.get("listId"), e);
+                logger.warn("Invalid listId {}, defaulting to null", listId, e);
             }
         }
 
@@ -361,5 +365,4 @@ public class UserManagementListController {
         long count = userManagementListService.countMembers(serviceParams);
         return ResponseEntity.ok(Response.success("Count fetched successfully", count, HttpStatus.OK.value()));
     }
-    
 }
