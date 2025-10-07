@@ -38,7 +38,7 @@ public class RoleGroupRoleMappingServiceImpl implements RoleGroupRoleMappingServ
         logger.debug("insertMapping rowsInserted={}", rowsInserted);
 
         // Extract mapping object from params if needed
-        RoleGroupRoleMappingPojo mapping = (RoleGroupRoleMappingPojo) params.get("mapping");
+        RoleGroupRoleMappingPojo mapping = (RoleGroupRoleMappingPojo) ParamWrapper.unwrap(params, "mapping");
         return mapping;
     }
 
@@ -49,9 +49,8 @@ public class RoleGroupRoleMappingServiceImpl implements RoleGroupRoleMappingServ
             return null;
         }
 
-        Long roleGroupId = ((Number) params.get("roleGroupId")).longValue();
-        Long roleId = ((Number) params.get("roleId")).longValue();
-
+        Long roleGroupId = ((Number) ParamWrapper.unwrap(params, "roleGroupId")).longValue();
+        Long roleId = ((Number) ParamWrapper.unwrap(params, "roleId")).longValue();
         logger.debug("addRoleToGroupIfNotExists called roleGroupId={} roleId={}", roleGroupId, roleId);
 
         // Check if mapping already exists
