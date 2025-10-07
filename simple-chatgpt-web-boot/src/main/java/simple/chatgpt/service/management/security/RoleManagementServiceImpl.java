@@ -211,13 +211,25 @@ public class RoleManagementServiceImpl implements RoleManagementService {
     @Override
     public RoleManagementPojo insertRole(Map<String, Object> params) {
         logger.debug("insertRole called params={}", params);
+
+        // Extract role object from params
         RoleManagementPojo role = ParamWrapper.unwrap(params, "role");
-        logger.debug("insertRole role={}", role);
+        logger.debug("insertRole role before insert={}", role);
+
+        // Perform insert
         roleMapper.insertRole(ParamWrapper.wrap("role", role));
-        roleCache.put(role.getId(), role);
-        nameToIdCache.put(role.getRoleName(), role.getId());
-        logger.debug("insertRole cached role id={} roleName={}", role.getId(), role.getRoleName());
-        return role;
+        logger.debug("insertRole insert completed, role id={}", role.getId());
+
+        // Re-fetch the role from DB to get all populated fields
+        RoleManagementPojo fullRole = internalGetRole(ParamWrapper.wrap("roleName", role.getRoleName()));
+        logger.debug("insertRole re-fetched fullRole={}", fullRole);
+
+        // Cache the fully populated object
+        roleCache.put(fullRole.getId(), fullRole);
+        nameToIdCache.put(fullRole.getRoleName(), fullRole.getId());
+        logger.debug("insertRole cached fullRole id={} roleName={}", fullRole.getId(), fullRole.getRoleName());
+
+        return fullRole;
     }
 
     @Override

@@ -39,6 +39,12 @@
     <!-- =======================
          READ
          ======================= -->
+	<select id="findById" parameterType="map" resultType="RoleGroupRoleMappingPojo">
+    	SELECT id, role_group_id, role_id, created_at, updated_at
+    	FROM role_group_role_mapping
+    	WHERE id = #{params.id}
+	</select>
+
     <select id="findAllMappings" resultMap="RoleGroupRoleMappingResultMap">
         SELECT id, role_group_id, role_id, created_at, updated_at
         FROM role_group_role_mapping

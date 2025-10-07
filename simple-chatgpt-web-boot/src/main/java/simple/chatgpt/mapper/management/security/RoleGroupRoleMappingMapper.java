@@ -19,6 +19,7 @@ public interface RoleGroupRoleMappingMapper {
     int deleteMappingByGroupAndRole(@Param("params") Map<String, Object> params);
 
     // ---------------- READ ----------------
+    RoleGroupRoleMappingPojo findById(@Param("params") Map<String, Object> params);
     List<RoleGroupRoleMappingPojo> findAllMappings();
     List<RoleGroupRoleMappingPojo> findByRoleGroupId(@Param("params") Map<String, Object> params);
     List<RoleGroupRoleMappingPojo> findByRoleId(@Param("params") Map<String, Object> params);

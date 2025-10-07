@@ -29,17 +29,23 @@ public class RoleGroupRoleMappingServiceImpl implements RoleGroupRoleMappingServ
     }
 
     // ---------------- CREATE ----------------
+ // ---------------- CREATE ----------------
     @Override
     public RoleGroupRoleMappingPojo insertMapping(Map<String, Object> params) {
-        logger.debug("insertMapping called");
-        logger.debug("insertMapping params={}", params);
+        logger.debug("insertMapping called, params={}", params);
 
-        int rowsInserted = mapper.insertMapping(params);
-        logger.debug("insertMapping rowsInserted={}", rowsInserted);
+        RoleGroupRoleMappingPojo mapping = ParamWrapper.unwrap(params, "mapping");
+        logger.debug("insertMapping before insert, mapping={}", mapping);
 
-        // Extract mapping object from params if needed
-        RoleGroupRoleMappingPojo mapping = (RoleGroupRoleMappingPojo) ParamWrapper.unwrap(params, "mapping");
-        return mapping;
+        // Insert mapping
+        mapper.insertMapping(ParamWrapper.wrap("mapping", mapping));
+        logger.debug("insertMapping insert completed, mapping id={}", mapping.getId());
+
+        // Re-fetch the fully populated object from DB
+        RoleGroupRoleMappingPojo fullMapping = mapper.findById(ParamWrapper.wrap("id", mapping.getId()));
+        logger.debug("insertMapping re-fetched fullMapping={}", fullMapping);
+
+        return fullMapping;
     }
 
     @Override
@@ -69,9 +75,11 @@ public class RoleGroupRoleMappingServiceImpl implements RoleGroupRoleMappingServ
         mapping.setRoleGroupId(roleGroupId);
         mapping.setRoleId(roleId);
 
-        insertMapping(ParamWrapper.wrap("mapping", mapping));
-        logger.debug("Inserted new mapping successfully: {}", mapping);
-        return mapping;
+        // Use insertMapping to insert and fetch fully populated object
+        RoleGroupRoleMappingPojo fullMapping = insertMapping(ParamWrapper.wrap("mapping", mapping));
+        logger.debug("Inserted new mapping successfully: {}", fullMapping);
+
+        return fullMapping;
     }
 
     // ---------------- DELETE ----------------
