@@ -257,7 +257,7 @@ public class RoleManagementServiceImpl implements RoleManagementService {
     private RoleManagementPojo internalFindRoleById(Long id) {
         logger.debug("internalFindRoleById called id={}", id);
         return roleCache.get(id, k -> {
-        	logger.debug("internalFindRoleByName roleCache.get called k={}", k);
+        	logger.debug("internalFindRoleById roleCache.get called k={}", k);
             RoleManagementPojo dbRole = roleMapper.findRoleById(ParamWrapper.wrap("roleId", k));
             if (dbRole != null) {
             	logger.debug("internalFindRoleById roleCache.get ##############");

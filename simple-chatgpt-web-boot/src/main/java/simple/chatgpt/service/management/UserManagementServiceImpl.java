@@ -3,6 +3,7 @@ package simple.chatgpt.service.management;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 
@@ -53,15 +54,22 @@ public class UserManagementServiceImpl implements UserManagementService {
     @PostConstruct
     public void initializeDB() {
         logger.debug("initializeDB called");
-        
+
         if (securityConfigLoader == null) {
-            logger.error("Missing required beans: securityConfigLoader={}", 
-                securityConfigLoader);
+            logger.error("Missing required beans: securityConfigLoader={}", securityConfigLoader);
             return;
         }
 
         List<UserConfig> users = securityConfigLoader.getUsers();
         logger.debug("initializeDB users size={}", users.size());
+
+        // ----------- FETCH ALL ROLE-GROUPS ONCE -----------
+        Map<String, RoleGroupManagementPojo> roleGroupByName = roleGroupService
+                .getAllRoleGroups()
+                .getItems()
+                .stream()
+                .collect(Collectors.toMap(RoleGroupManagementPojo::getGroupName, rg -> rg));
+        logger.debug("initializeDB fetched role groups size={}", roleGroupByName.size());
 
         for (UserConfig u : users) {
             logger.debug("initializeDB processing user userName={}", u.getUserName());
@@ -95,7 +103,7 @@ public class UserManagementServiceImpl implements UserManagementService {
             // ----------- MAP USER TO ROLE-GROUP -----------
             String roleGroupName = u.getRoleGroup();
             if (roleGroupName != null && !roleGroupName.isEmpty()) {
-                RoleGroupManagementPojo group = roleGroupService.findRoleGroupByName(ParamWrapper.wrap("groupName", roleGroupName));
+                RoleGroupManagementPojo group = roleGroupByName.get(roleGroupName);
                 if (group != null) {
                     UserManagementRoleGroupMappingPojo mapping = new UserManagementRoleGroupMappingPojo();
                     mapping.setUserId(existing.getId());

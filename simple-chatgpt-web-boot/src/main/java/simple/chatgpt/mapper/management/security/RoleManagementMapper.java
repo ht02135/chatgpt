@@ -19,11 +19,9 @@ public interface RoleManagementMapper {
 
     // ---------------- DELETE ----------------
     int deleteRoleById(@Param("params") Map<String, Object> params);
-    int deleteRoleByName(@Param("params") Map<String, Object> params);
 
     // ---------------- READ ----------------
     RoleManagementPojo findRoleById(@Param("params") Map<String, Object> params);
-    RoleManagementPojo findRoleByName(@Param("params") Map<String, Object> params);
 
     List<RoleManagementPojo> findAllRoles();
     List<RoleManagementPojo> getAllRoles();
