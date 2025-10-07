@@ -103,9 +103,6 @@ public class PageRoleGroupManagementServiceImpl implements PageRoleGroupManageme
                 logger.debug("Page-role group already exists id={} urlPattern={} roleGroupId={}",
                         pagePojo.getId(), urlPattern, existingPage.getRoleGroup().getId());
             }
-
-            pageRoleGroupCache.put(pagePojo.getId(), pagePojo);
-            logger.debug("Cached page-role group id={} urlPattern={}", pagePojo.getId(), urlPattern);
         }
 
         logger.debug("initializeDB completed for PageRoleGroupManagementService");
@@ -128,11 +125,6 @@ public class PageRoleGroupManagementServiceImpl implements PageRoleGroupManageme
         );
         logger.debug("insertPageRoleGroup fetched fullPageRoleGroup={}", fullPageRoleGroup);
 
-        // Cache the fully populated object
-        pageRoleGroupCache.put(fullPageRoleGroup.getId(), fullPageRoleGroup);
-        logger.debug("insertPageRoleGroup cached fullPageRoleGroup id={} urlPattern={}",
-            fullPageRoleGroup.getId(), fullPageRoleGroup.getUrlPattern());
-
         return fullPageRoleGroup;
     }
 
@@ -146,8 +138,6 @@ public class PageRoleGroupManagementServiceImpl implements PageRoleGroupManageme
 
         pageRoleGroup.setId(id);
         pageMapper.updatePageRoleGroup(ParamWrapper.wrap("pageRoleGroup", pageRoleGroup));
-        pageRoleGroupCache.put(id, pageRoleGroup);
-        logger.debug("Updated and cached page-role group id={}", id);
 
         return pageRoleGroup;
     }

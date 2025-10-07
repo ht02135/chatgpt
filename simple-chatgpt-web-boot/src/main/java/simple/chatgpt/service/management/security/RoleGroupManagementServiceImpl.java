@@ -92,9 +92,6 @@ public class RoleGroupManagementServiceImpl implements RoleGroupManagementServic
                 logger.debug("Role group already exists id={} groupName={}", existingGroup.getId(), groupName);
             }
 
-            groupCache.put(groupPojo.getId(), groupPojo);
-            nameToIdCache.put(groupName, groupPojo.getId());
-
             for (RoleRefConfig ref : rgConfig.getRoles()) {
                 RoleManagementPojo role = roleManagementService.findRoleByName(ParamWrapper.wrap("roleName", ref.getName()));
                 if (role != null) {
@@ -130,11 +127,6 @@ public class RoleGroupManagementServiceImpl implements RoleGroupManagementServic
         );
         logger.debug("insertRoleGroup fetched fullGroup={}", fullGroup);
 
-        // Cache the fully populated object
-        groupCache.put(fullGroup.getId(), fullGroup);
-        nameToIdCache.put(fullGroup.getGroupName(), fullGroup.getId());
-        logger.debug("insertRoleGroup cached fullGroup id={} groupName={}", fullGroup.getId(), fullGroup.getGroupName());
-
         return fullGroup;
     }
 
@@ -144,7 +136,6 @@ public class RoleGroupManagementServiceImpl implements RoleGroupManagementServic
         logger.debug("updateRoleGroup called, params={}", params);
         RoleGroupManagementPojo group = ParamWrapper.unwrap(params, "group");
         groupMapper.updateRoleGroup(ParamWrapper.wrap("group", group));
-        groupCache.put(group.getId(), group);
         return group;
     }
 

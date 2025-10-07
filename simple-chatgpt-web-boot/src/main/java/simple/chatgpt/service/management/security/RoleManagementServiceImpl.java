@@ -103,15 +103,6 @@ public class RoleManagementServiceImpl implements RoleManagementService {
             } else {
                 logger.debug("Role already exists, skipping id={} roleName={}", existing.getId(), roleName);
             }
-
-            logger.debug("Inserted before roleCache existing={}", existing);
-            roleCache.put(existing.getId(), existing);
-            
-            logger.debug("Inserted before nameToIdCache roleName={}", roleName);
-            logger.debug("Inserted before nameToIdCache existing.getId()={}", existing.getId());
-            nameToIdCache.put(roleName, existing.getId());
-            
-            logger.debug("Cached role existing.getId()={} roleName={}", existing.getId(), roleName);
         }
 
         logger.debug("initializeDB called ##############");
@@ -232,11 +223,6 @@ public class RoleManagementServiceImpl implements RoleManagementService {
         logger.debug("insertRole re-fetched fullRole={}", fullRole);
         logger.debug("insertRole called ##############");
 
-        // Cache the fully populated object
-        roleCache.put(fullRole.getId(), fullRole);
-        nameToIdCache.put(fullRole.getRoleName(), fullRole.getId());
-        logger.debug("insertRole cached fullRole id={} roleName={}", fullRole.getId(), fullRole.getRoleName());
-
         logger.debug("insertRole called ##############");
         logger.debug("insertRole fullRole={}",fullRole);
         logger.debug("insertRole called ##############");
@@ -256,8 +242,6 @@ public class RoleManagementServiceImpl implements RoleManagementService {
 
         role.setId(existing.getId());
         roleMapper.updateRole(ParamWrapper.wrap("role", role));
-        roleCache.put(existing.getId(), role);
-        nameToIdCache.put(role.getRoleName(), existing.getId());
         logger.debug("updateRole updated cache id={} roleName={}", existing.getId(), role.getRoleName());
         return role;
     }
@@ -293,17 +277,16 @@ public class RoleManagementServiceImpl implements RoleManagementService {
         	logger.debug("internalFindRoleByName called k={}", k);
             RoleManagementPojo dbRole = roleMapper.findRoleById(ParamWrapper.wrap("roleId", k));
             if (dbRole != null) {
-                nameToIdCache.put(dbRole.getRoleName(), dbRole.getId());
-                logger.debug("internalFindRoleByName Loaded from DB and cached id={} roleName={}", dbRole.getId(), dbRole.getRoleName());
-            } else {
+            	logger.debug("internalFindRoleById called ##############");
+                logger.debug("internalFindRoleByName id=k={} LOAD from DB", k);
+                logger.debug("internalFindRoleById dbRole != null dbRole={}", dbRole);
                 logger.debug("internalFindRoleById called ##############");
-                logger.debug("internalFindRoleById dbRole is NUL !!!!");
+            } else {
+            	logger.debug("internalFindRoleById called ##############");
+            	logger.debug("internalFindRoleByName id=k={} NOT LOAD from DB", k);
+                logger.debug("internalFindRoleById dbRole is NULL !!!!");
                 logger.debug("internalFindRoleById called ##############");
             }
-            
-            logger.debug("internalFindRoleById called ##############");
-            logger.debug("internalFindRoleById dbRole={}", dbRole);
-            logger.debug("internalFindRoleById called ##############");
             return dbRole;
         });
     }
@@ -318,25 +301,20 @@ public class RoleManagementServiceImpl implements RoleManagementService {
             logger.debug("internalFindRoleByName called k={}", k);
             RoleManagementPojo dbRole = roleMapper.findRoleByName(ParamWrapper.wrap("roleName", k));
             if (dbRole != null) {
-                roleCache.put(dbRole.getId(), dbRole);
-                logger.debug("internalFindRoleByName Loaded from DB and cached roleName={} id={}", k, dbRole.getId());
-                
-                logger.debug("internalFindRoleByName called ##############");
-                logger.debug("internalFindRoleByName dbRole={}", dbRole);
+            	logger.debug("internalFindRoleByName called ##############");
+                logger.debug("internalFindRoleByName LOADED roleName=k={} LOAD from DB", k);
+                logger.debug("internalFindRoleByName dbRole != null, dbRole={}", dbRole);
                 logger.debug("internalFindRoleByName called ##############");
                 return dbRole.getId();
             } else {
-                logger.debug("internalFindRoleById called ##############");
-                logger.debug("internalFindRoleById k=",k);
+            	logger.debug("internalFindRoleByName called ##############");
+            	logger.debug("internalFindRoleByName LOADED roleName=k={} NOT LOAD from DB", k);
                 logger.debug("internalFindRoleById dbRole is NULL !!!!");
-                logger.debug("internalFindRoleById called ##############");
+                logger.debug("internalFindRoleByName called ##############");
+                return (long) -1;
             }
-            return null;
         });
 
-        logger.debug("internalFindRoleByName called ##############");
-        logger.debug("internalFindRoleByName roleCache.get(id, k -> null)={}", roleCache.get(id, k -> null));
-        logger.debug("internalFindRoleByName called ##############");
         return roleCache.get(id, k -> null); // roleCache.get(id, k -> null);
     }
 
