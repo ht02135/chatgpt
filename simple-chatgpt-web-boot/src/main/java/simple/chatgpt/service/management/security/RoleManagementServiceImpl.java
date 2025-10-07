@@ -87,21 +87,27 @@ public class RoleManagementServiceImpl implements RoleManagementService {
             logger.debug("Processing roleConfig name={} description={}", roleName, description);
 
             RoleManagementPojo existing = internalGetRole(ParamWrapper.wrap("roleName", roleName));
-            RoleManagementPojo rolePojo = new RoleManagementPojo();
-            rolePojo.setRoleName(roleName);
-            rolePojo.setDescription(description);
-
+            
             if (existing == null) {
+            	RoleManagementPojo rolePojo = new RoleManagementPojo();
+                rolePojo.setRoleName(roleName);
+                rolePojo.setDescription(description);
+                
                 logger.debug("initializeDB rolePojo={}", rolePojo);
-                insertRole(ParamWrapper.wrap("role", rolePojo));
-                logger.debug("Inserted role id={} roleName={}", rolePojo.getId(), roleName);
+                existing = insertRole(ParamWrapper.wrap("role", rolePojo));
+                logger.debug("Inserted role existing.getId()={} roleName={}", existing.getId(), roleName);
             } else {
                 logger.debug("Role already exists, skipping id={} roleName={}", existing.getId(), roleName);
             }
 
-            roleCache.put(rolePojo.getId(), rolePojo);
-            nameToIdCache.put(roleName, rolePojo.getId());
-            logger.debug("Cached role id={} roleName={}", rolePojo.getId(), roleName);
+            logger.debug("Inserted before roleCache existing={}", existing);
+            roleCache.put(existing.getId(), existing);
+            
+            logger.debug("Inserted before nameToIdCache roleName={}", roleName);
+            logger.debug("Inserted before nameToIdCache existing.getId()={}", existing.getId());
+            nameToIdCache.put(roleName, existing.getId());
+            
+            logger.debug("Cached role existing.getId()={} roleName={}", existing.getId(), roleName);
         }
 
         logger.debug("initializeDB called ##############");
