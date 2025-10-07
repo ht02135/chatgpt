@@ -41,13 +41,13 @@ public class UserManagementRoleGroupMappingServiceImpl implements UserManagement
     @Override
     public UserManagementRoleGroupMappingPojo insertUserRoleGroup(Map<String, Object> params) {
         UserManagementRoleGroupMappingPojo mapping = ParamWrapper.unwrap(params, "mapping");
-        logger.debug("insertUserRoleGroup called, mapping before insert={}", mapping);
 
         // Insert mapping into DB
+        logger.debug("insertUserRoleGroup before insertUserRoleGroup mapping={}", mapping);
         mappingMapper.insertUserRoleGroup(ParamWrapper.wrap("mapping", mapping));
-        logger.debug("insertUserRoleGroup insert completed, mapping id={}", mapping.getId());
-
+        
         // Re-fetch from DB to get fully populated object
+        logger.debug("insertUserRoleGroup before findById mapping.getId()={}", mapping.getId());
         UserManagementRoleGroupMappingPojo fullMapping = mappingMapper.findById(
             ParamWrapper.wrap("id", mapping.getId())
         );
