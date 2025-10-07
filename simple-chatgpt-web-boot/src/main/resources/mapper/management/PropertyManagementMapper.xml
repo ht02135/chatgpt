@@ -19,44 +19,44 @@
     <!-- ========================= -->
     <!-- SEARCH / LIST -->
     <!-- ========================= -->
-    <select id="findProperties" resultMap="PropertyManagementResultMap">
+    <select id="findProperties" parameterType="map" resultMap="PropertyManagementResultMap">
         SELECT * FROM property_management
         <where>
-            <if test="propertyName != null and propertyName != ''">
-                AND property_name LIKE CONCAT('%', #{propertyName}, '%')
+            <if test="params.propertyName != null and params.propertyName != ''">
+                AND property_name LIKE CONCAT('%', #{params.propertyName}, '%')
             </if>
-            <if test="propertyKey != null and propertyKey != ''">
-                AND property_key LIKE CONCAT('%', #{propertyKey}, '%')
+            <if test="params.propertyKey != null and params.propertyKey != ''">
+                AND property_key LIKE CONCAT('%', #{params.propertyKey}, '%')
             </if>
-            <if test="type != null and type != ''">
-                AND type LIKE CONCAT('%', #{type}, '%')
+            <if test="params.type != null and params.type != ''">
+                AND type LIKE CONCAT('%', #{params.type}, '%')
             </if>
-            <if test="value != null and value != ''">
-                AND value LIKE CONCAT('%', #{value}, '%')
+            <if test="params.value != null and params.value != ''">
+                AND value LIKE CONCAT('%', #{params.value}, '%')
             </if>
         </where>
-        <if test="sortField != null and sortDirection != null">
-            ORDER BY ${sortField} ${sortDirection}
+        <if test="params.sortField != null and params.sortDirection != null">
+            ORDER BY ${params.sortField} ${params.sortDirection}
         </if>
-        <if test="offset != null and limit != null">
-            LIMIT #{offset}, #{limit}
+        <if test="params.offset != null and params.limit != null">
+            LIMIT #{params.offset}, #{params.limit}
         </if>
     </select>
 
-    <select id="countProperties" resultType="long">
+    <select id="countProperties" parameterType="map" resultType="long">
         SELECT COUNT(*) FROM property_management
         <where>
-            <if test="propertyName != null and propertyName != ''">
-                AND property_name LIKE CONCAT('%', #{propertyName}, '%')
+            <if test="params.propertyName != null and params.propertyName != ''">
+                AND property_name LIKE CONCAT('%', #{params.propertyName}, '%')
             </if>
-            <if test="propertyKey != null and propertyKey != ''">
-                AND property_key LIKE CONCAT('%', #{propertyKey}, '%')
+            <if test="params.propertyKey != null and params.propertyKey != ''">
+                AND property_key LIKE CONCAT('%', #{params.propertyKey}, '%')
             </if>
-            <if test="type != null and type != ''">
-                AND type LIKE CONCAT('%', #{type}, '%')
+            <if test="params.type != null and params.type != ''">
+                AND type LIKE CONCAT('%', #{params.type}, '%')
             </if>
-            <if test="value != null and value != ''">
-                AND value LIKE CONCAT('%', #{value}, '%')
+            <if test="params.value != null and params.value != ''">
+                AND value LIKE CONCAT('%', #{params.value}, '%')
             </if>
         </where>
     </select>
@@ -81,7 +81,7 @@
     <!-- ========================= -->
     <insert id="insertProperty" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO property_management (property_name, property_key, type, value)
-        VALUES (#{propertyName}, #{propertyKey}, #{type}, #{value})
+        VALUES (#{property.propertyName}, #{property.propertyKey}, #{property.type}, #{property.value})
     </insert>
 
     <!-- ========================= -->
@@ -90,32 +90,32 @@
     <update id="updateProperty">
         UPDATE property_management
         <set>
-            <if test="propertyName != null">property_name = #{propertyName},</if>
-            <if test="propertyKey != null">property_key = #{propertyKey},</if>
-            <if test="type != null">type = #{type},</if>
-            <if test="value != null">value = #{value},</if>
+            <if test="property.propertyName != null">property_name = #{property.propertyName},</if>
+            <if test="property.propertyKey != null">property_key = #{property.propertyKey},</if>
+            <if test="property.type != null">type = #{property.type},</if>
+            <if test="property.value != null">value = #{property.value},</if>
         </set>
-        WHERE id = #{id}
+        WHERE id = #{property.id}
     </update>
 
     <update id="updatePropertyByPropertyName">
         UPDATE property_management
         <set>
-            <if test="propertyKey != null">property_key = #{propertyKey},</if>
-            <if test="type != null">type = #{type},</if>
-            <if test="value != null">value = #{value},</if>
+            <if test="property.propertyKey != null">property_key = #{property.propertyKey},</if>
+            <if test="property.type != null">type = #{property.type},</if>
+            <if test="property.value != null">value = #{property.value},</if>
         </set>
-        WHERE property_name = #{propertyName}
+        WHERE property_name = #{property.propertyName}
     </update>
 
     <update id="updatePropertyByPropertyKey">
         UPDATE property_management
         <set>
-            <if test="propertyName != null">property_name = #{propertyName},</if>
-            <if test="type != null">type = #{type},</if>
-            <if test="value != null">value = #{value},</if>
+            <if test="property.propertyName != null">property_name = #{property.propertyName},</if>
+            <if test="property.type != null">type = #{property.type},</if>
+            <if test="property.value != null">value = #{property.value},</if>
         </set>
-        WHERE property_key = #{propertyKey}
+        WHERE property_key = #{property.propertyKey}
     </update>
 
     <!-- ========================= -->

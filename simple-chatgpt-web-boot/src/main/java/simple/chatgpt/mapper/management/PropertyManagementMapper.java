@@ -10,9 +10,9 @@ import simple.chatgpt.pojo.management.PropertyManagementPojo;
 public interface PropertyManagementMapper {
 
     // 🔎 SEARCH / LIST
-    List<PropertyManagementPojo> findProperties(Map<String, Object> params);
+    List<PropertyManagementPojo> findProperties(@Param("params") Map<String, Object> params);
 
-    long countProperties(Map<String, Object> params);
+    long countProperties(@Param("params") Map<String, Object> params);
 
     // 📖 READ
     PropertyManagementPojo findById(@Param("id") Long id);
@@ -22,14 +22,14 @@ public interface PropertyManagementMapper {
     PropertyManagementPojo findByPropertyKey(@Param("propertyKey") String propertyKey);
 
     // ➕ CREATE
-    void insertProperty(PropertyManagementPojo property);
+    void insertProperty(@Param("property") PropertyManagementPojo property);
 
     // ✏️ UPDATE
-    void updateProperty(PropertyManagementPojo property);
+    void updateProperty(@Param("property") PropertyManagementPojo property);
 
-    void updatePropertyByPropertyName(PropertyManagementPojo property);
+    void updatePropertyByPropertyName(@Param("property") PropertyManagementPojo property);
 
-    void updatePropertyByPropertyKey(PropertyManagementPojo property);
+    void updatePropertyByPropertyKey(@Param("property") PropertyManagementPojo property);
 
     // 🗑 DELETE
     void deleteById(@Param("id") Long id);
