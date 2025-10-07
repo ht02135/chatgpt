@@ -11,32 +11,26 @@ public class ParamWrapper {
     private static final Logger logger = LogManager.getLogger(ParamWrapper.class);
 
     // -------------------- WRAP --------------------
-    /**
-     * Wraps key-value pairs into a mutable map with a top-level "params" layer.
-     * Always returns a mutable top-level map.
-     */
-    @SuppressWarnings("unchecked")
     public static Map<String, Object> wrap(Object... keyValues) {
         logger.debug("wrap called");
         logger.debug("wrap #####");
         logger.debug("wrap keyValues={}", (Object) keyValues);
         logger.debug("wrap #####");
 
-        Map<String, Object> inner;
+        Map<String, Object> inner = new HashMap<>();
 
         if (keyValues.length == 1) {
             Object obj = keyValues[0];
             if (obj instanceof Map) {
-                inner = new HashMap<>((Map<String, Object>) obj);
+                // Copy into a mutable map
+                inner.putAll((Map<String, Object>) obj);
             } else {
-                inner = new HashMap<>();
                 inner.put("value", obj);
             }
         } else {
             if (keyValues.length % 2 != 0) {
                 throw new IllegalArgumentException("Key-values must come in pairs");
             }
-            inner = new HashMap<>();
             for (int i = 0; i < keyValues.length; i += 2) {
                 String key = (String) keyValues[i];
                 Object value = keyValues[i + 1];
@@ -44,6 +38,7 @@ public class ParamWrapper {
             }
         }
 
+        // Top-level outer map must also be mutable
         Map<String, Object> outer = new HashMap<>();
         outer.put("params", inner);
 
@@ -54,10 +49,6 @@ public class ParamWrapper {
     }
 
     // -------------------- UNWRAP --------------------
-    /*
-      hung: updated unwrap to accept Map<?,?> (works for Map<String,Object> and Map<String,String>)
-    */
-    @SuppressWarnings("unchecked")
     public static <T> T unwrap(Map<?, ?> map, String key) {
         logger.debug("unwrap(Map<?,?>, String) called");
         logger.debug("unwrap #####");
@@ -97,21 +88,11 @@ public class ParamWrapper {
     }
 
     // -------------------- UNWRAP WITH DEFAULT --------------------
-    /**
-     * Recursively finds the value for the given key inside nested "params" layers.
-     * Returns defaultValue if key is not found. Attempts basic conversions from String.
-     */
-    @SuppressWarnings("unchecked")
     public static <T> T unwrap(Map<?, ?> map, String key, T defaultValue) {
         logger.debug("unwrap(Map<?,?>, String, T) called");
         logger.debug("unwrap map={}", map);
         logger.debug("unwrap key={}", key);
         logger.debug("unwrap defaultValue={}", defaultValue);
-
-        if (map == null || key == null) {
-            logger.debug("unwrap early exit: map or key is null, returning defaultValue={}", defaultValue);
-            return defaultValue;
-        }
 
         Object raw = unwrap(map, key);
         if (raw == null) {
