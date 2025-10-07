@@ -2,6 +2,7 @@ package simple.chatgpt.service.management.security;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 import javax.validation.Validation;
@@ -65,7 +66,7 @@ public class RoleManagementServiceImpl implements RoleManagementService {
 
     public void initializeDB() {
         logger.debug("initializeDB called");
-        
+
         if (securityConfigLoader == null || roleCache == null) {
             logger.debug("initializeDB called ##############");
             logger.error("Missing required beans: securityConfigLoader={}, roleCache={}", 
@@ -74,44 +75,56 @@ public class RoleManagementServiceImpl implements RoleManagementService {
             return;
         }
 
+        // ----------- LOAD DEFINED ROLES FROM CONFIG -----------
         List<RoleConfig> definedRoles = securityConfigLoader.getRoles();
-        logger.debug("Loaded roles from config, size={}", definedRoles.size());
+        logger.debug("Loaded roles from config size={}", definedRoles.size());
 
+        // ----------- FETCH ALL EXISTING ROLES ONCE -----------
+        PagedResult<RoleManagementPojo> rolePagedResult = findAllRoles();
+        logger.debug("Fetched all roles pagedResult={}", rolePagedResult);
+
+        List<RoleManagementPojo> existingRoles = rolePagedResult.getItems();
+        logger.debug("Fetched all existing roles size={}", existingRoles.size());
+
+        Map<String, RoleManagementPojo> roleByName = existingRoles
+                .stream()
+                .collect(Collectors.toMap(RoleManagementPojo::getRoleName, r -> r));
+        logger.debug("Mapped existing roles by roleName size={}", roleByName.size());
+
+        // ----------- PROCESS EACH CONFIG ROLE -----------
         for (RoleConfig roleConfig : definedRoles) {
             String roleName = roleConfig.getName();
             String description = roleConfig.getDescription();
-            logger.debug("Processing roleConfig name={} description={}", roleName, description);
 
-            logger.debug("initializeDB called ##############");
-            logger.debug("initializeDB before internalGetRole");
-            RoleManagementPojo existing = internalGetRole(ParamWrapper.wrap("roleName", roleName));
-            logger.debug("initializeDB after internalGetRole");
-            logger.debug("initializeDB called ##############");
-            
+            logger.debug("Processing roleConfig roleName={}", roleName);
+            logger.debug("Processing roleConfig description={}", description);
+
+            RoleManagementPojo existing = roleByName.get(roleName);
+            logger.debug("initializeDB existing={}", existing);
+
             if (existing == null) {
-            	logger.debug("initializeDB called ##############");
-            	logger.debug("initializeDB existing == null roleName={}",roleName);
-            	logger.debug("initializeDB called ##############");
-            	
-            	RoleManagementPojo rolePojo = new RoleManagementPojo();
+                logger.debug("initializeDB existing == null roleName={}", roleName);
+
+                RoleManagementPojo rolePojo = new RoleManagementPojo();
                 rolePojo.setRoleName(roleName);
                 rolePojo.setDescription(description);
-                
-                logger.debug("initializeDB called ##############");
+
                 logger.debug("initializeDB rolePojo={}", rolePojo);
-                existing = insertRole(ParamWrapper.wrap("role", rolePojo));
-                logger.debug("Inserted role existing.getId()={} roleName={}", existing.getId(), roleName);
-                logger.debug("initializeDB called ##############");
+
+                RoleManagementPojo inserted = insertRole(ParamWrapper.wrap("role", rolePojo));
+                logger.debug("Inserted new role inserted={}", inserted);
+                logger.debug("Inserted new role inserted.id={}", inserted.getId());
+                logger.debug("Inserted new role inserted.roleName={}", inserted.getRoleName());
+
+                // update map so next iterations can use it
+                roleByName.put(roleName, inserted);
             } else {
-            	logger.debug("initializeDB called ##############");
-            	logger.debug("initializeDB existing ={} roleName={}",existing, roleName);
-                logger.debug("initializeDB called ##############");
+                logger.debug("initializeDB existing already present id={}", existing.getId());
+                logger.debug("initializeDB existing roleName={}", existing.getRoleName());
             }
         }
 
-        logger.debug("initializeDB called ##############");
         logger.debug("initializeDB completed");
-        logger.debug("initializeDB called ##############");
     }
 
     // -------------------- PAGED METHODS --------------------
