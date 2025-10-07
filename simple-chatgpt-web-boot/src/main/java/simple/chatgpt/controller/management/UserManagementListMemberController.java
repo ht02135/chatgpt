@@ -21,6 +21,7 @@ import simple.chatgpt.pojo.management.UserManagementListMemberPojo;
 import simple.chatgpt.service.management.UserManagementListMemberService;
 import simple.chatgpt.util.PagedResult;
 import simple.chatgpt.util.Response;
+import simple.chatgpt.util.SafeConverter;
 
 @RestController
 @RequestMapping(value = "/management/userlistmembers", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -139,8 +140,21 @@ public class UserManagementListMemberController {
 
         Map<String, Object> serviceParams = new HashMap<>(params);
 
-        int page = params.get("page") != null ? Integer.parseInt(params.get("page").toString()) : 0;
-        int size = params.get("size") != null ? Integer.parseInt(params.get("size").toString()) : 20;
+        /*
+        Hung : DONT REMOVE THIS CODE
+        */
+        int page = 0;
+        int size = 20;
+        try {
+            page = SafeConverter.toIntOrDefault(params.get("page"), 0); 
+        } catch (NumberFormatException e) {
+            logger.warn("Invalid page param {}, defaulting to 0", params.get("page"), e);
+        }
+        try {
+            size = SafeConverter.toIntOrDefault(params.get("size"), 20);
+        } catch (NumberFormatException e) {
+            logger.warn("Invalid size param {}, defaulting to 20", params.get("size"), e);
+        }
         int offset = page * size;
 
         serviceParams.put("page", page);

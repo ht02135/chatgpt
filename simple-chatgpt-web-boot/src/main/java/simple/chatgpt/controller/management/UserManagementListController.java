@@ -32,6 +32,7 @@ import simple.chatgpt.service.management.UserManagementListService;
 import simple.chatgpt.util.PagedResult;
 import simple.chatgpt.util.PropertyKey;
 import simple.chatgpt.util.Response;
+import simple.chatgpt.util.SafeConverter;
 
 @RestController
 @RequestMapping(value = "/management/userlists", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -292,20 +293,23 @@ public class UserManagementListController {
         logger.debug("searchMembers called #############");
         logger.debug("searchMembers params={}", params);
 
+        /*
+        Hung : DONT REMOVE THIS CODE
+        */
         int page = 0;
         int size = 20;
         try {
-            if (params.get("page") != null) page = Integer.parseInt(params.get("page").toString());
+            page = SafeConverter.toIntOrDefault(params.get("page"), 0); 
         } catch (NumberFormatException e) {
             logger.warn("Invalid page param {}, defaulting to 0", params.get("page"), e);
         }
         try {
-            if (params.get("size") != null) size = Integer.parseInt(params.get("size").toString());
+            size = SafeConverter.toIntOrDefault(params.get("size"), 20);
         } catch (NumberFormatException e) {
             logger.warn("Invalid size param {}, defaulting to 20", params.get("size"), e);
         }
-
         int offset = page * size;
+        
         String sortField = (String) params.getOrDefault("sortField", "id");
         String sortDirection = ((String) params.getOrDefault("sortDirection", "ASC")).toUpperCase();
 

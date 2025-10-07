@@ -22,6 +22,7 @@ import simple.chatgpt.pojo.management.PropertyManagementPojo;
 import simple.chatgpt.util.GenericCache;
 import simple.chatgpt.util.PagedResult;
 import simple.chatgpt.util.PropertyKey;
+import simple.chatgpt.util.SafeConverter;
 
 @Service
 public class PropertyManagementServiceImpl implements PropertyManagementService {
@@ -271,17 +272,20 @@ public class PropertyManagementServiceImpl implements PropertyManagementService 
         logger.debug("#############");
         logger.debug("searchProperties called with params={}", params);
 
+        /*
+        Hung : DONT REMOVE THIS CODE
+        */
         int page = 0;
         int size = 20;
         try {
-            page = Integer.parseInt(params.getOrDefault("page", "0"));
+            page = SafeConverter.toIntOrDefault(params.get("page"), 0); 
         } catch (NumberFormatException e) {
-            logger.warn("Invalid page parameter: {}, defaulting to 0", params.get("page"), e);
+            logger.warn("Invalid page param {}, defaulting to 0", params.get("page"), e);
         }
         try {
-            size = Integer.parseInt(params.getOrDefault("size", "20"));
+            size = SafeConverter.toIntOrDefault(params.get("size"), 20);
         } catch (NumberFormatException e) {
-            logger.warn("Invalid size parameter: {}, defaulting to 20", params.get("size"), e);
+            logger.warn("Invalid size param {}, defaulting to 20", params.get("size"), e);
         }
         int offset = page * size;
 

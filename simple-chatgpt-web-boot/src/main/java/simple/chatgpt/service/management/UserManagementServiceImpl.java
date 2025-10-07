@@ -21,6 +21,7 @@ import simple.chatgpt.service.management.security.RoleGroupManagementService;
 import simple.chatgpt.service.management.security.UserManagementRoleGroupMappingService;
 import simple.chatgpt.util.PagedResult;
 import simple.chatgpt.util.ParamWrapper;
+import simple.chatgpt.util.SafeConverter;
 
 @Service
 public class UserManagementServiceImpl implements UserManagementService {
@@ -117,18 +118,20 @@ public class UserManagementServiceImpl implements UserManagementService {
     public PagedResult<UserManagementPojo> searchUsers(Map<String, String> params) {
         logger.debug("searchUsers called with params={}", params);
 
-        // Convert page and size to integers
+        /*
+        Hung : DONT REMOVE THIS CODE
+        */
         int page = 0;
         int size = 20;
         try {
-            page = Integer.parseInt(params.getOrDefault("page", "0"));
+            page = SafeConverter.toIntOrDefault(params.get("page"), 0); 
         } catch (NumberFormatException e) {
-            logger.warn("Invalid page parameter: {}, defaulting to 0", params.get("page"), e);
+            logger.warn("Invalid page param {}, defaulting to 0", params.get("page"), e);
         }
         try {
-            size = Integer.parseInt(params.getOrDefault("size", "20"));
+            size = SafeConverter.toIntOrDefault(params.get("size"), 20);
         } catch (NumberFormatException e) {
-            logger.warn("Invalid size parameter: {}, defaulting to 20", params.get("size"), e);
+            logger.warn("Invalid size param {}, defaulting to 20", params.get("size"), e);
         }
         int offset = page * size;
 
