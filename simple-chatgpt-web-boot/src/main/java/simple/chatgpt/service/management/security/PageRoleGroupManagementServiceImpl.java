@@ -113,7 +113,7 @@ public class PageRoleGroupManagementServiceImpl implements PageRoleGroupManageme
     @Override
     public PageRoleGroupManagementPojo insertPageRoleGroup(Map<String, Object> params) {
         logger.debug("insertPageRoleGroup called, params={}", params);
-        PageRoleGroupManagementPojo pageRoleGroup = (PageRoleGroupManagementPojo) params.get("pageRoleGroup");
+        PageRoleGroupManagementPojo pageRoleGroup = ParamWrapper.unwrap(params, "pageRoleGroup");
         logger.debug("insertPageRoleGroup pageRoleGroup={}", pageRoleGroup);
 
         pageMapper.insertPageRoleGroup(ParamWrapper.wrap("pageRoleGroup", pageRoleGroup));
@@ -126,8 +126,8 @@ public class PageRoleGroupManagementServiceImpl implements PageRoleGroupManageme
     @Override
     public PageRoleGroupManagementPojo updatePageRoleGroup(Map<String, Object> params) {
         logger.debug("updatePageRoleGroup called, params={}", params);
-        PageRoleGroupManagementPojo pageRoleGroup = (PageRoleGroupManagementPojo) params.get("pageRoleGroup");
-        Long id = (Long) params.get("id");
+        PageRoleGroupManagementPojo pageRoleGroup = ParamWrapper.unwrap(params, "pageRoleGroup");
+        Long id = ParamWrapper.unwrap(params, "id");
         logger.debug("updatePageRoleGroup id={}", id);
         logger.debug("updatePageRoleGroup pageRoleGroup={}", pageRoleGroup);
 
@@ -141,7 +141,7 @@ public class PageRoleGroupManagementServiceImpl implements PageRoleGroupManageme
 
     @Override
     public void deletePageRoleGroupById(Map<String, Object> params) {
-        Long id = (Long) params.get("id");
+        Long id = ParamWrapper.unwrap(params, "id");
         logger.debug("deletePageRoleGroupById called, id={}", id);
 
         pageRoleGroupCache.invalidate(id);
@@ -164,7 +164,7 @@ public class PageRoleGroupManagementServiceImpl implements PageRoleGroupManageme
 
     @Override
     public PageRoleGroupManagementPojo findById(Map<String, Object> params) {
-        Long id = (Long) params.get("id");
+        Long id = ParamWrapper.unwrap(params, "id");
         logger.debug("findById called, id={}", id);
 
         return pageRoleGroupCache.get(id, k -> pageMapper.findById(ParamWrapper.wrap("id", k)));
@@ -172,7 +172,7 @@ public class PageRoleGroupManagementServiceImpl implements PageRoleGroupManageme
 
     @Override
     public PageRoleGroupManagementPojo findByUrlPattern(Map<String, Object> params) {
-        String urlPattern = (String) params.get("urlPattern");
+        String urlPattern = ParamWrapper.unwrap(params, "urlPattern");
         logger.debug("findByUrlPattern called, urlPattern={}", urlPattern);
 
         return pageMapper.findByUrlPattern(ParamWrapper.wrap("urlPattern", urlPattern));
@@ -180,7 +180,7 @@ public class PageRoleGroupManagementServiceImpl implements PageRoleGroupManageme
 
     @Override
     public PagedResult<PageRoleGroupManagementPojo> findByRoleGroupId(Map<String, Object> params) {
-        Long roleGroupId = params.get("roleGroupId") != null ? ((Number) params.get("roleGroupId")).longValue() : null;
+        Long roleGroupId = ParamWrapper.unwrap(params, "roleGroupId");
         logger.debug("findByRoleGroupId called, roleGroupId={}", roleGroupId);
 
         if (roleGroupId == null) {
@@ -201,8 +201,8 @@ public class PageRoleGroupManagementServiceImpl implements PageRoleGroupManageme
     public PagedResult<PageRoleGroupManagementPojo> findPageRoleGroups(Map<String, Object> params) {
         logger.debug("findPageRoleGroups called, params={}", params);
 
-        int page = params.get("page") != null ? (int) params.get("page") : 1;
-        int size = params.get("size") != null ? (int) params.get("size") : 20;
+        int page = ParamWrapper.unwrap(params, "page", 1);
+        int size = ParamWrapper.unwrap(params, "size", 20);
         int offset = (page - 1) * size;
 
         params.put("offset", offset);
@@ -221,8 +221,8 @@ public class PageRoleGroupManagementServiceImpl implements PageRoleGroupManageme
     public PagedResult<PageRoleGroupManagementPojo> searchPageRoleGroups(Map<String, Object> params) {
         logger.debug("searchPageRoleGroups called, params={}", params);
 
-        int page = params.get("page") != null ? (int) params.get("page") : 1;
-        int size = params.get("size") != null ? (int) params.get("size") : 20;
+        int page = ParamWrapper.unwrap(params, "page", 1);
+        int size = ParamWrapper.unwrap(params, "size", 20);
         int offset = (page - 1) * size;
 
         params.put("offset", offset);
