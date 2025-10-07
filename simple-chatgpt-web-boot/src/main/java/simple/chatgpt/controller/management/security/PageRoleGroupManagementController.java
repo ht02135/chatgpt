@@ -24,7 +24,7 @@ import simple.chatgpt.util.Response;
 
 @RestController
 @RequestMapping(value = "/management/pagerolegroups", produces = MediaType.APPLICATION_JSON_VALUE)
-public class PageRoleGroupManagementController {
+public class PageRoleGroupManagementController implements PageRoleGroupManagementControllerApi {
 
     private static final Logger logger = LogManager.getLogger(PageRoleGroupManagementController.class);
 

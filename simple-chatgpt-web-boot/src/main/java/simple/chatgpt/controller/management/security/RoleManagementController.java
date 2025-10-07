@@ -25,7 +25,7 @@ import simple.chatgpt.util.Response;
 
 @RestController
 @RequestMapping(value = "/management/roles", produces = MediaType.APPLICATION_JSON_VALUE)
-public class RoleManagementController {
+public class RoleManagementController implements RoleManagementControllerApi {
 
     private static final Logger logger = LogManager.getLogger(RoleManagementController.class);
 

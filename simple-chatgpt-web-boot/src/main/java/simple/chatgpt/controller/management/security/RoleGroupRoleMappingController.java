@@ -23,7 +23,7 @@ import simple.chatgpt.util.Response;
 
 @RestController
 @RequestMapping(value = "/management/rolegrouprolemappings", produces = MediaType.APPLICATION_JSON_VALUE)
-public class RoleGroupRoleMappingController {
+public class RoleGroupRoleMappingController implements RoleGroupRoleMappingControllerApi {
 
     private static final Logger logger = LogManager.getLogger(RoleGroupRoleMappingController.class);
 

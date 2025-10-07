@@ -26,7 +26,7 @@ import simple.chatgpt.util.SafeConverter;
 
 @RestController
 @RequestMapping(value = "/management/userlistmembers", produces = MediaType.APPLICATION_JSON_VALUE)
-public class UserManagementListMemberController {
+public class UserManagementListMemberController implements UserManagementListMemberControllerApi {
 
     private static final Logger logger = LogManager.getLogger(UserManagementListMemberController.class);
 
