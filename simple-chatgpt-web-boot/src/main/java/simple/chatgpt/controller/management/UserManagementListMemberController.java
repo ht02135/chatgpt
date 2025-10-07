@@ -167,12 +167,7 @@ public class UserManagementListMemberController {
         String sortDirection = ParamWrapper.unwrap(params, "sortDirection", "ASC").toUpperCase();
         serviceParams.put("sortField", sortField);
         serviceParams.put("sortDirection", sortDirection);
-        
-        // ✅ Safe unwrap for listId
-        Long listId = ParamWrapper.unwrap(params, "listId", null);
-        if (listId != null) {
-            serviceParams.put("listId", listId);
-        }
+        serviceParams.put("listId", ParamWrapper.unwrap(params, "listId"));
 
         logger.debug("searchMembers #############");
         logger.debug("searchMembers serviceParams={}", serviceParams);
@@ -193,12 +188,7 @@ public class UserManagementListMemberController {
         logger.debug("countMembers #############");
 
         Map<String, Object> serviceParams = new HashMap<>(params);
-
-        // ✅ Safe unwrap for listId
-        Long listId = ParamWrapper.unwrap(params, "listId", null);
-        if (listId != null) {
-            serviceParams.put("listId", listId);
-        }
+        serviceParams.put("listId", ParamWrapper.unwrap(params, "listId"));
 
         long count = memberService.countMembers(serviceParams);
         return ResponseEntity.ok(Response.success("Count fetched successfully", count, HttpStatus.OK.value()));

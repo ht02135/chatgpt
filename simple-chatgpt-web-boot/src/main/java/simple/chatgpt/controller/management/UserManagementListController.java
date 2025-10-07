@@ -349,14 +349,7 @@ public class UserManagementListController {
         logger.debug("countMembers params={}", params);
 
         Map<String, Object> serviceParams = new HashMap<>(params);
-        Long listId = ParamWrapper.unwrap(params, "listId", null);
-        if (listId != null) {
-            try {
-                serviceParams.put("listId", listId);
-            } catch (NumberFormatException e) {
-                logger.warn("Invalid listId {}, defaulting to null", listId, e);
-            }
-        }
+        serviceParams.put("listId", ParamWrapper.unwrap(params, "listId"));
 
         for (Map.Entry<String, Object> entry : serviceParams.entrySet()) {
             logger.debug("countMembers param {}={}", entry.getKey(), entry.getValue());
