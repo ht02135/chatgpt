@@ -235,8 +235,21 @@ public class PageRoleGroupManagementServiceImpl implements PageRoleGroupManageme
     public PagedResult<PageRoleGroupManagementPojo> searchPageRoleGroups(Map<String, Object> params) {
         logger.debug("searchPageRoleGroups called, params={}", params);
 
-        int page = ParamWrapper.unwrap(params, "page", 1);
-        int size = ParamWrapper.unwrap(params, "size", 20);
+        /*
+        hung: DONT REMOVE THIS CODE
+        */
+        int page = 0;
+        int size = 20;
+        try {
+            page = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "page", 0), 0);
+        } catch (NumberFormatException e) {
+            logger.warn("Invalid page param {}, defaulting to 0", ParamWrapper.unwrap(params, "page", 0), e);
+        }
+        try {
+            size = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "size", 20), 20);
+        } catch (NumberFormatException e) {
+            logger.warn("Invalid size param {}, defaulting to 20", ParamWrapper.unwrap(params, "size", 20), e);
+        }
         int offset = (page - 1) * size;
 
         params.put("offset", offset);

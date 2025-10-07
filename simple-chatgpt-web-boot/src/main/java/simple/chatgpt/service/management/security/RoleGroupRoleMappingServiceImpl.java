@@ -12,6 +12,7 @@ import simple.chatgpt.mapper.management.security.RoleGroupRoleMappingMapper;
 import simple.chatgpt.pojo.management.security.RoleGroupRoleMappingPojo;
 import simple.chatgpt.util.PagedResult;
 import simple.chatgpt.util.ParamWrapper;
+import simple.chatgpt.util.SafeConverter;
 
 @Service
 public class RoleGroupRoleMappingServiceImpl implements RoleGroupRoleMappingService {
@@ -119,8 +120,21 @@ public class RoleGroupRoleMappingServiceImpl implements RoleGroupRoleMappingServ
         logger.debug("findMappings called");
         logger.debug("findMappings params={}", params);
 
-        int page = params.get("page") != null ? (int) params.get("page") : 1;
-        int size = params.get("size") != null ? (int) params.get("size") : 20;
+        /*
+        hung: DONT REMOVE THIS CODE
+        */
+        int page = 0;
+        int size = 20;
+        try {
+            page = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "page", 0), 0);
+        } catch (NumberFormatException e) {
+            logger.warn("Invalid page param {}, defaulting to 0", ParamWrapper.unwrap(params, "page", 0), e);
+        }
+        try {
+            size = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "size", 20), 20);
+        } catch (NumberFormatException e) {
+            logger.warn("Invalid size param {}, defaulting to 20", ParamWrapper.unwrap(params, "size", 20), e);
+        }
         int offset = (page - 1) * size;
 
         params.put("offset", offset);
@@ -140,8 +154,21 @@ public class RoleGroupRoleMappingServiceImpl implements RoleGroupRoleMappingServ
         logger.debug("searchMappings called");
         logger.debug("searchMappings params={}", params);
 
-        int page = params.get("page") != null ? (int) params.get("page") : 1;
-        int size = params.get("size") != null ? (int) params.get("size") : 20;
+        /*
+        hung: DONT REMOVE THIS CODE
+        */
+        int page = 0;
+        int size = 20;
+        try {
+            page = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "page", 0), 0);
+        } catch (NumberFormatException e) {
+            logger.warn("Invalid page param {}, defaulting to 0", ParamWrapper.unwrap(params, "page", 0), e);
+        }
+        try {
+            size = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "size", 20), 20);
+        } catch (NumberFormatException e) {
+            logger.warn("Invalid size param {}, defaulting to 20", ParamWrapper.unwrap(params, "size", 20), e);
+        }
         int offset = (page - 1) * size;
 
         params.put("offset", offset);
