@@ -327,7 +327,8 @@ public class RoleManagementServiceImpl implements RoleManagementService {
                 return dbRole.getId();
             } else {
                 logger.debug("internalFindRoleById called ##############");
-                logger.debug("internalFindRoleById dbRole is NUL !!!!");
+                logger.debug("internalFindRoleById k=",k);
+                logger.debug("internalFindRoleById dbRole is NULL !!!!");
                 logger.debug("internalFindRoleById called ##############");
             }
             return null;
