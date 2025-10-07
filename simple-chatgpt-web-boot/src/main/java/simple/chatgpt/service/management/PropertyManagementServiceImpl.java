@@ -170,9 +170,10 @@ public class PropertyManagementServiceImpl implements PropertyManagementService 
     // ---------------- Update Property ----------------
     
     /*
+    HUNG : DOMT REMOVE
     note to myself
-    1>Majority of validation (~70–80%) is done in controllers.
-      Service-level validation (~20–30%) is mainly for extra safety, 
+    1>Majority of validation (~70-80%) is done in controllers.
+      Service-level validation (~20-30%) is mainly for extra safety, 
       internal rules, or objects not coming from controllers.
     2>so we will add @Validated and @Valid to controller.  also you 
       cant do annotation at service level.  service level only allows 
