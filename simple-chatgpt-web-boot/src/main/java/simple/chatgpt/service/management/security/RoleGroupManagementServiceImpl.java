@@ -20,6 +20,7 @@ import simple.chatgpt.pojo.management.security.RoleManagementPojo;
 import simple.chatgpt.util.GenericCache;
 import simple.chatgpt.util.PagedResult;
 import simple.chatgpt.util.ParamWrapper;
+import simple.chatgpt.util.SafeConverter;
 
 @Service
 public class RoleGroupManagementServiceImpl implements RoleGroupManagementService {
@@ -115,7 +116,7 @@ public class RoleGroupManagementServiceImpl implements RoleGroupManagementServic
     @Override
     public RoleGroupManagementPojo insertRoleGroup(Map<String, Object> params) {
         logger.debug("insertRoleGroup called, params={}", params);
-        RoleGroupManagementPojo group = (RoleGroupManagementPojo) params.get("group");
+        RoleGroupManagementPojo group = ParamWrapper.unwrap(params, "group");
         logger.debug("insertRoleGroup called, group={}", group);
         groupMapper.insertRoleGroup(ParamWrapper.wrap("group", group));
         groupCache.put(group.getId(), group);
@@ -127,7 +128,7 @@ public class RoleGroupManagementServiceImpl implements RoleGroupManagementServic
     @Override
     public RoleGroupManagementPojo updateRoleGroup(Map<String, Object> params) {
         logger.debug("updateRoleGroup called, params={}", params);
-        RoleGroupManagementPojo group = (RoleGroupManagementPojo) params.get("group");
+        RoleGroupManagementPojo group = ParamWrapper.unwrap(params, "group");
         groupMapper.updateRoleGroup(ParamWrapper.wrap("group", group));
         groupCache.put(group.getId(), group);
         return group;
@@ -137,7 +138,7 @@ public class RoleGroupManagementServiceImpl implements RoleGroupManagementServic
     @Override
     public void deleteRoleGroupById(Map<String, Object> params) {
         logger.debug("deleteRoleGroupById called, params={}", params);
-        Long id = (Long) params.get("roleGroupId");
+        Long id = ParamWrapper.unwrap(params, "roleGroupId");
         groupCache.invalidate(id);
         groupMapper.deleteRoleGroupById(ParamWrapper.wrap("roleGroupId", id));
     }
@@ -146,7 +147,7 @@ public class RoleGroupManagementServiceImpl implements RoleGroupManagementServic
     public void deleteRoleGroupByName(Map<String, Object> params) {
         logger.debug("deleteRoleGroupByName called, params={}", params);
 
-        String groupName = (String) params.get("groupName");
+        String groupName = ParamWrapper.unwrap(params, "groupName");
         Long id = nameToIdCache.get(groupName, k -> null);
 
         if (id != null) {
@@ -189,8 +190,22 @@ public class RoleGroupManagementServiceImpl implements RoleGroupManagementServic
     @Override
     public PagedResult<RoleGroupManagementPojo> findRoleGroups(Map<String, Object> params) {
         logger.debug("findRoleGroups called, params={}", params);
-        int page = params.get("page") != null ? (int) params.get("page") : 1;
-        int size = params.get("size") != null ? (int) params.get("size") : 20;
+
+        /*
+        hung: DONT REMOVE THIS CODE
+        */
+        int page = 0;
+        int size = 20;
+        try {
+            page = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "page", 0), 0); 
+        } catch (NumberFormatException e) {
+            logger.warn("Invalid page param {}, defaulting to 0", ParamWrapper.unwrap(params, "page", 0), e);
+        }
+        try {
+            size = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "size", 20), 20);
+        } catch (NumberFormatException e) {
+            logger.warn("Invalid size param {}, defaulting to 20", ParamWrapper.unwrap(params, "size", 20), e);
+        }
         int offset = (page - 1) * size;
         params.put("offset", offset);
         params.put("limit", size);
@@ -204,8 +219,22 @@ public class RoleGroupManagementServiceImpl implements RoleGroupManagementServic
     @Override
     public PagedResult<RoleGroupManagementPojo> searchRoleGroups(Map<String, Object> params) {
         logger.debug("searchRoleGroups called, params={}", params);
-        int page = params.get("page") != null ? (int) params.get("page") : 1;
-        int size = params.get("size") != null ? (int) params.get("size") : 20;
+
+        /*
+        hung: DONT REMOVE THIS CODE
+        */
+        int page = 0;
+        int size = 20;
+        try {
+            page = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "page", 0), 0); 
+        } catch (NumberFormatException e) {
+            logger.warn("Invalid page param {}, defaulting to 0", ParamWrapper.unwrap(params, "page", 0), e);
+        }
+        try {
+            size = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "size", 20), 20);
+        } catch (NumberFormatException e) {
+            logger.warn("Invalid size param {}, defaulting to 20", ParamWrapper.unwrap(params, "size", 20), e);
+        }
         int offset = (page - 1) * size;
         params.put("offset", offset);
         params.put("limit", size);
@@ -226,8 +255,8 @@ public class RoleGroupManagementServiceImpl implements RoleGroupManagementServic
     // =================== HELPER ===================
     public RoleGroupManagementPojo getRoleGroup(Map<String, Object> params) {
         logger.debug("getRoleGroup called, params={}", params);
-        Long id = (Long) params.get("roleGroupId");
-        String groupName = (String) params.get("groupName");
+        Long id = ParamWrapper.unwrap(params, "roleGroupId");
+        String groupName = ParamWrapper.unwrap(params, "groupName");
 
         if (id != null) {
             return groupCache.get(id, k -> findRoleGroupById(ParamWrapper.wrap("roleGroupId", k)));
