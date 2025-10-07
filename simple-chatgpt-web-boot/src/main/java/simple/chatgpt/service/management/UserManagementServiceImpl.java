@@ -20,6 +20,7 @@ import simple.chatgpt.pojo.management.security.UserManagementRoleGroupMappingPoj
 import simple.chatgpt.service.management.security.RoleGroupManagementService;
 import simple.chatgpt.service.management.security.UserManagementRoleGroupMappingService;
 import simple.chatgpt.util.PagedResult;
+import simple.chatgpt.util.ParamWrapper;
 
 @Service
 public class UserManagementServiceImpl implements UserManagementService {
@@ -93,13 +94,13 @@ public class UserManagementServiceImpl implements UserManagementService {
             // ----------- MAP USER TO ROLE-GROUP -----------
             String roleGroupName = u.getRoleGroup();
             if (roleGroupName != null && !roleGroupName.isEmpty()) {
-                RoleGroupManagementPojo group = roleGroupService.findRoleGroupByName(Map.of("groupName", roleGroupName));
+                RoleGroupManagementPojo group = roleGroupService.findRoleGroupByName(ParamWrapper.wrap("groupName", roleGroupName));
                 if (group != null) {
                     UserManagementRoleGroupMappingPojo mapping = new UserManagementRoleGroupMappingPojo();
                     mapping.setUserId(existing.getId());
                     mapping.setRoleGroupId(group.getId());
 
-                    mappingService.insertUserRoleGroup(Map.of("mapping", mapping));
+                    mappingService.insertUserRoleGroup(ParamWrapper.wrap("mapping", mapping));
                     logger.debug("Mapped user userName={} to roleGroup={} mappingId={}",
                             u.getUserName(), roleGroupName, mapping.getId());
                 } else {
@@ -137,8 +138,6 @@ public class UserManagementServiceImpl implements UserManagementService {
         sqlParams.put("offset", offset);
         sqlParams.put("limit", size);
 
-        // Resolve sortField
-        // String sortField = resolveSortField(params.get("sortField"));
         String sortField = params.get("sortField");
         String sortDirection = params.getOrDefault("sortDirection", "ASC").toUpperCase();
         sqlParams.put("sortField", sortField);
@@ -163,31 +162,6 @@ public class UserManagementServiceImpl implements UserManagementService {
         logger.debug("searchUsers result={}", result);
 
         return result;
-    }
-
-    // ---------------- Helper Method ----------------
-    private String resolveSortField(String frontEndField) {
-        Map<String, String> sortFieldMap = Map.of(
-            "id", "id",
-            "userName", "user_name",
-            "userKey", "user_key",
-            "firstName", "first_name",
-            "lastName", "last_name",
-            "email", "email",
-            "city", "city",
-            "country", "country",
-            "createdAt", "created_at",
-            "updatedAt", "updated_at"
-        );
-
-        String dbColumn = sortFieldMap.get(frontEndField);
-        if (dbColumn == null) {
-            logger.debug("Invalid sortField '{}', defaulting to 'id'", frontEndField);
-            dbColumn = "id";
-        } else {
-            logger.debug("Resolved sortField '{}' -> '{}'", frontEndField, dbColumn);
-        }
-        return dbColumn;
     }
 
     // 📖 READ

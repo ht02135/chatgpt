@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import simple.chatgpt.mapper.management.security.RoleGroupRoleMappingMapper;
 import simple.chatgpt.pojo.management.security.RoleGroupRoleMappingPojo;
 import simple.chatgpt.util.PagedResult;
+import simple.chatgpt.util.ParamWrapper;
 
 @Service
 public class RoleGroupRoleMappingServiceImpl implements RoleGroupRoleMappingService {
@@ -53,7 +54,7 @@ public class RoleGroupRoleMappingServiceImpl implements RoleGroupRoleMappingServ
         logger.debug("addRoleToGroupIfNotExists called roleGroupId={} roleId={}", roleGroupId, roleId);
 
         // Check if mapping already exists
-        PagedResult<RoleGroupRoleMappingPojo> existingMappings = findByRoleGroupId(Map.of("roleGroupId", roleGroupId));
+        PagedResult<RoleGroupRoleMappingPojo> existingMappings = findByRoleGroupId(ParamWrapper.wrap("roleGroupId", roleGroupId));
         RoleGroupRoleMappingPojo existing = existingMappings.getItems().stream()
                 .filter(m -> roleId.equals(m.getRoleId()))
                 .findFirst()
@@ -68,7 +69,7 @@ public class RoleGroupRoleMappingServiceImpl implements RoleGroupRoleMappingServ
         mapping.setRoleGroupId(roleGroupId);
         mapping.setRoleId(roleId);
 
-        insertMapping(Map.of("mapping", mapping));
+        insertMapping(ParamWrapper.wrap("mapping", mapping));
         logger.debug("Inserted new mapping successfully: {}", mapping);
         return mapping;
     }

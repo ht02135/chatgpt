@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import simple.chatgpt.pojo.management.security.RoleManagementPojo;
 import simple.chatgpt.service.management.security.RoleManagementService;
 import simple.chatgpt.util.PagedResult;
+import simple.chatgpt.util.ParamWrapper;
 import simple.chatgpt.util.Response;
 
 @RestController
@@ -70,7 +71,7 @@ public class RoleManagementController {
     @DeleteMapping("/deleteById")
     public ResponseEntity<Response<Void>> deleteRoleById(@RequestParam Long roleId) {
         logger.debug("deleteRoleById called roleId={}", roleId);
-        Map<String, Object> params = Map.of("roleId", roleId);
+        Map<String, Object> params = ParamWrapper.wrap("roleId", roleId);
 
         roleService.deleteRoleById(params);
         logger.debug("deleteRoleById completed for roleId={}", roleId);
@@ -81,7 +82,7 @@ public class RoleManagementController {
     @DeleteMapping("/deleteByName")
     public ResponseEntity<Response<Void>> deleteRoleByName(@RequestParam String roleName) {
         logger.debug("deleteRoleByName called roleName={}", roleName);
-        Map<String, Object> params = Map.of("roleName", roleName);
+        Map<String, Object> params = ParamWrapper.wrap("roleName", roleName);
 
         roleService.deleteRoleByName(params);
         logger.debug("deleteRoleByName completed for roleName={}", roleName);
@@ -93,7 +94,7 @@ public class RoleManagementController {
     @GetMapping("/findById")
     public ResponseEntity<Response<RoleManagementPojo>> findRoleById(@RequestParam Long roleId) {
         logger.debug("findRoleById called roleId={}", roleId);
-        Map<String, Object> params = Map.of("roleId", roleId);
+        Map<String, Object> params = ParamWrapper.wrap("roleId", roleId);
 
         RoleManagementPojo role = roleService.findRoleById(params);
         logger.debug("findRoleById result={}", role);
@@ -108,7 +109,7 @@ public class RoleManagementController {
     @GetMapping("/findByName")
     public ResponseEntity<Response<RoleManagementPojo>> findRoleByName(@RequestParam String roleName) {
         logger.debug("findRoleByName called roleName={}", roleName);
-        Map<String, Object> params = Map.of("roleName", roleName);
+        Map<String, Object> params = ParamWrapper.wrap("roleName", roleName);
 
         RoleManagementPojo role = roleService.findRoleByName(params);
         logger.debug("findRoleByName result={}", role);

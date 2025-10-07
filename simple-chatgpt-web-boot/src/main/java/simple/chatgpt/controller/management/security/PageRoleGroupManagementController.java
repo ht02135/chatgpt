@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import simple.chatgpt.pojo.management.security.PageRoleGroupManagementPojo;
 import simple.chatgpt.service.management.security.PageRoleGroupManagementService;
 import simple.chatgpt.util.PagedResult;
+import simple.chatgpt.util.ParamWrapper;
 import simple.chatgpt.util.Response;
 
 @RestController
@@ -39,7 +40,7 @@ public class PageRoleGroupManagementController {
     public ResponseEntity<Response<PageRoleGroupManagementPojo>> insertPageRoleGroup(@RequestBody PageRoleGroupManagementPojo pageRoleGroup) {
         logger.debug("insertPageRoleGroup called, pageRoleGroup={}", pageRoleGroup);
 
-        Map<String, Object> params = Map.of("pageRoleGroup", pageRoleGroup);
+        Map<String, Object> params = ParamWrapper.wrap("pageRoleGroup", pageRoleGroup);
         PageRoleGroupManagementPojo created = pageRoleGroupService.insertPageRoleGroup(params);
 
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -52,7 +53,7 @@ public class PageRoleGroupManagementController {
                                                                                      @RequestBody PageRoleGroupManagementPojo pageRoleGroup) {
         logger.debug("updatePageRoleGroup called, id={} pageRoleGroup={}", id, pageRoleGroup);
 
-        Map<String, Object> params = Map.of("id", id, "pageRoleGroup", pageRoleGroup);
+        Map<String, Object> params = ParamWrapper.wrap("id", id, "pageRoleGroup", pageRoleGroup);
         PageRoleGroupManagementPojo updated = pageRoleGroupService.updatePageRoleGroup(params);
 
         return ResponseEntity.ok(Response.success("Page role group updated successfully", updated, HttpStatus.OK.value()));
@@ -63,7 +64,7 @@ public class PageRoleGroupManagementController {
     public ResponseEntity<Response<Void>> deletePageRoleGroupById(@RequestParam Long id) {
         logger.debug("deletePageRoleGroupById called, id={}", id);
 
-        pageRoleGroupService.deletePageRoleGroupById(Map.of("id", id));
+        pageRoleGroupService.deletePageRoleGroupById(ParamWrapper.wrap("id", id));
         return ResponseEntity.ok(Response.success("Page role group deleted successfully", null, HttpStatus.OK.value()));
     }
 
@@ -82,7 +83,7 @@ public class PageRoleGroupManagementController {
     public ResponseEntity<Response<PageRoleGroupManagementPojo>> findById(@RequestParam Long id) {
         logger.debug("findById called, id={}", id);
 
-        Map<String, Object> params = Map.of("id", id);
+        Map<String, Object> params = ParamWrapper.wrap("id", id);
         PageRoleGroupManagementPojo group = pageRoleGroupService.findById(params);
 
         if (group == null) {
@@ -97,7 +98,7 @@ public class PageRoleGroupManagementController {
     public ResponseEntity<Response<PageRoleGroupManagementPojo>> findByUrlPattern(@RequestParam String urlPattern) {
         logger.debug("findByUrlPattern called, urlPattern={}", urlPattern);
 
-        Map<String, Object> params = Map.of("urlPattern", urlPattern);
+        Map<String, Object> params = ParamWrapper.wrap("urlPattern", urlPattern);
         PageRoleGroupManagementPojo group = pageRoleGroupService.findByUrlPattern(params);
 
         if (group == null) {
@@ -112,7 +113,7 @@ public class PageRoleGroupManagementController {
     public ResponseEntity<Response<PagedResult<PageRoleGroupManagementPojo>>> findByRoleGroupId(@RequestParam Long roleGroupId) {
         logger.debug("findByRoleGroupId called, roleGroupId={}", roleGroupId);
 
-        Map<String, Object> params = Map.of("roleGroupId", roleGroupId);
+        Map<String, Object> params = ParamWrapper.wrap("roleGroupId", roleGroupId);
         PagedResult<PageRoleGroupManagementPojo> paged = pageRoleGroupService.findByRoleGroupId(params);
 
         logger.debug("findByRoleGroupId returned {} items, totalCount={}", paged.getItems().size(), paged.getTotalCount());

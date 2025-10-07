@@ -332,24 +332,4 @@ public class PropertyManagementServiceImpl implements PropertyManagementService 
         logger.debug("Cache invalidated for key={}", property.getPropertyKey());
         logger.debug("#############");
     }
-
-    // ---------------- Helper Method for sort mapping ----------------
-    private String resolveSortField(String frontEndField) {
-        Map<String, String> sortFieldMap = Map.of(
-            "propertyName", "property_name",
-            "propertyKey", "property_key",
-            "type", "type",
-            "value", "value",
-            "id", "id"
-        );
-
-        String dbColumn = sortFieldMap.get(frontEndField);
-        if (dbColumn == null) {
-            logger.debug("Invalid sortField '{}', defaulting to 'id'", frontEndField);
-            dbColumn = "id";
-        } else {
-            logger.debug("Resolved sortField '{}' -> '{}'", frontEndField, dbColumn);
-        }
-        return dbColumn;
-    }
 }

@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import simple.chatgpt.pojo.management.security.RoleGroupRoleMappingPojo;
 import simple.chatgpt.service.management.security.RoleGroupRoleMappingService;
 import simple.chatgpt.util.PagedResult;
+import simple.chatgpt.util.ParamWrapper;
 import simple.chatgpt.util.Response;
 
 @RestController
@@ -37,7 +38,7 @@ public class RoleGroupRoleMappingController {
     @PostMapping("/add")
     public ResponseEntity<Response<RoleGroupRoleMappingPojo>> insertMapping(@RequestBody RoleGroupRoleMappingPojo mapping) {
         logger.debug("insertMapping called mapping={}", mapping);
-        RoleGroupRoleMappingPojo result = mappingService.insertMapping(Map.of("mapping", mapping));
+        RoleGroupRoleMappingPojo result = mappingService.insertMapping(ParamWrapper.wrap("mapping", mapping));
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(Response.success("Mapping inserted successfully", result, HttpStatus.CREATED.value()));
     }
@@ -49,7 +50,7 @@ public class RoleGroupRoleMappingController {
     ) {
         logger.debug("addRoleToGroupIfNotExists called, roleGroupId={}, roleId={}", roleGroupId, roleId);
         RoleGroupRoleMappingPojo result = mappingService.addRoleToGroupIfNotExists(
-                Map.of("roleGroupId", roleGroupId, "roleId", roleId)
+        		ParamWrapper.wrap("roleGroupId", roleGroupId, "roleId", roleId)
         );
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(Response.success("Role added to role group if not exists successfully", result, HttpStatus.CREATED.value()));
@@ -59,7 +60,7 @@ public class RoleGroupRoleMappingController {
     @DeleteMapping("/deleteById")
     public ResponseEntity<Response<Void>> deleteMappingById(@RequestParam Long id) {
         logger.debug("deleteMappingById called, id={}", id);
-        mappingService.deleteMappingById(Map.of("id", id));
+        mappingService.deleteMappingById(ParamWrapper.wrap("id", id));
         return ResponseEntity.ok(Response.success("Mapping deleted successfully", null, HttpStatus.OK.value()));
     }
 
@@ -69,7 +70,7 @@ public class RoleGroupRoleMappingController {
             @RequestParam Long roleId
     ) {
         logger.debug("deleteMappingByGroupAndRole called, roleGroupId={}, roleId={}", roleGroupId, roleId);
-        mappingService.deleteMappingByGroupAndRole(Map.of("roleGroupId", roleGroupId, "roleId", roleId));
+        mappingService.deleteMappingByGroupAndRole(ParamWrapper.wrap("roleGroupId", roleGroupId, "roleId", roleId));
         return ResponseEntity.ok(Response.success("Mapping deleted successfully", null, HttpStatus.OK.value()));
     }
 
@@ -84,14 +85,14 @@ public class RoleGroupRoleMappingController {
     @GetMapping("/listByRoleGroup")
     public ResponseEntity<Response<PagedResult<RoleGroupRoleMappingPojo>>> findByRoleGroupId(@RequestParam Long roleGroupId) {
         logger.debug("findByRoleGroupId called, roleGroupId={}", roleGroupId);
-        PagedResult<RoleGroupRoleMappingPojo> result = mappingService.findByRoleGroupId(Map.of("roleGroupId", roleGroupId));
+        PagedResult<RoleGroupRoleMappingPojo> result = mappingService.findByRoleGroupId(ParamWrapper.wrap("roleGroupId", roleGroupId));
         return ResponseEntity.ok(Response.success("Mappings fetched successfully", result, HttpStatus.OK.value()));
     }
 
     @GetMapping("/listByRole")
     public ResponseEntity<Response<PagedResult<RoleGroupRoleMappingPojo>>> findByRoleId(@RequestParam Long roleId) {
         logger.debug("findByRoleId called, roleId={}", roleId);
-        PagedResult<RoleGroupRoleMappingPojo> result = mappingService.findByRoleId(Map.of("roleId", roleId));
+        PagedResult<RoleGroupRoleMappingPojo> result = mappingService.findByRoleId(ParamWrapper.wrap("roleId", roleId));
         return ResponseEntity.ok(Response.success("Mappings fetched successfully", result, HttpStatus.OK.value()));
     }
 

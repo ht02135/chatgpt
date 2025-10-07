@@ -20,6 +20,7 @@ import simple.chatgpt.mapper.management.security.RoleManagementMapper;
 import simple.chatgpt.pojo.management.security.RoleManagementPojo;
 import simple.chatgpt.util.GenericCache;
 import simple.chatgpt.util.PagedResult;
+import simple.chatgpt.util.ParamWrapper;
 
 @Service
 public class RoleManagementServiceImpl implements RoleManagementService {
@@ -84,13 +85,13 @@ public class RoleManagementServiceImpl implements RoleManagementService {
             String description = roleConfig.getDescription();
             logger.debug("Processing roleConfig name={} description={}", roleName, description);
 
-            RoleManagementPojo existing = getRole(Map.of("roleName", roleName));
+            RoleManagementPojo existing = getRole(ParamWrapper.wrap("roleName", roleName));
             RoleManagementPojo rolePojo = new RoleManagementPojo();
             rolePojo.setRoleName(roleName);
             rolePojo.setDescription(description);
 
             if (existing == null) {
-                roleMapper.insertRole(Map.of("params", Map.of("role", rolePojo)));
+                roleMapper.insertRole(ParamWrapper.wrap("params", ParamWrapper.wrap("role", rolePojo)));
                 logger.debug("Inserted role id={} roleName={}", rolePojo.getId(), roleName);
             } else {
                 logger.debug("Role already exists, skipping id={} roleName={}", existing.getId(), roleName);
@@ -177,20 +178,20 @@ public class RoleManagementServiceImpl implements RoleManagementService {
     public RoleManagementPojo findRoleByName(Map<String, Object> params) {
         logger.debug("findRoleByName called params={}", params);
         String roleName = (String) params.get("roleName");
-        return getRoleByName(Map.of("roleName", roleName));
+        return getRoleByName(ParamWrapper.wrap("roleName", roleName));
     }
 
     @Override
     public long countRoles(Map<String, Object> params) {
         logger.debug("countRoles called params={}", params);
-        return roleMapper.countRoles(Map.of("params", params));
+        return roleMapper.countRoles(ParamWrapper.wrap("params", params));
     }
 
     @Override
     public RoleManagementPojo insertRole(Map<String, Object> params) {
         logger.debug("insertRole called params={}", params);
         RoleManagementPojo role = (RoleManagementPojo) params.get("role");
-        roleMapper.insertRole(Map.of("params", Map.of("role", role)));
+        roleMapper.insertRole(ParamWrapper.wrap("params", ParamWrapper.wrap("role", role)));
         roleCache.put(role.getId(), role);
         nameToIdCache.put(role.getRoleName(), role.getId());
         logger.debug("insertRole cached role id={} roleName={}", role.getId(), role.getRoleName());
@@ -209,7 +210,7 @@ public class RoleManagementServiceImpl implements RoleManagementService {
         }
 
         role.setId(existing.getId());
-        roleMapper.updateRole(Map.of("params", Map.of("role", role)));
+        roleMapper.updateRole(ParamWrapper.wrap("params", ParamWrapper.wrap("role", role)));
         roleCache.put(existing.getId(), role);
         nameToIdCache.put(role.getRoleName(), existing.getId());
         logger.debug("updateRole updated cache id={} roleName={}", existing.getId(), role.getRoleName());
@@ -221,7 +222,7 @@ public class RoleManagementServiceImpl implements RoleManagementService {
         logger.debug("deleteRoleById called params={}", params);
         RoleManagementPojo existing = getRole(params);
         if (existing != null) {
-            roleMapper.deleteRoleById(Map.of("params", Map.of("roleId", existing.getId())));
+            roleMapper.deleteRoleById(ParamWrapper.wrap("params", ParamWrapper.wrap("roleId", existing.getId())));
             roleCache.invalidate(existing.getId());
             nameToIdCache.invalidate(existing.getRoleName());
             logger.debug("deleteRoleById deleted role id={} roleName={}", existing.getId(), existing.getRoleName());
@@ -233,7 +234,7 @@ public class RoleManagementServiceImpl implements RoleManagementService {
         logger.debug("deleteRoleByName called params={}", params);
         RoleManagementPojo existing = getRole(params);
         if (existing != null) {
-            roleMapper.deleteRoleByName(Map.of("params", Map.of("roleName", existing.getRoleName())));
+            roleMapper.deleteRoleByName(ParamWrapper.wrap("params", ParamWrapper.wrap("roleName", existing.getRoleName())));
             roleCache.invalidate(existing.getId());
             nameToIdCache.invalidate(existing.getRoleName());
             logger.debug("deleteRoleByName deleted role id={} roleName={}", existing.getId(), existing.getRoleName());
@@ -244,7 +245,7 @@ public class RoleManagementServiceImpl implements RoleManagementService {
     private RoleManagementPojo getRoleById(Long id) {
         logger.debug("getRoleById called id={}", id);
         return roleCache.get(id, k -> {
-            RoleManagementPojo dbRole = roleMapper.findRoleById(Map.of("params", Map.of("roleId", k)));
+            RoleManagementPojo dbRole = roleMapper.findRoleById(ParamWrapper.wrap("params", ParamWrapper.wrap("roleId", k)));
             if (dbRole != null) {
                 nameToIdCache.put(dbRole.getRoleName(), dbRole.getId());
                 logger.debug("Loaded from DB and cached id={} roleName={}", dbRole.getId(), dbRole.getRoleName());
@@ -261,7 +262,7 @@ public class RoleManagementServiceImpl implements RoleManagementService {
 
         Long id = nameToIdCache.get(roleName, k -> {
         	logger.debug("getRoleByName called k={}", k);
-            RoleManagementPojo dbRole = roleMapper.findRoleByName(Map.of("params", Map.of("roleName", k)));
+            RoleManagementPojo dbRole = roleMapper.findRoleByName(ParamWrapper.wrap("params", ParamWrapper.wrap("roleName", k)));
             if (dbRole != null) {
                 roleCache.put(dbRole.getId(), dbRole);
                 logger.debug("Loaded from DB and cached roleName={} id={}", k, dbRole.getId());
@@ -282,7 +283,7 @@ public class RoleManagementServiceImpl implements RoleManagementService {
         if (roleId != null) {
             return getRoleById(roleId);
         } else if (roleName != null) {
-            return getRoleByName(Map.of("roleName", roleName));
+            return getRoleByName(ParamWrapper.wrap("roleName", roleName));
         }
         return null;
     }
