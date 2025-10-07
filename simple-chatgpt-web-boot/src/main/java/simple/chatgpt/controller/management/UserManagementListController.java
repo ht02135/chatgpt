@@ -370,8 +370,6 @@ public class UserManagementListController {
             }
         }
 
-        // Handle any other unexpected Object type by trying to parse its string representation
-        // or by simply returning 0. Given the original logic, returning 0 is safer.
         return 0;
     }
 }
