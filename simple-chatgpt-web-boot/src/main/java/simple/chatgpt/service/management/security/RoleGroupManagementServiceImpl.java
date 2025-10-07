@@ -2,6 +2,7 @@ package simple.chatgpt.service.management.security;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 
@@ -69,9 +70,17 @@ public class RoleGroupManagementServiceImpl implements RoleGroupManagementServic
                 securityConfigLoader, groupCache);
             return;
         }
-        
+
         List<RoleGroupConfig> definedGroups = securityConfigLoader.getRoleGroups();
         logger.debug("Loaded role groups from config, size={}", definedGroups.size());
+
+        // ----------- FETCH ALL ROLES ONCE -----------
+        Map<String, RoleManagementPojo> roleByName = roleManagementService
+                .getAllRoles()
+                .getItems()
+                .stream()
+                .collect(Collectors.toMap(RoleManagementPojo::getRoleName, r -> r));
+        logger.debug("Fetched all roles size={}", roleByName.size());
 
         for (RoleGroupConfig rgConfig : definedGroups) {
             String groupName = rgConfig.getName();
@@ -89,7 +98,8 @@ public class RoleGroupManagementServiceImpl implements RoleGroupManagementServic
             }
 
             for (RoleRefConfig ref : rgConfig.getRoles()) {
-                RoleManagementPojo role = roleManagementService.findRoleByName(ParamWrapper.wrap("roleName", ref.getName()));
+                // ----------- GET ROLE FROM PRE-FETCHED MAP -----------
+                RoleManagementPojo role = roleByName.get(ref.getName());
                 if (role != null) {
                     roleGroupRoleMappingService.addRoleToGroupIfNotExists(
                         ParamWrapper.wrap("roleGroupId", groupPojo.getId(), "roleId", role.getId())
@@ -97,6 +107,11 @@ public class RoleGroupManagementServiceImpl implements RoleGroupManagementServic
                     logger.debug(
                         "Mapped role → group: groupName={} roleName={} roleId={}",
                         groupName, ref.getName(), role.getId()
+                    );
+                } else {
+                    logger.warn(
+                        "Role '{}' not found in pre-fetched roles, skipping mapping to group '{}'",
+                        ref.getName(), groupName
                     );
                 }
             }
