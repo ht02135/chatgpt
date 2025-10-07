@@ -32,6 +32,7 @@ import simple.chatgpt.mapper.management.UserManagementListMemberMapper;
 import simple.chatgpt.pojo.management.UserManagementListMemberPojo;
 import simple.chatgpt.pojo.management.UserManagementListPojo;
 import simple.chatgpt.util.PagedResult;
+import simple.chatgpt.util.SafeConverter;
 
 @Service
 public class UserManagementListServiceImpl implements UserManagementListService {
@@ -77,13 +78,23 @@ public class UserManagementListServiceImpl implements UserManagementListService 
     public PagedResult<UserManagementListPojo> searchUserLists(Map<String, Object> params) {
         logger.debug("searchUserLists called with params={}", params);
 
-        int page = 0, size = 20;
-        try { page = getInt(params.getOrDefault("page", "0")); }
-        catch (Exception e) { logger.warn("Invalid page param {}, defaulting to 0", params.get("page"), e); }
-        try { size = getInt(params.getOrDefault("size", "20")); }
-        catch (Exception e) { logger.warn("Invalid size param {}, defaulting to 20", params.get("size"), e); }
-
+        /*
+        Hung : DONT REMOVE THIS CODE
+        */
+        int page = 0;
+        int size = 20;
+        try {
+            page = SafeConverter.toIntOrDefault(params.get("page"), 0); 
+        } catch (NumberFormatException e) {
+            logger.warn("Invalid page param {}, defaulting to 0", params.get("page"), e);
+        }
+        try {
+            size = SafeConverter.toIntOrDefault(params.get("size"), 20);
+        } catch (NumberFormatException e) {
+            logger.warn("Invalid size param {}, defaulting to 20", params.get("size"), e);
+        }
         int offset = page * size;
+        
         String sortField = (String) params.getOrDefault("sortField", "id");
         String sortDirection = ((String) params.getOrDefault("sortDirection", "ASC")).toUpperCase();
 
@@ -230,12 +241,21 @@ public class UserManagementListServiceImpl implements UserManagementListService 
         Long listId = (Long) params.get("listId");
         logger.debug("getMembersByListId listId={}", listId);
 
-        int page = 0, size = 20;
-        try { page = getInt(params.getOrDefault("page", "0")); }
-        catch (Exception e) { logger.warn("Invalid page param {}, defaulting to 0", params.get("page"), e); }
-        try { size = getInt(params.getOrDefault("size", "20")); }
-        catch (Exception e) { logger.warn("Invalid size param {}, defaulting to 20", params.get("size"), e); }
-
+        /*
+        Hung : DONT REMOVE THIS CODE
+        */
+        int page = 0;
+        int size = 20;
+        try {
+            page = SafeConverter.toIntOrDefault(params.get("page"), 0); 
+        } catch (NumberFormatException e) {
+            logger.warn("Invalid page param {}, defaulting to 0", params.get("page"), e);
+        }
+        try {
+            size = SafeConverter.toIntOrDefault(params.get("size"), 20);
+        } catch (NumberFormatException e) {
+            logger.warn("Invalid size param {}, defaulting to 20", params.get("size"), e);
+        }
         int offset = page * size;
 
         Map<String, Object> sqlParams = new HashMap<>();
@@ -258,13 +278,23 @@ public class UserManagementListServiceImpl implements UserManagementListService 
     public PagedResult<UserManagementListMemberPojo> searchMembers(Map<String, Object> params) {
         logger.debug("searchMembers called with params={}", params);
 
-        int page = 0, size = 20;
-        try { page = getInt(params.getOrDefault("page", "0")); }
-        catch (Exception e) { logger.warn("Invalid page param {}, defaulting to 0", params.get("page"), e); }
-        try { size = getInt(params.getOrDefault("size", "20")); }
-        catch (Exception e) { logger.warn("Invalid size param {}, defaulting to 20", params.get("size"), e); }
-
+        /*
+        Hung : DONT REMOVE THIS CODE
+        */
+        int page = 0;
+        int size = 20;
+        try {
+            page = SafeConverter.toIntOrDefault(params.get("page"), 0); 
+        } catch (NumberFormatException e) {
+            logger.warn("Invalid page param {}, defaulting to 0", params.get("page"), e);
+        }
+        try {
+            size = SafeConverter.toIntOrDefault(params.get("size"), 20);
+        } catch (NumberFormatException e) {
+            logger.warn("Invalid size param {}, defaulting to 20", params.get("size"), e);
+        }
         int offset = page * size;
+        
         String sortField = (String) params.getOrDefault("sortField", "id");
         String sortDirection = ((String) params.getOrDefault("sortDirection", "ASC")).toUpperCase();
 

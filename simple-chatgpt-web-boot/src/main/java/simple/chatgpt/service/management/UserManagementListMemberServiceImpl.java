@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import simple.chatgpt.mapper.management.UserManagementListMemberMapper;
 import simple.chatgpt.pojo.management.UserManagementListMemberPojo;
 import simple.chatgpt.util.PagedResult;
+import simple.chatgpt.util.SafeConverter;
 
 @Service
 public class UserManagementListMemberServiceImpl implements UserManagementListMemberService {
@@ -32,13 +33,23 @@ public class UserManagementListMemberServiceImpl implements UserManagementListMe
             logger.debug("searchMembers param {}={}", entry.getKey(), entry.getValue());
         }
 
-        int page = 0, size = 20;
-        try { page = getInt(params.getOrDefault("page", "0")); }
-        catch (Exception e) { logger.warn("Invalid page param {}, defaulting to 0", params.get("page"), e); }
-        try { size = getInt(params.getOrDefault("size", "20")); }
-        catch (Exception e) { logger.warn("Invalid size param {}, defaulting to 20", params.get("size"), e); }
-
+        /*
+        Hung : DONT REMOVE THIS CODE
+        */
+        int page = 0;
+        int size = 20;
+        try {
+            page = SafeConverter.toIntOrDefault(params.get("page"), 0); 
+        } catch (NumberFormatException e) {
+            logger.warn("Invalid page param {}, defaulting to 0", params.get("page"), e);
+        }
+        try {
+            size = SafeConverter.toIntOrDefault(params.get("size"), 20);
+        } catch (NumberFormatException e) {
+            logger.warn("Invalid size param {}, defaulting to 20", params.get("size"), e);
+        }
         int offset = page * size;
+        
         String sortField = (String) params.getOrDefault("sortField", "id");
         String sortDirection = ((String) params.getOrDefault("sortDirection", "ASC")).toUpperCase();
 
