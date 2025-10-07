@@ -37,12 +37,12 @@ public class RoleGroupManagementServiceImpl implements RoleGroupManagementServic
 
     @Autowired
     public RoleGroupManagementServiceImpl(
-            RoleGroupManagementMapper groupMapper,
-            RoleGroupRoleMappingService roleGroupRoleMappingService,
-            RoleManagementService roleManagementService,
-            SecurityConfigLoader securityConfigLoader,
-            @Qualifier("groupCache") GenericCache<Long, RoleGroupManagementPojo> groupCache) {
-
+        RoleGroupManagementMapper groupMapper,
+        RoleGroupRoleMappingService roleGroupRoleMappingService,
+        RoleManagementService roleManagementService,
+        SecurityConfigLoader securityConfigLoader,
+        @Qualifier("groupCache") GenericCache<Long, RoleGroupManagementPojo> groupCache) 
+   {
         logger.debug("RoleGroupManagementServiceImpl constructor called");
         logger.debug("groupMapper={}", groupMapper);
         logger.debug("roleGroupRoleMappingService={}", roleGroupRoleMappingService);

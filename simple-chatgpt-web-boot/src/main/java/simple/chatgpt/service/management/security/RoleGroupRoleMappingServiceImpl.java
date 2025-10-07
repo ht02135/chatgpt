@@ -22,14 +22,15 @@ public class RoleGroupRoleMappingServiceImpl implements RoleGroupRoleMappingServ
     private final RoleGroupRoleMappingMapper mapper;
 
     @Autowired
-    public RoleGroupRoleMappingServiceImpl(RoleGroupRoleMappingMapper mapper) {
+    public RoleGroupRoleMappingServiceImpl(
+    	RoleGroupRoleMappingMapper mapper) 
+   {
         logger.debug("RoleGroupRoleMappingServiceImpl constructor called");
         logger.debug("mapper={}", mapper);
         this.mapper = mapper;
     }
 
     // ---------------- CREATE ----------------
- // ---------------- CREATE ----------------
     @Override
     public RoleGroupRoleMappingPojo insertMapping(Map<String, Object> params) {
         logger.debug("insertMapping called, params={}", params);

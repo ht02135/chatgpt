@@ -35,9 +35,11 @@ public class RoleManagementServiceImpl implements RoleManagementService {
     private final Validator validator;
 
     @Autowired
-    public RoleManagementServiceImpl(RoleManagementMapper roleMapper,
-                                     @Qualifier("roleCache") GenericCache<Long, RoleManagementPojo> roleCache,
-                                     SecurityConfigLoader securityConfigLoader) {
+    public RoleManagementServiceImpl(
+    	RoleManagementMapper roleMapper,
+        @Qualifier("roleCache") GenericCache<Long, RoleManagementPojo> roleCache,
+        SecurityConfigLoader securityConfigLoader) 
+    {
         logger.debug("RoleManagementServiceImpl constructor called");
         logger.debug("roleMapper={}", roleMapper);
         logger.debug("roleCache={}", roleCache);

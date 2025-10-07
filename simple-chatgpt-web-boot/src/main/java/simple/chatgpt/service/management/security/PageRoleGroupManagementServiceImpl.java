@@ -37,13 +37,13 @@ public class PageRoleGroupManagementServiceImpl implements PageRoleGroupManageme
 
     @Autowired
     public PageRoleGroupManagementServiceImpl(
-            PageRoleGroupManagementMapper pageMapper,
-            UserManagementRoleGroupMappingService userRoleGroupMappingService,
-            RoleGroupManagementService roleGroupService,
-            SecurityConfigLoader securityConfigLoader,
-            @Qualifier("pageRoleGroupCache") GenericCache<Long, PageRoleGroupManagementPojo> pageRoleGroupCache,
-            @Qualifier("roleGroupCache") GenericCache<Long, List<PageRoleGroupManagementPojo>> roleGroupCache) {
-
+        PageRoleGroupManagementMapper pageMapper,
+        UserManagementRoleGroupMappingService userRoleGroupMappingService,
+        RoleGroupManagementService roleGroupService,
+        SecurityConfigLoader securityConfigLoader,
+        @Qualifier("pageRoleGroupCache") GenericCache<Long, PageRoleGroupManagementPojo> pageRoleGroupCache,
+        @Qualifier("roleGroupCache") GenericCache<Long, List<PageRoleGroupManagementPojo>> roleGroupCache) 
+   {
         logger.debug("PageRoleGroupManagementServiceImpl constructor called");
         logger.debug("pageMapper={}", pageMapper);
         logger.debug("userRoleGroupMappingService={}", userRoleGroupMappingService);

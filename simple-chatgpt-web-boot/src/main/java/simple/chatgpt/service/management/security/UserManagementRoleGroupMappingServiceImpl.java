@@ -26,9 +26,9 @@ public class UserManagementRoleGroupMappingServiceImpl implements UserManagement
 
     @Autowired
     public UserManagementRoleGroupMappingServiceImpl(
-            UserManagementRoleGroupMappingMapper mappingMapper,
-            @Qualifier("userRoleGroupMappingCache") GenericCache<Long, List<UserManagementRoleGroupMappingPojo>> userRoleGroupMappingCache) {
-
+    	UserManagementRoleGroupMappingMapper mappingMapper,
+    	@Qualifier("userRoleGroupMappingCache") GenericCache<Long, List<UserManagementRoleGroupMappingPojo>> userRoleGroupMappingCache) 
+    {
         logger.debug("UserManagementRoleGroupMappingServiceImpl constructor called");
         logger.debug("mappingMapper={}", mappingMapper);
         logger.debug("userRoleGroupMappingCache={}", userRoleGroupMappingCache);
