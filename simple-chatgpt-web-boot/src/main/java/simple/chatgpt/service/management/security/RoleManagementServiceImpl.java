@@ -254,10 +254,13 @@ public class RoleManagementServiceImpl implements RoleManagementService {
     }
 
     private RoleManagementPojo getRoleByName(Map<String, Object> params) {
+    	logger.debug("getRoleByName called params={}", params);
+    	
         String roleName = (String) params.get("roleName");
         logger.debug("getRoleByName called roleName={}", roleName);
 
         Long id = nameToIdCache.get(roleName, k -> {
+        	logger.debug("getRoleByName called k={}", k);
             RoleManagementPojo dbRole = roleMapper.findRoleByName(Map.of("params", Map.of("roleName", k)));
             if (dbRole != null) {
                 roleCache.put(dbRole.getId(), dbRole);
