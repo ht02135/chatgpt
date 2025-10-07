@@ -259,29 +259,30 @@ public class RoleManagementServiceImpl implements RoleManagementService {
 
     // -------------------- Private Helpers --------------------
     private RoleManagementPojo internalFindRoleById(Long id) {
-        logger.debug("getRoleById called id={}", id);
+        logger.debug("internalFindRoleByName called id={}", id);
         return roleCache.get(id, k -> {
+        	logger.debug("internalFindRoleByName called k={}", k);
             RoleManagementPojo dbRole = roleMapper.findRoleById(ParamWrapper.wrap("roleId", k));
             if (dbRole != null) {
                 nameToIdCache.put(dbRole.getRoleName(), dbRole.getId());
-                logger.debug("Loaded from DB and cached id={} roleName={}", dbRole.getId(), dbRole.getRoleName());
+                logger.debug("internalFindRoleByName Loaded from DB and cached id={} roleName={}", dbRole.getId(), dbRole.getRoleName());
             }
             return dbRole;
         });
     }
 
     private RoleManagementPojo internalFindRoleByName(Map<String, Object> params) {
-        logger.debug("getRoleByName called params={}", params);
+        logger.debug("internalFindRoleByName called params={}", params);
 
         String roleName = ParamWrapper.unwrap(params, "roleName");
-        logger.debug("getRoleByName called roleName={}", roleName);
+        logger.debug("internalFindRoleByName called roleName={}", roleName);
 
         Long id = nameToIdCache.get(roleName, k -> {
-            logger.debug("getRoleByName called k={}", k);
+            logger.debug("internalFindRoleByName called k={}", k);
             RoleManagementPojo dbRole = roleMapper.findRoleByName(ParamWrapper.wrap("roleName", k));
             if (dbRole != null) {
                 roleCache.put(dbRole.getId(), dbRole);
-                logger.debug("Loaded from DB and cached roleName={} id={}", k, dbRole.getId());
+                logger.debug("internalFindRoleByName Loaded from DB and cached roleName={} id={}", k, dbRole.getId());
                 return dbRole.getId();
             }
             return null;
@@ -291,16 +292,16 @@ public class RoleManagementServiceImpl implements RoleManagementService {
     }
 
     private RoleManagementPojo internalGetRole(Map<String, Object> params) {
-        logger.debug("getRole called, params={}", params);
+        logger.debug("internalGetRole called, params={}", params);
 
         Long roleId = ParamWrapper.unwrap(params, "roleId") != null ? ((Number) ParamWrapper.unwrap(params, "roleId")).longValue() : null;
         String roleName = ParamWrapper.unwrap(params, "roleName");
 
         if (roleId != null) {
-            logger.debug("getRole called, roleId={}", roleId);
+            logger.debug("internalGetRole called, roleId={}", roleId);
             return internalFindRoleById(roleId);
         } else if (roleName != null) {
-            logger.debug("getRole called, roleName={}", roleName);
+            logger.debug("internalGetRole called, roleName={}", roleName);
             return internalFindRoleByName(ParamWrapper.wrap("roleName", roleName));
         }
         return null;
