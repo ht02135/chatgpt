@@ -19,11 +19,11 @@
     <!-- =======================
          CREATE
          ======================= -->
-    <insert id="insertUserRoleGroup" parameterType="map" useGeneratedKeys="true" keyProperty="params.mapping.id">
+    <insert id="insertUserRoleGroup" parameterType="map" useGeneratedKeys="true" keyProperty="params.id">
         INSERT INTO user_management_role_group_mapping
         (user_id, role_group_id, created_at, updated_at)
         VALUES
-        (#{params.mapping.userId}, #{params.mapping.roleGroupId}, NOW(), NOW())
+        (#{params.userId}, #{params.roleGroupId}, NOW(), NOW())
     </insert>
 
     <!-- =======================
@@ -32,11 +32,11 @@
     <update id="updateUserRoleGroup" parameterType="map">
         UPDATE user_management_role_group_mapping
         <set>
-            <if test="params.mapping.userId != null">user_id = #{params.mapping.userId},</if>
-            <if test="params.mapping.roleGroupId != null">role_group_id = #{params.mapping.roleGroupId},</if>
+            <if test="params.userId != null">user_id = #{params.userId},</if>
+            <if test="params.roleGroupId != null">role_group_id = #{params.roleGroupId},</if>
             updated_at = NOW()
         </set>
-        WHERE id = #{params.mapping.id}
+        WHERE id = #{params.id}
     </update>
 
     <!-- =======================
