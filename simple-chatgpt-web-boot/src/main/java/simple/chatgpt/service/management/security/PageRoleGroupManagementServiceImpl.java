@@ -2,6 +2,7 @@ package simple.chatgpt.service.management.security;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 
@@ -77,6 +78,13 @@ public class PageRoleGroupManagementServiceImpl implements PageRoleGroupManageme
         List<PageRoleGroupConfig> pageConfigs = securityConfigLoader.getPageRoleGroups();
         logger.debug("Loaded page-role group configs from XML, size={}", pageConfigs.size());
 
+        // ----------- FETCH ALL ROLE GROUPS ONCE -----------
+        Map<String, RoleGroupManagementPojo> roleGroupByName = roleGroupService.getAllRoleGroups()
+                .getItems()
+                .stream()
+                .collect(Collectors.toMap(RoleGroupManagementPojo::getGroupName, rg -> rg));
+        logger.debug("Fetched all role groups size={}", roleGroupByName.size());
+
         for (PageRoleGroupConfig pageConfig : pageConfigs) {
             String urlPattern = pageConfig.getUrlPattern();
             String roleGroupName = pageConfig.getRoleGroup();
@@ -88,7 +96,8 @@ public class PageRoleGroupManagementServiceImpl implements PageRoleGroupManageme
                 pagePojo = new PageRoleGroupManagementPojo();
                 pagePojo.setUrlPattern(urlPattern);
 
-                RoleGroupManagementPojo roleGroup = roleGroupService.findRoleGroupByName(ParamWrapper.wrap("groupName", roleGroupName));
+                // ----------- GET ROLE GROUP FROM PRE-FETCHED MAP -----------
+                RoleGroupManagementPojo roleGroup = roleGroupByName.get(roleGroupName);
                 if (roleGroup == null) {
                     logger.warn("Role group '{}' not found, skipping page-role mapping for '{}'", roleGroupName, urlPattern);
                     continue;
