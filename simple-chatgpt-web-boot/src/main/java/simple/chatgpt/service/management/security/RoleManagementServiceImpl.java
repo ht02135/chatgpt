@@ -86,16 +86,20 @@ public class RoleManagementServiceImpl implements RoleManagementService {
             String description = roleConfig.getDescription();
             logger.debug("Processing roleConfig name={} description={}", roleName, description);
 
+            logger.debug("initializeDB called ##############");
             RoleManagementPojo existing = internalGetRole(ParamWrapper.wrap("roleName", roleName));
+            logger.debug("initializeDB called ##############");
             
             if (existing == null) {
             	RoleManagementPojo rolePojo = new RoleManagementPojo();
                 rolePojo.setRoleName(roleName);
                 rolePojo.setDescription(description);
                 
+                logger.debug("initializeDB called ##############");
                 logger.debug("initializeDB rolePojo={}", rolePojo);
                 existing = insertRole(ParamWrapper.wrap("role", rolePojo));
                 logger.debug("Inserted role existing.getId()={} roleName={}", existing.getId(), roleName);
+                logger.debug("initializeDB called ##############");
             } else {
                 logger.debug("Role already exists, skipping id={} roleName={}", existing.getId(), roleName);
             }
@@ -214,21 +218,28 @@ public class RoleManagementServiceImpl implements RoleManagementService {
 
         // Extract role object from params
         RoleManagementPojo role = ParamWrapper.unwrap(params, "role");
-        logger.debug("insertRole role before insert={}", role);
 
         // Perform insert
+        logger.debug("insertRole called ##############");
+        logger.debug("insertRole role before insert={}", role);
+        logger.debug("insertRole called ##############");
         roleMapper.insertRole(ParamWrapper.wrap("role", role));
         logger.debug("insertRole insert completed, role id={}", role.getId());
 
         // Re-fetch the role from DB to get all populated fields
         RoleManagementPojo fullRole = internalGetRole(ParamWrapper.wrap("roleName", role.getRoleName()));
+        logger.debug("insertRole called ##############");
         logger.debug("insertRole re-fetched fullRole={}", fullRole);
+        logger.debug("insertRole called ##############");
 
         // Cache the fully populated object
         roleCache.put(fullRole.getId(), fullRole);
         nameToIdCache.put(fullRole.getRoleName(), fullRole.getId());
         logger.debug("insertRole cached fullRole id={} roleName={}", fullRole.getId(), fullRole.getRoleName());
 
+        logger.debug("insertRole called ##############");
+        logger.debug("insertRole fullRole={}",fullRole);
+        logger.debug("insertRole called ##############");
         return fullRole;
     }
 
@@ -285,6 +296,10 @@ public class RoleManagementServiceImpl implements RoleManagementService {
                 nameToIdCache.put(dbRole.getRoleName(), dbRole.getId());
                 logger.debug("internalFindRoleByName Loaded from DB and cached id={} roleName={}", dbRole.getId(), dbRole.getRoleName());
             }
+            
+            logger.debug("internalFindRoleById called ##############");
+            logger.debug("internalFindRoleById dbRole={}", dbRole);
+            logger.debug("internalFindRoleById called ##############");
             return dbRole;
         });
     }
@@ -301,12 +316,19 @@ public class RoleManagementServiceImpl implements RoleManagementService {
             if (dbRole != null) {
                 roleCache.put(dbRole.getId(), dbRole);
                 logger.debug("internalFindRoleByName Loaded from DB and cached roleName={} id={}", k, dbRole.getId());
+                
+                logger.debug("internalFindRoleByName called ##############");
+                logger.debug("internalFindRoleByName dbRole={}", dbRole);
+                logger.debug("internalFindRoleByName called ##############");
                 return dbRole.getId();
             }
             return null;
         });
 
-        return roleCache.get(id, k -> null);
+        logger.debug("internalFindRoleByName called ##############");
+        logger.debug("internalFindRoleByName roleCache.get(id, k -> null)={}", roleCache.get(id, k -> null));
+        logger.debug("internalFindRoleByName called ##############");
+        return roleCache.get(id, k -> null); // roleCache.get(id, k -> null);
     }
 
     private RoleManagementPojo internalGetRole(Map<String, Object> params) {
