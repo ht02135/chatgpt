@@ -19,12 +19,12 @@
     <!-- =======================
          CREATE
          ======================= -->
-    <insert id="insertUserRoleGroup" parameterType="map" useGeneratedKeys="true" keyProperty="params.id">
-        INSERT INTO user_management_role_group_mapping
-        (user_id, role_group_id, created_at, updated_at)
-        VALUES
-        (#{params.userId}, #{params.roleGroupId}, NOW(), NOW())
-    </insert>
+	<insert id="insertUserRoleGroup" parameterType="map" useGeneratedKeys="true" keyProperty="params.mapping.id">
+    	INSERT INTO user_management_role_group_mapping
+        	(user_id, role_group_id, created_at, updated_at)
+    	VALUES
+        	(#{params.mapping.userId}, #{params.mapping.roleGroupId}, NOW(), NOW())
+	</insert>
 
     <!-- =======================
          UPDATE
