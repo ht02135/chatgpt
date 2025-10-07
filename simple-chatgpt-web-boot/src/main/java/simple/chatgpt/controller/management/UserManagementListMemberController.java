@@ -163,11 +163,15 @@ public class UserManagementListMemberController {
         serviceParams.put("offset", offset);
         serviceParams.put("limit", size);
 
-        serviceParams.put("sortField", params.getOrDefault("sortField", "id"));
-        serviceParams.put("sortDirection", params.getOrDefault("sortDirection", "ASC"));
-
-        if (params.get("listId") != null) {
-            serviceParams.put("listId", Long.parseLong(params.get("listId").toString()));
+        String sortField = ParamWrapper.unwrap(params, "sortField", "id");
+        String sortDirection = ParamWrapper.unwrap(params, "sortDirection", "ASC").toUpperCase();
+        serviceParams.put("sortField", sortField);
+        serviceParams.put("sortDirection", sortDirection);
+        
+        // ✅ Safe unwrap for listId
+        Long listId = ParamWrapper.unwrap(params, "listId", null);
+        if (listId != null) {
+            serviceParams.put("listId", listId);
         }
 
         logger.debug("searchMembers #############");
@@ -189,8 +193,11 @@ public class UserManagementListMemberController {
         logger.debug("countMembers #############");
 
         Map<String, Object> serviceParams = new HashMap<>(params);
-        if (params.get("listId") != null) {
-            serviceParams.put("listId", Long.parseLong(params.get("listId").toString()));
+
+        // ✅ Safe unwrap for listId
+        Long listId = ParamWrapper.unwrap(params, "listId", null);
+        if (listId != null) {
+            serviceParams.put("listId", listId);
         }
 
         long count = memberService.countMembers(serviceParams);
