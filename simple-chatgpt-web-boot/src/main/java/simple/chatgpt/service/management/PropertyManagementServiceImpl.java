@@ -338,8 +338,8 @@ public class PropertyManagementServiceImpl implements PropertyManagementService 
         Map<String, Object> sqlParams = new HashMap<>(params);
         sqlParams.put("offset", offset);
         sqlParams.put("limit", size);
-        sqlParams.put("sortField", params.getOrDefault("sortField", "key"));
-        sqlParams.put("sortDirection", params.getOrDefault("sortDirection", "ASC").toUpperCase());
+        sqlParams.put("sortField", ParamWrapper.unwrap(params, "sortField", "key"));
+        sqlParams.put("sortDirection", ParamWrapper.unwrap(params, "sortDirection", "ASC").toUpperCase());
 
         logger.debug("searchProperties sqlParams={}", sqlParams);
 

@@ -141,8 +141,8 @@ public class UserManagementServiceImpl implements UserManagementService {
         sqlParams.put("offset", offset);
         sqlParams.put("limit", size);
 
-        String sortField = params.get("sortField");
-        String sortDirection = params.getOrDefault("sortDirection", "ASC").toUpperCase();
+        String sortField = ParamWrapper.unwrap(params, "sortField", "id");
+        String sortDirection = ParamWrapper.unwrap(params, "sortDirection", "ASC").toUpperCase();
         sqlParams.put("sortField", sortField);
         sqlParams.put("sortDirection", sortDirection);
 
