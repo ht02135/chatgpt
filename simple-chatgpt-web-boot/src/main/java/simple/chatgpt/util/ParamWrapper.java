@@ -18,7 +18,9 @@ public class ParamWrapper {
     @SuppressWarnings("unchecked")
     public static Map<String, Object> wrap(Object... keyValues) {
         logger.debug("wrap called");
+        logger.debug("wrap #####");
         logger.debug("wrap keyValues={}", (Object) keyValues);
+        logger.debug("wrap #####");
 
         Map<String, Object> inner;
 
@@ -42,7 +44,9 @@ public class ParamWrapper {
         }
 
         Map<String, Object> outer = Map.of("params", inner);
+        logger.debug("wrap #####");
         logger.debug("wrap returning outer={}", outer);
+        logger.debug("wrap #####");
         return outer;
     }
 
@@ -53,29 +57,39 @@ public class ParamWrapper {
     @SuppressWarnings("unchecked")
     public static <T> T unwrap(Map<?, ?> map, String key) {
         logger.debug("unwrap(Map<?,?>, String) called");
+        logger.debug("unwrap #####");
         logger.debug("unwrap map={}", map);
         logger.debug("unwrap key={}", key);
+        logger.debug("unwrap #####");
 
         if (map == null || key == null) {
+        	logger.debug("unwrap #####");
             logger.debug("unwrap early exit: map or key is null");
+            logger.debug("unwrap #####");
             return null;
         }
 
         Object value = map.get(key);
         if (value != null) {
+        	logger.debug("unwrap #####");
             logger.debug("unwrap found key={} at top level, returning value={}", key, value);
+            logger.debug("unwrap #####");
             return (T) value;
         }
 
         Object inner = map.get("params");
         if (inner instanceof Map) {
+        	logger.debug("unwrap #####");
             logger.debug("unwrap drilling into nested 'params' for key={}", key);
             T nestedValue = unwrap((Map<?, ?>) inner, key);
             logger.debug("unwrap returning nested value={} for key={}", nestedValue, key);
+            logger.debug("unwrap #####");
             return nestedValue;
         }
-
+        
+        logger.debug("unwrap #####");
         logger.debug("unwrap key={} not found, returning null", key);
+        logger.debug("unwrap #####");
         return null;
     }
 
