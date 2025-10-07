@@ -295,6 +295,10 @@ public class RoleManagementServiceImpl implements RoleManagementService {
             if (dbRole != null) {
                 nameToIdCache.put(dbRole.getRoleName(), dbRole.getId());
                 logger.debug("internalFindRoleByName Loaded from DB and cached id={} roleName={}", dbRole.getId(), dbRole.getRoleName());
+            } else {
+                logger.debug("internalFindRoleById called ##############");
+                logger.debug("internalFindRoleById dbRole is NUL !!!!");
+                logger.debug("internalFindRoleById called ##############");
             }
             
             logger.debug("internalFindRoleById called ##############");
@@ -321,6 +325,10 @@ public class RoleManagementServiceImpl implements RoleManagementService {
                 logger.debug("internalFindRoleByName dbRole={}", dbRole);
                 logger.debug("internalFindRoleByName called ##############");
                 return dbRole.getId();
+            } else {
+                logger.debug("internalFindRoleById called ##############");
+                logger.debug("internalFindRoleById dbRole is NUL !!!!");
+                logger.debug("internalFindRoleById called ##############");
             }
             return null;
         });
@@ -336,14 +344,19 @@ public class RoleManagementServiceImpl implements RoleManagementService {
 
         Long roleId = ParamWrapper.unwrap(params, "roleId") != null ? ((Number) ParamWrapper.unwrap(params, "roleId")).longValue() : null;
         String roleName = ParamWrapper.unwrap(params, "roleName");
+        RoleManagementPojo role = null;
 
         if (roleId != null) {
             logger.debug("internalGetRole called, roleId={}", roleId);
-            return internalFindRoleById(roleId);
+            role = internalFindRoleById(roleId);
         } else if (roleName != null) {
             logger.debug("internalGetRole called, roleName={}", roleName);
-            return internalFindRoleByName(ParamWrapper.wrap("roleName", roleName));
+            role = internalFindRoleByName(ParamWrapper.wrap("roleName", roleName));
         }
-        return null;
+        
+        logger.debug("internalGetRole called ##############");
+        logger.debug("internalGetRole role={}", role);
+        logger.debug("internalGetRole called ##############");
+        return role;
     }
 }
