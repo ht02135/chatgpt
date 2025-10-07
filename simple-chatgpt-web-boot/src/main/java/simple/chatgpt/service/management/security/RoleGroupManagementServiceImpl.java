@@ -33,7 +33,7 @@ public class RoleGroupManagementServiceImpl implements RoleGroupManagementServic
     private final RoleManagementService roleManagementService;
     private final SecurityConfigLoader securityConfigLoader;
 
-    private final GenericCache<Long, RoleGroupManagementPojo> groupCache;
+    private final GenericCache<Long, RoleGroupManagementPojo> roleGroupCache;
 
     @Autowired
     public RoleGroupManagementServiceImpl(
@@ -41,20 +41,20 @@ public class RoleGroupManagementServiceImpl implements RoleGroupManagementServic
         RoleGroupRoleMappingService roleGroupRoleMappingService,
         RoleManagementService roleManagementService,
         SecurityConfigLoader securityConfigLoader,
-        @Qualifier("roleGroupCache") GenericCache<Long, RoleGroupManagementPojo> groupCache) 
+        @Qualifier("roleGroupCache") GenericCache<Long, RoleGroupManagementPojo> roleGroupCache) 
    {
         logger.debug("RoleGroupManagementServiceImpl constructor called");
         logger.debug("groupMapper={}", groupMapper);
         logger.debug("roleGroupRoleMappingService={}", roleGroupRoleMappingService);
         logger.debug("roleManagementService={}", roleManagementService);
         logger.debug("securityConfigLoader={}", securityConfigLoader);
-        logger.debug("groupCache={}", groupCache);
+        logger.debug("roleGroupCache={}", roleGroupCache);
 
         this.groupMapper = groupMapper;
         this.roleGroupRoleMappingService = roleGroupRoleMappingService;
         this.roleManagementService = roleManagementService;
         this.securityConfigLoader = securityConfigLoader;
-        this.groupCache = groupCache;
+        this.roleGroupCache = roleGroupCache;
     }
 
     @PostConstruct
@@ -65,14 +65,24 @@ public class RoleGroupManagementServiceImpl implements RoleGroupManagementServic
     public void initializeDB() {
         logger.debug("initializeDB called");
 
-        if (securityConfigLoader == null || groupCache == null) {
-            logger.error("Missing required beans: securityConfigLoader={}, groupCache={}", 
-                securityConfigLoader, groupCache);
+        if (securityConfigLoader == null || roleGroupCache == null) {
+            logger.error("Missing required beans: securityConfigLoader={}, roleGroupCache={}",
+                    securityConfigLoader, roleGroupCache);
             return;
         }
 
+        // ----------- LOAD ROLE GROUPS FROM CONFIG -----------
         List<RoleGroupConfig> definedGroups = securityConfigLoader.getRoleGroups();
         logger.debug("Loaded role groups from config, size={}", definedGroups.size());
+
+        // ----------- FETCH ALL ROLE GROUPS ONCE (BY ID) -----------
+        List<RoleGroupManagementPojo> allGroups = getAllRoleGroups().getItems();
+        logger.debug("Fetched all existing role groups size={}", allGroups.size());
+
+        // Map by name so we can check existence quickly
+        Map<String, RoleGroupManagementPojo> groupByName = allGroups.stream()
+                .collect(Collectors.toMap(RoleGroupManagementPojo::getGroupName, g -> g));
+        logger.debug("Mapped existing role groups by name, size={}", groupByName.size());
 
         // ----------- FETCH ALL ROLES ONCE -----------
         Map<String, RoleManagementPojo> roleByName = roleManagementService
@@ -82,37 +92,45 @@ public class RoleGroupManagementServiceImpl implements RoleGroupManagementServic
                 .collect(Collectors.toMap(RoleManagementPojo::getRoleName, r -> r));
         logger.debug("Fetched all roles size={}", roleByName.size());
 
+        // ----------- MAIN LOOP -----------
         for (RoleGroupConfig rgConfig : definedGroups) {
             String groupName = rgConfig.getName();
-            RoleGroupManagementPojo existingGroup = getRoleGroup(ParamWrapper.wrap("groupName", groupName));
+            String description = rgConfig.getDescription();
 
-            RoleGroupManagementPojo groupPojo;
-            if (existingGroup == null) {
+            logger.debug("Processing groupName={} description={}", groupName, description);
+
+            RoleGroupManagementPojo groupPojo = groupByName.get(groupName);
+            if (groupPojo == null) {
+                logger.debug("Group '{}' not found, inserting new group", groupName);
+
                 groupPojo = new RoleGroupManagementPojo();
                 groupPojo.setGroupName(groupName);
-                insertRoleGroup(ParamWrapper.wrap("group", groupPojo));
-                logger.debug("Inserted new role group id={} groupName={}", groupPojo.getId(), groupName);
+                groupPojo.setDescription(description);
+                RoleGroupManagementPojo inserted = insertRoleGroup(ParamWrapper.wrap("group", groupPojo));
+
+                logger.debug("Inserted new role group id={} groupName={}", inserted.getId(), inserted.getGroupName());
+                // Also put in local map for subsequent lookups in this same init
+                groupByName.put(inserted.getGroupName(), inserted);
             } else {
-                groupPojo = existingGroup;
-                logger.debug("Role group already exists id={} groupName={}", existingGroup.getId(), groupName);
+                logger.debug("Group already exists id={} groupName={}", groupPojo.getId(), groupName);
             }
 
+            // ----------- MAP ROLES TO GROUP -----------
             for (RoleRefConfig ref : rgConfig.getRoles()) {
-                // ----------- GET ROLE FROM PRE-FETCHED MAP -----------
-                RoleManagementPojo role = roleByName.get(ref.getName());
+                String roleName = ref.getName();
+                RoleManagementPojo role = roleByName.get(roleName);
+
+                logger.debug("Mapping roleName={} to groupName={}", roleName, groupName);
+
                 if (role != null) {
                     roleGroupRoleMappingService.addRoleToGroupIfNotExists(
-                        ParamWrapper.wrap("roleGroupId", groupPojo.getId(), "roleId", role.getId())
+                            ParamWrapper.wrap("roleGroupId", groupPojo.getId(), "roleId", role.getId())
                     );
-                    logger.debug(
-                        "Mapped role → group: groupName={} roleName={} roleId={}",
-                        groupName, ref.getName(), role.getId()
-                    );
+                    logger.debug("Mapped role→group: groupName={} roleName={} roleId={}", 
+                            groupName, roleName, role.getId());
                 } else {
-                    logger.warn(
-                        "Role '{}' not found in pre-fetched roles, skipping mapping to group '{}'",
-                        ref.getName(), groupName
-                    );
+                    logger.warn("Role '{}' not found in pre-fetched roles, skipping mapping to group '{}'",
+                            roleName, groupName);
                 }
             }
         }
@@ -155,7 +173,7 @@ public class RoleGroupManagementServiceImpl implements RoleGroupManagementServic
     public void deleteRoleGroupById(Map<String, Object> params) {
         logger.debug("deleteRoleGroupById called, params={}", params);
         Long id = ParamWrapper.unwrap(params, "roleGroupId");
-        groupCache.invalidate(id);
+        roleGroupCache.invalidate(id);
         groupMapper.deleteRoleGroupById(ParamWrapper.wrap("roleGroupId", id));
     }
 
@@ -253,7 +271,7 @@ public class RoleGroupManagementServiceImpl implements RoleGroupManagementServic
         logger.debug("getRoleGroup called, params={}", params);
         Long id = ParamWrapper.unwrap(params, "roleGroupId");
         if (id != null) {
-            return groupCache.get(id, k -> findRoleGroupById(ParamWrapper.wrap("roleGroupId", k)));
+            return roleGroupCache.get(id, k -> findRoleGroupById(ParamWrapper.wrap("roleGroupId", k)));
         }
         return null;
     }
