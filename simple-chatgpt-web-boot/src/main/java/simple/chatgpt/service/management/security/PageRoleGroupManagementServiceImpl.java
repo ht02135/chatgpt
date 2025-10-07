@@ -67,7 +67,7 @@ public class PageRoleGroupManagementServiceImpl implements PageRoleGroupManageme
         logger.debug("initializeDB called for PageRoleGroupManagementService");
 
         if (securityConfigLoader == null || pageRoleGroupCache == null || roleGroupCache == null) {
-            logger.error("Missing required beans: securityConfigLoader={}, roleCache={}, idToNameCache={}", 
+            logger.error("Missing required beans: securityConfigLoader={}, pageRoleGroupCache={}, roleGroupCache={}", 
                 securityConfigLoader, pageRoleGroupCache, roleGroupCache);
             return;
         }

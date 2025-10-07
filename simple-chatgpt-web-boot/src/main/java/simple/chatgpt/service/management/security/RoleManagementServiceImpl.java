@@ -28,24 +28,24 @@ public class RoleManagementServiceImpl implements RoleManagementService {
 
     private final RoleManagementMapper roleMapper;
     private final GenericCache<Long, RoleManagementPojo> roleCache;
-    private final GenericCache<String, Long> idToNameCache;
+    private final GenericCache<String, Long> nameToIdCache;
     private final SecurityConfigLoader securityConfigLoader;
     private final Validator validator;
 
     @Autowired
     public RoleManagementServiceImpl(RoleManagementMapper roleMapper,
                                      @Qualifier("roleCache") GenericCache<Long, RoleManagementPojo> roleCache,
-                                     @Qualifier("idToNameCache") GenericCache<String, Long> idToNameCache,
+                                     @Qualifier("nameToIdCache") GenericCache<String, Long> nameToIdCache,
                                      SecurityConfigLoader securityConfigLoader) {
         logger.debug("RoleManagementServiceImpl constructor called");
         logger.debug("roleMapper={}", roleMapper);
         logger.debug("roleCache={}", roleCache);
-        logger.debug("idToNameCache={}", idToNameCache);
+        logger.debug("nameToIdCache={}", nameToIdCache);
         logger.debug("securityConfigLoader={}", securityConfigLoader);
 
         this.roleMapper = roleMapper;
         this.roleCache = roleCache;
-        this.idToNameCache = idToNameCache;
+        this.nameToIdCache = nameToIdCache;
         this.securityConfigLoader = securityConfigLoader;
 
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
@@ -68,10 +68,10 @@ public class RoleManagementServiceImpl implements RoleManagementService {
     public void initializeDB() {
         logger.debug("initializeDB called");
         
-        if (securityConfigLoader == null || roleCache == null || idToNameCache == null) {
+        if (securityConfigLoader == null || roleCache == null || nameToIdCache == null) {
         	logger.debug("initializeDB called ##############");
-            logger.error("Missing required beans: securityConfigLoader={}, roleCache={}, idToNameCache={}", 
-                securityConfigLoader, roleCache, idToNameCache);
+            logger.error("Missing required beans: securityConfigLoader={}, roleCache={}, nameToIdCache={}", 
+                securityConfigLoader, roleCache, nameToIdCache);
             logger.debug("initializeDB called ##############");
             return;
         }
@@ -97,11 +97,13 @@ public class RoleManagementServiceImpl implements RoleManagementService {
             }
 
             roleCache.put(rolePojo.getId(), rolePojo);
-            idToNameCache.put(roleName, rolePojo.getId());
+            nameToIdCache.put(roleName, rolePojo.getId());
             logger.debug("Cached role id={} roleName={}", rolePojo.getId(), roleName);
         }
 
+        logger.debug("initializeDB called ##############");
         logger.debug("initializeDB completed");
+        logger.debug("initializeDB called ##############");
     }
 
     // -------------------- PAGED METHODS --------------------
@@ -190,7 +192,7 @@ public class RoleManagementServiceImpl implements RoleManagementService {
         RoleManagementPojo role = (RoleManagementPojo) params.get("role");
         roleMapper.insertRole(Map.of("params", Map.of("role", role)));
         roleCache.put(role.getId(), role);
-        idToNameCache.put(role.getRoleName(), role.getId());
+        nameToIdCache.put(role.getRoleName(), role.getId());
         logger.debug("insertRole cached role id={} roleName={}", role.getId(), role.getRoleName());
         return role;
     }
@@ -209,7 +211,7 @@ public class RoleManagementServiceImpl implements RoleManagementService {
         role.setId(existing.getId());
         roleMapper.updateRole(Map.of("params", Map.of("role", role)));
         roleCache.put(existing.getId(), role);
-        idToNameCache.put(role.getRoleName(), existing.getId());
+        nameToIdCache.put(role.getRoleName(), existing.getId());
         logger.debug("updateRole updated cache id={} roleName={}", existing.getId(), role.getRoleName());
         return role;
     }
@@ -221,7 +223,7 @@ public class RoleManagementServiceImpl implements RoleManagementService {
         if (existing != null) {
             roleMapper.deleteRoleById(Map.of("params", Map.of("roleId", existing.getId())));
             roleCache.invalidate(existing.getId());
-            idToNameCache.invalidate(existing.getRoleName());
+            nameToIdCache.invalidate(existing.getRoleName());
             logger.debug("deleteRoleById deleted role id={} roleName={}", existing.getId(), existing.getRoleName());
         }
     }
@@ -233,7 +235,7 @@ public class RoleManagementServiceImpl implements RoleManagementService {
         if (existing != null) {
             roleMapper.deleteRoleByName(Map.of("params", Map.of("roleName", existing.getRoleName())));
             roleCache.invalidate(existing.getId());
-            idToNameCache.invalidate(existing.getRoleName());
+            nameToIdCache.invalidate(existing.getRoleName());
             logger.debug("deleteRoleByName deleted role id={} roleName={}", existing.getId(), existing.getRoleName());
         }
     }
@@ -244,7 +246,7 @@ public class RoleManagementServiceImpl implements RoleManagementService {
         return roleCache.get(id, k -> {
             RoleManagementPojo dbRole = roleMapper.findRoleById(Map.of("params", Map.of("roleId", k)));
             if (dbRole != null) {
-                idToNameCache.put(dbRole.getRoleName(), dbRole.getId());
+                nameToIdCache.put(dbRole.getRoleName(), dbRole.getId());
                 logger.debug("Loaded from DB and cached id={} roleName={}", dbRole.getId(), dbRole.getRoleName());
             }
             return dbRole;
@@ -255,7 +257,7 @@ public class RoleManagementServiceImpl implements RoleManagementService {
         String roleName = (String) params.get("roleName");
         logger.debug("getRoleByName called roleName={}", roleName);
 
-        Long id = idToNameCache.get(roleName, k -> {
+        Long id = nameToIdCache.get(roleName, k -> {
             RoleManagementPojo dbRole = roleMapper.findRoleByName(Map.of("params", Map.of("roleName", k)));
             if (dbRole != null) {
                 roleCache.put(dbRole.getId(), dbRole);

@@ -31,7 +31,7 @@ public class RoleGroupManagementServiceImpl implements RoleGroupManagementServic
     private final SecurityConfigLoader securityConfigLoader;
 
     private final GenericCache<Long, RoleGroupManagementPojo> groupCache;
-    private final GenericCache<String, Long> idToNameCache;
+    private final GenericCache<String, Long> nameToIdCache;
 
     @Autowired
     public RoleGroupManagementServiceImpl(
@@ -40,7 +40,7 @@ public class RoleGroupManagementServiceImpl implements RoleGroupManagementServic
             RoleManagementService roleManagementService,
             SecurityConfigLoader securityConfigLoader,
             @Qualifier("groupCache") GenericCache<Long, RoleGroupManagementPojo> groupCache,
-            @Qualifier("idToNameCache") GenericCache<String, Long> idToNameCache) {
+            @Qualifier("nameToIdCache") GenericCache<String, Long> nameToIdCache) {
 
         logger.debug("RoleGroupManagementServiceImpl constructor called");
         logger.debug("groupMapper={}", groupMapper);
@@ -48,14 +48,14 @@ public class RoleGroupManagementServiceImpl implements RoleGroupManagementServic
         logger.debug("roleManagementService={}", roleManagementService);
         logger.debug("securityConfigLoader={}", securityConfigLoader);
         logger.debug("groupCache={}", groupCache);
-        logger.debug("idToNameCache={}", idToNameCache);
+        logger.debug("nameToIdCache={}", nameToIdCache);
 
         this.groupMapper = groupMapper;
         this.roleGroupRoleMappingService = roleGroupRoleMappingService;
         this.roleManagementService = roleManagementService;
         this.securityConfigLoader = securityConfigLoader;
         this.groupCache = groupCache;
-        this.idToNameCache = idToNameCache;
+        this.nameToIdCache = nameToIdCache;
     }
 
     @PostConstruct
@@ -66,9 +66,9 @@ public class RoleGroupManagementServiceImpl implements RoleGroupManagementServic
     public void initializeDB() {
         logger.debug("initializeDB called");
 
-        if (securityConfigLoader == null || groupCache == null || idToNameCache == null) {
-            logger.error("Missing required beans: securityConfigLoader={}, roleCache={}, idToNameCache={}", 
-                securityConfigLoader, groupCache, idToNameCache);
+        if (securityConfigLoader == null || groupCache == null || nameToIdCache == null) {
+            logger.error("Missing required beans: securityConfigLoader={}, groupCache={}, nameToIdCache={}", 
+                securityConfigLoader, groupCache, nameToIdCache);
             return;
         }
         
@@ -91,7 +91,7 @@ public class RoleGroupManagementServiceImpl implements RoleGroupManagementServic
             }
 
             groupCache.put(groupPojo.getId(), groupPojo);
-            idToNameCache.put(groupName, groupPojo.getId());
+            nameToIdCache.put(groupName, groupPojo.getId());
 
             for (RoleRefConfig ref : rgConfig.getRoles()) {
                 RoleManagementPojo role = roleManagementService.findRoleByName(Map.of("roleName", ref.getName()));
@@ -117,7 +117,7 @@ public class RoleGroupManagementServiceImpl implements RoleGroupManagementServic
         RoleGroupManagementPojo group = (RoleGroupManagementPojo) params.get("group");
         groupMapper.insertRoleGroup(Map.of("params", Map.of("group", group)));
         groupCache.put(group.getId(), group);
-        idToNameCache.put(group.getGroupName(), group.getId());
+        nameToIdCache.put(group.getGroupName(), group.getId());
         return group;
     }
 
@@ -147,7 +147,7 @@ public class RoleGroupManagementServiceImpl implements RoleGroupManagementServic
         String groupName = (String) params.get("groupName");
 
         // Use the mappingFunction version of get
-        Long id = idToNameCache.get(groupName, k -> null);
+        Long id = nameToIdCache.get(groupName, k -> null);
 
         if (id != null) {
             groupCache.invalidate(id);
@@ -233,7 +233,7 @@ public class RoleGroupManagementServiceImpl implements RoleGroupManagementServic
         if (id != null) {
             return groupCache.get(id, k -> findRoleGroupById(Map.of("params", Map.of("roleGroupId", k))));
         } else if (groupName != null) {
-            Long cachedId = idToNameCache.get(groupName, k -> {
+            Long cachedId = nameToIdCache.get(groupName, k -> {
                 RoleGroupManagementPojo group = findRoleGroupByName(Map.of("params", Map.of("groupName", k)));
                 return group != null ? group.getId() : null;
             });
