@@ -14,6 +14,7 @@ import simple.chatgpt.pojo.management.security.UserManagementRoleGroupMappingPoj
 import simple.chatgpt.util.GenericCache;
 import simple.chatgpt.util.PagedResult;
 import simple.chatgpt.util.ParamWrapper;
+import simple.chatgpt.util.SafeConverter;
 
 @Service
 public class UserManagementRoleGroupMappingServiceImpl implements UserManagementRoleGroupMappingService {
@@ -39,7 +40,7 @@ public class UserManagementRoleGroupMappingServiceImpl implements UserManagement
     // ---------------- CREATE ----------------
     @Override
     public UserManagementRoleGroupMappingPojo insertUserRoleGroup(Map<String, Object> params) {
-        UserManagementRoleGroupMappingPojo mapping = (UserManagementRoleGroupMappingPojo) params.get("mapping");
+        UserManagementRoleGroupMappingPojo mapping = ParamWrapper.unwrap(params, "mapping");
         logger.debug("insertUserRoleGroup called, mapping={}", mapping);
 
         mappingMapper.insertUserRoleGroup(ParamWrapper.wrap("mapping", mapping));
@@ -52,7 +53,7 @@ public class UserManagementRoleGroupMappingServiceImpl implements UserManagement
     // ---------------- UPDATE ----------------
     @Override
     public UserManagementRoleGroupMappingPojo updateUserRoleGroup(Map<String, Object> params) {
-        UserManagementRoleGroupMappingPojo mapping = (UserManagementRoleGroupMappingPojo) params.get("mapping");
+        UserManagementRoleGroupMappingPojo mapping = ParamWrapper.unwrap(params, "mapping");
         logger.debug("updateUserRoleGroup called, mapping={}", mapping);
 
         mappingMapper.updateUserRoleGroup(ParamWrapper.wrap("mapping", mapping));
@@ -65,7 +66,7 @@ public class UserManagementRoleGroupMappingServiceImpl implements UserManagement
     // ---------------- DELETE ----------------
     @Override
     public void deleteUserRoleGroupById(Map<String, Object> params) {
-        Long id = (Long) params.get("id");
+        Long id = ParamWrapper.unwrap(params, "id");
         logger.debug("deleteUserRoleGroupById called, id={}", id);
 
         mappingMapper.deleteUserRoleGroupById(ParamWrapper.wrap("id", id));
@@ -73,8 +74,8 @@ public class UserManagementRoleGroupMappingServiceImpl implements UserManagement
 
     @Override
     public void deleteUserRoleGroupByUserAndGroup(Map<String, Object> params) {
-        Long userId = (Long) params.get("userId");
-        Long roleGroupId = (Long) params.get("roleGroupId");
+        Long userId = ParamWrapper.unwrap(params, "userId");
+        Long roleGroupId = ParamWrapper.unwrap(params, "roleGroupId");
         logger.debug("deleteUserRoleGroupByUserAndGroup called, userId={} roleGroupId={}", userId, roleGroupId);
 
         mappingMapper.deleteUserRoleGroupByUserAndGroup(ParamWrapper.wrap("userId", userId, "roleGroupId", roleGroupId));
@@ -96,7 +97,7 @@ public class UserManagementRoleGroupMappingServiceImpl implements UserManagement
 
     @Override
     public PagedResult<UserManagementRoleGroupMappingPojo> findByUserId(Map<String, Object> params) {
-        Long userId = (Long) params.get("userId");
+        Long userId = ParamWrapper.unwrap(params, "userId");
         logger.debug("findByUserId called, userId={}", userId);
 
         List<UserManagementRoleGroupMappingPojo> items = userRoleGroupMappingCache.get(userId,
@@ -109,7 +110,7 @@ public class UserManagementRoleGroupMappingServiceImpl implements UserManagement
 
     @Override
     public PagedResult<UserManagementRoleGroupMappingPojo> findByRoleGroupId(Map<String, Object> params) {
-        Long roleGroupId = (Long) params.get("roleGroupId");
+        Long roleGroupId = ParamWrapper.unwrap(params, "roleGroupId");
         logger.debug("findByRoleGroupId called, roleGroupId={}", roleGroupId);
 
         List<UserManagementRoleGroupMappingPojo> items = mappingMapper.findByRoleGroupId(ParamWrapper.wrap("roleGroupId", roleGroupId));
@@ -127,8 +128,21 @@ public class UserManagementRoleGroupMappingServiceImpl implements UserManagement
         List<UserManagementRoleGroupMappingPojo> items = mappingMapper.findUserRoleGroups(ParamWrapper.wrap(params));
         long totalCount = mappingMapper.countUserRoleGroups(ParamWrapper.wrap(params));
 
-        int page = (int) params.getOrDefault("page", 1);
-        int size = (int) params.getOrDefault("size", 20);
+        /*
+        hung: DONT REMOVE THIS CODE
+        */
+        int page = 0;
+        int size = 20;
+        try {
+            page = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "page", 0), 0); 
+        } catch (NumberFormatException e) {
+            logger.warn("Invalid page param {}, defaulting to 0", ParamWrapper.unwrap(params, "page", 0), e);
+        }
+        try {
+            size = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "size", 20), 20);
+        } catch (NumberFormatException e) {
+            logger.warn("Invalid size param {}, defaulting to 20", ParamWrapper.unwrap(params, "size", 20), e);
+        }
 
         logger.debug("findUserRoleGroups result size={}", items.size());
         return new PagedResult<>(items, totalCount, page, size);
@@ -141,8 +155,21 @@ public class UserManagementRoleGroupMappingServiceImpl implements UserManagement
         List<UserManagementRoleGroupMappingPojo> items = mappingMapper.searchUserRoleGroups(ParamWrapper.wrap(params));
         long totalCount = mappingMapper.countUserRoleGroups(ParamWrapper.wrap(params));
 
-        int page = (int) params.getOrDefault("page", 1);
-        int size = (int) params.getOrDefault("size", 20);
+        /*
+        hung: DONT REMOVE THIS CODE
+        */
+        int page = 0;
+        int size = 20;
+        try {
+            page = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "page", 0), 0); 
+        } catch (NumberFormatException e) {
+            logger.warn("Invalid page param {}, defaulting to 0", ParamWrapper.unwrap(params, "page", 0), e);
+        }
+        try {
+            size = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "size", 20), 20);
+        } catch (NumberFormatException e) {
+            logger.warn("Invalid size param {}, defaulting to 20", ParamWrapper.unwrap(params, "size", 20), e);
+        }
 
         logger.debug("searchUserRoleGroups result size={}", items.size());
         return new PagedResult<>(items, totalCount, page, size);
