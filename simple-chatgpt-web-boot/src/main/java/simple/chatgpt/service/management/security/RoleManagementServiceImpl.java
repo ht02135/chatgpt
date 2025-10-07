@@ -91,6 +91,10 @@ public class RoleManagementServiceImpl implements RoleManagementService {
             logger.debug("initializeDB called ##############");
             
             if (existing == null) {
+            	logger.debug("initializeDB called ##############");
+            	logger.debug("initializeDB existing ==null roleName={}",roleName);
+            	logger.debug("initializeDB called ##############");
+            	
             	RoleManagementPojo rolePojo = new RoleManagementPojo();
                 rolePojo.setRoleName(roleName);
                 rolePojo.setDescription(description);
@@ -101,7 +105,9 @@ public class RoleManagementServiceImpl implements RoleManagementService {
                 logger.debug("Inserted role existing.getId()={} roleName={}", existing.getId(), roleName);
                 logger.debug("initializeDB called ##############");
             } else {
-                logger.debug("Role already exists, skipping id={} roleName={}", existing.getId(), roleName);
+            	logger.debug("initializeDB called ##############");
+            	logger.debug("initializeDB existing ={} roleName={}",existing, roleName);
+                logger.debug("initializeDB called ##############");
             }
         }
 
