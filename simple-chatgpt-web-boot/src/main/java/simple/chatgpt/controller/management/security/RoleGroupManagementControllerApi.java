@@ -19,12 +19,8 @@ public interface RoleGroupManagementControllerApi {
     // ---------------- DELETE ----------------
     ResponseEntity<Response<Void>> deleteRoleGroupById(Long roleGroupId);
 
-    ResponseEntity<Response<Void>> deleteRoleGroupByName(String groupName);
-
     // ---------------- READ ----------------
     ResponseEntity<Response<RoleGroupManagementPojo>> findRoleGroupById(Long roleGroupId);
-
-    ResponseEntity<Response<RoleGroupManagementPojo>> findRoleGroupByName(String groupName);
 
     // ---------------- LIST ALL ----------------
     ResponseEntity<Response<PagedResult<RoleGroupManagementPojo>>> findAllRoleGroups();

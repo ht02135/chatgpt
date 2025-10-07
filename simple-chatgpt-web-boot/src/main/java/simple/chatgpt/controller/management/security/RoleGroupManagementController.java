@@ -69,17 +69,6 @@ public class RoleGroupManagementController implements RoleGroupManagementControl
         return ResponseEntity.ok(Response.success("Role group deleted by ID successfully", null, HttpStatus.OK.value()));
     }
 
-    @DeleteMapping("/deleteByName")
-    public ResponseEntity<Response<Void>> deleteRoleGroupByName(@RequestParam String groupName) {
-        logger.debug("deleteRoleGroupByName called, groupName={}", groupName);
-
-        Map<String, Object> params = new HashMap<>();
-        params.put("groupName", groupName);
-
-        roleGroupService.deleteRoleGroupByName(params); // service returns void
-        return ResponseEntity.ok(Response.success("Role group deleted by name successfully", null, HttpStatus.OK.value()));
-    }
-
     // ---------------- READ ----------------
     @GetMapping("/findById")
     public ResponseEntity<Response<RoleGroupManagementPojo>> findRoleGroupById(@RequestParam Long roleGroupId) {
@@ -89,17 +78,6 @@ public class RoleGroupManagementController implements RoleGroupManagementControl
         params.put("roleGroupId", roleGroupId);
 
         RoleGroupManagementPojo group = roleGroupService.findRoleGroupById(params);
-        return ResponseEntity.ok(Response.success("Role group fetched successfully", group, HttpStatus.OK.value()));
-    }
-
-    @GetMapping("/findByName")
-    public ResponseEntity<Response<RoleGroupManagementPojo>> findRoleGroupByName(@RequestParam String groupName) {
-        logger.debug("findRoleGroupByName called, groupName={}", groupName);
-
-        Map<String, Object> params = new HashMap<>();
-        params.put("groupName", groupName);
-
-        RoleGroupManagementPojo group = roleGroupService.findRoleGroupByName(params);
         return ResponseEntity.ok(Response.success("Role group fetched successfully", group, HttpStatus.OK.value()));
     }
 

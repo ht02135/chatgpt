@@ -15,11 +15,9 @@ public interface RoleManagementService {
 
     // ---------------- DELETE ----------------
     void deleteRoleById(Map<String, Object> params); // matches mapper.deleteRoleById
-    void deleteRoleByName(Map<String, Object> params); // matches mapper.deleteRoleByName
 
     // ---------------- READ ----------------
     RoleManagementPojo findRoleById(Map<String, Object> params); // matches mapper.findRoleById
-    RoleManagementPojo findRoleByName(Map<String, Object> params); // matches mapper.findRoleByName
 
     // ---------------- FETCH ALL ----------------
     PagedResult<RoleManagementPojo> findAllRoles(); // matches mapper.findAllRoles

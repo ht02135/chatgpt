@@ -107,14 +107,6 @@ public class ApplicationContextConfig {
         logger.debug("userRoleGroupMappingCache created with expireAfterMinutes={} maximumSize={}", 30L, 1000L);
         return cache;
     }
-    
-    @Bean
-    public GenericCache nameToIdCache() {
-        logger.debug("nameToIdCache called");
-        GenericCache cache = new GenericCache(30L, 1000L);
-        logger.debug("nameToIdCache created with expireAfterMinutes={} maximumSize={}", 30L, 1000L);
-        return cache;
-    }
 
     // FROM applicationContext.xml: dataSource bean
     @Bean

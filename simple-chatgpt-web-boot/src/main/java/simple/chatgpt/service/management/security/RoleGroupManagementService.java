@@ -15,11 +15,9 @@ public interface RoleGroupManagementService {
 
     // ---------------- DELETE ----------------
     void deleteRoleGroupById(Map<String, Object> params);
-    void deleteRoleGroupByName(Map<String, Object> params);
 
     // ---------------- READ ----------------
     RoleGroupManagementPojo findRoleGroupById(Map<String, Object> params);
-    RoleGroupManagementPojo findRoleGroupByName(Map<String, Object> params);
 
     PagedResult<RoleGroupManagementPojo> findAllRoleGroups();
     PagedResult<RoleGroupManagementPojo> getAllRoleGroups();

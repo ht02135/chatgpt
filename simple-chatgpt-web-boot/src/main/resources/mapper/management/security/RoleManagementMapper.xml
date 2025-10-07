@@ -46,10 +46,6 @@
         DELETE FROM role_management WHERE id = #{params.roleId}
     </delete>
 
-    <delete id="deleteRoleByName" parameterType="map">
-        DELETE FROM role_management WHERE role_name = #{params.roleName}
-    </delete>
-
     <!-- =======================
          READ
          ======================= -->
@@ -57,12 +53,6 @@
         SELECT id, role_name, description, created_at, updated_at
         FROM role_management
         WHERE id = #{params.roleId}
-    </select>
-
-    <select id="findRoleByName" parameterType="map" resultMap="RoleManagementResultMap">
-        SELECT id, role_name, description, created_at, updated_at
-        FROM role_management
-        WHERE role_name = #{params.roleName}
     </select>
 
     <select id="findAllRoles" resultMap="RoleManagementResultMap">

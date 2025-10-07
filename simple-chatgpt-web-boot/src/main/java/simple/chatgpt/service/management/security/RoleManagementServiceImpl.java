@@ -30,24 +30,20 @@ public class RoleManagementServiceImpl implements RoleManagementService {
 
     private final RoleManagementMapper roleMapper;
     private final GenericCache<Long, RoleManagementPojo> roleCache;
-    private final GenericCache<String, Long> nameToIdCache;
     private final SecurityConfigLoader securityConfigLoader;
     private final Validator validator;
 
     @Autowired
     public RoleManagementServiceImpl(RoleManagementMapper roleMapper,
                                      @Qualifier("roleCache") GenericCache<Long, RoleManagementPojo> roleCache,
-                                     @Qualifier("nameToIdCache") GenericCache<String, Long> nameToIdCache,
                                      SecurityConfigLoader securityConfigLoader) {
         logger.debug("RoleManagementServiceImpl constructor called");
         logger.debug("roleMapper={}", roleMapper);
         logger.debug("roleCache={}", roleCache);
-        logger.debug("nameToIdCache={}", nameToIdCache);
         logger.debug("securityConfigLoader={}", securityConfigLoader);
 
         this.roleMapper = roleMapper;
         this.roleCache = roleCache;
-        this.nameToIdCache = nameToIdCache;
         this.securityConfigLoader = securityConfigLoader;
 
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
@@ -70,10 +66,10 @@ public class RoleManagementServiceImpl implements RoleManagementService {
     public void initializeDB() {
         logger.debug("initializeDB called");
         
-        if (securityConfigLoader == null || roleCache == null || nameToIdCache == null) {
+        if (securityConfigLoader == null || roleCache == null) {
             logger.debug("initializeDB called ##############");
-            logger.error("Missing required beans: securityConfigLoader={}, roleCache={}, nameToIdCache={}", 
-                securityConfigLoader, roleCache, nameToIdCache);
+            logger.error("Missing required beans: securityConfigLoader={}, roleCache={}", 
+                securityConfigLoader, roleCache);
             logger.debug("initializeDB called ##############");
             return;
         }
@@ -198,14 +194,6 @@ public class RoleManagementServiceImpl implements RoleManagementService {
     }
 
     @Override
-    public RoleManagementPojo findRoleByName(Map<String, Object> params) {
-        logger.debug("findRoleByName called params={}", params);
-        String roleName = ParamWrapper.unwrap(params, "roleName");
-        logger.debug("roleName={}", roleName);
-        return internalFindRoleByName(ParamWrapper.wrap("roleName", roleName));
-    }
-
-    @Override
     public long countRoles(Map<String, Object> params) {
         logger.debug("countRoles called params={}", params);
         return roleMapper.countRoles(params);
@@ -261,20 +249,7 @@ public class RoleManagementServiceImpl implements RoleManagementService {
         if (existing != null) {
             roleMapper.deleteRoleById(ParamWrapper.wrap("roleId", existing.getId()));
             roleCache.invalidate(existing.getId());
-            nameToIdCache.invalidate(existing.getRoleName());
             logger.debug("deleteRoleById deleted role id={} roleName={}", existing.getId(), existing.getRoleName());
-        }
-    }
-
-    @Override
-    public void deleteRoleByName(Map<String, Object> params) {
-        logger.debug("deleteRoleByName called params={}", params);
-        RoleManagementPojo existing = internalGetRole(params);
-        if (existing != null) {
-            roleMapper.deleteRoleByName(ParamWrapper.wrap("roleName", existing.getRoleName()));
-            roleCache.invalidate(existing.getId());
-            nameToIdCache.invalidate(existing.getRoleName());
-            logger.debug("deleteRoleByName deleted role id={} roleName={}", existing.getId(), existing.getRoleName());
         }
     }
 
@@ -299,62 +274,14 @@ public class RoleManagementServiceImpl implements RoleManagementService {
         });
     }
 
-    private RoleManagementPojo internalFindRoleByName(Map<String, Object> params) {
-        logger.debug("internalFindRoleByName called params={}", params);
-
-        String roleName = ParamWrapper.unwrap(params, "roleName");
-        logger.debug("internalFindRoleByName called roleName={}", roleName);
-
-        // Step 1: get ID from nameToIdCache
-        Long id = nameToIdCache.get(roleName, k -> {
-            logger.debug("internalFindRoleByName nameToIdCache.get k={}", k);
-
-            RoleManagementPojo dbRole = roleMapper.findRoleByName(ParamWrapper.wrap("roleName", k));
-            if (dbRole != null) {
-                logger.debug("internalFindRoleByName nameToIdCache.get ##############");
-                logger.debug("internalFindRoleByName nameToIdCache.get LOADED roleName=k={} LOAD from DB", k);
-                logger.debug("internalFindRoleByName nameToIdCache.get dbRole != null, dbRole={}", dbRole);
-                logger.debug("internalFindRoleByName nameToIdCache.get ##############");
-                return dbRole.getId(); // store the ID in nameToIdCache
-            } else {
-                logger.debug("internalFindRoleByName nameToIdCache.get ##############");
-                logger.debug("internalFindRoleByName nameToIdCache.get LOADED roleName=k={} NOT LOAD from DB", k);
-                logger.debug("internalFindRoleByName nameToIdCache.getdbRole is NULL !!!!");
-                logger.debug("internalFindRoleByName nameToIdCache.get ##############");
-                return -1L; // sentinel for not found
-            }
-        });
-
-        // Step 2: get full object from roleCache
-        if (id == null || id == -1L) {
-            logger.debug("internalFindRoleByName returning null for roleName={}", roleName);
-            return null;
-        }
-
-        RoleManagementPojo dbRole = roleCache.get(id, k -> {
-            logger.debug("internalFindRoleByName roleCache.get k={}", k);
-            RoleManagementPojo roleFromDb = roleMapper.findRoleById(ParamWrapper.wrap("roleId", k));
-            logger.debug("internalFindRoleByName roleCache.get loaded roleFromDb={}", roleFromDb);
-            return roleFromDb; // Caffeine caches automatically
-        });
-
-        logger.debug("internalFindRoleByName returning dbRole={}", dbRole);
-        return dbRole;
-    }
-
     private RoleManagementPojo internalGetRole(Map<String, Object> params) {
         logger.debug("internalGetRole called, params={}", params);
 
         Long roleId = ParamWrapper.unwrap(params, "roleId") != null ? ((Number) ParamWrapper.unwrap(params, "roleId")).longValue() : null;
-        String roleName = ParamWrapper.unwrap(params, "roleName");
         RoleManagementPojo role = null;
-
         if (roleId != null) {
             logger.debug("internalGetRole called, roleId={}", roleId);
             role = internalFindRoleById(roleId);
-        } else if (roleName != null) {
-            logger.debug("internalGetRole called, roleName={}", roleName);
-            role = internalFindRoleByName(ParamWrapper.wrap("roleName", roleName));
         }
         
         logger.debug("internalGetRole called ##############");
