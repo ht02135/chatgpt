@@ -41,8 +41,8 @@ public class UserManagementListServiceImpl implements UserManagementListService 
     private static final Logger logger = LogManager.getLogger(UserManagementListServiceImpl.class);
     private static final String MEMBER_GRID_ID = "userListMembers";
 
-    private final DownloadConfigLoader downloadConfigLoader; // constructor-injected
-    private final UploadConfigLoader uploadConfigLoader; // constructor-injected
+    private final DownloadConfigLoader downloadConfigLoader;
+    private final UploadConfigLoader uploadConfigLoader;
     private final UserManagementListMapper listMapper;
     private final UserManagementListMemberMapper memberMapper;
     private final Path storageDir;
@@ -55,8 +55,8 @@ public class UserManagementListServiceImpl implements UserManagementListService 
                                          UploadConfigLoader uploadConfigLoader) throws Exception {
         this.listMapper = listMapper;
         this.memberMapper = memberMapper;
-        this.downloadConfigLoader = downloadConfigLoader; // injected here
-        this.uploadConfigLoader = uploadConfigLoader; // injected here
+        this.downloadConfigLoader = downloadConfigLoader;
+        this.uploadConfigLoader = uploadConfigLoader;
 
         String webappRoot = System.getProperty("catalina.base") + "/webapps/chatgpt";
         storageDir = Paths.get(webappRoot, "data/management/user_lists");
@@ -71,7 +71,7 @@ public class UserManagementListServiceImpl implements UserManagementListService 
         }
 
         this.uploadColumns = this.uploadConfigLoader.getColumns(MEMBER_GRID_ID);
-        this.downloadColumns = this.downloadConfigLoader.getColumns(MEMBER_GRID_ID); // NPE fixed
+        this.downloadColumns = this.downloadConfigLoader.getColumns(MEMBER_GRID_ID);
     }
 
     // ------------------ SEARCH ------------------
@@ -95,9 +95,9 @@ public class UserManagementListServiceImpl implements UserManagementListService 
             logger.warn("Invalid size param {}, defaulting to 20", ParamWrapper.unwrap(params, "size", 20), e);
         }
         int offset = page * size;
-        
-        String sortField = (String) params.getOrDefault("sortField", "id");
-        String sortDirection = ((String) params.getOrDefault("sortDirection", "ASC")).toUpperCase();
+
+        String sortField = ParamWrapper.unwrap(params, "sortField", "id");
+        String sortDirection = ParamWrapper.unwrap(params, "sortDirection", "ASC").toUpperCase();
 
         Map<String, Object> sqlParams = new HashMap<>(params);
         sqlParams.put("offset", offset);
@@ -125,8 +125,8 @@ public class UserManagementListServiceImpl implements UserManagementListService 
     public void createList(Map<String, Object> params) {
         logger.debug("createList called with params={}", params);
 
-        UserManagementListPojo list = (UserManagementListPojo) params.get("list");
-        List<UserManagementListMemberPojo> members = (List<UserManagementListMemberPojo>) params.get("members");
+        UserManagementListPojo list = ParamWrapper.unwrap(params, "list");
+        List<UserManagementListMemberPojo> members = ParamWrapper.unwrap(params, "members");
 
         logger.debug("createList list={}", list);
         logger.debug("createList members={}", members);
@@ -151,7 +151,7 @@ public class UserManagementListServiceImpl implements UserManagementListService 
             logger.debug("createList -> memberMapper.batchInsertMembers(memberParam): members={}", members);
             memberMapper.batchInsertMembers(memberParam);
         }
-        
+
         logger.debug("createList #############");
         logger.debug("createList DONE!!!");
         logger.debug("createList #############");
@@ -161,16 +161,14 @@ public class UserManagementListServiceImpl implements UserManagementListService 
     public void deleteList(Map<String, Object> params) {
         logger.debug("deleteList called with params={}", params);
 
-        Long listId = (Long) params.get("listId");
+        Long listId = ParamWrapper.unwrap(params, "listId");
         logger.debug("deleteList listId={}", listId);
 
-        // Delete members first
         Map<String, Object> memberParam = new HashMap<>();
         memberParam.put("listId", listId);
         memberMapper.deleteMembersByListId(memberParam);
         logger.debug("deleteList deleted members for listId={}", listId);
 
-        // Delete list
         Map<String, Object> listParam = new HashMap<>();
         listParam.put("listId", listId);
         listMapper.deleteList(listParam);
@@ -181,8 +179,8 @@ public class UserManagementListServiceImpl implements UserManagementListService 
     public void updateList(Map<String, Object> params) {
         logger.debug("updateList called with params={}", params);
 
-        UserManagementListPojo list = (UserManagementListPojo) params.get("list");
-        List<UserManagementListMemberPojo> members = (List<UserManagementListMemberPojo>) params.get("members");
+        UserManagementListPojo list = ParamWrapper.unwrap(params, "list");
+        List<UserManagementListMemberPojo> members = ParamWrapper.unwrap(params, "members");
 
         logger.debug("updateList list={}", list);
         logger.debug("updateList members={}", members);
@@ -218,7 +216,7 @@ public class UserManagementListServiceImpl implements UserManagementListService 
     @Override
     public UserManagementListPojo getListById(Map<String, Object> params) {
         logger.debug("getListById called with params={}", params);
-        Long listId = (Long) params.get("listId");
+        Long listId = ParamWrapper.unwrap(params, "listId");
         logger.debug("getListById listId={}", listId);
 
         Map<String, Object> sqlParams = new HashMap<>();
@@ -239,7 +237,7 @@ public class UserManagementListServiceImpl implements UserManagementListService 
     @Override
     public PagedResult<UserManagementListMemberPojo> getMembersByListId(Map<String, Object> params) {
         logger.debug("getMembersByListId called with params={}", params);
-        Long listId = (Long) params.get("listId");
+        Long listId = ParamWrapper.unwrap(params, "listId");
         logger.debug("getMembersByListId listId={}", listId);
 
         /*
@@ -295,9 +293,9 @@ public class UserManagementListServiceImpl implements UserManagementListService 
             logger.warn("Invalid size param {}, defaulting to 20", ParamWrapper.unwrap(params, "size", 20), e);
         }
         int offset = page * size;
-        
-        String sortField = (String) params.getOrDefault("sortField", "id");
-        String sortDirection = ((String) params.getOrDefault("sortDirection", "ASC")).toUpperCase();
+
+        String sortField = ParamWrapper.unwrap(params, "sortField", "id");
+        String sortDirection = ParamWrapper.unwrap(params, "sortDirection", "ASC").toUpperCase();
 
         Map<String, Object> sqlParams = new HashMap<>(params);
         sqlParams.put("offset", offset);
@@ -310,7 +308,7 @@ public class UserManagementListServiceImpl implements UserManagementListService 
         }
 
         List<UserManagementListMemberPojo> members = memberMapper.findMembers(sqlParams);
-        long total = memberMapper.countMembers(sqlParams); // fixed: use same filtered params
+        long total = memberMapper.countMembers(sqlParams);
 
         logger.debug("searchMembers result size={} total={}", members.size(), total);
         return new PagedResult<>(members, total, page, size);
@@ -335,13 +333,13 @@ public class UserManagementListServiceImpl implements UserManagementListService 
     public void importListFromCsv(Map<String, Object> params) throws Exception {
         logger.debug("importListFromCsv called with params={}", params);
 
-        InputStream inputStream = (InputStream) params.get("inputStream");
-        
-        UserManagementListPojo list = (UserManagementListPojo) params.get("list");
-        String originalFileName = (String) params.get("originalFileName");
+        InputStream inputStream = ParamWrapper.unwrap(params, "inputStream");
+        UserManagementListPojo list = ParamWrapper.unwrap(params, "list");
+        String originalFileName = ParamWrapper.unwrap(params, "originalFileName");
+
         logger.debug("importListFromCsv list={}", list);
         logger.debug("importListFromCsv originalFileName={}", originalFileName);
-        
+
         Path path = getListFilePath(list.getId(), originalFileName);
         list.setFilePath(path.toString());
         logger.debug("importListFromCsv path={}", path);
@@ -351,7 +349,7 @@ public class UserManagementListServiceImpl implements UserManagementListService 
         try (OutputStream os = Files.newOutputStream(path)) {
             os.write(bytes);
         }
-        
+
         List<UserManagementListMemberPojo> members = new ArrayList<>();
         try (CSVReader reader = new CSVReader(new java.io.InputStreamReader(new java.io.ByteArrayInputStream(bytes)))) {
             reader.readNext();
@@ -382,8 +380,8 @@ public class UserManagementListServiceImpl implements UserManagementListService 
     public void exportListToCsv(Map<String, Object> params) throws Exception {
         logger.debug("exportListToCsv called with params={}", params);
 
-        Long listId = (Long) params.get("listId");
-        OutputStream outputStream = (OutputStream) params.get("outputStream");
+        Long listId = ParamWrapper.unwrap(params, "listId");
+        OutputStream outputStream = ParamWrapper.unwrap(params, "outputStream");
 
         logger.debug("exportListToCsv listId={}", listId);
         logger.debug("exportListToCsv outputStream={}", outputStream);
@@ -413,9 +411,9 @@ public class UserManagementListServiceImpl implements UserManagementListService 
     public void importListFromExcel(Map<String, Object> params) throws Exception {
         logger.debug("importListFromExcel called with params={}", params);
 
-        InputStream inputStream = (InputStream) params.get("inputStream");
-        UserManagementListPojo list = (UserManagementListPojo) params.get("list");
-        String originalFileName = (String) params.get("originalFileName");
+        InputStream inputStream = ParamWrapper.unwrap(params, "inputStream");
+        UserManagementListPojo list = ParamWrapper.unwrap(params, "list");
+        String originalFileName = ParamWrapper.unwrap(params, "originalFileName");
 
         logger.debug("importListFromExcel list={}", list);
         logger.debug("importListFromExcel originalFileName={}", originalFileName);
@@ -458,8 +456,8 @@ public class UserManagementListServiceImpl implements UserManagementListService 
     public void exportListToExcel(Map<String, Object> params) throws Exception {
         logger.debug("exportListToExcel called with params={}", params);
 
-        Long listId = (Long) params.get("listId");
-        OutputStream outputStream = (OutputStream) params.get("outputStream");
+        Long listId = ParamWrapper.unwrap(params, "listId");
+        OutputStream outputStream = ParamWrapper.unwrap(params, "outputStream");
 
         logger.debug("exportListToExcel listId={}", listId);
         logger.debug("exportListToExcel outputStream={}", outputStream);
@@ -524,5 +522,4 @@ public class UserManagementListServiceImpl implements UserManagementListService 
             logger.warn("Failed setFieldValue '{}': {}", property, e.getMessage());
         }
     }
-    
 }
