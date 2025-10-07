@@ -116,6 +116,7 @@ public class RoleGroupManagementServiceImpl implements RoleGroupManagementServic
     public RoleGroupManagementPojo insertRoleGroup(Map<String, Object> params) {
         logger.debug("insertRoleGroup called, params={}", params);
         RoleGroupManagementPojo group = (RoleGroupManagementPojo) params.get("group");
+        logger.debug("insertRoleGroup called, group={}", group);
         groupMapper.insertRoleGroup(ParamWrapper.wrap("group", group));
         groupCache.put(group.getId(), group);
         nameToIdCache.put(group.getGroupName(), group.getId());

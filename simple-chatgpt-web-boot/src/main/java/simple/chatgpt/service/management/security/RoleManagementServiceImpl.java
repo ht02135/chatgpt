@@ -91,7 +91,8 @@ public class RoleManagementServiceImpl implements RoleManagementService {
             rolePojo.setDescription(description);
 
             if (existing == null) {
-                roleMapper.insertRole(ParamWrapper.wrap("role", rolePojo));
+            	logger.debug("initializeDB rolePojo={}", rolePojo);
+                insertRole(ParamWrapper.wrap("role", rolePojo));
                 logger.debug("Inserted role id={} roleName={}", rolePojo.getId(), roleName);
             } else {
                 logger.debug("Role already exists, skipping id={} roleName={}", existing.getId(), roleName);
@@ -189,6 +190,7 @@ public class RoleManagementServiceImpl implements RoleManagementService {
     public RoleManagementPojo insertRole(Map<String, Object> params) {
         logger.debug("insertRole called params={}", params);
         RoleManagementPojo role = (RoleManagementPojo) params.get("role");
+        logger.debug("insertRole role={}", role);
         roleMapper.insertRole(ParamWrapper.wrap("role", role));
         roleCache.put(role.getId(), role);
         nameToIdCache.put(role.getRoleName(), role.getId());
@@ -279,8 +281,10 @@ public class RoleManagementServiceImpl implements RoleManagementService {
         String roleName = (String) params.get("roleName");
 
         if (roleId != null) {
+        	logger.debug("getRole called, roleId={}", roleId);
             return getRoleById(roleId);
         } else if (roleName != null) {
+        	logger.debug("getRole called, roleName={}", roleName);
             return getRoleByName(ParamWrapper.wrap("roleName", roleName));
         }
         return null;
