@@ -72,7 +72,7 @@ public class PageRoleGroupManagementServiceImpl implements PageRoleGroupManageme
                 securityConfigLoader, pageRoleGroupCache, roleGroupCache);
             return;
         }
-        
+
         List<PageRoleGroupConfig> pageConfigs = securityConfigLoader.getPageRoleGroups();
         logger.debug("Loaded page-role group configs from XML, size={}", pageConfigs.size());
 
@@ -94,7 +94,7 @@ public class PageRoleGroupManagementServiceImpl implements PageRoleGroupManageme
                 }
                 pagePojo.setRoleGroup(roleGroup);
 
-                pageMapper.insertPageRoleGroup(ParamWrapper.wrap("params", ParamWrapper.wrap("pageRoleGroup", pagePojo)));
+                pageMapper.insertPageRoleGroup(ParamWrapper.wrap("pageRoleGroup", pagePojo));
                 logger.debug("Inserted new page-role group id={} urlPattern={} roleGroupId={}",
                         pagePojo.getId(), urlPattern, roleGroup.getId());
             } else {
@@ -116,7 +116,7 @@ public class PageRoleGroupManagementServiceImpl implements PageRoleGroupManageme
         PageRoleGroupManagementPojo pageRoleGroup = (PageRoleGroupManagementPojo) params.get("pageRoleGroup");
         logger.debug("insertPageRoleGroup pageRoleGroup={}", pageRoleGroup);
 
-        pageMapper.insertPageRoleGroup(ParamWrapper.wrap("params", ParamWrapper.wrap("pageRoleGroup", pageRoleGroup)));
+        pageMapper.insertPageRoleGroup(ParamWrapper.wrap("pageRoleGroup", pageRoleGroup));
         pageRoleGroupCache.put(pageRoleGroup.getId(), pageRoleGroup);
         logger.debug("Inserted and cached page-role group id={} urlPattern={}", pageRoleGroup.getId(), pageRoleGroup.getUrlPattern());
 
@@ -132,7 +132,7 @@ public class PageRoleGroupManagementServiceImpl implements PageRoleGroupManageme
         logger.debug("updatePageRoleGroup pageRoleGroup={}", pageRoleGroup);
 
         pageRoleGroup.setId(id);
-        pageMapper.updatePageRoleGroup(ParamWrapper.wrap("params", ParamWrapper.wrap("pageRoleGroup", pageRoleGroup)));
+        pageMapper.updatePageRoleGroup(ParamWrapper.wrap("pageRoleGroup", pageRoleGroup));
         pageRoleGroupCache.put(id, pageRoleGroup);
         logger.debug("Updated and cached page-role group id={}", id);
 
@@ -145,7 +145,7 @@ public class PageRoleGroupManagementServiceImpl implements PageRoleGroupManageme
         logger.debug("deletePageRoleGroupById called, id={}", id);
 
         pageRoleGroupCache.invalidate(id);
-        pageMapper.deletePageRoleGroupById(ParamWrapper.wrap("params", ParamWrapper.wrap("id", id)));
+        pageMapper.deletePageRoleGroupById(ParamWrapper.wrap("id", id));
         logger.debug("Deleted page-role group from DB and cache id={}", id);
     }
 
@@ -167,7 +167,7 @@ public class PageRoleGroupManagementServiceImpl implements PageRoleGroupManageme
         Long id = (Long) params.get("id");
         logger.debug("findById called, id={}", id);
 
-        return pageRoleGroupCache.get(id, k -> pageMapper.findById(ParamWrapper.wrap("params", ParamWrapper.wrap("id", k))));
+        return pageRoleGroupCache.get(id, k -> pageMapper.findById(ParamWrapper.wrap("id", k)));
     }
 
     @Override
@@ -175,7 +175,7 @@ public class PageRoleGroupManagementServiceImpl implements PageRoleGroupManageme
         String urlPattern = (String) params.get("urlPattern");
         logger.debug("findByUrlPattern called, urlPattern={}", urlPattern);
 
-        return pageMapper.findByUrlPattern(ParamWrapper.wrap("params", ParamWrapper.wrap("urlPattern", urlPattern)));
+        return pageMapper.findByUrlPattern(ParamWrapper.wrap("urlPattern", urlPattern));
     }
 
     @Override
@@ -188,7 +188,7 @@ public class PageRoleGroupManagementServiceImpl implements PageRoleGroupManageme
             return new PagedResult<>(List.of(), 0, 1, 20);
         }
 
-        List<PageRoleGroupManagementPojo> items = pageMapper.findByRoleGroupId(ParamWrapper.wrap("params", ParamWrapper.wrap("roleGroupId", roleGroupId)));
+        List<PageRoleGroupManagementPojo> items = pageMapper.findByRoleGroupId(ParamWrapper.wrap("roleGroupId", roleGroupId));
         long totalCount = items.size();
 
         logger.debug("findByRoleGroupId results size={}", items.size());
@@ -208,8 +208,8 @@ public class PageRoleGroupManagementServiceImpl implements PageRoleGroupManageme
         params.put("offset", offset);
         params.put("limit", size);
 
-        List<PageRoleGroupManagementPojo> items = pageMapper.findPageRoleGroups(ParamWrapper.wrap("params", params));
-        long totalCount = pageMapper.countPageRoleGroups(ParamWrapper.wrap("params", params));
+        List<PageRoleGroupManagementPojo> items = pageMapper.findPageRoleGroups(params);
+        long totalCount = pageMapper.countPageRoleGroups(params);
 
         logger.debug("findPageRoleGroups results size={}", items.size());
         logger.debug("findPageRoleGroups totalCount={}", totalCount);
@@ -228,8 +228,8 @@ public class PageRoleGroupManagementServiceImpl implements PageRoleGroupManageme
         params.put("offset", offset);
         params.put("limit", size);
 
-        List<PageRoleGroupManagementPojo> items = pageMapper.searchPageRoleGroups(ParamWrapper.wrap("params", params));
-        long totalCount = pageMapper.countPageRoleGroups(ParamWrapper.wrap("params", params));
+        List<PageRoleGroupManagementPojo> items = pageMapper.searchPageRoleGroups(params);
+        long totalCount = pageMapper.countPageRoleGroups(params);
 
         logger.debug("searchPageRoleGroups results size={}", items.size());
         logger.debug("searchPageRoleGroups totalCount={}", totalCount);
@@ -240,7 +240,7 @@ public class PageRoleGroupManagementServiceImpl implements PageRoleGroupManageme
     @Override
     public long countPageRoleGroups(Map<String, Object> params) {
         logger.debug("countPageRoleGroups called, params={}", params);
-        long count = pageMapper.countPageRoleGroups(ParamWrapper.wrap("params", params));
+        long count = pageMapper.countPageRoleGroups(params);
         logger.debug("countPageRoleGroups result={}", count);
         return count;
     }

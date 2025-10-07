@@ -116,7 +116,7 @@ public class RoleGroupManagementServiceImpl implements RoleGroupManagementServic
     public RoleGroupManagementPojo insertRoleGroup(Map<String, Object> params) {
         logger.debug("insertRoleGroup called, params={}", params);
         RoleGroupManagementPojo group = (RoleGroupManagementPojo) params.get("group");
-        groupMapper.insertRoleGroup(ParamWrapper.wrap("params", ParamWrapper.wrap("group", group)));
+        groupMapper.insertRoleGroup(ParamWrapper.wrap("group", group));
         groupCache.put(group.getId(), group);
         nameToIdCache.put(group.getGroupName(), group.getId());
         return group;
@@ -127,7 +127,7 @@ public class RoleGroupManagementServiceImpl implements RoleGroupManagementServic
     public RoleGroupManagementPojo updateRoleGroup(Map<String, Object> params) {
         logger.debug("updateRoleGroup called, params={}", params);
         RoleGroupManagementPojo group = (RoleGroupManagementPojo) params.get("group");
-        groupMapper.updateRoleGroup(ParamWrapper.wrap("params", ParamWrapper.wrap("group", group)));
+        groupMapper.updateRoleGroup(ParamWrapper.wrap("group", group));
         groupCache.put(group.getId(), group);
         return group;
     }
@@ -138,7 +138,7 @@ public class RoleGroupManagementServiceImpl implements RoleGroupManagementServic
         logger.debug("deleteRoleGroupById called, params={}", params);
         Long id = (Long) params.get("roleGroupId");
         groupCache.invalidate(id);
-        groupMapper.deleteRoleGroupById(ParamWrapper.wrap("params", ParamWrapper.wrap("roleGroupId", id)));
+        groupMapper.deleteRoleGroupById(ParamWrapper.wrap("roleGroupId", id));
     }
 
     @Override
@@ -146,17 +146,14 @@ public class RoleGroupManagementServiceImpl implements RoleGroupManagementServic
         logger.debug("deleteRoleGroupByName called, params={}", params);
 
         String groupName = (String) params.get("groupName");
-
-        // Use the mappingFunction version of get
         Long id = nameToIdCache.get(groupName, k -> null);
 
         if (id != null) {
             groupCache.invalidate(id);
         }
 
-        groupMapper.deleteRoleGroupByName(ParamWrapper.wrap("params", ParamWrapper.wrap("groupName", groupName)));
+        groupMapper.deleteRoleGroupByName(ParamWrapper.wrap("groupName", groupName));
     }
-
 
     // =================== READ ===================
     @Override
@@ -232,10 +229,10 @@ public class RoleGroupManagementServiceImpl implements RoleGroupManagementServic
         String groupName = (String) params.get("groupName");
 
         if (id != null) {
-            return groupCache.get(id, k -> findRoleGroupById(ParamWrapper.wrap("params", ParamWrapper.wrap("roleGroupId", k))));
+            return groupCache.get(id, k -> findRoleGroupById(ParamWrapper.wrap("roleGroupId", k)));
         } else if (groupName != null) {
             Long cachedId = nameToIdCache.get(groupName, k -> {
-                RoleGroupManagementPojo group = findRoleGroupByName(ParamWrapper.wrap("params", ParamWrapper.wrap("groupName", k)));
+                RoleGroupManagementPojo group = findRoleGroupByName(ParamWrapper.wrap("groupName", k));
                 return group != null ? group.getId() : null;
             });
             return groupCache.get(cachedId, k -> null);
