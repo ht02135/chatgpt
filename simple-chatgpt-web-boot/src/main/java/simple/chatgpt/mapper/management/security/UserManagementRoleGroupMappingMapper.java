@@ -23,6 +23,8 @@ public interface UserManagementRoleGroupMappingMapper {
     int deleteUserRoleGroupByUserAndGroup(@Param("params") Map<String, Object> params);
 
     // ---------------- READ ----------------
+    UserManagementRoleGroupMappingPojo findById(@Param("params") Map<String, Object> params);
+    
     List<UserManagementRoleGroupMappingPojo> findAllUserRoleGroups();
 
     List<UserManagementRoleGroupMappingPojo> findByUserId(@Param("params") Map<String, Object> params);

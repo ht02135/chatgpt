@@ -114,14 +114,26 @@ public class PageRoleGroupManagementServiceImpl implements PageRoleGroupManageme
     @Override
     public PageRoleGroupManagementPojo insertPageRoleGroup(Map<String, Object> params) {
         logger.debug("insertPageRoleGroup called, params={}", params);
+
         PageRoleGroupManagementPojo pageRoleGroup = ParamWrapper.unwrap(params, "pageRoleGroup");
-        logger.debug("insertPageRoleGroup pageRoleGroup={}", pageRoleGroup);
+        logger.debug("insertPageRoleGroup before insert pageRoleGroup={}", pageRoleGroup);
 
+        // Insert into DB
         pageMapper.insertPageRoleGroup(ParamWrapper.wrap("pageRoleGroup", pageRoleGroup));
-        pageRoleGroupCache.put(pageRoleGroup.getId(), pageRoleGroup);
-        logger.debug("Inserted and cached page-role group id={} urlPattern={}", pageRoleGroup.getId(), pageRoleGroup.getUrlPattern());
+        logger.debug("insertPageRoleGroup after insert, pageRoleGroup.id={}", pageRoleGroup.getId());
 
-        return pageRoleGroup;
+        // Re-fetch from DB to get all populated fields (timestamps, role group join, etc.)
+        PageRoleGroupManagementPojo fullPageRoleGroup = pageMapper.findById(
+            ParamWrapper.wrap("id", pageRoleGroup.getId())
+        );
+        logger.debug("insertPageRoleGroup fetched fullPageRoleGroup={}", fullPageRoleGroup);
+
+        // Cache the fully populated object
+        pageRoleGroupCache.put(fullPageRoleGroup.getId(), fullPageRoleGroup);
+        logger.debug("insertPageRoleGroup cached fullPageRoleGroup id={} urlPattern={}",
+            fullPageRoleGroup.getId(), fullPageRoleGroup.getUrlPattern());
+
+        return fullPageRoleGroup;
     }
 
     @Override

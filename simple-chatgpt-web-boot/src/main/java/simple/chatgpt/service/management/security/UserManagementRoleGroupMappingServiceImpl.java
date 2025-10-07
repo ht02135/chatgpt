@@ -48,7 +48,9 @@ public class UserManagementRoleGroupMappingServiceImpl implements UserManagement
         logger.debug("insertUserRoleGroup insert completed, mapping id={}", mapping.getId());
 
         // Re-fetch from DB to get fully populated object
-        UserManagementRoleGroupMappingPojo fullMapping = mappingMapper.findByRoleGroupId(ParamWrapper.wrap("id", mapping.getId()));
+        UserManagementRoleGroupMappingPojo fullMapping = mappingMapper.findById(
+            ParamWrapper.wrap("id", mapping.getId())
+        );
         logger.debug("insertUserRoleGroup re-fetched fullMapping={}", fullMapping);
 
         // Invalidate cache and populate it if necessary

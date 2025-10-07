@@ -54,6 +54,12 @@
     <!-- =======================
          READ
          ======================= -->
+	<select id="findById" parameterType="map" resultType="simple.chatgpt.pojo.management.security.UserManagementRoleGroupMappingPojo">
+    	SELECT *
+    	FROM user_management_role_group_mapping
+    	WHERE id = #{params.id}
+	</select>
+
     <select id="findAllUserRoleGroups" resultMap="UserManagementRoleGroupMappingResultMap">
         SELECT id, user_id, role_group_id, created_at, updated_at
         FROM user_management_role_group_mapping

@@ -116,12 +116,26 @@ public class RoleGroupManagementServiceImpl implements RoleGroupManagementServic
     @Override
     public RoleGroupManagementPojo insertRoleGroup(Map<String, Object> params) {
         logger.debug("insertRoleGroup called, params={}", params);
+
         RoleGroupManagementPojo group = ParamWrapper.unwrap(params, "group");
-        logger.debug("insertRoleGroup called, group={}", group);
+        logger.debug("insertRoleGroup before insert group={}", group);
+
+        // Insert into DB
         groupMapper.insertRoleGroup(ParamWrapper.wrap("group", group));
-        groupCache.put(group.getId(), group);
-        nameToIdCache.put(group.getGroupName(), group.getId());
-        return group;
+        logger.debug("insertRoleGroup after insert, group.id={}", group.getId());
+
+        // Re-fetch from DB to get all populated fields (timestamps, etc.)
+        RoleGroupManagementPojo fullGroup = groupMapper.findRoleGroupById(
+            ParamWrapper.wrap("roleGroupId", group.getId())
+        );
+        logger.debug("insertRoleGroup fetched fullGroup={}", fullGroup);
+
+        // Cache the fully populated object
+        groupCache.put(fullGroup.getId(), fullGroup);
+        nameToIdCache.put(fullGroup.getGroupName(), fullGroup.getId());
+        logger.debug("insertRoleGroup cached fullGroup id={} groupName={}", fullGroup.getId(), fullGroup.getGroupName());
+
+        return fullGroup;
     }
 
     // =================== UPDATE ===================
