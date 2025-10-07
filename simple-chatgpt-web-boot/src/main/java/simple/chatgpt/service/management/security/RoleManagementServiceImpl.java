@@ -92,7 +92,7 @@ public class RoleManagementServiceImpl implements RoleManagementService {
             rolePojo.setDescription(description);
 
             if (existing == null) {
-            	logger.debug("initializeDB rolePojo={}", rolePojo);
+                logger.debug("initializeDB rolePojo={}", rolePojo);
                 insertRole(ParamWrapper.wrap("role", rolePojo));
                 logger.debug("Inserted role id={} roleName={}", rolePojo.getId(), roleName);
             } else {
@@ -183,14 +183,16 @@ public class RoleManagementServiceImpl implements RoleManagementService {
     @Override
     public RoleManagementPojo findRoleById(Map<String, Object> params) {
         logger.debug("findRoleById called params={}", params);
-        Long roleId = (Long) params.get("roleId");
+        Long roleId = ((Number) ParamWrapper.unwrap(params, "roleId")).longValue();
+        logger.debug("roleId={}", roleId);
         return getRoleById(roleId);
     }
 
     @Override
     public RoleManagementPojo findRoleByName(Map<String, Object> params) {
         logger.debug("findRoleByName called params={}", params);
-        String roleName = (String) params.get("roleName");
+        String roleName = ParamWrapper.unwrap(params, "roleName");
+        logger.debug("roleName={}", roleName);
         return getRoleByName(ParamWrapper.wrap("roleName", roleName));
     }
 
@@ -203,7 +205,7 @@ public class RoleManagementServiceImpl implements RoleManagementService {
     @Override
     public RoleManagementPojo insertRole(Map<String, Object> params) {
         logger.debug("insertRole called params={}", params);
-        RoleManagementPojo role = (RoleManagementPojo) params.get("role");
+        RoleManagementPojo role = ParamWrapper.unwrap(params, "role");
         logger.debug("insertRole role={}", role);
         roleMapper.insertRole(ParamWrapper.wrap("role", role));
         roleCache.put(role.getId(), role);
@@ -215,7 +217,7 @@ public class RoleManagementServiceImpl implements RoleManagementService {
     @Override
     public RoleManagementPojo updateRole(Map<String, Object> params) {
         logger.debug("updateRole called params={}", params);
-        RoleManagementPojo role = (RoleManagementPojo) params.get("role");
+        RoleManagementPojo role = ParamWrapper.unwrap(params, "role");
         RoleManagementPojo existing = getRole(params);
 
         if (existing == null) {
@@ -271,7 +273,7 @@ public class RoleManagementServiceImpl implements RoleManagementService {
     private RoleManagementPojo getRoleByName(Map<String, Object> params) {
         logger.debug("getRoleByName called params={}", params);
 
-        String roleName = (String) params.get("roleName");
+        String roleName = ParamWrapper.unwrap(params, "roleName");
         logger.debug("getRoleByName called roleName={}", roleName);
 
         Long id = nameToIdCache.get(roleName, k -> {
@@ -291,14 +293,14 @@ public class RoleManagementServiceImpl implements RoleManagementService {
     public RoleManagementPojo getRole(Map<String, Object> params) {
         logger.debug("getRole called, params={}", params);
 
-        Long roleId = (Long) params.get("roleId");
-        String roleName = (String) params.get("roleName");
+        Long roleId = ParamWrapper.unwrap(params, "roleId") != null ? ((Number) ParamWrapper.unwrap(params, "roleId")).longValue() : null;
+        String roleName = ParamWrapper.unwrap(params, "roleName");
 
         if (roleId != null) {
-        	logger.debug("getRole called, roleId={}", roleId);
+            logger.debug("getRole called, roleId={}", roleId);
             return getRoleById(roleId);
         } else if (roleName != null) {
-        	logger.debug("getRole called, roleName={}", roleName);
+            logger.debug("getRole called, roleName={}", roleName);
             return getRoleByName(ParamWrapper.wrap("roleName", roleName));
         }
         return null;
