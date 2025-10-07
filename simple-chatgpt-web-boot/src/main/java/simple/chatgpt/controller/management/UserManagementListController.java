@@ -362,24 +362,4 @@ public class UserManagementListController {
         return ResponseEntity.ok(Response.success("Count fetched successfully", count, HttpStatus.OK.value()));
     }
     
-    // ------------------ Helpers ------------------
-    private int getInt(Object object) {
-        if (object == null) {
-            return 0; // Treat null as 0
-        }
-
-        if (object instanceof Number) {
-            return ((Number) object).intValue();
-        } else if (object instanceof String) {
-            String s = (String) object;
-            try {
-                return Integer.parseInt(s);
-            } catch (NumberFormatException e) {
-                logger.warn("Invalid integer value: '{}', defaulting to 0", s, e);
-                return 0;
-            }
-        }
-
-        return 0;
-    }
 }

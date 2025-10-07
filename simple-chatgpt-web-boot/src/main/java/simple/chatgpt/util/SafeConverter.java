@@ -2,6 +2,26 @@ package simple.chatgpt.util;
 
 public class SafeConverter {
 
+	// ------------------ Helpers ------------------
+	public static int getInt(Object object) {
+		if (object == null) {
+			return 0; // Treat null as 0
+		}
+
+		if (object instanceof Number) {
+			return ((Number) object).intValue();
+		} else if (object instanceof String) {
+			String s = (String) object;
+			try {
+				return Integer.parseInt(s);
+			} catch (NumberFormatException e) {
+				return 0;
+			}
+		}
+
+		return 0;
+	}
+
 	/**
 	 * Attempts to convert an Object (like a String or Integer wrapper) to a
 	 * primitive int. Returns a default value if the conversion fails.
