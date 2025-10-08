@@ -44,11 +44,12 @@ public class UserManagementListController implements UserManagementListControlle
     private final UserManagementListService userManagementListService;
     private final PropertyManagementService propertyService;
 
-    // Constructor injection
     public UserManagementListController(UserManagementListService userManagementListService,
                                         PropertyManagementService propertyService) {
         this.userManagementListService = userManagementListService;
         this.propertyService = propertyService;
+        logger.debug("UserManagementListController constructor called, userManagementListService={}, propertyService={}",
+                userManagementListService, propertyService);
     }
 
     // ------------------ LIST SEARCH ------------------
@@ -56,9 +57,9 @@ public class UserManagementListController implements UserManagementListControlle
     public ResponseEntity<Response<PagedResult<UserManagementListPojo>>> searchUserLists(
             @RequestParam Map<String, Object> params
     ) {
-        logger.debug("searchUserLists called with params={}", params);
+        logger.debug("searchUserLists START");
+        logger.debug("searchUserLists raw params={}", params);
 
-        // hung: DONT REMOVE THIS CODE
         int page = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "page", 0), 0); 
         int size = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "size", 20), 20);
         int offset = page * size;
@@ -78,6 +79,7 @@ public class UserManagementListController implements UserManagementListControlle
         }
 
         PagedResult<UserManagementListPojo> lists = userManagementListService.searchUserLists(params);
+        logger.debug("searchUserLists return={}", lists);
         return ResponseEntity.ok(Response.success("Fetched successfully", lists, HttpStatus.OK.value()));
     }
 
@@ -87,20 +89,13 @@ public class UserManagementListController implements UserManagementListControlle
             @RequestPart("list") UserManagementListPojo list,
             @RequestPart(value = "members", required = false) UserManagementListMemberPojo[] members
     ) {
-        logger.debug("createList called #############");
+        logger.debug("createList START");
         logger.debug("createList list={}", list);
-        if (list != null) {
-            logger.debug("createList list.userListName={}", list.getUserListName());
-            logger.debug("createList list.description={}", list.getDescription());
-        }
 
         if (members != null) {
+            logger.debug("createList members count={}", members.length);
             for (UserManagementListMemberPojo m : members) {
                 logger.debug("createList member={}", m);
-                logger.debug("createList member.userName={}", m.getUserName());
-                logger.debug("createList member.firstName={}", m.getFirstName());
-                logger.debug("createList member.lastName={}", m.getLastName());
-                logger.debug("createList member.email={}", m.getEmail());
             }
         } else {
             logger.debug("createList members=null");
@@ -117,11 +112,8 @@ public class UserManagementListController implements UserManagementListControlle
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Response.error("Create failed: " + e.getMessage(), null, 500));
         }
-
-        logger.debug("createList #############");
-        logger.debug("createList DONE!!!");
-        logger.debug("createList #############");
-
+        
+        logger.debug("createList return={}", list);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(Response.success("List created successfully", list, HttpStatus.CREATED.value()));
     }
@@ -129,48 +121,49 @@ public class UserManagementListController implements UserManagementListControlle
     // ------------------ GET LIST BY ID ------------------
     @GetMapping("/get")
     public ResponseEntity<Response<UserManagementListPojo>> getListById(@RequestParam Long listId) {
-        logger.debug("getListById #############");
+        logger.debug("getListById START");
         logger.debug("getListById listId={}", listId);
-        logger.debug("getListById #############");
 
         Map<String, Object> params = new HashMap<>();
-        params.put("listId", listId); // ✅ use typed value directly
+        params.put("listId", listId);
 
         UserManagementListPojo list = userManagementListService.getListById(params);
         if (list == null) {
+            logger.debug("getListById List not found");
             return ResponseEntity.ok(Response.error("List not found", null, HttpStatus.NOT_FOUND.value()));
         }
 
-        logger.debug("getListById #############");
-        logger.debug("getListById list={}", list);
-        logger.debug("getListById #############");
-
+        logger.debug("getListById return={}", list);
         return ResponseEntity.ok(Response.success("List fetched successfully", list, HttpStatus.OK.value()));
     }
 
     // ------------------ GET MEMBERS BY LIST ------------------
     @GetMapping("/members")
     public ResponseEntity<Response<PagedResult<UserManagementListMemberPojo>>> getMembersByListId(@RequestParam Long listId) {
-        logger.debug("getMembersByListId called #############");
+        logger.debug("getMembersByListId START");
         logger.debug("getMembersByListId listId={}", listId);
 
         Map<String, Object> params = new HashMap<>();
         params.put("listId", listId);
 
         PagedResult<UserManagementListMemberPojo> members = userManagementListService.getMembersByListId(params);
+        
+        logger.debug("getMembersByListId return={}", members);
         return ResponseEntity.ok(Response.success("Members fetched successfully", members, HttpStatus.OK.value()));
     }
 
     // ------------------ DELETE LIST ------------------
     @DeleteMapping("/delete")
     public ResponseEntity<Response<Void>> deleteList(@RequestParam Long listId) {
-        logger.debug("deleteList called #############");
+        logger.debug("deleteList START");
         logger.debug("deleteList listId={}", listId);
 
         Map<String, Object> params = new HashMap<>();
         params.put("listId", listId);
 
         userManagementListService.deleteList(params);
+        
+        logger.debug("deleteList DONE");
         return ResponseEntity.ok(Response.success("List deleted successfully", null, HttpStatus.OK.value()));
     }
 
@@ -180,7 +173,7 @@ public class UserManagementListController implements UserManagementListControlle
             @RequestPart("list") UserManagementListPojo list,
             @RequestPart("file") MultipartFile file
     ) {
-        logger.debug("importList called #############");
+        logger.debug("importList START");
         logger.debug("importList list={}", list);
         logger.debug("importList fileName={}", file.getOriginalFilename());
 
@@ -205,6 +198,7 @@ public class UserManagementListController implements UserManagementListControlle
                     .body(Response.error("Import failed: " + e.getMessage(), null, HttpStatus.INTERNAL_SERVER_ERROR.value()));
         }
 
+        logger.debug("importList return={}", list);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(Response.success("List imported successfully", list, HttpStatus.CREATED.value()));
     }
@@ -212,7 +206,7 @@ public class UserManagementListController implements UserManagementListControlle
     // ------------------ EXPORT LIST ------------------
     @GetMapping("/export/csv")
     public void exportListToCsv(@RequestParam Long listId, HttpServletResponse response) {
-        logger.debug("exportListToCsv called #############");
+        logger.debug("exportListToCsv START");
         logger.debug("exportListToCsv listId={}", listId);
 
         response.setContentType("text/csv");
@@ -222,16 +216,19 @@ public class UserManagementListController implements UserManagementListControlle
             Map<String, Object> params = new HashMap<>();
             params.put("listId", listId);
             params.put("outputStream", os);
+
             userManagementListService.exportListToCsv(params);
         } catch (Exception e) {
             logger.error("exportListToCsv failed", e);
             response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
+        
+        logger.debug("exportListToCsv DONE");
     }
 
     @GetMapping("/export/excel")
     public void exportListToExcel(@RequestParam Long listId, HttpServletResponse response) {
-        logger.debug("exportListToExcel called #############");
+        logger.debug("exportListToExcel START");
         logger.debug("exportListToExcel listId={}", listId);
 
         response.setContentType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
@@ -242,29 +239,30 @@ public class UserManagementListController implements UserManagementListControlle
             params.put("listId", listId);
             params.put("outputStream", os);
             userManagementListService.exportListToExcel(params);
+            
         } catch (Exception e) {
             logger.error("exportListToExcel failed", e);
             response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
         }
+        
+        logger.debug("exportListToExcel DONE");
     }
 
     // ------------------ DOWNLOAD SAMPLE CSV ------------------
     @GetMapping("/download/sample")
     public void downloadSampleCsv(HttpServletRequest request, HttpServletResponse response) {
-        logger.debug("downloadSampleCsv called #############");
+        logger.debug("downloadSampleCsv START");
 
-        String sampleCSVRelativePath = "/management/data/user_lists/test_user_lists_1.csv"; // fallback default
+        String sampleCSVRelativePath = "/management/data/user_lists/test_user_lists_1.csv";
 
         try {
             sampleCSVRelativePath = propertyService.getString(PropertyKey.SAMPLE_CSV_RELATIVE_PATH);
-            logger.debug("After propertyService.getString: sampleCSVRelativePath={}", sampleCSVRelativePath);
         } catch (Exception e) {
-            logger.error("Exception fetching SAMPLE_CSV_RELATIVE_PATH property, using default {}", sampleCSVRelativePath, e);
+            logger.error("downloadSampleCsv failed to get property, using default", e);
         }
 
         try {
             String absolutePath = request.getServletContext().getRealPath(sampleCSVRelativePath);
-            logger.debug("downloadSampleCsv absolutePath={}", absolutePath);
 
             File file = new File(absolutePath);
             if (!file.exists()) {
@@ -276,8 +274,7 @@ public class UserManagementListController implements UserManagementListControlle
             response.setContentType("text/csv");
             response.setHeader("Content-Disposition", "attachment; filename=\"" + file.getName() + "\"");
 
-            try (InputStream is = new FileInputStream(file);
-                 OutputStream os = response.getOutputStream()) {
+            try (InputStream is = new FileInputStream(file); OutputStream os = response.getOutputStream()) {
                 is.transferTo(os);
                 os.flush();
             }
@@ -285,6 +282,8 @@ public class UserManagementListController implements UserManagementListControlle
             logger.error("downloadSampleCsv failed", e);
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
+        
+        logger.debug("downloadSampleCsv DONE");
     }
 
     // ------------------ SEARCH MEMBERS ------------------
@@ -292,10 +291,9 @@ public class UserManagementListController implements UserManagementListControlle
     public ResponseEntity<Response<PagedResult<UserManagementListMemberPojo>>> searchMembers(
             @RequestParam Map<String, Object> params
     ) {
-        logger.debug("searchMembers called #############");
-        logger.debug("searchMembers params={}", params);
+        logger.debug("searchMembers START");
+        logger.debug("searchMembers raw params={}", params);
 
-        // hung: DONT REMOVE THIS CODE
         int page = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "page", 0), 0); 
         int size = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "size", 20), 20);
         int offset = page * size;
@@ -311,27 +309,23 @@ public class UserManagementListController implements UserManagementListControlle
         serviceParams.put("sortField", sortField);
         serviceParams.put("sortDirection", sortDirection);
 
-        for (Map.Entry<String, Object> entry : serviceParams.entrySet()) {
-            logger.debug("searchMembers param {}={}", entry.getKey(), entry.getValue());
-        }
-
         PagedResult<UserManagementListMemberPojo> members = userManagementListService.searchMembers(serviceParams);
+        
+        logger.debug("searchMembers return={}", members);
         return ResponseEntity.ok(Response.success("Members fetched successfully", members, HttpStatus.OK.value()));
     }
 
     @GetMapping("/members/count")
     public ResponseEntity<Response<Long>> countMembers(@RequestParam Map<String, Object> params) {
-        logger.debug("countMembers called #############");
-        logger.debug("countMembers params={}", params);
+        logger.debug("countMembers START");
+        logger.debug("countMembers raw params={}", params);
 
         Map<String, Object> serviceParams = new HashMap<>(params);
         serviceParams.put("listId", ParamWrapper.unwrap(params, "listId"));
 
-        for (Map.Entry<String, Object> entry : serviceParams.entrySet()) {
-            logger.debug("countMembers param {}={}", entry.getKey(), entry.getValue());
-        }
-
         long count = userManagementListService.countMembers(serviceParams);
+        
+        logger.debug("countMembers return={}", count);
         return ResponseEntity.ok(Response.success("Count fetched successfully", count, HttpStatus.OK.value()));
     }
 }
