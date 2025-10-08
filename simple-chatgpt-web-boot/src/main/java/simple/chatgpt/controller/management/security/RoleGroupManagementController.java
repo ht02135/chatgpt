@@ -36,7 +36,7 @@ public class RoleGroupManagementController implements RoleGroupManagementControl
     }
 
     // ---------------- CREATE ----------------
-    @PostMapping("/insert")
+    @PostMapping("/insertRoleGroup")
     public ResponseEntity<Response<RoleGroupManagementPojo>> insertRoleGroup(@RequestBody RoleGroupManagementPojo group) {
         logger.debug("insertRoleGroup START");
         logger.debug("insertRoleGroup group={}", group);
@@ -52,7 +52,7 @@ public class RoleGroupManagementController implements RoleGroupManagementControl
     }
 
     // ---------------- UPDATE ----------------
-    @PutMapping("/update")
+    @PutMapping("/updateRoleGroup")
     public ResponseEntity<Response<RoleGroupManagementPojo>> updateRoleGroup(@RequestBody Map<String, Object> params) {
         logger.debug("updateRoleGroup START");
         logger.debug("updateRoleGroup params={}", params);
@@ -64,7 +64,7 @@ public class RoleGroupManagementController implements RoleGroupManagementControl
     }
 
     // ---------------- DELETE ----------------
-    @DeleteMapping("/deleteById")
+    @DeleteMapping("/deleteRoleGroupById")
     public ResponseEntity<Response<Void>> deleteRoleGroupById(@RequestParam Long roleGroupId) {
         logger.debug("deleteRoleGroupById START");
         logger.debug("deleteRoleGroupById roleGroupId={}", roleGroupId);
@@ -79,7 +79,7 @@ public class RoleGroupManagementController implements RoleGroupManagementControl
     }
 
     // ---------------- READ ----------------
-    @GetMapping("/findById")
+    @GetMapping("/findRoleGroupById")
     public ResponseEntity<Response<RoleGroupManagementPojo>> findRoleGroupById(@RequestParam Long roleGroupId) {
         logger.debug("findRoleGroupById START");
         logger.debug("findRoleGroupById roleGroupId={}", roleGroupId);
@@ -94,7 +94,7 @@ public class RoleGroupManagementController implements RoleGroupManagementControl
     }
 
     // ---------------- LIST ALL ----------------
-    @GetMapping("/findAll")
+    @GetMapping("/findAllRoleGroups")
     public ResponseEntity<Response<PagedResult<RoleGroupManagementPojo>>> findAllRoleGroups() {
         logger.debug("findAllRoleGroups START");
 
@@ -104,7 +104,7 @@ public class RoleGroupManagementController implements RoleGroupManagementControl
         return ResponseEntity.ok(Response.success("All role groups fetched successfully", result, HttpStatus.OK.value()));
     }
 
-    @GetMapping("/getAll")
+    @GetMapping("/getAllRoleGroups")
     public ResponseEntity<Response<PagedResult<RoleGroupManagementPojo>>> getAllRoleGroups() {
         logger.debug("getAllRoleGroups START");
 
@@ -115,7 +115,7 @@ public class RoleGroupManagementController implements RoleGroupManagementControl
     }
 
     // ---------------- SEARCH / PAGINATION ----------------
-    @GetMapping("/find")
+    @GetMapping("/findRoleGroups")
     public ResponseEntity<Response<PagedResult<RoleGroupManagementPojo>>> findRoleGroups(@RequestParam Map<String, Object> params) {
         logger.debug("findRoleGroups START");
         logger.debug("findRoleGroups params={}", params);
@@ -126,7 +126,7 @@ public class RoleGroupManagementController implements RoleGroupManagementControl
         return ResponseEntity.ok(Response.success("Filtered role groups fetched successfully", result, HttpStatus.OK.value()));
     }
 
-    @GetMapping("/search")
+    @GetMapping("/searchRoleGroups")
     public ResponseEntity<Response<PagedResult<RoleGroupManagementPojo>>> searchRoleGroups(@RequestParam Map<String, Object> params) {
         logger.debug("searchRoleGroups START");
         logger.debug("searchRoleGroups params={}", params);
@@ -138,7 +138,7 @@ public class RoleGroupManagementController implements RoleGroupManagementControl
     }
 
     // ---------------- COUNT ----------------
-    @GetMapping("/count")
+    @GetMapping("/countRoleGroups")
     public ResponseEntity<Response<Long>> countRoleGroups(@RequestParam Map<String, Object> params) {
         logger.debug("countRoleGroups START");
         logger.debug("countRoleGroups params={}", params);
