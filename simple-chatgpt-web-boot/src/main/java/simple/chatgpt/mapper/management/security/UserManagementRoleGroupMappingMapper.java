@@ -25,6 +25,8 @@ public interface UserManagementRoleGroupMappingMapper {
     // ---------------- READ ----------------
     UserManagementRoleGroupMappingPojo findById(@Param("params") Map<String, Object> params);
     
+    UserManagementRoleGroupMappingPojo findByUserIdAndRoleGroupId(@Param("params") Map<String, Object> params);
+    
     List<UserManagementRoleGroupMappingPojo> findAllUserRoleGroups();
 
     List<UserManagementRoleGroupMappingPojo> findByUserId(@Param("params") Map<String, Object> params);

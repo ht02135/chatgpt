@@ -43,15 +43,21 @@ public class UserManagementRoleGroupMappingServiceImpl implements UserManagement
         UserManagementRoleGroupMappingPojo mapping = ParamWrapper.unwrap(params, "mapping");
 
         // Insert mapping into DB
+        logger.debug("insertUserRoleGroup #########");
         logger.debug("insertUserRoleGroup before insertUserRoleGroup mapping={}", mapping);
-        mappingMapper.insertUserRoleGroup(ParamWrapper.wrap("mapping", mapping));
+        int mapperId = mappingMapper.insertUserRoleGroup(ParamWrapper.wrap("mapping", mapping));
+        logger.debug("insertUserRoleGroup after insertUserRoleGroup mapping={}", mapping);
+        logger.debug("insertUserRoleGroup #########");
         
         // Re-fetch from DB to get fully populated object
+        logger.debug("insertUserRoleGroup #########");
+        logger.debug("insertUserRoleGroup before findById mapperId={}", mapperId);
         logger.debug("insertUserRoleGroup before findById mapping.getId()={}", mapping.getId());
         UserManagementRoleGroupMappingPojo fullMapping = mappingMapper.findById(
             ParamWrapper.wrap("id", mapping.getId())
         );
         logger.debug("insertUserRoleGroup re-fetched fullMapping={}", fullMapping);
+        logger.debug("insertUserRoleGroup #########");
 
         // Invalidate cache and populate it if necessary
         userRoleGroupMappingCache.invalidate(fullMapping.getUserId());
@@ -94,6 +100,23 @@ public class UserManagementRoleGroupMappingServiceImpl implements UserManagement
     }
 
     // ---------------- READ ----------------
+    
+    @Override
+    public UserManagementRoleGroupMappingPojo findByUserIdAndRoleGroupId(Map<String, Object> params) {
+        logger.debug("findByUserIdAndRoleGroupId called params={}", params);
+        UserManagementRoleGroupMappingPojo mapping = mappingMapper.findByUserIdAndRoleGroupId(params);
+        logger.debug("findByUserIdAndRoleGroupId result={}", mapping);
+        return mapping;
+    }
+
+    @Override
+    public UserManagementRoleGroupMappingPojo findById(Map<String, Object> params) {
+        logger.debug("findById called params={}", params);
+        UserManagementRoleGroupMappingPojo mapping = mappingMapper.findById(params);
+        logger.debug("findById result={}", mapping);
+        return mapping;
+    }
+
     @Override
     public PagedResult<UserManagementRoleGroupMappingPojo> findAllUserRoleGroups() {
         logger.debug("findAllUserRoleGroups called");

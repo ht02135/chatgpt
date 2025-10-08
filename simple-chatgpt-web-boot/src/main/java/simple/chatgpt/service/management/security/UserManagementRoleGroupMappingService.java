@@ -2,6 +2,8 @@ package simple.chatgpt.service.management.security;
 
 import java.util.Map;
 
+import org.apache.ibatis.annotations.Param;
+
 import simple.chatgpt.pojo.management.security.UserManagementRoleGroupMappingPojo;
 import simple.chatgpt.util.PagedResult;
 
@@ -18,6 +20,9 @@ public interface UserManagementRoleGroupMappingService {
     void deleteUserRoleGroupByUserAndGroup(Map<String, Object> params);
 
     // ---------------- READ ----------------
+    UserManagementRoleGroupMappingPojo findByUserIdAndRoleGroupId(@Param("params") Map<String, Object> params);
+    UserManagementRoleGroupMappingPojo findById(@Param("params") Map<String, Object> params);
+
     PagedResult<UserManagementRoleGroupMappingPojo> findAllUserRoleGroups();
     PagedResult<UserManagementRoleGroupMappingPojo> findByUserId(Map<String, Object> params);
     PagedResult<UserManagementRoleGroupMappingPojo> findByRoleGroupId(Map<String, Object> params);

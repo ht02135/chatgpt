@@ -81,7 +81,7 @@ public class UserManagementServiceImpl implements UserManagementService {
                 UserManagementPojo user = new UserManagementPojo();
                 user.setUserName(u.getUserName());
                 user.setUserKey(u.getUserKey());
-                user.setPassword(u.getPassword()); // 🔒 optionally encode later
+                user.setPassword(u.getPassword());
                 user.setFirstName(u.getFirstName());
                 user.setLastName(u.getLastName());
                 user.setEmail(u.getEmail());
@@ -99,12 +99,9 @@ public class UserManagementServiceImpl implements UserManagementService {
                 userManagementMapper.insertUser(user);
                 logger.debug("initializeDB after insertUser user={}", user);
                 logger.debug("initializeDB ##############");
-                
+
                 existing = user;
-                logger.debug("initializeDB ##############");
                 logger.debug("Inserted default user userName={}", user.getUserName());
-                logger.debug("Inserted default user existing={}", existing);
-                logger.debug("initializeDB ##############");
             } else {
                 logger.debug("User already exists, skipping creation userName={}", u.getUserName());
             }
@@ -114,16 +111,28 @@ public class UserManagementServiceImpl implements UserManagementService {
             if (roleGroupName != null && !roleGroupName.isEmpty()) {
                 RoleGroupManagementPojo group = roleGroupByName.get(roleGroupName);
                 if (group != null) {
-                    UserManagementRoleGroupMappingPojo mapping = new UserManagementRoleGroupMappingPojo();
-                    mapping.setUserId(existing.getId());
-                    mapping.setRoleGroupId(group.getId());
 
-                    logger.debug("initializeDB ##############");
-                    logger.debug("initializeDB before insertUserRoleGroup mapping={}", mapping);
-                    logger.debug("initializeDB ##############");
-                    mappingService.insertUserRoleGroup(ParamWrapper.wrap("mapping", mapping));
-                    logger.debug("Mapped user userName={} to roleGroup={} mappingId={}",
-                            u.getUserName(), roleGroupName, mapping.getId());
+                    // Wrap params to call service method
+                    Map<String, Object> mappingParams = ParamWrapper.wrap("userId", existing.getId(), "roleGroupId", group.getId());
+                    UserManagementRoleGroupMappingPojo existingMapping =
+                            mappingService.findByUserIdAndRoleGroupId(mappingParams);
+
+                    if (existingMapping == null) {
+                        UserManagementRoleGroupMappingPojo mapping = new UserManagementRoleGroupMappingPojo();
+                        mapping.setUserId(existing.getId());
+                        mapping.setRoleGroupId(group.getId());
+
+                        logger.debug("initializeDB ##############");
+                        logger.debug("initializeDB before insertUserRoleGroup mapping={}", mapping);
+                        logger.debug("initializeDB ##############");
+                        mappingService.insertUserRoleGroup(ParamWrapper.wrap("mapping", mapping));
+                        logger.debug("Mapped user userName={} to roleGroup={} mappingId={}",
+                                u.getUserName(), roleGroupName, mapping.getId());
+                    } else {
+                        logger.debug("Mapping already exists for user {} and roleGroup {}, skipping insert",
+                                u.getUserName(), roleGroupName);
+                    }
+
                 } else {
                     logger.warn("Role-group '{}' not found, skipping mapping for user '{}'", roleGroupName, u.getUserName());
                 }
@@ -132,6 +141,7 @@ public class UserManagementServiceImpl implements UserManagementService {
 
         logger.debug("initializeDB completed");
     }
+
 
     // 🔎 LIST / SEARCH
     @Override
