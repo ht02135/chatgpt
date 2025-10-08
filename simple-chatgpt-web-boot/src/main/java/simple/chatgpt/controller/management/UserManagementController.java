@@ -38,15 +38,103 @@ public class UserManagementController {
         logger.debug("UserManagementController userManagementService={}", userManagementService);
     }
 
-    // ------------------ LIST / SEARCH ------------------
-    @GetMapping
+    // =========================================================================
+    // 5 CORE METHODS (PRIMARY)
+    // =========================================================================
+
+    // ------------------ CREATE ------------------
+    @PostMapping("/create")
+    public ResponseEntity<Response<UserManagementPojo>> create(@Valid @RequestBody(required = false) UserManagementPojo user) {
+        logger.debug("create START");
+        logger.debug("create user={}", user);
+
+        if (user == null) {
+            logger.debug("create: missing user payload");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Response.error("Missing user payload", null, HttpStatus.BAD_REQUEST.value()));
+        }
+
+        // reuse existing method
+        return createUser(user);
+    }
+
+    // ------------------ UPDATE ------------------
+    @PutMapping("/update")
+    public ResponseEntity<Response<UserManagementPojo>> update(
+            @RequestParam(required = false) Long id,
+            @Valid @RequestBody(required = false) UserManagementPojo user) {
+        logger.debug("update START");
+        logger.debug("update id={}", id);
+        logger.debug("update user={}", user);
+
+        if (id == null) {
+            logger.debug("update: missing id");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Response.error("Missing id parameter", null, HttpStatus.BAD_REQUEST.value()));
+        }
+
+        if (user == null) {
+            logger.debug("update: missing user payload");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Response.error("Missing user payload", null, HttpStatus.BAD_REQUEST.value()));
+        }
+
+        // reuse existing logic
+        return updateUser(id, null, null, user);
+    }
+
+    // ------------------ SEARCH / LIST ------------------
+    @GetMapping("/search")
+    public ResponseEntity<Response<PagedResult<UserManagementPojo>>> search(@RequestParam Map<String, String> params) {
+        logger.debug("search START");
+        logger.debug("search params={}", params);
+
+        // reuse existing searchUsers method
+        return searchUsers(params);
+    }
+
+    // ------------------ GET BY ID ------------------
+    @GetMapping("/get")
+    public ResponseEntity<Response<UserManagementPojo>> get(@RequestParam(required = false) Long id) {
+        logger.debug("get START");
+        logger.debug("get id={}", id);
+
+        if (id == null) {
+            logger.debug("get: missing id");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Response.error("Missing id parameter", null, HttpStatus.BAD_REQUEST.value()));
+        }
+
+        // reuse existing getUser method
+        return getUser(id, null, null);
+    }
+
+    // ------------------ DELETE ------------------
+    @DeleteMapping("/delete")
+    public ResponseEntity<Response<Void>> delete(@RequestParam(required = false) Long id) {
+        logger.debug("delete START");
+        logger.debug("delete id={}", id);
+
+        if (id == null) {
+            logger.debug("delete: missing id");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Response.error("Missing id parameter", null, HttpStatus.BAD_REQUEST.value()));
+        }
+
+        // reuse existing deleteUser method
+        return deleteUser(id, null, null);
+    }
+
+    // =========================================================================
+    // ORIGINAL METHODS (USED BY CORE)
+    // =========================================================================
+
     public ResponseEntity<Response<PagedResult<UserManagementPojo>>> searchUsers(
             @RequestParam Map<String, String> params) {
         logger.debug("searchUsers START");
         logger.debug("searchUsers raw params={}", params);
 
-        // hung: DONT REMOVE THIS CODE
-        int page = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "page", 0), 0); 
+        int page = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "page", 0), 0);
         int size = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "size", 20), 20);
         int offset = page * size;
         logger.debug("searchUsers page={}", page);
@@ -59,13 +147,10 @@ public class UserManagementController {
         params.put("sortDirection", ParamWrapper.unwrap(params, "sortDirection", "asc"));
 
         PagedResult<UserManagementPojo> users = userManagementService.searchUsers(params);
-        
         logger.debug("searchUsers result={}", users);
         return ResponseEntity.ok(Response.success("Fetched successfully", users, HttpStatus.OK.value()));
     }
 
-    // ------------------ READ USER ------------------
-    @GetMapping("/get")
     public ResponseEntity<Response<UserManagementPojo>> getUser(@RequestParam(required = false) Long id,
             @RequestParam(required = false) String userName, @RequestParam(required = false) String userKey) {
         logger.debug("getUser START");
@@ -92,26 +177,22 @@ public class UserManagementController {
         return ResponseEntity.ok(Response.success("Fetched successfully", user, HttpStatus.OK.value()));
     }
 
-    // ------------------ CREATE USER ------------------
-    @PostMapping("/create")
     public ResponseEntity<Response<UserManagementPojo>> createUser(@Valid @RequestBody UserManagementPojo user) {
         logger.debug("createUser START");
         logger.debug("createUser user={}", user);
 
         UserManagementPojo created = userManagementService.createUser(user);
-        
         logger.debug("createUser created={}", created);
+
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(Response.success("User created successfully", created, HttpStatus.CREATED.value()));
     }
 
-    // ------------------ UPDATE USER ------------------
-    @PutMapping("/update")
     public ResponseEntity<Response<UserManagementPojo>> updateUser(
-    	@RequestParam(required = false) Long id,
-        @RequestParam(required = false) String userName, @RequestParam(required = false) String userKey,
-        @Valid @RequestBody UserManagementPojo user) 
-    {
+            @RequestParam(required = false) Long id,
+            @RequestParam(required = false) String userName,
+            @RequestParam(required = false) String userKey,
+            @Valid @RequestBody UserManagementPojo user) {
         logger.debug("updateUser START");
         logger.debug("updateUser id={}", id);
         logger.debug("updateUser userName={}", userName);
@@ -136,13 +217,10 @@ public class UserManagementController {
         return ResponseEntity.ok(Response.success("User updated successfully", updated, HttpStatus.OK.value()));
     }
 
-    // ------------------ DELETE USER ------------------
-    @DeleteMapping("/delete")
     public ResponseEntity<Response<Void>> deleteUser(
-    	@RequestParam(required = false) Long id,
-        @RequestParam(required = false) String userName, 
-        @RequestParam(required = false) String userKey) 
-   {
+            @RequestParam(required = false) Long id,
+            @RequestParam(required = false) String userName,
+            @RequestParam(required = false) String userKey) {
         logger.debug("deleteUser START");
         logger.debug("deleteUser id={}", id);
         logger.debug("deleteUser userName={}", userName);
