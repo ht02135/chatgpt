@@ -633,9 +633,9 @@
 	<grid id="userRoleGroups">
 		<column name="id" label="ID" visible="true" sortable="true"
 			dbField="id" />
-		<column name="userName" label="User" visible="true"
+		<column name="userId" label="User" visible="true"
 			sortable="true" dbField="user_id" />
-		<column name="roleGroupName" label="Role Group" visible="true"
+		<column name="roleGroupId" label="Role Group" visible="true"
 			sortable="true" dbField="role_group_id" />
 		<column name="createdAt" label="Created At" visible="true"
 			sortable="true" dbField="created_at" />
