@@ -45,46 +45,43 @@ public class PropertyManagementController {
     private final PropertyManagementService propertyService;
 
     public PropertyManagementController(PropertyManagementService propertyService) {
+        this.propertyService = propertyService;
         logger.debug("PropertyManagementController constructor called");
         logger.debug("PropertyManagementController propertyService={}", propertyService);
-        this.propertyService = propertyService;
     }
 
-    // 🔎 LIST / SEARCH
+    // ------------------ LIST / SEARCH ------------------
     @GetMapping
     public ResponseEntity<Response<PagedResult<PropertyManagementPojo>>> searchProperties(
             @RequestParam Map<String, String> params
     ) {
-        logger.debug("searchProperties called");
-        logger.debug("searchProperties params={}", params);
+        logger.debug("searchProperties START");
+        logger.debug("searchProperties raw params={}", params);
 
         // hung: DONT REMOVE THIS CODE
-        int page = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "page", 0), 0); 
+        int page = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "page", 0), 0);
         int size = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "size", 20), 20);
         int offset = page * size;
-        logger.debug("searchProperties offset={}", offset);
 
         params.put("offset", String.valueOf(offset));
         params.put("limit", String.valueOf(size));
         params.put("sortField", ParamWrapper.unwrap(params, "sortField", "key"));
         params.put("sortDirection", ParamWrapper.unwrap(params, "sortDirection", "asc"));
 
-        logger.debug("searchProperties final params={}", params);
-
         PagedResult<PropertyManagementPojo> result = propertyService.searchProperties(params);
+        
         logger.debug("searchProperties result={}", result);
-
         return ResponseEntity.ok(Response.success("Fetched successfully", result, HttpStatus.OK.value()));
     }
 
-    // 📖 READ (Flexible key)
+    // ------------------ READ ------------------
     @GetMapping("/get")
     public ResponseEntity<Response<PropertyManagementPojo>> getProperty(
             @RequestParam(required = false) Long id,
             @RequestParam(required = false) String propertyName,
             @RequestParam(required = false) String propertyKey
     ) {
-        logger.debug("getProperty called");
+        logger.debug("getProperty START");
         logger.debug("getProperty id={}", id);
         logger.debug("getProperty propertyName={}", propertyName);
         logger.debug("getProperty propertyKey={}", propertyKey);
@@ -92,13 +89,10 @@ public class PropertyManagementController {
         PropertyManagementPojo property = null;
 
         if (id != null) {
-            logger.debug("getProperty fetching by id={}", id);
             property = propertyService.getPropertyById(id);
         } else if (propertyName != null) {
-            logger.debug("getProperty fetching by propertyName={}", propertyName);
             property = propertyService.getByPropertyName(propertyName);
         } else if (propertyKey != null) {
-            logger.debug("getProperty fetching by propertyKey={}", propertyKey);
             property = propertyService.getByPropertyKey(propertyKey);
         }
 
@@ -111,23 +105,22 @@ public class PropertyManagementController {
         return ResponseEntity.ok(Response.success("Fetched successfully", property, HttpStatus.OK.value()));
     }
 
-    // ➕ CREATE
+    // ------------------ CREATE ------------------
     @PostMapping("/create")
     public ResponseEntity<Response<PropertyManagementPojo>> createProperty(
             @Valid @RequestBody PropertyManagementPojo property
     ) {
-        logger.debug("createProperty called");
+        logger.debug("createProperty START");
         logger.debug("createProperty property={}", property);
 
         PropertyManagementPojo created = propertyService.createProperty(property);
+        
         logger.debug("createProperty result={}", created);
-
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
+        return ResponseEntity.status(HttpStatus.CREATED)
                 .body(Response.success("Property created successfully", created, HttpStatus.CREATED.value()));
     }
 
-    // ✏️ UPDATE (Flexible key)
+    // ------------------ UPDATE ------------------
     @PutMapping("/update")
     public ResponseEntity<Response<PropertyManagementPojo>> updateProperty(
             @RequestParam(required = false) Long id,
@@ -135,7 +128,7 @@ public class PropertyManagementController {
             @RequestParam(required = false) String propertyKey,
             @Valid @RequestBody PropertyManagementPojo property
     ) {
-        logger.debug("updateProperty called");
+        logger.debug("updateProperty START");
         logger.debug("updateProperty id={}", id);
         logger.debug("updateProperty propertyName={}", propertyName);
         logger.debug("updateProperty propertyKey={}", propertyKey);
@@ -144,13 +137,10 @@ public class PropertyManagementController {
         PropertyManagementPojo updated = null;
 
         if (id != null) {
-            logger.debug("updateProperty updating by id={}", id);
             updated = propertyService.updatePropertyById(id, property);
         } else if (propertyName != null) {
-            logger.debug("updateProperty updating by propertyName={}", propertyName);
             updated = propertyService.updatePropertyByPropertyName(propertyName, property);
         } else if (propertyKey != null) {
-            logger.debug("updateProperty updating by propertyKey={}", propertyKey);
             updated = propertyService.updatePropertyByPropertyKey(propertyKey, property);
         } else {
             logger.debug("updateProperty: No key provided");
@@ -161,33 +151,30 @@ public class PropertyManagementController {
         return ResponseEntity.ok(Response.success("Property updated successfully", updated, HttpStatus.OK.value()));
     }
 
-    // 🗑 DELETE (Flexible key)
+    // ------------------ DELETE ------------------
     @DeleteMapping("/delete")
     public ResponseEntity<Response<Void>> deleteProperty(
             @RequestParam(required = false) Long id,
             @RequestParam(required = false) String propertyName,
             @RequestParam(required = false) String propertyKey
     ) {
-        logger.debug("deleteProperty called");
+        logger.debug("deleteProperty START");
         logger.debug("deleteProperty id={}", id);
         logger.debug("deleteProperty propertyName={}", propertyName);
         logger.debug("deleteProperty propertyKey={}", propertyKey);
 
         if (id != null) {
-            logger.debug("deleteProperty deleting by id={}", id);
             propertyService.deletePropertyById(id);
         } else if (propertyName != null) {
-            logger.debug("deleteProperty deleting by propertyName={}", propertyName);
             propertyService.deletePropertyByPropertyName(propertyName);
         } else if (propertyKey != null) {
-            logger.debug("deleteProperty deleting by propertyKey={}", propertyKey);
             propertyService.deletePropertyByPropertyKey(propertyKey);
         } else {
             logger.debug("deleteProperty: No key provided");
             return ResponseEntity.ok(Response.error("At least one key must be provided for delete", null, HttpStatus.BAD_REQUEST.value()));
         }
 
-        logger.debug("deleteProperty success");
+        logger.debug("deleteProperty DONE");
         return ResponseEntity.ok(Response.success("Property deleted successfully", null, HttpStatus.OK.value()));
     }
 }
