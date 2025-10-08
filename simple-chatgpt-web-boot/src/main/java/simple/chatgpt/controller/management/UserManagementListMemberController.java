@@ -34,6 +34,7 @@ public class UserManagementListMemberController implements UserManagementListMem
 
     public UserManagementListMemberController(UserManagementListMemberService memberService) {
         this.memberService = memberService;
+        logger.debug("UserManagementListMemberController constructor called, memberService={}", memberService);
     }
 
     // ➕ CREATE MEMBER
@@ -41,52 +42,36 @@ public class UserManagementListMemberController implements UserManagementListMem
     public ResponseEntity<Response<UserManagementListMemberPojo>> createMember(
             @RequestBody UserManagementListMemberPojo member
     ) {
-        logger.debug("createMember #############");
+        logger.debug("createMember START");
         logger.debug("createMember member={}", member);
-        logger.debug("createMember member.userName={}", member.getUserName());
-        logger.debug("createMember member.userKey={}", member.getUserKey());
-        logger.debug("createMember member.firstName={}", member.getFirstName());
-        logger.debug("createMember member.lastName={}", member.getLastName());
-        logger.debug("createMember member.email={}", member.getEmail());
-        logger.debug("createMember member.addressLine1={}", member.getAddressLine1());
-        logger.debug("createMember member.addressLine2={}", member.getAddressLine2());
-        logger.debug("createMember member.city={}", member.getCity());
-        logger.debug("createMember member.state={}", member.getState());
-        logger.debug("createMember member.postCode={}", member.getPostCode());
-        logger.debug("createMember member.country={}", member.getCountry());
-        logger.debug("createMember #############");
 
         Map<String, Object> params = new HashMap<>();
         params.put("member", member);
-        
-        logger.debug("createMember #############");
-        logger.debug("createMember params={}", params);
-        logger.debug("createMember #############");
-        memberService.createMember(params);
-        
-        logger.debug("createMember #############");
-        logger.debug("createMember DONE!!!");
-        logger.debug("createMember #############");
 
+        UserManagementListMemberPojo newMember = memberService.createMember(params);
+
+        logger.debug("createMember newMember={}", newMember);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(Response.success("Member created successfully", member, HttpStatus.CREATED.value()));
+                .body(Response.success("Member created successfully", newMember, HttpStatus.CREATED.value()));
     }
 
     // 📖 GET MEMBER BY ID
     @GetMapping("/get")
     public ResponseEntity<Response<UserManagementListMemberPojo>> getMemberById(@RequestParam Long memberId) {
-        logger.debug("getMemberById #############");
+        logger.debug("getMemberById START");
         logger.debug("getMemberById memberId={}", memberId);
-        logger.debug("getMemberById #############");
 
         Map<String, Object> params = new HashMap<>();
         params.put("memberId", memberId);
 
         UserManagementListMemberPojo member = memberService.getMemberById(params);
+        
         if (member == null) {
+        	logger.debug("getMemberById Member not found");
             return ResponseEntity.ok(Response.error("Member not found", null, HttpStatus.NOT_FOUND.value()));
         }
 
+        logger.debug("getMemberById return={}", member);
         return ResponseEntity.ok(Response.success("Member fetched successfully", member, HttpStatus.OK.value()));
     }
 
@@ -96,37 +81,31 @@ public class UserManagementListMemberController implements UserManagementListMem
             @RequestParam Long memberId,
             @RequestBody UserManagementListMemberPojo member
     ) {
-        logger.debug("updateMemberById #############");
+        logger.debug("updateMemberById START");
         logger.debug("updateMemberById memberId={}", memberId);
         logger.debug("updateMemberById member={}", member);
-        logger.debug("updateMemberById member.userName={}", member.getUserName());
-        logger.debug("updateMemberById member.firstName={}", member.getFirstName());
-        logger.debug("updateMemberById member.lastName={}", member.getLastName());
-        logger.debug("updateMemberById member.email={}", member.getEmail());
-        logger.debug("updateMemberById #############");
 
         Map<String, Object> params = new HashMap<>();
         params.put("memberId", memberId);
         params.put("member", member);
-        logger.debug("updateMemberById #############");
-        logger.debug("updateMemberById params={}", params);
-        logger.debug("updateMemberById #############");
-        
+
         UserManagementListMemberPojo updatedMember = memberService.updateMemberById(params);
+
+        logger.debug("updateMemberById return={}", updatedMember);
         return ResponseEntity.ok(Response.success("Member updated successfully", updatedMember, HttpStatus.OK.value()));
     }
 
     // 🗑 DELETE MEMBER
     @DeleteMapping("/delete")
     public ResponseEntity<Response<Void>> deleteMemberById(@RequestParam Long memberId) {
-        logger.debug("deleteMemberById #############");
+        logger.debug("deleteMemberById START");
         logger.debug("deleteMemberById memberId={}", memberId);
-        logger.debug("deleteMemberById #############");
 
         Map<String, Object> params = new HashMap<>();
         params.put("memberId", memberId);
         memberService.deleteMemberById(params);
 
+        logger.debug("deleteMemberById DONE");
         return ResponseEntity.ok(Response.success("Member deleted successfully", null, HttpStatus.OK.value()));
     }
 
@@ -135,9 +114,8 @@ public class UserManagementListMemberController implements UserManagementListMem
     public ResponseEntity<Response<PagedResult<UserManagementListMemberPojo>>> searchMembers(
             @RequestParam Map<String, Object> params
     ) {
-        logger.debug("searchMembers #############");
+        logger.debug("searchMembers START");
         logger.debug("searchMembers params={}", params);
-        logger.debug("searchMembers #############");
 
         Map<String, Object> serviceParams = new HashMap<>(params);
 
@@ -150,35 +128,30 @@ public class UserManagementListMemberController implements UserManagementListMem
         serviceParams.put("size", size);
         serviceParams.put("offset", offset);
         serviceParams.put("limit", size);
-
-        String sortField = ParamWrapper.unwrap(params, "sortField", "id");
-        String sortDirection = ParamWrapper.unwrap(params, "sortDirection", "ASC").toUpperCase();
-        serviceParams.put("sortField", sortField);
-        serviceParams.put("sortDirection", sortDirection);
+        serviceParams.put("sortField", ParamWrapper.unwrap(params, "sortField", "id"));
+        serviceParams.put("sortDirection", ParamWrapper.unwrap(params, "sortDirection", "ASC").toUpperCase());
         serviceParams.put("listId", ParamWrapper.unwrap(params, "listId"));
 
-        logger.debug("searchMembers #############");
         logger.debug("searchMembers serviceParams={}", serviceParams);
-        logger.debug("searchMembers #############");
+
         PagedResult<UserManagementListMemberPojo> members = memberService.searchMembers(serviceParams);
-        logger.debug("searchMembers #############");
-        logger.debug("searchMembers members={}", members);
-        logger.debug("searchMembers #############");
         
+        logger.debug("searchMembers return={}", members);
         return ResponseEntity.ok(Response.success("Members fetched successfully", members, HttpStatus.OK.value()));
     }
 
     // ------------------ COUNT MEMBERS ------------------
     @GetMapping("/count")
     public ResponseEntity<Response<Long>> countMembers(@RequestParam Map<String, Object> params) {
-        logger.debug("countMembers #############");
+        logger.debug("countMembers START");
         logger.debug("countMembers params={}", params);
-        logger.debug("countMembers #############");
 
         Map<String, Object> serviceParams = new HashMap<>(params);
         serviceParams.put("listId", ParamWrapper.unwrap(params, "listId"));
 
         long count = memberService.countMembers(serviceParams);
+        
+        logger.debug("countMembers return={}", count);
         return ResponseEntity.ok(Response.success("Count fetched successfully", count, HttpStatus.OK.value()));
     }
 
