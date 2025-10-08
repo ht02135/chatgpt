@@ -14,6 +14,8 @@ public class RoleGroupRoleMappingPojo {
     private Long roleId;
     private Timestamp createdAt;
     private Timestamp updatedAt;
+    private String roleGroupName;
+    private String roleName;
 
     public RoleGroupRoleMappingPojo() {
         logger.debug("RoleGroupRoleMappingPojo constructor called");
@@ -69,12 +71,34 @@ public class RoleGroupRoleMappingPojo {
         this.updatedAt = updatedAt;
     }
 
+    public String getRoleGroupName() {
+        logger.debug("getRoleGroupName called");
+        return roleGroupName;
+    }
+
+    public void setRoleGroupName(String roleGroupName) {
+        logger.debug("setRoleGroupName roleGroupName={}", roleGroupName);
+        this.roleGroupName = roleGroupName;
+    }
+
+    public String getRoleName() {
+        logger.debug("getRoleName called");
+        return roleName;
+    }
+
+    public void setRoleName(String roleName) {
+        logger.debug("setRoleName roleName={}", roleName);
+        this.roleName = roleName;
+    }
+
     @Override
     public String toString() {
         return "RoleGroupRoleMappingPojo{" +
                 "id=" + id +
                 ", roleGroupId=" + roleGroupId +
+                ", roleGroupName='" + roleGroupName + '\'' +
                 ", roleId=" + roleId +
+                ", roleName='" + roleName + '\'' +
                 ", createdAt=" + createdAt +
                 ", updatedAt=" + updatedAt +
                 '}';
