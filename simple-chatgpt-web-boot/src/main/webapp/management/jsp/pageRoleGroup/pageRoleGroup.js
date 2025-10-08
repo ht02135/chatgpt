@@ -1,8 +1,8 @@
-// pageRoleGroup.js
+// roleGroupRole.js
 
 // detect context path dynamically from browser URL
-const PAGE_ROLE_GROUP_CONTEXT_PATH = "/" + window.location.pathname.split("/")[1];
-const API_PAGE_ROLE_GROUP = `${PAGE_ROLE_GROUP_CONTEXT_PATH}/api/management/pagerolegroups`;
+const PAGERG_CONTEXT_PATH = "/" + window.location.pathname.split("/")[1];
+const API_PAGE_ROLE_GROUP = `${PAGERG_CONTEXT_PATH}/api/management/pagerolegroups`;
 
 function PageRoleGroup(data, fields) {
     console.log("pageRoleGroup.js -> PageRoleGroup: constructor called");
@@ -37,7 +37,9 @@ function PageRoleGroupViewModel(params, config) {
         self.searchConfig.fields.forEach(f => self.searchParams[f.name] = ko.observable(''));
     }
 
-    // Pagination
+    // ========================
+    // Pagination / Sorting
+    // ========================
     self.page = ko.observable(1);
     self.size = ko.observable(10);
     self.total = ko.observable(0);
@@ -45,22 +47,27 @@ function PageRoleGroupViewModel(params, config) {
     self.sortField = ko.observable('id');
     self.sortOrder = ko.observable('ASC');
 
-    // Helper
+    // ========================
+    // Helpers
+    // ========================
     self.resolveDbField = function(uiField) {
         const col = self.gridConfig?.columns?.find(c => c.name === uiField);
         return col?.dbField || uiField;
     };
 
+    // ========================
+    // Build Search Query
+    // ========================
     self.buildSearchQuery = function() {
         const params = new URLSearchParams();
         params.append('page', self.page() - 1);
         params.append('size', self.size());
         params.append('sortField', self.resolveDbField(self.sortField()));
         params.append('sortDirection', self.sortOrder());
+
         if (self.searchConfig?.fields) {
             self.searchConfig.fields.forEach(f => {
                 const val = self.searchParams[f.name]();
-                console.log("pageRoleGroup.js -> buildSearchQuery param", f.name, "=", val);
                 if (val && val.toString().trim()) params.append(f.name, val.toString().trim());
             });
         }
@@ -68,7 +75,7 @@ function PageRoleGroupViewModel(params, config) {
     };
 
     // ========================
-    // CRUD Operations
+    // CRUD OPERATIONS
     // ========================
     self.loadPageRoleGroups = async function() {
         console.log("pageRoleGroup.js -> loadPageRoleGroups called, mode=", self.mode);
@@ -76,15 +83,14 @@ function PageRoleGroupViewModel(params, config) {
 
         try {
             const qs = self.buildSearchQuery();
-            console.log("pageRoleGroup.js -> loadPageRoleGroups qs=", qs);
             const res = await fetch(`${API_PAGE_ROLE_GROUP}/searchPageRoleGroups?${qs}`, { headers: { 'Accept': 'application/json' } });
             const data = await res.json();
             console.log("pageRoleGroup.js -> loadPageRoleGroups response=", data);
 
             if (data.status === 'SUCCESS' && data.data) {
                 const paged = data.data;
-                self.pageRoleGroups(paged.items.map(r => new PageRoleGroup(r, self.gridConfig?.columns.map(c => ({ name: c.name })) || [])));
-                if (paged.totalCount && self.total() !== paged.totalCount) self.total(paged.totalCount);
+                self.pageRoleGroups(paged.items.map(pg => new PageRoleGroup(pg, self.gridConfig?.columns.map(c => ({ name: c.name })) || [])));
+                self.total(paged.totalCount || 0);
             } else {
                 self.pageRoleGroups([]);
                 self.total(0);
@@ -96,25 +102,16 @@ function PageRoleGroupViewModel(params, config) {
         }
     };
 
-    self.addPageRoleGroup = function() { 
-        console.log("pageRoleGroup.js -> addPageRoleGroup called"); 
-        window.location.href = 'addPageRoleGroup.jsp'; 
-    };
-
-    self.editPageRoleGroup = function(row) {
-        console.log("pageRoleGroup.js -> editPageRoleGroup: row=", row);
-        localStorage.setItem('editPageRoleGroupId', ko.unwrap(row.id));
-        window.location.href = 'editPageRoleGroup.jsp';
-    };
-
-    self.deletePageRoleGroup = async function(row) {
-        if (!confirm('Are you sure you want to delete this page role group?')) return;
+    self.loadPageRoleGroupById = async function(id) {
+        console.log("pageRoleGroup.js -> loadPageRoleGroupById id=", id);
         try {
-            const id = ko.unwrap(row.id);
-            console.log("pageRoleGroup.js -> deletePageRoleGroup id=", id);
-            await fetch(`${API_PAGE_ROLE_GROUP}/deletePageRoleGroupById?id=${encodeURIComponent(id)}`, { method: 'DELETE', headers: { 'Accept':'application/json' } });
-            self.loadPageRoleGroups();
-        } catch(err) { console.error('Delete pageRoleGroup error:', err); }
+            const res = await fetch(`${API_PAGE_ROLE_GROUP}/findById?id=${encodeURIComponent(id)}`, { headers: { 'Accept': 'application/json' } });
+            const data = await res.json();
+            if (data.status === 'SUCCESS' && data.data)
+                self.currentPageRoleGroup(new PageRoleGroup(data.data, self.formConfig?.fields || []));
+        } catch (err) {
+            console.error('Load pageRoleGroup error:', err);
+        }
     };
 
     self.savePageRoleGroup = async function() {
@@ -123,34 +120,40 @@ function PageRoleGroupViewModel(params, config) {
 
         self.errors({});
         const errs = self.validator ? self.validator.validateForm(self.currentPageRoleGroup(), self.formConfig.fields) : {};
-        console.log("pageRoleGroup.js -> savePageRoleGroup validation errs=", errs);
         if (Object.keys(errs).length > 0) { self.errors(errs); return; }
 
         const payload = ko.toJS(self.currentPageRoleGroup());
         try {
-            let url = `${API_PAGE_ROLE_GROUP}/insertPageRoleGroup`, method='POST';
-            if (self.mode==='edit' && self.currentPageRoleGroup().id && self.currentPageRoleGroup().id()) {
+            let url = `${API_PAGE_ROLE_GROUP}/insertPageRoleGroup`, method = 'POST';
+            if (self.mode === 'edit' && self.currentPageRoleGroup().id && self.currentPageRoleGroup().id()) {
                 url = `${API_PAGE_ROLE_GROUP}/updatePageRoleGroup?id=${encodeURIComponent(self.currentPageRoleGroup().id())}`;
-                method='PUT';
+                method = 'PUT';
             }
-            console.log("pageRoleGroup.js -> savePageRoleGroup url=", url, "method=", method, "payload=", payload);
-            await fetch(url, { method, headers: { 'Content-Type':'application/json' }, body: JSON.stringify(payload) });
+            console.log("pageRoleGroup.js -> savePageRoleGroup: url=", url, "method=", method, "payload=", payload);
+            await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
             self.navigateToPageRoleGroups();
-        } catch(err) { console.error('Save pageRoleGroup error:', err); }
+        } catch (err) {
+            console.error('Save pageRoleGroup error:', err);
+        }
     };
 
-    self.loadPageRoleGroupById = async function(id) {
-        console.log("pageRoleGroup.js -> loadPageRoleGroupById id=", id);
+    self.deletePageRoleGroup = async function(row) {
+        if (!confirm('Are you sure you want to delete this page role group?')) return;
         try {
-            const res = await fetch(`${API_PAGE_ROLE_GROUP}/findById?id=${encodeURIComponent(id)}`, { headers: {'Accept':'application/json'} });
-            const data = await res.json();
-            console.log("pageRoleGroup.js -> loadPageRoleGroupById data=", data);
-            if (data.status==='SUCCESS' && data.data) self.currentPageRoleGroup(new PageRoleGroup(data.data, self.formConfig?.fields || []));
-        } catch(err) { console.error('Load pageRoleGroup error:', err); }
+            const id = ko.unwrap(row.id);
+            console.log("pageRoleGroup.js -> deletePageRoleGroup id=", id);
+            await fetch(`${API_PAGE_ROLE_GROUP}/deletePageRoleGroupById?id=${encodeURIComponent(id)}`, {
+                method: 'DELETE',
+                headers: { 'Accept': 'application/json' }
+            });
+            self.loadPageRoleGroups();
+        } catch (err) {
+            console.error('Delete pageRoleGroup error:', err);
+        }
     };
 
     // ========================
-    // Search / Reset / Pagination / Sort
+    // Search / Pagination / Sort
     // ========================
     self.searchPageRoleGroups = function() { self.page(1); self.loadPageRoleGroups(); };
     self.resetPageRoleGroupSearch = function() {
@@ -158,11 +161,12 @@ function PageRoleGroupViewModel(params, config) {
         self.page(1);
         self.loadPageRoleGroups();
     };
-    self.nextPage = function() { if (self.page() < self.maxPage()) { self.page(self.page()+1); self.loadPageRoleGroups(); } };
-    self.prevPage = function() { if (self.page() > 1) { self.page(self.page()-1); self.loadPageRoleGroups(); } };
+    self.nextPage = function() { if (self.page() < self.maxPage()) { self.page(self.page() + 1); self.loadPageRoleGroups(); } };
+    self.prevPage = function() { if (self.page() > 1) { self.page(self.page() - 1); self.loadPageRoleGroups(); } };
     self.size.subscribe(() => { self.page(1); self.loadPageRoleGroups(); });
+
     self.setSort = function(field) {
-        if (self.sortField() === field) self.sortOrder(self.sortOrder()==='ASC'?'DESC':'ASC');
+        if (self.sortField() === field) self.sortOrder(self.sortOrder() === 'ASC' ? 'DESC' : 'ASC');
         else { self.sortField(field); self.sortOrder('ASC'); }
         self.page(1);
         self.loadPageRoleGroups();
@@ -171,22 +175,48 @@ function PageRoleGroupViewModel(params, config) {
     // ========================
     // Navigation
     // ========================
-    self.navigateToPageRoleGroups = function() { window.location.href='pageRoleGroup.jsp'; };
+    self.navigateToPageRoleGroups = function() { window.location.href = 'pageRoleGroup.jsp'; };
+    self.addPageRoleGroup = function() { window.location.href = 'addPageRoleGroup.jsp'; };
+    self.editPageRoleGroup = function(row) {
+        console.log("pageRoleGroup.js -> editPageRoleGroup row=", row);
+        if (!confirm('Are you sure?')) return;
+        localStorage.setItem('editPageRoleGroupId', ko.unwrap(row.id));
+        window.location.href = 'editPageRoleGroup.jsp';
+    };
+
+    // ========================
+    // Actions
+    // ========================
+    self.getActionsForColumn = function(column) {
+        if (!column.actions) return [];
+        const group = self.actionGroupMap[column.actions];
+        return Array.isArray(group) ? group.filter(a => a.visible !== false) : [];
+    };
+    self.invokeAction = function(action, row) {
+        console.log("pageRoleGroup.js -> invokeAction action=", action, "row=", row);
+        if (action && action.jsMethod && typeof self[action.jsMethod] === 'function') {
+            self[action.jsMethod](row);
+        } else {
+            console.warn("No JS method found for action:", action);
+        }
+    };
 
     // ========================
     // Initialization
     // ========================
-    if (self.mode==='edit') {
+    if (self.mode === 'edit') {
         const editId = localStorage.getItem('editPageRoleGroupId');
-        if (editId) self.loadPageRoleGroupById(parseInt(editId,10));
-    } else if (self.mode==='add') {
+        if (editId) self.loadPageRoleGroupById(editId);
+    } else if (self.mode === 'add') {
         self.currentPageRoleGroup(new PageRoleGroup({}, self.formConfig?.fields || []));
     } else {
         self.loadPageRoleGroups();
     }
 
+    // Wrapper (for generic binding)
     self.currentObject = self.currentPageRoleGroup;
     self.objects = self.pageRoleGroups;
 }
 
+// Export
 export { PageRoleGroup, PageRoleGroupViewModel };
