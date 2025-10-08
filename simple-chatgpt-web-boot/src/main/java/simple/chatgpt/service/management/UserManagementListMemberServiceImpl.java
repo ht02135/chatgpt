@@ -29,16 +29,14 @@ public class UserManagementListMemberServiceImpl implements UserManagementListMe
     // ------------------ SEARCH / LIST ------------------
     @Override
     public PagedResult<UserManagementListMemberPojo> searchMembers(Map<String, Object> params) {
-        logger.debug("searchMembers called");
-        for (Map.Entry<String, Object> entry : params.entrySet()) {
-            logger.debug("searchMembers param {}={}", entry.getKey(), entry.getValue());
-        }
+        logger.debug("searchMembers START");
+        logger.debug("searchMembers params={}", params);
 
         // hung: DONT REMOVE THIS CODE
-        int page = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "page", 0), 0); 
+        int page = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "page", 0), 0);
         int size = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "size", 20), 20);
         int offset = page * size;
-        
+
         String sortField = ParamWrapper.unwrap(params, "sortField", "id");
         String sortDirection = ParamWrapper.unwrap(params, "sortDirection", "ASC").toUpperCase();
 
@@ -48,158 +46,137 @@ public class UserManagementListMemberServiceImpl implements UserManagementListMe
         sqlParams.put("sortField", sortField);
         sqlParams.put("sortDirection", sortDirection);
 
-        for (Map.Entry<String, Object> entry : sqlParams.entrySet()) {
-            logger.debug("searchMembers sqlParam {}={}", entry.getKey(), entry.getValue());
-        }
+        logger.debug("searchMembers sqlParams={}", sqlParams);
 
         List<UserManagementListMemberPojo> members;
         long total = 0;
         try {
-            logger.debug("searchMembers sqlParams={}", sqlParams);
             members = mapper.findMembers(sqlParams);
-            logger.debug("searchMembers params={}", params);
             total = mapper.countMembers(params);
-            logger.debug("searchMembers result size={}", members != null ? members.size() : 0);
-            logger.debug("searchMembers total count={}", total);
         } catch (Exception e) {
             logger.error("Error executing searchMembers", e);
             throw new RuntimeException("Database error during searchMembers", e);
         }
 
+        logger.debug("searchMembers DONE");
         return new PagedResult<>(members, total, page, size);
     }
 
     @Override
     public long countMembers(Map<String, Object> params) {
-        logger.debug("countMembers called");
-        for (Map.Entry<String, Object> entry : params.entrySet()) {
-            logger.debug("countMembers param {}={}", entry.getKey(), entry.getValue());
-        }
+        logger.debug("countMembers START");
+        logger.debug("countMembers params={}", params);
 
         long count;
         try {
             count = mapper.countMembers(params);
-            logger.debug("countMembers result={}", count);
         } catch (Exception e) {
             logger.error("Error executing countMembers", e);
             throw new RuntimeException("Database error during countMembers", e);
         }
 
+        logger.debug("countMembers DONE");
         return count;
     }
 
     // ------------------ READ ------------------
     @Override
     public UserManagementListMemberPojo getMemberById(Map<String, Object> params) {
-        logger.debug("getMemberById called");
-        for (Map.Entry<String, Object> entry : params.entrySet()) {
-            logger.debug("getMemberById param {}={}", entry.getKey(), entry.getValue());
-        }
+        logger.debug("getMemberById START");
+        logger.debug("getMemberById params={}", params);
 
         UserManagementListMemberPojo member = mapper.getMemberById(params);
-        logger.debug("getMemberById result={}", member);
+
+        logger.debug("getMemberById DONE");
         return member;
     }
 
     @Override
     public UserManagementListMemberPojo getMemberByUserName(Map<String, Object> params) {
-        logger.debug("getMemberByUserName called");
-        for (Map.Entry<String, Object> entry : params.entrySet()) {
-            logger.debug("getMemberByUserName param {}={}", entry.getKey(), entry.getValue());
-        }
+        logger.debug("getMemberByUserName START");
+        logger.debug("getMemberByUserName params={}", params);
 
         UserManagementListMemberPojo member = mapper.getMemberByUserName(params);
-        logger.debug("getMemberByUserName result={}", member);
+
+        logger.debug("getMemberByUserName DONE");
         return member;
     }
 
     // ------------------ CREATE ------------------
     @Override
     public UserManagementListMemberPojo createMember(Map<String, Object> params) {
-        logger.debug("createMember called");
-        for (Map.Entry<String, Object> entry : params.entrySet()) {
-            logger.debug("createMember param {}={}", entry.getKey(), entry.getValue());
-        }
-
-        logger.debug("createMember #############");
+        logger.debug("createMember START");
         logger.debug("createMember params={}", params);
-        logger.debug("createMember #############");
+
         mapper.insertMember(params);
-        logger.debug("createMember #############");
-        logger.debug("createMember DONE!!!");
-        logger.debug("createMember #############");
-        
+
+        logger.debug("createMember DONE");
         return (UserManagementListMemberPojo) ParamWrapper.unwrap(params, "member");
     }
 
     @Override
     public int batchCreateMembers(Map<String, Object> params) {
-        logger.debug("batchCreateMembers called");
-        for (Map.Entry<String, Object> entry : params.entrySet()) {
-            logger.debug("batchCreateMembers param {}={}", entry.getKey(), entry.getValue());
-        }
-
+        logger.debug("batchCreateMembers START");
         logger.debug("batchCreateMembers params={}", params);
+
         int count = mapper.batchInsertMembers(params);
-        logger.debug("batchCreateMembers inserted count={}", count);
+
+        logger.debug("batchCreateMembers DONE");
         return count;
     }
 
     // ------------------ UPDATE ------------------
     @Override
     public UserManagementListMemberPojo updateMemberById(Map<String, Object> params) {
-        logger.debug("updateMemberById called");
-        logger.debug("updateMemberById #############");
-        logger.debug("updateMemberById updated params={}", params);
-        for (Map.Entry<String, Object> entry : params.entrySet()) {
-            logger.debug("updateMemberById param {}={}", entry.getKey(), entry.getValue());
-        }
-        logger.debug("updateMemberById #############");
+        logger.debug("updateMemberById START");
+        logger.debug("updateMemberById params={}", params);
 
         mapper.updateMemberById(params);
+
+        logger.debug("updateMemberById DONE");
         return (UserManagementListMemberPojo) ParamWrapper.unwrap(params, "member");
     }
 
     @Override
     public UserManagementListMemberPojo updateMemberByUserName(Map<String, Object> params) {
-        logger.debug("updateMemberByUserName called");
-        for (Map.Entry<String, Object> entry : params.entrySet()) {
-            logger.debug("updateMemberByUserName param {}={}", entry.getKey(), entry.getValue());
-        }
+        logger.debug("updateMemberByUserName START");
+        logger.debug("updateMemberByUserName params={}", params);
 
         mapper.updateMemberByUserName(params);
+
+        logger.debug("updateMemberByUserName DONE");
         return (UserManagementListMemberPojo) ParamWrapper.unwrap(params, "member");
     }
 
     // ------------------ DELETE ------------------
     @Override
     public void deleteMemberById(Map<String, Object> params) {
-        logger.debug("deleteMemberById called");
-        for (Map.Entry<String, Object> entry : params.entrySet()) {
-            logger.debug("deleteMemberById param {}={}", entry.getKey(), entry.getValue());
-        }
+        logger.debug("deleteMemberById START");
+        logger.debug("deleteMemberById params={}", params);
 
         mapper.deleteMemberById(params);
+
+        logger.debug("deleteMemberById DONE");
     }
 
     @Override
     public void deleteMemberByUserName(Map<String, Object> params) {
-        logger.debug("deleteMemberByUserName called");
-        for (Map.Entry<String, Object> entry : params.entrySet()) {
-            logger.debug("deleteMemberByUserName param {}={}", entry.getKey(), entry.getValue());
-        }
+        logger.debug("deleteMemberByUserName START");
+        logger.debug("deleteMemberByUserName params={}", params);
 
         mapper.deleteMemberByUserName(params);
+
+        logger.debug("deleteMemberByUserName DONE");
     }
 
     @Override
     public void deleteMembersByListId(Map<String, Object> params) {
-        logger.debug("deleteMembersByListId called");
-        for (Map.Entry<String, Object> entry : params.entrySet()) {
-            logger.debug("deleteMembersByListId param {}={}", entry.getKey(), entry.getValue());
-        }
+        logger.debug("deleteMembersByListId START");
+        logger.debug("deleteMembersByListId params={}", params);
 
         mapper.deleteMembersByListId(params);
+
+        logger.debug("deleteMembersByListId DONE");
     }
-    
+
 }
