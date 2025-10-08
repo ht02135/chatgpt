@@ -84,30 +84,6 @@ public class ApplicationContextConfig {
         return cache;
     }
 
-    @Bean
-    public GenericCache pageRoleGroupCache() {
-        logger.debug("pageRoleGroupCache called");
-        GenericCache cache = new GenericCache(30L, 1000L);
-        logger.debug("pageRoleGroupCache created with expireAfterMinutes={} maximumSize={}", 30L, 1000L);
-        return cache;
-    }
-    
-    @Bean
-    public GenericCache roleGroupRoleMappingCache() {
-        logger.debug("roleGroupRoleMappingCache called");
-        GenericCache cache = new GenericCache(30L, 1000L);
-        logger.debug("roleGroupRoleMappingCache created with expireAfterMinutes={} maximumSize={}", 30L, 1000L);
-        return cache;
-    }
-
-    @Bean
-    public GenericCache userRoleGroupMappingCache() {
-        logger.debug("userRoleGroupMappingCache called");
-        GenericCache cache = new GenericCache(30L, 1000L);
-        logger.debug("userRoleGroupMappingCache created with expireAfterMinutes={} maximumSize={}", 30L, 1000L);
-        return cache;
-    }
-
     // FROM applicationContext.xml: dataSource bean
     @Bean
     public DataSource dataSource() {
