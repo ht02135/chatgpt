@@ -128,22 +128,10 @@ public class RoleGroupRoleMappingServiceImpl implements RoleGroupRoleMappingServ
         logger.debug("findMappings called");
         logger.debug("findMappings params={}", params);
 
-        /*
-        hung: DONT REMOVE THIS CODE
-        */
-        int page = 0;
-        int size = 20;
-        try {
-            page = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "page", 0), 0);
-        } catch (NumberFormatException e) {
-            logger.warn("Invalid page param {}, defaulting to 0", ParamWrapper.unwrap(params, "page", 0), e);
-        }
-        try {
-            size = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "size", 20), 20);
-        } catch (NumberFormatException e) {
-            logger.warn("Invalid size param {}, defaulting to 20", ParamWrapper.unwrap(params, "size", 20), e);
-        }
-        int offset = (page - 1) * size;
+        // hung: DONT REMOVE THIS CODE
+        int page = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "page", 0), 0); 
+        int size = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "size", 20), 20);
+        int offset = page * size;
 
         params.put("offset", offset);
         params.put("limit", size);
@@ -162,22 +150,10 @@ public class RoleGroupRoleMappingServiceImpl implements RoleGroupRoleMappingServ
         logger.debug("searchMappings called");
         logger.debug("searchMappings params={}", params);
 
-        /*
-        hung: DONT REMOVE THIS CODE
-        */
-        int page = 0;
-        int size = 20;
-        try {
-            page = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "page", 0), 0);
-        } catch (NumberFormatException e) {
-            logger.warn("Invalid page param {}, defaulting to 0", ParamWrapper.unwrap(params, "page", 0), e);
-        }
-        try {
-            size = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "size", 20), 20);
-        } catch (NumberFormatException e) {
-            logger.warn("Invalid size param {}, defaulting to 20", ParamWrapper.unwrap(params, "size", 20), e);
-        }
-        int offset = (page - 1) * size;
+        // hung: DONT REMOVE THIS CODE
+        int page = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "page", 0), 0); 
+        int size = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "size", 20), 20);
+        int offset = page * size;
 
         params.put("offset", offset);
         params.put("limit", size);

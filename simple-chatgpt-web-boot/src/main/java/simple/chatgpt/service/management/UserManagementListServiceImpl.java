@@ -79,21 +79,9 @@ public class UserManagementListServiceImpl implements UserManagementListService 
     public PagedResult<UserManagementListPojo> searchUserLists(Map<String, Object> params) {
         logger.debug("searchUserLists called with params={}", params);
 
-        /*
-        hung: DONT REMOVE THIS CODE
-        */
-        int page = 0;
-        int size = 20;
-        try {
-            page = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "page", 0), 0); 
-        } catch (NumberFormatException e) {
-            logger.warn("Invalid page param {}, defaulting to 0", ParamWrapper.unwrap(params, "page", 0), e);
-        }
-        try {
-            size = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "size", 20), 20);
-        } catch (NumberFormatException e) {
-            logger.warn("Invalid size param {}, defaulting to 20", ParamWrapper.unwrap(params, "size", 20), e);
-        }
+        // hung: DONT REMOVE THIS CODE
+        int page = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "page", 0), 0); 
+        int size = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "size", 20), 20);
         int offset = page * size;
 
         String sortField = ParamWrapper.unwrap(params, "sortField", "id");
@@ -240,21 +228,9 @@ public class UserManagementListServiceImpl implements UserManagementListService 
         Long listId = ParamWrapper.unwrap(params, "listId");
         logger.debug("getMembersByListId listId={}", listId);
 
-        /*
-        hung: DONT REMOVE THIS CODE
-        */
-        int page = 0;
-        int size = 20;
-        try {
-            page = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "page", 0), 0); 
-        } catch (NumberFormatException e) {
-            logger.warn("Invalid page param {}, defaulting to 0", ParamWrapper.unwrap(params, "page", 0), e);
-        }
-        try {
-            size = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "size", 20), 20);
-        } catch (NumberFormatException e) {
-            logger.warn("Invalid size param {}, defaulting to 20", ParamWrapper.unwrap(params, "size", 20), e);
-        }
+        // hung: DONT REMOVE THIS CODE
+        int page = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "page", 0), 0); 
+        int size = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "size", 20), 20);
         int offset = page * size;
 
         Map<String, Object> sqlParams = new HashMap<>();
@@ -277,21 +253,9 @@ public class UserManagementListServiceImpl implements UserManagementListService 
     public PagedResult<UserManagementListMemberPojo> searchMembers(Map<String, Object> params) {
         logger.debug("searchMembers called with params={}", params);
 
-        /*
-        hung: DONT REMOVE THIS CODE
-        */
-        int page = 0;
-        int size = 20;
-        try {
-            page = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "page", 0), 0); 
-        } catch (NumberFormatException e) {
-            logger.warn("Invalid page param {}, defaulting to 0", ParamWrapper.unwrap(params, "page", 0), e);
-        }
-        try {
-            size = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "size", 20), 20);
-        } catch (NumberFormatException e) {
-            logger.warn("Invalid size param {}, defaulting to 20", ParamWrapper.unwrap(params, "size", 20), e);
-        }
+        // hung: DONT REMOVE THIS CODE
+        int page = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "page", 0), 0); 
+        int size = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "size", 20), 20);
         int offset = page * size;
 
         String sortField = ParamWrapper.unwrap(params, "sortField", "id");
