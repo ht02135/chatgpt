@@ -181,7 +181,8 @@ public class RoleGroupManagementServiceImpl implements RoleGroupManagementServic
     @Override
     public RoleGroupManagementPojo findRoleGroupById(Map<String, Object> params) {
         logger.debug("findRoleGroupById called, params={}", params);
-        return groupMapper.findRoleGroupById(params);
+
+        return internalGetRoleGroup(params);
     }
 
     @Override
@@ -267,12 +268,20 @@ public class RoleGroupManagementServiceImpl implements RoleGroupManagementServic
     }
 
     // =================== HELPER ===================
-    public RoleGroupManagementPojo getRoleGroup(Map<String, Object> params) {
-        logger.debug("getRoleGroup called, params={}", params);
-        Long id = ParamWrapper.unwrap(params, "roleGroupId");
-        if (id != null) {
-            return roleGroupCache.get(id, k -> findRoleGroupById(ParamWrapper.wrap("roleGroupId", k)));
-        }
-        return null;
+    // helper handles cache lookup
+    public RoleGroupManagementPojo internalGetRoleGroup(Map<String, Object> params) {
+        Long id = ParamWrapper.unwrap(params, "id");
+        logger.debug("internalGetRoleGroup called, id={}", id);
+
+        return roleGroupCache.get(id, k -> {
+            logger.debug("internalGetRoleGroup cache miss, loading from DB for id={}", k);
+            RoleGroupManagementPojo dbRoleGroup = groupMapper.findRoleGroupById(ParamWrapper.wrap("id", k));
+            if (dbRoleGroup != null) {
+                logger.debug("internalGetRoleGroup loaded from DB: {}", dbRoleGroup);
+            } else {
+                logger.debug("internalGetRoleGroup DB returned null for id={}", k);
+            }
+            return dbRoleGroup;
+        });
     }
 }
