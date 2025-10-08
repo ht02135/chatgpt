@@ -14,7 +14,7 @@
         formConfig: roleGroupVM.formConfig,
         currentObject: roleGroupVM.currentObject,
         errors: roleGroupVM.errors,
-        actions: roleGroupVM.actionGroupMap['roleGroup-form-actions'],
+        actions: roleGroupVM.actionGroupMap['role-group-form-actions'],
         invokeAction: roleGroupVM.invokeAction">
     </customize-form>
 
