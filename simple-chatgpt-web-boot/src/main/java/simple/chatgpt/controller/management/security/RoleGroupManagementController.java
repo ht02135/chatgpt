@@ -37,7 +37,9 @@ public class RoleGroupManagementController implements RoleGroupManagementControl
 
     // ---------------- CREATE ----------------
     @PostMapping("/insertRoleGroup")
-    public ResponseEntity<Response<RoleGroupManagementPojo>> insertRoleGroup(@RequestBody RoleGroupManagementPojo group) {
+    public ResponseEntity<Response<RoleGroupManagementPojo>> insertRoleGroup(
+    	@RequestBody RoleGroupManagementPojo group) 
+    {
         logger.debug("insertRoleGroup START");
         logger.debug("insertRoleGroup group={}", group);
 
@@ -53,7 +55,9 @@ public class RoleGroupManagementController implements RoleGroupManagementControl
 
     // ---------------- UPDATE ----------------
     @PutMapping("/updateRoleGroup")
-    public ResponseEntity<Response<RoleGroupManagementPojo>> updateRoleGroup(@RequestBody Map<String, Object> params) {
+    public ResponseEntity<Response<RoleGroupManagementPojo>> updateRoleGroup(
+    	@RequestBody Map<String, Object> params) 
+    {
         logger.debug("updateRoleGroup START");
         logger.debug("updateRoleGroup params={}", params);
 
@@ -65,7 +69,9 @@ public class RoleGroupManagementController implements RoleGroupManagementControl
 
     // ---------------- DELETE ----------------
     @DeleteMapping("/deleteRoleGroupById")
-    public ResponseEntity<Response<Void>> deleteRoleGroupById(@RequestParam Long roleGroupId) {
+    public ResponseEntity<Response<Void>> deleteRoleGroupById(
+    	@RequestParam Long roleGroupId) 
+    {
         logger.debug("deleteRoleGroupById START");
         logger.debug("deleteRoleGroupById roleGroupId={}", roleGroupId);
 
