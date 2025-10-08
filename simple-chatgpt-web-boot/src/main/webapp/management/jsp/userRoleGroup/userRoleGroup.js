@@ -85,10 +85,12 @@ function UserRoleGroupViewModel(params, config) {
             const data = await res.json();
             console.log("userRoleGroup.js -> loadUserRoleGroups: response=", data);
 
+			console.log("userRoleGroup.js -> loadUserRoleGroups: data.status=", data.status);
+			console.log("userRoleGroup.js -> loadUserRoleGroups: data.data=", data.data);
             if (data.status === 'SUCCESS' && data.data) {
                 const paged = data.data;
                 self.userRoleGroups(paged.items.map(r => new UserRoleGroup(r, self.gridConfig?.columns.map(c => ({ name: c.name })) || [])));
-                if (paged.totalCount && self.total() !== paged.totalCount) self.total(paged.totalCount);
+				if (paged.totalCount && self.total() !== paged.totalCount) self.total(paged.totalCount);
             } else {
                 self.userRoleGroups([]);
                 self.total(0);
