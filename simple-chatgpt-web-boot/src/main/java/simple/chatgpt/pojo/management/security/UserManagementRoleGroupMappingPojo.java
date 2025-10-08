@@ -12,8 +12,6 @@ public class UserManagementRoleGroupMappingPojo {
     private Long id;
     private Long userId;
     private Long roleGroupId;
-    private String userName;         // From join with user_management
-    private String roleGroupName;    // From join with role_group_management
     private Timestamp createdAt;
     private Timestamp updatedAt;
 
@@ -24,6 +22,7 @@ public class UserManagementRoleGroupMappingPojo {
     // ---------------------
     // Getters and Setters
     // ---------------------
+
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
@@ -32,12 +31,6 @@ public class UserManagementRoleGroupMappingPojo {
 
     public Long getRoleGroupId() { return roleGroupId; }
     public void setRoleGroupId(Long roleGroupId) { this.roleGroupId = roleGroupId; }
-
-    public String getUserName() { return userName; }
-    public void setUserName(String userName) { this.userName = userName; }
-
-    public String getRoleGroupName() { return roleGroupName; }
-    public void setRoleGroupName(String roleGroupName) { this.roleGroupName = roleGroupName; }
 
     public Timestamp getCreatedAt() { return createdAt; }
     public void setCreatedAt(Timestamp createdAt) { this.createdAt = createdAt; }
@@ -51,8 +44,6 @@ public class UserManagementRoleGroupMappingPojo {
                 "id=" + id +
                 ", userId=" + userId +
                 ", roleGroupId=" + roleGroupId +
-                ", userName='" + userName + '\'' +
-                ", roleGroupName='" + roleGroupName + '\'' +
                 ", createdAt=" + createdAt +
                 ", updatedAt=" + updatedAt +
                 '}';
