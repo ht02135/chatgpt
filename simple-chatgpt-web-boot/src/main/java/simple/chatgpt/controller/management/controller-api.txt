@@ -1,0 +1,44 @@
+
+| API / Action      | `user.js`                              | `userListMember.js`                              | `role.js`                              | `roleGroup.js`                                                | `roleGroupRole.js`                                                        |
+| ----------------- | -------------------------------------- | ------------------------------------------------ | -------------------------------------- | ------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| **Create / save** | url=`/create` b=`userObj` r=n/a        | url=`/create` b=`userListMemberObj` r=n/a        | url=`/add` b=`roleObj` r=n/a           | url=`/insertRoleGroup` b=`roleGroupObj` r=n/a                 | url=`/insertRoleGroupRole` b=`roleGroupRoleObj` r=n/a                     |
+| **Update / save** | url=`/update?id=123` b=`userObj` r=n/a | url=`/update?id=123` b=`userListMemberObj` r=n/a | url=`/update?id=123` b=`roleObj` r=n/a | url=`/updateRoleGroup?roleGroupId=123` b=`roleGroupObj` r=n/a | url=`/updateRoleGroupRole?roleGroupRoleId=123` b=`roleGroupRoleObj` r=n/a |
+| **Get / list**    | url=`/list` b=n/a r=`[userObj]`        | url=`/list` b=n/a r=`[userListMemberObj]`        | url=`/list` b=n/a r=`[roleObj]`        | url=`/getRoleGroups` b=n/a r=`[roleGroupObj]`                 | url=`/getRoleGroupRoles` b=n/a r=`[roleGroupRoleObj]`                     |
+| **Get / by id**   | url=`/get?id=123` b=n/a r=`userObj`    | url=`/get?id=123` b=n/a r=`userListMemberObj`    | url=`/get?id=123` b=n/a r=`roleObj`    | url=`/getRoleGroup?id=123` b=n/a r=`roleGroupObj`             | url=`/getRoleGroupRole?id=123` b=n/a r=`roleGroupRoleObj`                 |
+| **Delete**        | url=`/delete?id=123` b=n/a r=n/a       | url=`/delete?id=123` b=n/a r=n/a                 | url=`/delete?id=123` b=n/a r=n/a       | url=`/deleteRoleGroup?roleGroupId=123` b=n/a r=n/a            | url=`/deleteRoleGroupRole?roleGroupRoleId=123` b=n/a r=n/a                |
+
+| API / Action             | `userList.js`                                  | `property.js`                                  | `roleGroupRole.js`                                                 | `userRoleGroup.js`                                                        |
+| ------------------------ | ---------------------------------------------- | ---------------------------------------------- | ------------------------------------------------------------------ | --------------------------------------------------------------------------|
+| **Create / Save**        | n/a                                            | url=`/create` b=`currentProperty` r=n/a        | url=`/insertPageRoleGroup` b=`currentPageRoleGroup` r=n/a          | url=`/insertUserRoleGroup` b=`currentUserRoleGroup` r=n/a                 |
+| **Update / Save**        | n/a                                            | url=`/update?id=123` b=`currentProperty` r=n/a | url=`/updatePageRoleGroup?id=123` b=`currentPageRoleGroup` r=n/a   | url=`/updateUserRoleGroup?id=123` b=`currentUserRoleGroup` r=n/a          |
+| **Delete**               | url=`/delete?listId=123` b=n/a r=n/a           | n/a                                            | url=`/deletePageRoleGroupById?id=123` b=n/a r=n/a                  | url=`/deleteUserRoleGroupById?id=123` b=n/a r=n/a                         |
+| **Load / Search / List** | url=`/userlists?query` b=n/a r=`[userListObj]` | url=`/?query` b=n/a r=`[currentProperty]`      | url=`/searchPageRoleGroups?query` b=n/a r=`[currentPageRoleGroup]` | url=`/searchUserRoleGroups?query` b=n/a r=`[currentUserRoleGroup]`        |
+| **Load by ID**           | url=`/get?listId=123` b=n/a r=`userListObj`    | url=`/get?id=123` b=n/a r=`currentProperty`    | url=`/findById?id=123` b=n/a r=`currentPageRoleGroup`              | url=`/findByUserId?userId=123` b=n/a r=`currentUserRoleGroup`             |
+		
+
+/////////////////////
+
+all 5 core API types (Create/Update/List/Get/Delete)
+
+| Action        | URL            | b=`payload`     | r=`return`        |
+| ------------- | -------------- | --------------- | ----------------- |
+| Create / Save | /create        | b=`<entity>Obj` | r=n/a             |
+| Update / Save | /update?id=123 | b=`<entity>Obj` | r=n/a             |
+| Get / List    | /list          | b=n/a           | r=`[<entity>Obj]` |
+| Get / by ID   | /get?id=123    | b=n/a           | r=`<entity>Obj`   |
+| Delete        | /delete?id=123 | b=n/a           | r=n/a             |
+																																															url=`/findByRoleGroupId?roleGroupId=123` b=n/a r=`[currentUserRoleGroup]` |
+/////////////////////
+
+/create → userObj
+/create: This is the URL path of the API you call to create a new entity (in this case, a user).
+userObj: This represents the payload or object you send in the request body when creating a user.
+
+/update?id=123 → userObj
+
+/////////////////
+
+
+/update?id=123: This is the URL path for updating an existing user, with 123 being the user ID you want to update.
+userObj: This is the updated data you send in the request body.
+
