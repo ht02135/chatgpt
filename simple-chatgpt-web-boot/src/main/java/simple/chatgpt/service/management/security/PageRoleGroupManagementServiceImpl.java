@@ -9,7 +9,6 @@ import javax.annotation.PostConstruct;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import simple.chatgpt.config.management.loader.SecurityConfigLoader;
@@ -17,7 +16,6 @@ import simple.chatgpt.config.management.security.PageRoleGroupConfig;
 import simple.chatgpt.mapper.management.security.PageRoleGroupManagementMapper;
 import simple.chatgpt.pojo.management.security.PageRoleGroupManagementPojo;
 import simple.chatgpt.pojo.management.security.RoleGroupManagementPojo;
-import simple.chatgpt.util.GenericCache;
 import simple.chatgpt.util.PagedResult;
 import simple.chatgpt.util.ParamWrapper;
 import simple.chatgpt.util.SafeConverter;
@@ -32,32 +30,23 @@ public class PageRoleGroupManagementServiceImpl implements PageRoleGroupManageme
     private final RoleGroupManagementService roleGroupService;
     private final SecurityConfigLoader securityConfigLoader;
 
-    private final GenericCache<Long, PageRoleGroupManagementPojo> pageRoleGroupCache;
-    private final GenericCache<Long, List<PageRoleGroupManagementPojo>> roleGroupCache;
-
     @Autowired
     public PageRoleGroupManagementServiceImpl(
         PageRoleGroupManagementMapper pageMapper,
         UserManagementRoleGroupMappingService userRoleGroupMappingService,
         RoleGroupManagementService roleGroupService,
-        SecurityConfigLoader securityConfigLoader,
-        @Qualifier("pageRoleGroupCache") GenericCache<Long, PageRoleGroupManagementPojo> pageRoleGroupCache,
-        @Qualifier("roleGroupCache") GenericCache<Long, List<PageRoleGroupManagementPojo>> roleGroupCache) 
-   {
+        SecurityConfigLoader securityConfigLoader) 
+    {
         logger.debug("PageRoleGroupManagementServiceImpl constructor called");
         logger.debug("pageMapper={}", pageMapper);
         logger.debug("userRoleGroupMappingService={}", userRoleGroupMappingService);
         logger.debug("roleGroupService={}", roleGroupService);
         logger.debug("securityConfigLoader={}", securityConfigLoader);
-        logger.debug("pageRoleGroupCache={}", pageRoleGroupCache);
-        logger.debug("roleGroupCache={}", roleGroupCache);
 
         this.pageMapper = pageMapper;
         this.userRoleGroupMappingService = userRoleGroupMappingService;
         this.roleGroupService = roleGroupService;
         this.securityConfigLoader = securityConfigLoader;
-        this.pageRoleGroupCache = pageRoleGroupCache;
-        this.roleGroupCache = roleGroupCache;
     }
 
     @PostConstruct
@@ -69,16 +58,14 @@ public class PageRoleGroupManagementServiceImpl implements PageRoleGroupManageme
     private void initializeDB() {
         logger.debug("initializeDB called for PageRoleGroupManagementService");
 
-        if (securityConfigLoader == null || pageRoleGroupCache == null || roleGroupCache == null) {
-            logger.error("Missing required beans: securityConfigLoader={}, pageRoleGroupCache={}, roleGroupCache={}", 
-                securityConfigLoader, pageRoleGroupCache, roleGroupCache);
+        if (securityConfigLoader == null) {
+            logger.error("Missing required bean: securityConfigLoader={}", securityConfigLoader);
             return;
         }
 
         List<PageRoleGroupConfig> pageConfigs = securityConfigLoader.getPageRoleGroups();
         logger.debug("Loaded page-role group configs from XML, size={}", pageConfigs.size());
 
-        // ----------- FETCH ALL ROLE GROUPS ONCE -----------
         Map<String, RoleGroupManagementPojo> roleGroupByName = roleGroupService.getAllRoleGroups()
                 .getItems()
                 .stream()
@@ -96,7 +83,6 @@ public class PageRoleGroupManagementServiceImpl implements PageRoleGroupManageme
                 pagePojo = new PageRoleGroupManagementPojo();
                 pagePojo.setUrlPattern(urlPattern);
 
-                // ----------- GET ROLE GROUP FROM PRE-FETCHED MAP -----------
                 RoleGroupManagementPojo roleGroup = roleGroupByName.get(roleGroupName);
                 if (roleGroup == null) {
                     logger.warn("Role group '{}' not found, skipping page-role mapping for '{}'", roleGroupName, urlPattern);
@@ -108,9 +94,8 @@ public class PageRoleGroupManagementServiceImpl implements PageRoleGroupManageme
                 logger.debug("Inserted new page-role group id={} urlPattern={} roleGroupId={}",
                         pagePojo.getId(), urlPattern, roleGroup.getId());
             } else {
-                pagePojo = existingPage;
                 logger.debug("Page-role group already exists id={} urlPattern={} roleGroupId={}",
-                        pagePojo.getId(), urlPattern, existingPage.getRoleGroup().getId());
+                        existingPage.getId(), urlPattern, existingPage.getRoleGroup().getId());
             }
         }
 
@@ -124,11 +109,9 @@ public class PageRoleGroupManagementServiceImpl implements PageRoleGroupManageme
         PageRoleGroupManagementPojo pageRoleGroup = ParamWrapper.unwrap(params, "pageRoleGroup");
         logger.debug("insertPageRoleGroup before insert pageRoleGroup={}", pageRoleGroup);
 
-        // Insert into DB
         pageMapper.insertPageRoleGroup(ParamWrapper.wrap("pageRoleGroup", pageRoleGroup));
         logger.debug("insertPageRoleGroup after insert, pageRoleGroup.id={}", pageRoleGroup.getId());
 
-        // Re-fetch from DB to get all populated fields (timestamps, role group join, etc.)
         PageRoleGroupManagementPojo fullPageRoleGroup = pageMapper.findById(
             ParamWrapper.wrap("id", pageRoleGroup.getId())
         );
@@ -156,9 +139,8 @@ public class PageRoleGroupManagementServiceImpl implements PageRoleGroupManageme
         Long id = ParamWrapper.unwrap(params, "id");
         logger.debug("deletePageRoleGroupById called, id={}", id);
 
-        pageRoleGroupCache.invalidate(id);
         pageMapper.deletePageRoleGroupById(ParamWrapper.wrap("id", id));
-        logger.debug("Deleted page-role group from DB and cache id={}", id);
+        logger.debug("Deleted page-role group from DB, id={}", id);
     }
 
     @Override
@@ -169,8 +151,6 @@ public class PageRoleGroupManagementServiceImpl implements PageRoleGroupManageme
         long totalCount = items.size();
 
         logger.debug("findAllPageRoleGroups results size={}", items.size());
-        logger.debug("findAllPageRoleGroups totalCount={}", totalCount);
-
         return new PagedResult<>(items, totalCount, 1, (int) totalCount);
     }
 
@@ -179,7 +159,7 @@ public class PageRoleGroupManagementServiceImpl implements PageRoleGroupManageme
         Long id = ParamWrapper.unwrap(params, "id");
         logger.debug("findById called, id={}", id);
 
-        return pageRoleGroupCache.get(id, k -> pageMapper.findById(ParamWrapper.wrap("id", k)));
+        return pageMapper.findById(ParamWrapper.wrap("id", id));
     }
 
     @Override
@@ -204,8 +184,6 @@ public class PageRoleGroupManagementServiceImpl implements PageRoleGroupManageme
         long totalCount = items.size();
 
         logger.debug("findByRoleGroupId results size={}", items.size());
-        logger.debug("findByRoleGroupId totalCount={}", totalCount);
-
         return new PagedResult<>(items, totalCount, 1, (int) totalCount);
     }
 
@@ -237,8 +215,6 @@ public class PageRoleGroupManagementServiceImpl implements PageRoleGroupManageme
         long totalCount = pageMapper.countPageRoleGroups(params);
 
         logger.debug("findPageRoleGroups results size={}", items.size());
-        logger.debug("findPageRoleGroups totalCount={}", totalCount);
-
         return new PagedResult<>(items, totalCount, page, size);
     }
 
@@ -270,8 +246,6 @@ public class PageRoleGroupManagementServiceImpl implements PageRoleGroupManageme
         long totalCount = pageMapper.countPageRoleGroups(params);
 
         logger.debug("searchPageRoleGroups results size={}", items.size());
-        logger.debug("searchPageRoleGroups totalCount={}", totalCount);
-
         return new PagedResult<>(items, totalCount, page, size);
     }
 
