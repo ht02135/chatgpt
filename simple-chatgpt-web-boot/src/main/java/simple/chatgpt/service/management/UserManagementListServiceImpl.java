@@ -64,7 +64,13 @@ public class UserManagementListServiceImpl implements UserManagementListService 
         this.downloadConfigLoader = downloadConfigLoader;
         this.uploadConfigLoader = uploadConfigLoader;
 
-        String webappRoot = System.getProperty("catalina.base") + "/webapps/chatgpt";
+        // ================================
+        // FIX: Use deployed WAR folder dynamically
+        // ================================
+        String webappsDir = System.getProperty("catalina.base") + "/webapps";
+        String warName = System.getProperty("war.name", "chatgpt-production"); // provide default
+        String webappRoot = webappsDir + "/" + warName;
+
         storageDir = Paths.get(webappRoot, "data/management/user_lists");
 
         if (!Files.exists(storageDir)) {
@@ -479,6 +485,4 @@ public class UserManagementListServiceImpl implements UserManagementListService 
 
         logger.debug("setFieldValue DONE");
     }
-
-
 }
