@@ -100,10 +100,7 @@ public class RoleGroupManagementController implements RoleGroupManagementControl
 
         PagedResult<RoleGroupManagementPojo> result = roleGroupService.findAllRoleGroups();
 
-        logger.debug("findAllRoleGroups items={}", result.getItems());
-        logger.debug("findAllRoleGroups totalCount={}", result.getTotalCount());
         logger.debug("findAllRoleGroups return={}", result);
-
         return ResponseEntity.ok(Response.success("All role groups fetched successfully", result, HttpStatus.OK.value()));
     }
 
@@ -113,10 +110,7 @@ public class RoleGroupManagementController implements RoleGroupManagementControl
 
         PagedResult<RoleGroupManagementPojo> result = roleGroupService.getAllRoleGroups();
 
-        logger.debug("getAllRoleGroups items={}", result.getItems());
-        logger.debug("getAllRoleGroups totalCount={}", result.getTotalCount());
         logger.debug("getAllRoleGroups return={}", result);
-
         return ResponseEntity.ok(Response.success("All role groups fetched successfully", result, HttpStatus.OK.value()));
     }
 
@@ -128,10 +122,7 @@ public class RoleGroupManagementController implements RoleGroupManagementControl
 
         PagedResult<RoleGroupManagementPojo> result = roleGroupService.findRoleGroups(params);
 
-        logger.debug("findRoleGroups items={}", result.getItems());
-        logger.debug("findRoleGroups totalCount={}", result.getTotalCount());
         logger.debug("findRoleGroups return={}", result);
-
         return ResponseEntity.ok(Response.success("Filtered role groups fetched successfully", result, HttpStatus.OK.value()));
     }
 
@@ -142,10 +133,7 @@ public class RoleGroupManagementController implements RoleGroupManagementControl
 
         PagedResult<RoleGroupManagementPojo> result = roleGroupService.searchRoleGroups(params);
 
-        logger.debug("searchRoleGroups items={}", result.getItems());
-        logger.debug("searchRoleGroups totalCount={}", result.getTotalCount());
         logger.debug("searchRoleGroups return={}", result);
-
         return ResponseEntity.ok(Response.success("Searched role groups fetched successfully", result, HttpStatus.OK.value()));
     }
 
