@@ -30,7 +30,7 @@
     <!-- Grid -->
     <customize-grid params="
         gridConfig: UserRoleGroupVM.gridConfig,
-        items: UserRoleGroupVM.mappings,
+        items: UserRoleGroupVM.userRoleGroups,
         sortField: UserRoleGroupVM.sortField,
         sortOrder: UserRoleGroupVM.sortOrder,
         setSort: UserRoleGroupVM.setSort,
@@ -61,15 +61,23 @@ import Validator from "../../js/validation.js";
     const searchConfig   = await configLoader.getFormConfig("searchUserRoleGroup");
     const actionGroupMap = await configLoader.getActionGroupMap();
 
+    // Initialize ViewModel
     window.UserRoleGroupVM = new UserRoleGroupViewModel(
         { mode: "list" },
         { grid: gridConfig, search: searchConfig, actionGroups: actionGroupMap }
     );
 
+    // Initialize ViewModel
     UserRoleGroupVM.validator = await Validator.build(configLoader);
+
+    // Initialize observable for errors
     UserRoleGroupVM.errors = ko.observable({});
 
+    // Apply Knockout bindings
     ko.applyBindings({ UserRoleGroupVM });
+
+	// Initial load of User Role Groups
+    await UserRoleGroupVM.loadUserRoleGroups();
 })();
 </script>
 </body>

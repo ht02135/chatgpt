@@ -57,20 +57,27 @@ import Validator from "../../js/validation.js";
 (async function() {
     console.log("Initializing Page Role Group page...");
 
+	// Load configs
     const gridConfig = await configLoader.getGridConfig("pageRoleGroups");
     const searchConfig = await configLoader.getFormConfig("searchPageRoleGroup");
     const actionGroupMap = await configLoader.getActionGroupMap();
 
+	// Initialize ViewModel
     window.PageRoleGroupVM = new PageRoleGroupViewModel(
         { mode: "list" },
         { grid: gridConfig, search: searchConfig, actionGroups: actionGroupMap }
     );
 
+ 	// Build Validator
     PageRoleGroupVM.validator = await Validator.build(configLoader);
+
+    // Initial load of Role Groups
     PageRoleGroupVM.errors = ko.observable({});
 
+    // Initial load of Role Groups
     ko.applyBindings({ PageRoleGroupVM });
-
+    
+    // Initial load of Page Role Groups
     await PageRoleGroupVM.loadPageRoleGroups();
 })();
 </script>
