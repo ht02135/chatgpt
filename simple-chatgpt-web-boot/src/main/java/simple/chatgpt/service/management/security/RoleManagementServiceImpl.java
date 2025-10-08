@@ -36,14 +36,14 @@ public class RoleManagementServiceImpl implements RoleManagementService {
 
     @Autowired
     public RoleManagementServiceImpl(
-    	RoleManagementMapper roleMapper,
-        @Qualifier("roleCache") GenericCache<Long, RoleManagementPojo> roleCache,
-        SecurityConfigLoader securityConfigLoader) 
-    {
-        logger.debug("RoleManagementServiceImpl constructor called");
-        logger.debug("roleMapper={}", roleMapper);
-        logger.debug("roleCache={}", roleCache);
-        logger.debug("securityConfigLoader={}", securityConfigLoader);
+            RoleManagementMapper roleMapper,
+            @Qualifier("roleCache") GenericCache<Long, RoleManagementPojo> roleCache,
+            SecurityConfigLoader securityConfigLoader) {
+
+        logger.debug("RoleManagementServiceImpl START");
+        logger.debug("RoleManagementServiceImpl roleMapper={}", roleMapper);
+        logger.debug("RoleManagementServiceImpl roleCache={}", roleCache);
+        logger.debug("RoleManagementServiceImpl securityConfigLoader={}", securityConfigLoader);
 
         this.roleMapper = roleMapper;
         this.roleCache = roleCache;
@@ -51,127 +51,110 @@ public class RoleManagementServiceImpl implements RoleManagementService {
 
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
         this.validator = factory.getValidator();
-        logger.debug("Validator initialized");
-        
-        logger.debug("constructor called ##############");
-        logger.debug("constructor called");
-        logger.debug("constructor called ##############");
+
+        logger.debug("RoleManagementServiceImpl DONE");
     }
 
     @PostConstruct
     public void postConstruct() {
-        logger.debug("postConstruct called ##############");
-        logger.debug("postConstruct called");
-        logger.debug("postConstruct called ##############");
+        logger.debug("postConstruct START");
         initializeDB();
+        logger.debug("postConstruct DONE");
     }
 
     public void initializeDB() {
-        logger.debug("initializeDB called");
+        logger.debug("initializeDB START");
 
         if (securityConfigLoader == null || roleCache == null) {
-            logger.debug("initializeDB called ##############");
-            logger.error("Missing required beans: securityConfigLoader={}, roleCache={}", 
-                securityConfigLoader, roleCache);
-            logger.debug("initializeDB called ##############");
+            logger.debug("initializeDB DONE");
             return;
         }
 
-        // ----------- LOAD DEFINED ROLES FROM CONFIG -----------
         List<RoleConfig> definedRoles = securityConfigLoader.getRoles();
-        logger.debug("Loaded roles from config size={}", definedRoles.size());
 
-        // ----------- FETCH ALL EXISTING ROLES ONCE -----------
         PagedResult<RoleManagementPojo> rolePagedResult = findAllRoles();
-        logger.debug("Fetched all roles pagedResult={}", rolePagedResult);
 
         List<RoleManagementPojo> existingRoles = rolePagedResult.getItems();
-        logger.debug("Fetched all existing roles size={}", existingRoles.size());
 
         Map<String, RoleManagementPojo> roleByName = existingRoles
                 .stream()
                 .collect(Collectors.toMap(RoleManagementPojo::getRoleName, r -> r));
-        logger.debug("Mapped existing roles by roleName size={}", roleByName.size());
 
-        // ----------- PROCESS EACH CONFIG ROLE -----------
         for (RoleConfig roleConfig : definedRoles) {
             String roleName = roleConfig.getName();
             String description = roleConfig.getDescription();
 
-            logger.debug("Processing roleConfig roleName={}", roleName);
-            logger.debug("Processing roleConfig description={}", description);
-
             RoleManagementPojo existing = roleByName.get(roleName);
-            logger.debug("initializeDB existing={}", existing);
 
             if (existing == null) {
-                logger.debug("initializeDB existing == null roleName={}", roleName);
-
                 RoleManagementPojo rolePojo = new RoleManagementPojo();
                 rolePojo.setRoleName(roleName);
                 rolePojo.setDescription(description);
 
-                logger.debug("initializeDB rolePojo={}", rolePojo);
-
                 RoleManagementPojo inserted = insertRole(ParamWrapper.wrap("role", rolePojo));
-                logger.debug("Inserted new role inserted={}", inserted);
-                logger.debug("Inserted new role inserted.id={}", inserted.getId());
-                logger.debug("Inserted new role inserted.roleName={}", inserted.getRoleName());
 
-                // update map so next iterations can use it
                 roleByName.put(roleName, inserted);
-            } else {
-                logger.debug("initializeDB existing already present id={}", existing.getId());
-                logger.debug("initializeDB existing roleName={}", existing.getRoleName());
             }
         }
 
-        logger.debug("initializeDB completed");
+        logger.debug("initializeDB DONE");
     }
 
-    // -------------------- PAGED METHODS --------------------
     @Override
     public PagedResult<RoleManagementPojo> findAllRoles() {
-        logger.debug("findAllRoles called");
+        logger.debug("findAllRoles START");
 
         List<RoleManagementPojo> items = roleMapper.findAllRoles();
         long totalCount = items != null ? items.size() : 0;
 
-        logger.debug("findAllRoles results size={}", totalCount);
-
-        return new PagedResult<>(items, totalCount, 1, (int) totalCount);
+        PagedResult<RoleManagementPojo> result = new PagedResult<>(items, totalCount, 1, (int) totalCount);
+        logger.debug("findAllRoles return={}", result);
+        return result;
     }
 
     @Override
     public PagedResult<RoleManagementPojo> getAllRoles() {
-        logger.debug("getAllRoles called");
+        logger.debug("getAllRoles START");
 
         List<RoleManagementPojo> items = roleMapper.getAllRoles();
         long totalCount = items != null ? items.size() : 0;
 
-        logger.debug("getAllRoles results size={}", totalCount);
-
-        return new PagedResult<>(items, totalCount, 1, (int) totalCount);
+        PagedResult<RoleManagementPojo> result = new PagedResult<>(items, totalCount, 1, (int) totalCount);
+        logger.debug("getAllRoles return={}", result);
+        return result;
     }
 
     @Override
     public PagedResult<RoleManagementPojo> findRoles(Map<String, Object> params) {
-        return fetchPaged(params, roleMapper::findRoles, roleMapper::countRoles, "findRoles");
+        logger.debug("findRoles START");
+        logger.debug("findRoles params={}", params);
+
+        PagedResult<RoleManagementPojo> result = fetchPaged(params, roleMapper::findRoles, roleMapper::countRoles, "findRoles");
+        logger.debug("findRoles return={}", result);
+        return result;
     }
 
     @Override
     public PagedResult<RoleManagementPojo> searchRoles(Map<String, Object> params) {
-        return fetchPaged(params, roleMapper::searchRoles, roleMapper::countRoles, "searchRoles");
+        logger.debug("searchRoles START");
+        logger.debug("searchRoles params={}", params);
+
+        PagedResult<RoleManagementPojo> result = fetchPaged(params, roleMapper::searchRoles, roleMapper::countRoles, "searchRoles");
+        logger.debug("searchRoles return={}", result);
+        return result;
     }
 
     private PagedResult<RoleManagementPojo> fetchPaged(Map<String, Object> params,
                                                        java.util.function.Function<Map<String, Object>, List<RoleManagementPojo>> listFunc,
                                                        java.util.function.Function<Map<String, Object>, Long> countFunc,
                                                        String methodName) {
-        logger.debug("{} called, params={}", methodName, params);
+        logger.debug(methodName + " START");
+        logger.debug(methodName + " params={}", params);
 
-        // hung: DONT REMOVE THIS CODE
-        int page = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "page", 0), 0); 
+        /*
+          hung: DONT REMOVE THIS CODE
+        */
+        int page = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "page", 0), 0);
         int size = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "size", 20), 20);
         int offset = page * size;
 
@@ -181,115 +164,105 @@ public class RoleManagementServiceImpl implements RoleManagementService {
         List<RoleManagementPojo> items = listFunc.apply(params);
         long totalCount = countFunc.apply(params);
 
-        logger.debug("{} results size={}", methodName, items.size());
-        logger.debug("{} totalCount={}", methodName, totalCount);
-
-        return new PagedResult<>(items, totalCount, page, size);
+        PagedResult<RoleManagementPojo> result = new PagedResult<>(items, totalCount, page, size);
+        logger.debug(methodName + " return={}", result);
+        return result;
     }
 
-    // -------------------- SINGLE ROLE METHODS --------------------
     @Override
     public RoleManagementPojo findRoleById(Map<String, Object> params) {
-        logger.debug("findRoleById called params={}", params);
+        logger.debug("findRoleById START");
+        logger.debug("findRoleById params={}", params);
+
         Long roleId = ((Number) ParamWrapper.unwrap(params, "roleId")).longValue();
-        logger.debug("roleId={}", roleId);
-        return internalFindRoleById(roleId);
+
+        RoleManagementPojo result = internalFindRoleById(roleId);
+        logger.debug("findRoleById return={}", result);
+        return result;
     }
 
     @Override
     public long countRoles(Map<String, Object> params) {
-        logger.debug("countRoles called params={}", params);
-        return roleMapper.countRoles(params);
+        logger.debug("countRoles START");
+        logger.debug("countRoles params={}", params);
+
+        long count = roleMapper.countRoles(params);
+        logger.debug("countRoles return={}", count);
+        return count;
     }
 
     @Override
     public RoleManagementPojo insertRole(Map<String, Object> params) {
-        logger.debug("insertRole called params={}", params);
+        logger.debug("insertRole START");
+        logger.debug("insertRole params={}", params);
 
-        // Extract role object from params
         RoleManagementPojo role = ParamWrapper.unwrap(params, "role");
 
-        // Perform insert
-        logger.debug("insertRole called ##############");
-        logger.debug("insertRole role before insert={}", role);
-        logger.debug("insertRole called ##############");
         roleMapper.insertRole(ParamWrapper.wrap("role", role));
-        logger.debug("insertRole insert completed, role id={}", role.getId());
 
-        // Re-fetch the role from DB to get all populated fields
         RoleManagementPojo fullRole = internalGetRole(ParamWrapper.wrap("roleName", role.getRoleName()));
-        logger.debug("insertRole called ##############");
-        logger.debug("insertRole re-fetched fullRole={}", fullRole);
-        logger.debug("insertRole called ##############");
-
-        logger.debug("insertRole called ##############");
-        logger.debug("insertRole fullRole={}",fullRole);
-        logger.debug("insertRole called ##############");
+        logger.debug("insertRole return={}", fullRole);
         return fullRole;
     }
 
     @Override
     public RoleManagementPojo updateRole(Map<String, Object> params) {
-        logger.debug("updateRole called params={}", params);
+        logger.debug("updateRole START");
+        logger.debug("updateRole params={}", params);
+
         RoleManagementPojo role = ParamWrapper.unwrap(params, "role");
         RoleManagementPojo existing = internalGetRole(params);
 
         if (existing == null) {
-            logger.debug("No existing role found, update aborted params={}", params);
+            logger.debug("updateRole return=null");
             return null;
         }
 
         role.setId(existing.getId());
         roleMapper.updateRole(ParamWrapper.wrap("role", role));
-        logger.debug("updateRole updated cache id={} roleName={}", existing.getId(), role.getRoleName());
+
+        logger.debug("updateRole return={}", role);
         return role;
     }
 
     @Override
     public void deleteRoleById(Map<String, Object> params) {
-        logger.debug("deleteRoleById called params={}", params);
+        logger.debug("deleteRoleById START");
+        logger.debug("deleteRoleById params={}", params);
+
         RoleManagementPojo existing = internalGetRole(params);
         if (existing != null) {
             roleMapper.deleteRoleById(ParamWrapper.wrap("roleId", existing.getId()));
             roleCache.invalidate(existing.getId());
-            logger.debug("deleteRoleById deleted role id={} roleName={}", existing.getId(), existing.getRoleName());
         }
+
+        logger.debug("deleteRoleById DONE");
     }
 
-    // -------------------- Private Helpers --------------------
     private RoleManagementPojo internalFindRoleById(Long id) {
-        logger.debug("internalFindRoleById called id={}", id);
-        return roleCache.get(id, k -> {
-        	logger.debug("internalFindRoleById roleCache.get called k={}", k);
-            RoleManagementPojo dbRole = roleMapper.findRoleById(ParamWrapper.wrap("roleId", k));
-            if (dbRole != null) {
-            	logger.debug("internalFindRoleById roleCache.get ##############");
-                logger.debug("internalFindRoleById roleCache.get id=k={} LOAD from DB", k);
-                logger.debug("internalFindRoleById roleCache.get dbRole != null dbRole={}", dbRole);
-                logger.debug("internalFindRoleById roleCache.get ##############");
-            } else {
-            	logger.debug("internalFindRoleById roleCache.get ##############");
-            	logger.debug("internalFindRoleById roleCache.get id=k={} NOT LOAD from DB", k);
-                logger.debug("internalFindRoleById roleCache.get dbRole is NULL !!!!");
-                logger.debug("internalFindRoleById roleCache.get ##############");
-            }
-            return dbRole;
-        });
+        logger.debug("internalFindRoleById START");
+        logger.debug("internalFindRoleById id={}", id);
+
+        RoleManagementPojo result = roleCache.get(id, k -> roleMapper.findRoleById(ParamWrapper.wrap("roleId", k)));
+
+        logger.debug("internalFindRoleById return={}", result);
+        return result;
     }
 
     private RoleManagementPojo internalGetRole(Map<String, Object> params) {
-        logger.debug("internalGetRole called, params={}", params);
+        logger.debug("internalGetRole START");
+        logger.debug("internalGetRole params={}", params);
 
-        Long roleId = ParamWrapper.unwrap(params, "roleId") != null ? ((Number) ParamWrapper.unwrap(params, "roleId")).longValue() : null;
+        Long roleId = ParamWrapper.unwrap(params, "roleId") != null
+                ? ((Number) ParamWrapper.unwrap(params, "roleId")).longValue()
+                : null;
+
         RoleManagementPojo role = null;
         if (roleId != null) {
-            logger.debug("internalGetRole called, roleId={}", roleId);
             role = internalFindRoleById(roleId);
         }
-        
-        logger.debug("internalGetRole called ##############");
-        logger.debug("internalGetRole role={}", role);
-        logger.debug("internalGetRole called ##############");
+
+        logger.debug("internalGetRole return={}", role);
         return role;
     }
 }
