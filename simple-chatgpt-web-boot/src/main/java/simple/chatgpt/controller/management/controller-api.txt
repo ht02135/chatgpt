@@ -22,27 +22,38 @@ all 5 core API types (Create/Update/List/Get/Delete)
 
 | Action        | URL            | b=`payload`     | r=`return`        |
 | ------------- | -------------- | --------------- | ----------------- |
-| Create / Save | /create        | b=`<entity>Obj` | r=n/a             |
-| Update / Save | /update?id=123 | b=`<entity>Obj` | r=n/a             |
+| Create / Save | /create        | b=`<entity>Obj` | r=`<entity>Obj`            |
+| Update / Save | /update?id=123 | b=`<entity>Obj` | r=`<entity>Obj`           |
 | Get / List    | /search        | b=n/a           | r=`[<entity>Obj]` |
 | Get / by ID   | /get?id=123    | b=n/a           | r=`<entity>Obj`   |
 | Delete        | /delete?id=123 | b=n/a           | r=n/a             |
 
-i want to pick existing controller method and change the url mapping
-1>existing method for /create
-check payload body for enity else throw exception
+i changed my mind.  i want to create following 5 core method
+if you have existing method already use thos url mapping, then
+remove url mapping from those existing method...
 
-2>existing method for /update
+and put 5 core on top of java file
+and push existing method below
+
+1>create method for /create
+check payload body for enity else throw exception
+return <entity>Obj
+
+2>update method for /update
 check has id else throw exception
 check payload body for enity else throw exception
+return <entity>Obj
 
-3>existing method for /search
+3>update method for /search
 check for params 
+return list of <entity>Obj
 
-4>existing method for /get
+4>get method for /get
 check has id else throw exception
+return <entity>Obj
 
-5>existing method for /delete
+5>get method for /delete
 check has id else throw exception
+return void
 																																															url=`/findByRoleGroupId?roleGroupId=123` b=n/a r=`[currentUserRoleGroup]` |
 /////////////////////
