@@ -39,13 +39,18 @@ public class UserRoleGroupManagementController implements UserRoleGroupManagemen
     public ResponseEntity<Response<UserManagementRoleGroupMappingPojo>> insertUserRoleGroup(
             @RequestParam Long userId,
             @RequestParam Long roleGroupId) {
-        logger.debug("insertUserRoleGroup called, userId={}, roleGroupId={}", userId, roleGroupId);
+
+        logger.debug("insertUserRoleGroup START");
+        logger.debug("insertUserRoleGroup userId={}", userId);
+        logger.debug("insertUserRoleGroup roleGroupId={}", roleGroupId);
 
         Map<String, Object> params = new HashMap<>();
         params.put("userId", userId);
         params.put("roleGroupId", roleGroupId);
 
         UserManagementRoleGroupMappingPojo created = mappingService.insertUserRoleGroup(params);
+
+        logger.debug("insertUserRoleGroup created={}", created);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(Response.success("User role group mapping created successfully", created, HttpStatus.CREATED.value()));
     }
@@ -56,7 +61,11 @@ public class UserRoleGroupManagementController implements UserRoleGroupManagemen
             @RequestParam Long id,
             @RequestParam Long userId,
             @RequestParam Long roleGroupId) {
-        logger.debug("updateUserRoleGroup called, id={}, userId={}, roleGroupId={}", id, userId, roleGroupId);
+
+        logger.debug("updateUserRoleGroup START");
+        logger.debug("updateUserRoleGroup id={}", id);
+        logger.debug("updateUserRoleGroup userId={}", userId);
+        logger.debug("updateUserRoleGroup roleGroupId={}", roleGroupId);
 
         Map<String, Object> params = new HashMap<>();
         params.put("id", id);
@@ -64,17 +73,23 @@ public class UserRoleGroupManagementController implements UserRoleGroupManagemen
         params.put("roleGroupId", roleGroupId);
 
         UserManagementRoleGroupMappingPojo updated = mappingService.updateUserRoleGroup(params);
+
+        logger.debug("updateUserRoleGroup updated={}", updated);
         return ResponseEntity.ok(Response.success("User role group mapping updated successfully", updated, HttpStatus.OK.value()));
     }
 
     // ---------------- DELETE ----------------
     @DeleteMapping("/deleteUserRoleGroupById")
     public ResponseEntity<Response<Void>> deleteUserRoleGroupById(@RequestParam Long id) {
-        logger.debug("deleteUserRoleGroupById called, id={}", id);
+        logger.debug("deleteUserRoleGroupById START");
+        logger.debug("deleteUserRoleGroupById id={}", id);
 
         Map<String, Object> params = new HashMap<>();
         params.put("id", id);
+
         mappingService.deleteUserRoleGroupById(params);
+        logger.debug("deleteUserRoleGroupById DONE");
+
         return ResponseEntity.ok(Response.success("Mapping deleted successfully", null, HttpStatus.OK.value()));
     }
 
@@ -82,83 +97,92 @@ public class UserRoleGroupManagementController implements UserRoleGroupManagemen
     public ResponseEntity<Response<Void>> deleteUserRoleGroupByUserAndGroup(
             @RequestParam Long userId,
             @RequestParam Long roleGroupId) {
-        logger.debug("deleteUserRoleGroupByUserAndGroup called, userId={}, roleGroupId={}", userId, roleGroupId);
+
+        logger.debug("deleteUserRoleGroupByUserAndGroup START");
+        logger.debug("deleteUserRoleGroupByUserAndGroup userId={}", userId);
+        logger.debug("deleteUserRoleGroupByUserAndGroup roleGroupId={}", roleGroupId);
 
         Map<String, Object> params = new HashMap<>();
         params.put("userId", userId);
         params.put("roleGroupId", roleGroupId);
+
         mappingService.deleteUserRoleGroupByUserAndGroup(params);
+        logger.debug("deleteUserRoleGroupByUserAndGroup DONE");
+
         return ResponseEntity.ok(Response.success("Mapping deleted successfully", null, HttpStatus.OK.value()));
     }
 
     // ---------------- READ ----------------
     @GetMapping("/findAllUserRoleGroups")
     public ResponseEntity<Response<PagedResult<UserManagementRoleGroupMappingPojo>>> findAllUserRoleGroups() {
-        logger.debug("findAllUserRoleGroups called");
+        logger.debug("findAllUserRoleGroups START");
 
         PagedResult<UserManagementRoleGroupMappingPojo> paged = mappingService.findAllUserRoleGroups();
+
+        logger.debug("findAllUserRoleGroups fetched={}", paged);
         return ResponseEntity.ok(Response.success("All user role groups fetched successfully", paged, HttpStatus.OK.value()));
     }
 
     @GetMapping("/findByUserId")
     public ResponseEntity<Response<PagedResult<UserManagementRoleGroupMappingPojo>>> findByUserId(@RequestParam Long userId) {
-        logger.debug("findByUserId called, userId={}", userId);
+        logger.debug("findByUserId START");
+        logger.debug("findByUserId userId={}", userId);
 
         Map<String, Object> params = new HashMap<>();
         params.put("userId", userId);
+
         PagedResult<UserManagementRoleGroupMappingPojo> paged = mappingService.findByUserId(params);
+
+        logger.debug("findByUserId fetched={}", paged);
         return ResponseEntity.ok(Response.success("Mappings for user fetched successfully", paged, HttpStatus.OK.value()));
     }
 
     @GetMapping("/findByRoleGroupId")
     public ResponseEntity<Response<PagedResult<UserManagementRoleGroupMappingPojo>>> findByRoleGroupId(@RequestParam Long roleGroupId) {
-        logger.debug("findByRoleGroupId called, roleGroupId={}", roleGroupId);
+        logger.debug("findByRoleGroupId START");
+        logger.debug("findByRoleGroupId roleGroupId={}", roleGroupId);
 
         Map<String, Object> params = new HashMap<>();
         params.put("roleGroupId", roleGroupId);
+
         PagedResult<UserManagementRoleGroupMappingPojo> paged = mappingService.findByRoleGroupId(params);
+
+        logger.debug("findByRoleGroupId fetched={}", paged);
         return ResponseEntity.ok(Response.success("Mappings for role group fetched successfully", paged, HttpStatus.OK.value()));
     }
 
     // ---------------- SEARCH / PAGINATION ----------------
     @GetMapping("/findUserRoleGroups")
     public ResponseEntity<Response<PagedResult<UserManagementRoleGroupMappingPojo>>> findUserRoleGroups(@RequestParam Map<String, Object> params) {
-        logger.debug("findUserRoleGroups called, params={}", params);
+        logger.debug("findUserRoleGroups START");
+        logger.debug("findUserRoleGroups params={}", params);
 
         PagedResult<UserManagementRoleGroupMappingPojo> paged = mappingService.findUserRoleGroups(params);
+
+        logger.debug("findUserRoleGroups fetched={}", paged);
         return ResponseEntity.ok(Response.success("Paged user role groups fetched successfully", paged, HttpStatus.OK.value()));
     }
 
     @GetMapping("/searchUserRoleGroups")
     public ResponseEntity<Response<PagedResult<UserManagementRoleGroupMappingPojo>>> searchUserRoleGroups(@RequestParam Map<String, Object> params) {
-        logger.debug("searchUserRoleGroups called, params={}", params);
+        logger.debug("searchUserRoleGroups START");
+        logger.debug("searchUserRoleGroups params={}", params);
 
         PagedResult<UserManagementRoleGroupMappingPojo> paged = mappingService.searchUserRoleGroups(params);
+
+        logger.debug("searchUserRoleGroups fetched={}", paged);
         return ResponseEntity.ok(Response.success("Search user role groups fetched successfully", paged, HttpStatus.OK.value()));
     }
 
     // ---------------- COUNT ----------------
     @GetMapping("/countUserRoleGroups")
     public ResponseEntity<Response<Long>> countUserRoleGroups(@RequestParam Map<String, Object> params) {
-        logger.debug("countUserRoleGroups called, params={}", params);
+        logger.debug("countUserRoleGroups START");
+        logger.debug("countUserRoleGroups params={}", params);
 
         long count = mappingService.countUserRoleGroups(params);
+
+        logger.debug("countUserRoleGroups fetched={}", count);
         return ResponseEntity.ok(Response.success("Count fetched successfully", count, HttpStatus.OK.value()));
     }
 }
-
-/*
-HUNG : DoNT REMOVE
-JS method name	JS API call	Controller API	Do we need to update JS API call	Suggestion
-Save mapping (create)	/add	/management/userrolegroups/insertUserRoleGroup	Yes	Update JS to call /insertUserRoleGroup instead of /add
-Save mapping (update)	/update	/management/userrolegroups/updateUserRoleGroup	Yes	JS can call /updateUserRoleGroup if you implement update logic
-Delete mapping (by ID)	/delete	/management/userrolegroups/deleteUserRoleGroupById	Yes	Update JS to call /deleteUserRoleGroupById instead of /delete
-Delete mapping (by user & group)	N/A	/management/userrolegroups/deleteUserRoleGroupByUserAndGroup	Yes	Add JS method to call /deleteUserRoleGroupByUserAndGroup if needed
-Load mapping by ID	/get	/management/userrolegroups/findByUserId or /findByRoleGroupId	Yes	Update JS to call /findByUserId or /findByRoleGroupId instead of /get
-Load mappings (search/list)	/search	/management/userrolegroups/findUserRoleGroups	Yes	Update JS to call /findUserRoleGroups instead of /search
-Optional: list all mappings	N/A	/management/userrolegroups/findAllUserRoleGroups	No	Could add a JS loadAll method if needed
-Optional: list by user	N/A	/management/userrolegroups/findByUserId	No	Use this if filtering by user
-Optional: list by role group	N/A	/management/userrolegroups/findByRoleGroupId	No	Use this if filtering by role group
-Optional: search mappings with filters	N/A	/management/userrolegroups/searchUserRoleGroups	No	Already correct; JS can call this
-Count mappings	N/A	/management/userrolegroups/countUserRoleGroups	No	Could add if needed
-*/
