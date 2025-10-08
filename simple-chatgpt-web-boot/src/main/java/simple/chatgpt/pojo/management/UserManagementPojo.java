@@ -2,16 +2,13 @@ package simple.chatgpt.pojo.management;
 
 import java.util.List;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
 import simple.chatgpt.pojo.management.security.RoleGroupManagementPojo;
 import simple.chatgpt.validator.management.user.ValidManagementUser;
 
 @ValidManagementUser
 public class UserManagementPojo {
 
-    private static final Logger logger = LogManager.getLogger(UserManagementPojo.class);
+    private static final org.apache.logging.log4j.Logger logger = org.apache.logging.log4j.LogManager.getLogger(UserManagementPojo.class);
 
     private Long id;
     private String userName;
@@ -45,215 +42,68 @@ public class UserManagementPojo {
     // Getters and Setters
     // ---------------------
 
-    public Long getId() {
-        logger.debug("getId called");
-        return id;
-    }
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
-    public void setId(Long id) {
-        logger.debug("setId id={}", id);
-        this.id = id;
-    }
+    public String getUserName() { return userName; }
+    public void setUserName(String userName) { this.userName = userName; }
 
-    public String getUserName() {
-        logger.debug("getUserName called");
-        return userName;
-    }
+    public String getUserKey() { return userKey; }
+    public void setUserKey(String userKey) { this.userKey = userKey; }
 
-    public void setUserName(String userName) {
-        logger.debug("setUserName userName={}", userName);
-        this.userName = userName;
-    }
+    public String getPassword() { return password; }
+    public void setPassword(String password) { this.password = password; }
 
-    public String getUserKey() {
-        logger.debug("getUserKey called");
-        return userKey;
-    }
+    public String getFirstName() { return firstName; }
+    public void setFirstName(String firstName) { this.firstName = firstName; }
 
-    public void setUserKey(String userKey) {
-        logger.debug("setUserKey userKey={}", userKey);
-        this.userKey = userKey;
-    }
+    public String getLastName() { return lastName; }
+    public void setLastName(String lastName) { this.lastName = lastName; }
 
-    public String getPassword() {
-        logger.debug("getPassword called");
-        return password;
-    }
+    public String getEmail() { return email; }
+    public void setEmail(String email) { this.email = email; }
 
-    public void setPassword(String password) {
-        logger.debug("setPassword password={}", password);
-        this.password = password;
-    }
+    public String getAddressLine1() { return addressLine1; }
+    public void setAddressLine1(String addressLine1) { this.addressLine1 = addressLine1; }
 
-    public String getFirstName() {
-        logger.debug("getFirstName called");
-        return firstName;
-    }
+    public String getAddressLine2() { return addressLine2; }
+    public void setAddressLine2(String addressLine2) { this.addressLine2 = addressLine2; }
 
-    public void setFirstName(String firstName) {
-        logger.debug("setFirstName firstName={}", firstName);
-        this.firstName = firstName;
-    }
+    public String getCity() { return city; }
+    public void setCity(String city) { this.city = city; }
 
-    public String getLastName() {
-        logger.debug("getLastName called");
-        return lastName;
-    }
+    public String getState() { return state; }
+    public void setState(String state) { this.state = state; }
 
-    public void setLastName(String lastName) {
-        logger.debug("setLastName lastName={}", lastName);
-        this.lastName = lastName;
-    }
+    public String getPostCode() { return postCode; }
+    public void setPostCode(String postCode) { this.postCode = postCode; }
 
-    public String getEmail() {
-        logger.debug("getEmail called");
-        return email;
-    }
+    public String getCountry() { return country; }
+    public void setCountry(String country) { this.country = country; }
 
-    public void setEmail(String email) {
-        logger.debug("setEmail email={}", email);
-        this.email = email;
-    }
+    public java.sql.Timestamp getCreatedAt() { return createdAt; }
+    public void setCreatedAt(java.sql.Timestamp createdAt) { this.createdAt = createdAt; }
 
-    public String getAddressLine1() {
-        logger.debug("getAddressLine1 called");
-        return addressLine1;
-    }
+    public java.sql.Timestamp getUpdatedAt() { return updatedAt; }
+    public void setUpdatedAt(java.sql.Timestamp updatedAt) { this.updatedAt = updatedAt; }
 
-    public void setAddressLine1(String addressLine1) {
-        logger.debug("setAddressLine1 addressLine1={}", addressLine1);
-        this.addressLine1 = addressLine1;
-    }
+    public List<RoleGroupManagementPojo> getRoleGroups() { return roleGroups; }
+    public void setRoleGroups(List<RoleGroupManagementPojo> roleGroups) { this.roleGroups = roleGroups; }
 
-    public String getAddressLine2() {
-        logger.debug("getAddressLine2 called");
-        return addressLine2;
-    }
+    public boolean isActive() { return active; }
+    public void setActive(boolean active) { this.active = active; }
 
-    public void setAddressLine2(String addressLine2) {
-        logger.debug("setAddressLine2 addressLine2={}", addressLine2);
-        this.addressLine2 = addressLine2;
-    }
+    public boolean isLocked() { return locked; }
+    public void setLocked(boolean locked) { this.locked = locked; }
 
-    public String getCity() {
-        logger.debug("getCity called");
-        return city;
-    }
+    public String getLastLoginIp() { return lastLoginIp; }
+    public void setLastLoginIp(String lastLoginIp) { this.lastLoginIp = lastLoginIp; }
 
-    public void setCity(String city) {
-        logger.debug("setCity city={}", city);
-        this.city = city;
-    }
+    public java.sql.Timestamp getLastLoginAt() { return lastLoginAt; }
+    public void setLastLoginAt(java.sql.Timestamp lastLoginAt) { this.lastLoginAt = lastLoginAt; }
 
-    public String getState() {
-        logger.debug("getState called");
-        return state;
-    }
-
-    public void setState(String state) {
-        logger.debug("setState state={}", state);
-        this.state = state;
-    }
-
-    public String getPostCode() {
-        logger.debug("getPostCode called");
-        return postCode;
-    }
-
-    public void setPostCode(String postCode) {
-        logger.debug("setPostCode postCode={}", postCode);
-        this.postCode = postCode;
-    }
-
-    public String getCountry() {
-        logger.debug("getCountry called");
-        return country;
-    }
-
-    public void setCountry(String country) {
-        logger.debug("setCountry country={}", country);
-        this.country = country;
-    }
-
-    public java.sql.Timestamp getCreatedAt() {
-        logger.debug("getCreatedAt called");
-        return createdAt;
-    }
-
-    public void setCreatedAt(java.sql.Timestamp createdAt) {
-        logger.debug("setCreatedAt createdAt={}", createdAt);
-        this.createdAt = createdAt;
-    }
-
-    public java.sql.Timestamp getUpdatedAt() {
-        logger.debug("getUpdatedAt called");
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(java.sql.Timestamp updatedAt) {
-        logger.debug("setUpdatedAt updatedAt={}", updatedAt);
-        this.updatedAt = updatedAt;
-    }
-
-    public List<RoleGroupManagementPojo> getRoleGroups() {
-        logger.debug("getRoleGroups called");
-        return roleGroups;
-    }
-
-    public void setRoleGroups(List<RoleGroupManagementPojo> roleGroups) {
-        logger.debug("setRoleGroups roleGroups={}", roleGroups);
-        this.roleGroups = roleGroups;
-    }
-
-    public boolean isActive() {
-        logger.debug("isActive called");
-        return active;
-    }
-
-    public void setActive(boolean active) {
-        logger.debug("setActive active={}", active);
-        this.active = active;
-    }
-
-    public boolean isLocked() {
-        logger.debug("isLocked called");
-        return locked;
-    }
-
-    public void setLocked(boolean locked) {
-        logger.debug("setLocked locked={}", locked);
-        this.locked = locked;
-    }
-
-    public String getLastLoginIp() {
-        logger.debug("getLastLoginIp called");
-        return lastLoginIp;
-    }
-
-    public void setLastLoginIp(String lastLoginIp) {
-        logger.debug("setLastLoginIp lastLoginIp={}", lastLoginIp);
-        this.lastLoginIp = lastLoginIp;
-    }
-
-    public java.sql.Timestamp getLastLoginAt() {
-        logger.debug("getLastLoginAt called");
-        return lastLoginAt;
-    }
-
-    public void setLastLoginAt(java.sql.Timestamp lastLoginAt) {
-        logger.debug("setLastLoginAt lastLoginAt={}", lastLoginAt);
-        this.lastLoginAt = lastLoginAt;
-    }
-
-    public String getJwtSecretVersion() {
-        logger.debug("getJwtSecretVersion called");
-        return jwtSecretVersion;
-    }
-
-    public void setJwtSecretVersion(String jwtSecretVersion) {
-        logger.debug("setJwtSecretVersion jwtSecretVersion={}", jwtSecretVersion);
-        this.jwtSecretVersion = jwtSecretVersion;
-    }
+    public String getJwtSecretVersion() { return jwtSecretVersion; }
+    public void setJwtSecretVersion(String jwtSecretVersion) { this.jwtSecretVersion = jwtSecretVersion; }
 
     @Override
     public String toString() {

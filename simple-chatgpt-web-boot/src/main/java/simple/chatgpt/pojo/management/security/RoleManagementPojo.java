@@ -17,55 +17,24 @@ public class RoleManagementPojo {
         logger.debug("RoleManagementPojo constructor called");
     }
 
-    public Long getId() {
-        logger.debug("getId called");
-        return id;
-    }
+    // ---------------------
+    // Getters and Setters
+    // ---------------------
 
-    public void setId(Long id) {
-        logger.debug("setId id={}", id);
-        this.id = id;
-    }
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
-    public String getRoleName() {
-        logger.debug("getRoleName called");
-        return roleName;
-    }
+    public String getRoleName() { return roleName; }
+    public void setRoleName(String roleName) { this.roleName = roleName; }
 
-    public void setRoleName(String roleName) {
-        logger.debug("setRoleName roleName={}", roleName);
-        this.roleName = roleName;
-    }
+    public String getDescription() { return description; }
+    public void setDescription(String description) { this.description = description; }
 
-    public String getDescription() {
-        logger.debug("getDescription called");
-        return description;
-    }
+    public java.sql.Timestamp getCreatedAt() { return createdAt; }
+    public void setCreatedAt(java.sql.Timestamp createdAt) { this.createdAt = createdAt; }
 
-    public void setDescription(String description) {
-        logger.debug("setDescription description={}", description);
-        this.description = description;
-    }
-
-    public java.sql.Timestamp getCreatedAt() {
-        logger.debug("getCreatedAt called");
-        return createdAt;
-    }
-
-    public void setCreatedAt(java.sql.Timestamp createdAt) {
-        logger.debug("setCreatedAt createdAt={}", createdAt);
-        this.createdAt = createdAt;
-    }
-
-    public java.sql.Timestamp getUpdatedAt() {
-        logger.debug("getUpdatedAt called");
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(java.sql.Timestamp updatedAt) {
-        logger.debug("setUpdatedAt updatedAt={}", updatedAt);
-        this.updatedAt = updatedAt;
-    }
+    public java.sql.Timestamp getUpdatedAt() { return updatedAt; }
+    public void setUpdatedAt(java.sql.Timestamp updatedAt) { this.updatedAt = updatedAt; }
 
     @Override
     public String toString() {

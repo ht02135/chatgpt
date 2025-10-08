@@ -21,75 +21,30 @@ public class RoleGroupRoleMappingPojo {
         logger.debug("RoleGroupRoleMappingPojo constructor called");
     }
 
-    public Long getId() {
-        logger.debug("getId called");
-        return id;
-    }
+    // ---------------------
+    // Getters and Setters
+    // ---------------------
 
-    public void setId(Long id) {
-        logger.debug("setId id={}", id);
-        this.id = id;
-    }
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
-    public Long getRoleGroupId() {
-        logger.debug("getRoleGroupId called");
-        return roleGroupId;
-    }
+    public Long getRoleGroupId() { return roleGroupId; }
+    public void setRoleGroupId(Long roleGroupId) { this.roleGroupId = roleGroupId; }
 
-    public void setRoleGroupId(Long roleGroupId) {
-        logger.debug("setRoleGroupId roleGroupId={}", roleGroupId);
-        this.roleGroupId = roleGroupId;
-    }
+    public Long getRoleId() { return roleId; }
+    public void setRoleId(Long roleId) { this.roleId = roleId; }
 
-    public Long getRoleId() {
-        logger.debug("getRoleId called");
-        return roleId;
-    }
+    public Timestamp getCreatedAt() { return createdAt; }
+    public void setCreatedAt(Timestamp createdAt) { this.createdAt = createdAt; }
 
-    public void setRoleId(Long roleId) {
-        logger.debug("setRoleId roleId={}", roleId);
-        this.roleId = roleId;
-    }
+    public Timestamp getUpdatedAt() { return updatedAt; }
+    public void setUpdatedAt(Timestamp updatedAt) { this.updatedAt = updatedAt; }
 
-    public Timestamp getCreatedAt() {
-        logger.debug("getCreatedAt called");
-        return createdAt;
-    }
+    public String getRoleGroupName() { return roleGroupName; }
+    public void setRoleGroupName(String roleGroupName) { this.roleGroupName = roleGroupName; }
 
-    public void setCreatedAt(Timestamp createdAt) {
-        logger.debug("setCreatedAt createdAt={}", createdAt);
-        this.createdAt = createdAt;
-    }
-
-    public Timestamp getUpdatedAt() {
-        logger.debug("getUpdatedAt called");
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(Timestamp updatedAt) {
-        logger.debug("setUpdatedAt updatedAt={}", updatedAt);
-        this.updatedAt = updatedAt;
-    }
-
-    public String getRoleGroupName() {
-        logger.debug("getRoleGroupName called");
-        return roleGroupName;
-    }
-
-    public void setRoleGroupName(String roleGroupName) {
-        logger.debug("setRoleGroupName roleGroupName={}", roleGroupName);
-        this.roleGroupName = roleGroupName;
-    }
-
-    public String getRoleName() {
-        logger.debug("getRoleName called");
-        return roleName;
-    }
-
-    public void setRoleName(String roleName) {
-        logger.debug("setRoleName roleName={}", roleName);
-        this.roleName = roleName;
-    }
+    public String getRoleName() { return roleName; }
+    public void setRoleName(String roleName) { this.roleName = roleName; }
 
     @Override
     public String toString() {

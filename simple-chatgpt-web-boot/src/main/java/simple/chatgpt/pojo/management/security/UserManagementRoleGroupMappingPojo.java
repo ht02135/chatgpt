@@ -19,55 +19,24 @@ public class UserManagementRoleGroupMappingPojo {
         logger.debug("UserManagementRoleGroupMappingPojo constructor called");
     }
 
-    public Long getId() {
-        logger.debug("getId called");
-        return id;
-    }
+    // ---------------------
+    // Getters and Setters
+    // ---------------------
 
-    public void setId(Long id) {
-        logger.debug("setId id={}", id);
-        this.id = id;
-    }
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
-    public Long getUserId() {
-        logger.debug("getUserId called");
-        return userId;
-    }
+    public Long getUserId() { return userId; }
+    public void setUserId(Long userId) { this.userId = userId; }
 
-    public void setUserId(Long userId) {
-        logger.debug("setUserId userId={}", userId);
-        this.userId = userId;
-    }
+    public Long getRoleGroupId() { return roleGroupId; }
+    public void setRoleGroupId(Long roleGroupId) { this.roleGroupId = roleGroupId; }
 
-    public Long getRoleGroupId() {
-        logger.debug("getRoleGroupId called");
-        return roleGroupId;
-    }
+    public Timestamp getCreatedAt() { return createdAt; }
+    public void setCreatedAt(Timestamp createdAt) { this.createdAt = createdAt; }
 
-    public void setRoleGroupId(Long roleGroupId) {
-        logger.debug("setRoleGroupId roleGroupId={}", roleGroupId);
-        this.roleGroupId = roleGroupId;
-    }
-
-    public Timestamp getCreatedAt() {
-        logger.debug("getCreatedAt called");
-        return createdAt;
-    }
-
-    public void setCreatedAt(Timestamp createdAt) {
-        logger.debug("setCreatedAt createdAt={}", createdAt);
-        this.createdAt = createdAt;
-    }
-
-    public Timestamp getUpdatedAt() {
-        logger.debug("getUpdatedAt called");
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(Timestamp updatedAt) {
-        logger.debug("setUpdatedAt updatedAt={}", updatedAt);
-        this.updatedAt = updatedAt;
-    }
+    public Timestamp getUpdatedAt() { return updatedAt; }
+    public void setUpdatedAt(Timestamp updatedAt) { this.updatedAt = updatedAt; }
 
     @Override
     public String toString() {

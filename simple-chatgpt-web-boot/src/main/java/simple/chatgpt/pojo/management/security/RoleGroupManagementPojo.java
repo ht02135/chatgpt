@@ -17,55 +17,24 @@ public class RoleGroupManagementPojo {
         logger.debug("RoleGroupManagementPojo constructor called");
     }
 
-    public Long getId() {
-        logger.debug("getId called");
-        return id;
-    }
+    // ---------------------
+    // Getters and Setters
+    // ---------------------
 
-    public void setId(Long id) {
-        logger.debug("setId id={}", id);
-        this.id = id;
-    }
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
-    public String getGroupName() {
-        logger.debug("getGroupName called");
-        return groupName;
-    }
+    public String getGroupName() { return groupName; }
+    public void setGroupName(String groupName) { this.groupName = groupName; }
 
-    public void setGroupName(String groupName) {
-        logger.debug("setGroupName groupName={}", groupName);
-        this.groupName = groupName;
-    }
+    public String getDescription() { return description; }
+    public void setDescription(String description) { this.description = description; }
 
-    public String getDescription() {
-        logger.debug("getDescription called");
-        return description;
-    }
+    public String getCreatedAt() { return createdAt; }
+    public void setCreatedAt(String createdAt) { this.createdAt = createdAt; }
 
-    public void setDescription(String description) {
-        logger.debug("setDescription description={}", description);
-        this.description = description;
-    }
-
-    public String getCreatedAt() {
-        logger.debug("getCreatedAt called");
-        return createdAt;
-    }
-
-    public void setCreatedAt(String createdAt) {
-        logger.debug("setCreatedAt createdAt={}", createdAt);
-        this.createdAt = createdAt;
-    }
-
-    public String getUpdatedAt() {
-        logger.debug("getUpdatedAt called");
-        return updatedAt;
-    }
-
-    public void setUpdatedAt(String updatedAt) {
-        logger.debug("setUpdatedAt updatedAt={}", updatedAt);
-        this.updatedAt = updatedAt;
-    }
+    public String getUpdatedAt() { return updatedAt; }
+    public void setUpdatedAt(String updatedAt) { this.updatedAt = updatedAt; }
 
     @Override
     public String toString() {
