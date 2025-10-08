@@ -49,11 +49,11 @@
     <!-- =======================
          READ
          ======================= -->
-    <select id="findRoleGroupById" parameterType="map" resultMap="RoleGroupManagementResultMap">
-        SELECT id, group_name, description, created_at, updated_at
-        FROM role_group_management
-        WHERE id = #{params.groupId}
-    </select>
+	<select id="findRoleGroupById" parameterType="map" resultMap="RoleGroupManagementResultMap">
+    	SELECT id, group_name, description, created_at, updated_at
+    	FROM role_group_management
+   		WHERE id = #{params.roleGroupId}  
+	</select>
 
     <select id="findAllRoleGroups" resultMap="RoleGroupManagementResultMap">
         SELECT id, group_name, description, created_at, updated_at

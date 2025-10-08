@@ -251,9 +251,16 @@ public class RoleGroupManagementServiceImpl implements RoleGroupManagementServic
         logger.debug("internalGetRoleGroup START");
         logger.debug("internalGetRoleGroup params={}", params);
 
-        Long id = ParamWrapper.unwrap(params, "id");
-        RoleGroupManagementPojo result = roleGroupCache.get(id, k -> groupMapper.findRoleGroupById(ParamWrapper.wrap("id", k)));
+        Long roleGroupId = ParamWrapper.unwrap(params, "roleGroupId"); // <-- fixed
+        if (roleGroupId == null) {
+            logger.error("roleGroupId is null");
+            return null;
+        }
 
+        RoleGroupManagementPojo result = roleGroupCache.get(roleGroupId, k ->
+            groupMapper.findRoleGroupById(ParamWrapper.wrap("roleGroupId", k)) // <-- fixed
+        );
+        
         logger.debug("internalGetRoleGroup return={}", result);
         return result;
     }
