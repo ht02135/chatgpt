@@ -175,7 +175,7 @@ function PageRoleGroupViewModel(params, config) {
     // ========================
     // Navigation
     // ========================
-    self.navigateToPageRoleGroups = function() { window.location.href = 'pageRoleGroup.jsp'; };
+    self.navigateToPageRoleGroups = function() { window.location.href = 'pageRoleGroups.jsp'; };
     self.addPageRoleGroup = function() { window.location.href = 'addPageRoleGroup.jsp'; };
     self.editPageRoleGroup = function(row) {
         console.log("pageRoleGroup.js -> editPageRoleGroup row=", row);
