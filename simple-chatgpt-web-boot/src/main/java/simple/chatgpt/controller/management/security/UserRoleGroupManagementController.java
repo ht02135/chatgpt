@@ -50,7 +50,7 @@ public class UserRoleGroupManagementController implements UserRoleGroupManagemen
 
         UserManagementRoleGroupMappingPojo created = mappingService.insertUserRoleGroup(params);
 
-        logger.debug("insertUserRoleGroup created={}", created);
+        logger.debug("insertUserRoleGroup return={}", created);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(Response.success("User role group mapping created successfully", created, HttpStatus.CREATED.value()));
     }
@@ -74,7 +74,7 @@ public class UserRoleGroupManagementController implements UserRoleGroupManagemen
 
         UserManagementRoleGroupMappingPojo updated = mappingService.updateUserRoleGroup(params);
 
-        logger.debug("updateUserRoleGroup updated={}", updated);
+        logger.debug("updateUserRoleGroup return={}", updated);
         return ResponseEntity.ok(Response.success("User role group mapping updated successfully", updated, HttpStatus.OK.value()));
     }
 
@@ -88,8 +88,8 @@ public class UserRoleGroupManagementController implements UserRoleGroupManagemen
         params.put("id", id);
 
         mappingService.deleteUserRoleGroupById(params);
+        
         logger.debug("deleteUserRoleGroupById DONE");
-
         return ResponseEntity.ok(Response.success("Mapping deleted successfully", null, HttpStatus.OK.value()));
     }
 
@@ -107,8 +107,8 @@ public class UserRoleGroupManagementController implements UserRoleGroupManagemen
         params.put("roleGroupId", roleGroupId);
 
         mappingService.deleteUserRoleGroupByUserAndGroup(params);
+        
         logger.debug("deleteUserRoleGroupByUserAndGroup DONE");
-
         return ResponseEntity.ok(Response.success("Mapping deleted successfully", null, HttpStatus.OK.value()));
     }
 
@@ -119,7 +119,7 @@ public class UserRoleGroupManagementController implements UserRoleGroupManagemen
 
         PagedResult<UserManagementRoleGroupMappingPojo> paged = mappingService.findAllUserRoleGroups();
 
-        logger.debug("findAllUserRoleGroups fetched={}", paged);
+        logger.debug("findAllUserRoleGroups return={}", paged);
         return ResponseEntity.ok(Response.success("All user role groups fetched successfully", paged, HttpStatus.OK.value()));
     }
 
@@ -133,7 +133,7 @@ public class UserRoleGroupManagementController implements UserRoleGroupManagemen
 
         PagedResult<UserManagementRoleGroupMappingPojo> paged = mappingService.findByUserId(params);
 
-        logger.debug("findByUserId fetched={}", paged);
+        logger.debug("findByUserId return={}", paged);
         return ResponseEntity.ok(Response.success("Mappings for user fetched successfully", paged, HttpStatus.OK.value()));
     }
 
@@ -147,7 +147,7 @@ public class UserRoleGroupManagementController implements UserRoleGroupManagemen
 
         PagedResult<UserManagementRoleGroupMappingPojo> paged = mappingService.findByRoleGroupId(params);
 
-        logger.debug("findByRoleGroupId fetched={}", paged);
+        logger.debug("findByRoleGroupId return={}", paged);
         return ResponseEntity.ok(Response.success("Mappings for role group fetched successfully", paged, HttpStatus.OK.value()));
     }
 
@@ -159,7 +159,7 @@ public class UserRoleGroupManagementController implements UserRoleGroupManagemen
 
         PagedResult<UserManagementRoleGroupMappingPojo> paged = mappingService.findUserRoleGroups(params);
 
-        logger.debug("findUserRoleGroups fetched={}", paged);
+        logger.debug("findUserRoleGroups return={}", paged);
         return ResponseEntity.ok(Response.success("Paged user role groups fetched successfully", paged, HttpStatus.OK.value()));
     }
 
@@ -170,7 +170,7 @@ public class UserRoleGroupManagementController implements UserRoleGroupManagemen
 
         PagedResult<UserManagementRoleGroupMappingPojo> paged = mappingService.searchUserRoleGroups(params);
 
-        logger.debug("searchUserRoleGroups fetched={}", paged);
+        logger.debug("searchUserRoleGroups return={}", paged);
         return ResponseEntity.ok(Response.success("Search user role groups fetched successfully", paged, HttpStatus.OK.value()));
     }
 
@@ -182,7 +182,7 @@ public class UserRoleGroupManagementController implements UserRoleGroupManagemen
 
         long count = mappingService.countUserRoleGroups(params);
 
-        logger.debug("countUserRoleGroups fetched={}", count);
+        logger.debug("countUserRoleGroups return={}", count);
         return ResponseEntity.ok(Response.success("Count fetched successfully", count, HttpStatus.OK.value()));
     }
 }
