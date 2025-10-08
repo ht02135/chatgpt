@@ -16,12 +16,18 @@ function UserRoleGroupViewModel(params, config) {
     console.log("userRoleGroup.js -> UserRoleGroupViewModel: constructor called");
     const self = this;
 
+    // ========================
+    // Mode & Configs
+    // ========================
     self.mode = params.mode || 'list';
     self.gridConfig = config?.grid;
     self.formConfig = config?.form;
     self.searchConfig = config?.search;
     self.actionGroupMap = config?.actionGroups || {};
 
+    // ========================
+    // Observables
+    // ========================
     self.userRoleGroups = ko.observableArray([]);
     self.currentUserRoleGroup = ko.observable(new UserRoleGroup({}, self.formConfig?.fields || []));
     self.errors = ko.observable({});
@@ -31,6 +37,7 @@ function UserRoleGroupViewModel(params, config) {
         self.searchConfig.fields.forEach(f => self.searchParams[f.name] = ko.observable(''));
     }
 
+    // Pagination
     self.page = ko.observable(1);
     self.size = ko.observable(10);
     self.total = ko.observable(0);
@@ -38,11 +45,17 @@ function UserRoleGroupViewModel(params, config) {
     self.sortField = ko.observable('id');
     self.sortOrder = ko.observable('ASC');
 
+    // ========================
+    // Helpers
+    // ========================
     self.resolveDbField = function(uiField) {
         const col = self.gridConfig?.columns?.find(c => c.name === uiField);
         return col?.dbField || uiField;
     };
 
+    // ========================
+    // Build Search Query
+    // ========================
     self.buildSearchQuery = function() {
         const params = new URLSearchParams();
         params.append('page', self.page() - 1);
@@ -62,13 +75,13 @@ function UserRoleGroupViewModel(params, config) {
     // Load
     // ========================
     self.loadUserRoleGroups = async function() {
-        console.log("userRoleGroup.js -> loadUserRoleGroups called");
+        console.log("userRoleGroup.js -> loadUserRoleGroups called, mode=", self.mode);
         if (self.mode !== 'list') return;
 
         try {
             const qs = self.buildSearchQuery();
-            console.log("userRoleGroup.js -> loadUserRoleGroups: query string=", qs);
-            const res = await fetch(`${API_USER_ROLE_GROUP}/findUserRoleGroups?${qs}`, { headers: { 'Accept': 'application/json' } });
+            console.log("userRoleGroup.js -> loadUserRoleGroups: qs=", qs);
+            const res = await fetch(`${API_USER_ROLE_GROUP}/searchUserRoleGroups?${qs}`, { headers: { 'Accept': 'application/json' } });
             const data = await res.json();
             console.log("userRoleGroup.js -> loadUserRoleGroups: response=", data);
 
@@ -88,14 +101,71 @@ function UserRoleGroupViewModel(params, config) {
     };
 
     // ========================
-    // Save
+    // Search & Reset
     // ========================
+    self.searchUserRoleGroups = function() { self.page(1); self.loadUserRoleGroups(); };
+    self.resetUserRoleGroupSearch = function() {
+        Object.keys(self.searchParams).forEach(k => self.searchParams[k](''));
+        self.page(1);
+        self.loadUserRoleGroups();
+    };
+
+    // ========================
+    // Pagination
+    // ========================
+    self.nextPage = function() { if (self.page() < self.maxPage()) { self.page(self.page() + 1); self.loadUserRoleGroups(); } };
+    self.prevPage = function() { if (self.page() > 1) { self.page(self.page() - 1); self.loadUserRoleGroups(); } };
+    self.size.subscribe(() => { self.page(1); self.loadUserRoleGroups(); });
+
+    // ========================
+    // Sorting
+    // ========================
+    self.setSort = function(field) {
+        if (self.sortField() === field) self.sortOrder(self.sortOrder() === 'ASC' ? 'DESC' : 'ASC');
+        else { self.sortField(field); self.sortOrder('ASC'); }
+        self.page(1);
+        self.loadUserRoleGroups();
+    };
+
+    // ========================
+    // Navigation
+    // ========================
+    self.navigateToUserRoleGroups = function() { window.location.href = 'userRoleGroups.jsp'; };
+    self.addUserRoleGroup = function() { window.location.href = 'addUserRoleGroup.jsp'; };
+
+    self.editUserRoleGroup = function(userRoleGroup) {
+        console.log("userRoleGroup.js -> editUserRoleGroup: userRoleGroup=", userRoleGroup);
+        if (!confirm('Are you sure?')) return;
+        localStorage.setItem('editUserRoleGroupId', ko.unwrap(userRoleGroup.id));
+        window.location.href = 'editUserRoleGroup.jsp';
+    };
+
+    // ========================
+    // Actions
+    // ========================
+    self.getActionsForColumn = function(column) {
+        if (!column.actions) return [];
+        const group = self.actionGroupMap[column.actions];
+        return Array.isArray(group) ? group.filter(a => a.visible !== false) : [];
+    };
+    self.invokeAction = function(action, row) {
+        console.log("userRoleGroup.js -> invokeAction: action=", action, "row=", row);
+        if (action && action.jsMethod && typeof self[action.jsMethod] === 'function') {
+            self[action.jsMethod](row);
+        } else console.warn("No JS method found for action:", action);
+    };
+
+    // ========================
+    // Validation & Save
+    // ========================
+    self.validateForm = function(obj, fields) { return self.validator ? self.validator.validateForm(obj, fields) : {}; };
+
     self.saveUserRoleGroup = async function() {
         console.log("userRoleGroup.js -> saveUserRoleGroup called, currentUserRoleGroup=", ko.toJS(self.currentUserRoleGroup()));
         if (!self.formConfig) return;
 
         self.errors({});
-        const errs = self.validator ? self.validator.validateForm(self.currentUserRoleGroup(), self.formConfig.fields) : {};
+        const errs = self.validateForm(self.currentUserRoleGroup(), self.formConfig.fields);
         console.log("userRoleGroup.js -> saveUserRoleGroup validation errs=", errs);
         if (Object.keys(errs).length > 0) { self.errors(errs); return; }
 
@@ -108,99 +178,90 @@ function UserRoleGroupViewModel(params, config) {
                 method = 'PUT';
             }
             console.log("userRoleGroup.js -> saveUserRoleGroup: url=", url, "method=", method, "payload=", payload);
-            await fetch(url, { method, headers: { 'Content-Type': 'application/json' } });
-            self.loadUserRoleGroups();
-        } catch (err) {
-            console.error('Save user role group error:', err);
-        }
+            await fetch(url, { method, headers: { 'Content-Type':'application/json' } });
+            self.navigateToUserRoleGroups();
+        } catch(err) { console.error('Save user role group error:', err); }
     };
-	
-	// ========================
-	// Navigation
-	// ========================
-	self.navigateToUserRoleGroups = function() {
-	    console.log("userRoleGroup.js -> navigateToUserRoleGroups called");
-	    window.location.href = 'userRoleGroups.jsp'; // adjust URL if different
-	};
-	
+
     // ========================
     // Delete
     // ========================
-    self.deleteUserRoleGroupById = async function(row) {
+    self.deleteUserRoleGroup = async function(row) {
         if (!confirm('Are you sure?')) return;
+
         try {
             const id = ko.unwrap(row.id);
-            console.log("userRoleGroup.js -> deleteUserRoleGroupById id=", id);
-            await fetch(`${API_USER_ROLE_GROUP}/deleteUserRoleGroupById?id=${encodeURIComponent(id)}`, { method: 'DELETE', headers: { 'Accept': 'application/json' } });
+            console.log("userRoleGroup.js -> deleteUserRoleGroup id=", id);
+            await fetch(`${API_USER_ROLE_GROUP}/deleteUserRoleGroupById?id=${encodeURIComponent(id)}`, { method:'DELETE', headers:{'Accept':'application/json'} });
             self.loadUserRoleGroups();
-        } catch (err) {
-            console.error('Delete user role group by ID error:', err);
-        }
+        } catch(err) { console.error('Delete user role group error:', err); }
     };
 
     self.deleteUserRoleGroupByUserAndGroup = async function(row) {
         if (!confirm('Are you sure?')) return;
+
         try {
             const userId = ko.unwrap(row.userId);
             const roleGroupId = ko.unwrap(row.roleGroupId);
             console.log("userRoleGroup.js -> deleteUserRoleGroupByUserAndGroup userId=", userId, "roleGroupId=", roleGroupId);
-            await fetch(`${API_USER_ROLE_GROUP}/deleteUserRoleGroupByUserAndGroup?userId=${encodeURIComponent(userId)}&roleGroupId=${encodeURIComponent(roleGroupId)}`, { method: 'DELETE', headers: { 'Accept': 'application/json' } });
+            await fetch(`${API_USER_ROLE_GROUP}/deleteUserRoleGroupByUserAndGroup?userId=${encodeURIComponent(userId)}&roleGroupId=${encodeURIComponent(roleGroupId)}`, { method:'DELETE', headers:{'Accept':'application/json'} });
             self.loadUserRoleGroups();
-        } catch (err) {
-            console.error('Delete user role group by user & group error:', err);
-        }
+        } catch(err) { console.error('Delete user role group by user & group error:', err); }
     };
 
     // ========================
-    // Load by User or RoleGroup ID
+    // Load by ID / User / RoleGroup
     // ========================
+    self.loadUserRoleGroupById = async function(id) {
+        console.log("userRoleGroup.js -> loadUserRoleGroupById id=", id);
+        try {
+            const res = await fetch(`${API_USER_ROLE_GROUP}/findAllUserRoleGroups`, { headers:{'Accept':'application/json'} });
+            const data = await res.json();
+            console.log("userRoleGroup.js -> loadUserRoleGroupById data=", data);
+            if (data.status === 'SUCCESS' && data.data) {
+                const found = data.data.items.find(r => r.id === id);
+                if (found) self.currentUserRoleGroup(new UserRoleGroup(found, self.formConfig?.fields || []));
+            }
+        } catch(err) { console.error('Load user role group by ID error:', err); }
+    };
+
     self.loadByUserId = async function(userId) {
         console.log("userRoleGroup.js -> loadByUserId userId=", userId);
-        const res = await fetch(`${API_USER_ROLE_GROUP}/findByUserId?userId=${encodeURIComponent(userId)}`, { headers: { 'Accept': 'application/json' } });
-        const data = await res.json();
-        console.log("userRoleGroup.js -> loadByUserId response=", data);
+        try {
+            const res = await fetch(`${API_USER_ROLE_GROUP}/findByUserId?userId=${encodeURIComponent(userId)}`, { headers:{'Accept':'application/json'} });
+            const data = await res.json();
+            console.log("userRoleGroup.js -> loadByUserId data=", data);
+            if (self.mode === 'edit' && data.status === 'SUCCESS' && data.data && data.data.items.length > 0) {
+                self.currentUserRoleGroup(new UserRoleGroup(data.data.items[0], self.formConfig?.fields || []));
+            }
+        } catch(err) { console.error('Load user role group by user error:', err); }
     };
 
     self.loadByRoleGroupId = async function(roleGroupId) {
         console.log("userRoleGroup.js -> loadByRoleGroupId roleGroupId=", roleGroupId);
-        const res = await fetch(`${API_USER_ROLE_GROUP}/findByRoleGroupId?roleGroupId=${encodeURIComponent(roleGroupId)}`, { headers: { 'Accept': 'application/json' } });
-        const data = await res.json();
-        console.log("userRoleGroup.js -> loadByRoleGroupId response=", data);
+        try {
+            const res = await fetch(`${API_USER_ROLE_GROUP}/findByRoleGroupId?roleGroupId=${encodeURIComponent(roleGroupId)}`, { headers:{'Accept':'application/json'} });
+            const data = await res.json();
+            console.log("userRoleGroup.js -> loadByRoleGroupId data=", data);
+        } catch(err) { console.error('Load user role group by role group error:', err); }
     };
 
     // ========================
-    // Search / Pagination / Sorting
-    // ========================
-    self.searchUserRoleGroups = function() { self.page(1); self.loadUserRoleGroups(); };
-    self.resetSearch = function() {
-        Object.keys(self.searchParams).forEach(k => self.searchParams[k](''));
-        self.page(1);
-        self.loadUserRoleGroups();
-    };
-
-    self.nextPage = function() { if (self.page() < self.maxPage()) { self.page(self.page() + 1); self.loadUserRoleGroups(); } };
-    self.prevPage = function() { if (self.page() > 1) { self.page(self.page() - 1); self.loadUserRoleGroups(); } };
-    self.size.subscribe(() => { self.page(1); self.loadUserRoleGroups(); });
-
-    self.setSort = function(field) {
-        if (self.sortField() === field) self.sortOrder(self.sortOrder() === 'ASC' ? 'DESC' : 'ASC');
-        else { self.sortField(field); self.sortOrder('ASC'); }
-        self.page(1);
-        self.loadUserRoleGroups();
-    };
-
-    // ========================
-    // Init
+    // Initialization
     // ========================
     if (self.mode === 'edit') {
         const editId = localStorage.getItem('editUserRoleGroupId');
         if (editId) self.loadByUserId(editId);
+    } else if (self.mode === 'add') {
+        self.currentUserRoleGroup(new UserRoleGroup({}, self.formConfig?.fields || []));
     } else {
         self.loadUserRoleGroups();
     }
 
+    // Wrapper
     self.currentObject = self.currentUserRoleGroup;
     self.objects = self.userRoleGroups;
 }
 
+// Export
 export { UserRoleGroup, UserRoleGroupViewModel };
