@@ -32,45 +32,49 @@ public class PageRoleGroupManagementServiceImpl implements PageRoleGroupManageme
 
     @Autowired
     public PageRoleGroupManagementServiceImpl(
-        PageRoleGroupManagementMapper pageMapper,
-        UserManagementRoleGroupMappingService userRoleGroupMappingService,
-        RoleGroupManagementService roleGroupService,
-        SecurityConfigLoader securityConfigLoader) 
-    {
-        logger.debug("PageRoleGroupManagementServiceImpl constructor called");
-        logger.debug("pageMapper={}", pageMapper);
-        logger.debug("userRoleGroupMappingService={}", userRoleGroupMappingService);
-        logger.debug("roleGroupService={}", roleGroupService);
-        logger.debug("securityConfigLoader={}", securityConfigLoader);
+            PageRoleGroupManagementMapper pageMapper,
+            UserManagementRoleGroupMappingService userRoleGroupMappingService,
+            RoleGroupManagementService roleGroupService,
+            SecurityConfigLoader securityConfigLoader) {
+
+        logger.debug("PageRoleGroupManagementServiceImpl START");
+        logger.debug("PageRoleGroupManagementServiceImpl pageMapper={}", pageMapper);
+        logger.debug("PageRoleGroupManagementServiceImpl userRoleGroupMappingService={}", userRoleGroupMappingService);
+        logger.debug("PageRoleGroupManagementServiceImpl roleGroupService={}", roleGroupService);
+        logger.debug("PageRoleGroupManagementServiceImpl securityConfigLoader={}", securityConfigLoader);
 
         this.pageMapper = pageMapper;
         this.userRoleGroupMappingService = userRoleGroupMappingService;
         this.roleGroupService = roleGroupService;
         this.securityConfigLoader = securityConfigLoader;
+
+        logger.debug("PageRoleGroupManagementServiceImpl DONE");
     }
 
     @PostConstruct
     private void init() {
-        logger.debug("init called");
+        logger.debug("init START");
         initializeDB();
+        logger.debug("init DONE");
     }
 
     private void initializeDB() {
-        logger.debug("initializeDB called for PageRoleGroupManagementService");
+        logger.debug("initializeDB START");
 
         if (securityConfigLoader == null) {
             logger.error("Missing required bean: securityConfigLoader={}", securityConfigLoader);
+            logger.debug("initializeDB DONE");
             return;
         }
 
         List<PageRoleGroupConfig> pageConfigs = securityConfigLoader.getPageRoleGroups();
-        logger.debug("Loaded page-role group configs from XML, size={}", pageConfigs.size());
+        logger.debug("initializeDB pageConfigs={}", pageConfigs.size());
 
         Map<String, RoleGroupManagementPojo> roleGroupByName = roleGroupService.getAllRoleGroups()
                 .getItems()
                 .stream()
                 .collect(Collectors.toMap(RoleGroupManagementPojo::getGroupName, rg -> rg));
-        logger.debug("Fetched all role groups size={}", roleGroupByName.size());
+        logger.debug("initializeDB roleGroupByName={}", roleGroupByName.size());
 
         for (PageRoleGroupConfig pageConfig : pageConfigs) {
             String urlPattern = pageConfig.getUrlPattern();
@@ -78,9 +82,8 @@ public class PageRoleGroupManagementServiceImpl implements PageRoleGroupManageme
 
             PageRoleGroupManagementPojo existingPage = findByUrlPattern(ParamWrapper.wrap("urlPattern", urlPattern));
 
-            PageRoleGroupManagementPojo pagePojo;
             if (existingPage == null) {
-                pagePojo = new PageRoleGroupManagementPojo();
+                PageRoleGroupManagementPojo pagePojo = new PageRoleGroupManagementPojo();
                 pagePojo.setUrlPattern(urlPattern);
 
                 RoleGroupManagementPojo roleGroup = roleGroupByName.get(roleGroupName);
@@ -91,145 +94,153 @@ public class PageRoleGroupManagementServiceImpl implements PageRoleGroupManageme
                 pagePojo.setRoleGroup(roleGroup);
 
                 pageMapper.insertPageRoleGroup(ParamWrapper.wrap("pageRoleGroup", pagePojo));
-                logger.debug("Inserted new page-role group id={} urlPattern={} roleGroupId={}",
-                        pagePojo.getId(), urlPattern, roleGroup.getId());
-            } else {
-                logger.debug("Page-role group already exists id={} urlPattern={} roleGroupId={}",
-                        existingPage.getId(), urlPattern, existingPage.getRoleGroup().getId());
             }
         }
 
-        logger.debug("initializeDB completed for PageRoleGroupManagementService");
+        logger.debug("initializeDB DONE");
     }
 
     @Override
     public PageRoleGroupManagementPojo insertPageRoleGroup(Map<String, Object> params) {
-        logger.debug("insertPageRoleGroup called, params={}", params);
+        logger.debug("insertPageRoleGroup START");
+        logger.debug("insertPageRoleGroup params={}", params);
 
         PageRoleGroupManagementPojo pageRoleGroup = ParamWrapper.unwrap(params, "pageRoleGroup");
-        logger.debug("insertPageRoleGroup before insert pageRoleGroup={}", pageRoleGroup);
-
         pageMapper.insertPageRoleGroup(ParamWrapper.wrap("pageRoleGroup", pageRoleGroup));
-        logger.debug("insertPageRoleGroup after insert, pageRoleGroup.id={}", pageRoleGroup.getId());
-
         PageRoleGroupManagementPojo fullPageRoleGroup = pageMapper.findById(
-            ParamWrapper.wrap("id", pageRoleGroup.getId())
+                ParamWrapper.wrap("id", pageRoleGroup.getId())
         );
-        logger.debug("insertPageRoleGroup fetched fullPageRoleGroup={}", fullPageRoleGroup);
 
+        logger.debug("insertPageRoleGroup return={}", fullPageRoleGroup);
         return fullPageRoleGroup;
     }
 
     @Override
     public PageRoleGroupManagementPojo updatePageRoleGroup(Map<String, Object> params) {
-        logger.debug("updatePageRoleGroup called, params={}", params);
+        logger.debug("updatePageRoleGroup START");
+        logger.debug("updatePageRoleGroup params={}", params);
+
         PageRoleGroupManagementPojo pageRoleGroup = ParamWrapper.unwrap(params, "pageRoleGroup");
         Long id = ParamWrapper.unwrap(params, "id");
-        logger.debug("updatePageRoleGroup id={}", id);
-        logger.debug("updatePageRoleGroup pageRoleGroup={}", pageRoleGroup);
-
         pageRoleGroup.setId(id);
         pageMapper.updatePageRoleGroup(ParamWrapper.wrap("pageRoleGroup", pageRoleGroup));
 
+        logger.debug("updatePageRoleGroup return={}", pageRoleGroup);
         return pageRoleGroup;
     }
 
     @Override
     public void deletePageRoleGroupById(Map<String, Object> params) {
+        logger.debug("deletePageRoleGroupById START");
         Long id = ParamWrapper.unwrap(params, "id");
-        logger.debug("deletePageRoleGroupById called, id={}", id);
+        logger.debug("deletePageRoleGroupById id={}", id);
 
         pageMapper.deletePageRoleGroupById(ParamWrapper.wrap("id", id));
-        logger.debug("Deleted page-role group from DB, id={}", id);
+
+        logger.debug("deletePageRoleGroupById DONE");
     }
 
     @Override
     public PagedResult<PageRoleGroupManagementPojo> findAllPageRoleGroups() {
-        logger.debug("findAllPageRoleGroups called");
+        logger.debug("findAllPageRoleGroups START");
 
         List<PageRoleGroupManagementPojo> items = pageMapper.findAllPageRoleGroups();
-        long totalCount = items.size();
+        PagedResult<PageRoleGroupManagementPojo> result = new PagedResult<>(items, items.size(), 1, items.size());
 
-        logger.debug("findAllPageRoleGroups results size={}", items.size());
-        return new PagedResult<>(items, totalCount, 1, (int) totalCount);
+        logger.debug("findAllPageRoleGroups return={}", result);
+        return result;
     }
 
     @Override
     public PageRoleGroupManagementPojo findById(Map<String, Object> params) {
-        Long id = ParamWrapper.unwrap(params, "id");
-        logger.debug("findById called, id={}", id);
+        logger.debug("findById START");
+        logger.debug("findById params={}", params);
 
-        return pageMapper.findById(ParamWrapper.wrap("id", id));
+        PageRoleGroupManagementPojo result = pageMapper.findById(ParamWrapper.wrap("id", ParamWrapper.unwrap(params, "id")));
+
+        logger.debug("findById return={}", result);
+        return result;
     }
 
     @Override
     public PageRoleGroupManagementPojo findByUrlPattern(Map<String, Object> params) {
-        String urlPattern = ParamWrapper.unwrap(params, "urlPattern");
-        logger.debug("findByUrlPattern called, urlPattern={}", urlPattern);
+        logger.debug("findByUrlPattern START");
+        logger.debug("findByUrlPattern params={}", params);
 
-        return pageMapper.findByUrlPattern(ParamWrapper.wrap("urlPattern", urlPattern));
+        PageRoleGroupManagementPojo result = pageMapper.findByUrlPattern(ParamWrapper.wrap("urlPattern", ParamWrapper.unwrap(params, "urlPattern")));
+
+        logger.debug("findByUrlPattern return={}", result);
+        return result;
     }
 
     @Override
     public PagedResult<PageRoleGroupManagementPojo> findByRoleGroupId(Map<String, Object> params) {
-        Long roleGroupId = ParamWrapper.unwrap(params, "roleGroupId");
-        logger.debug("findByRoleGroupId called, roleGroupId={}", roleGroupId);
+        logger.debug("findByRoleGroupId START");
+        logger.debug("findByRoleGroupId params={}", params);
 
+        Long roleGroupId = ParamWrapper.unwrap(params, "roleGroupId");
         if (roleGroupId == null) {
             logger.warn("findByRoleGroupId called with null roleGroupId");
-            return new PagedResult<>(List.of(), 0, 1, 20);
+            PagedResult<PageRoleGroupManagementPojo> emptyResult = new PagedResult<>(List.of(), 0, 1, 20);
+            logger.debug("findByRoleGroupId return={}", emptyResult);
+            return emptyResult;
         }
 
         List<PageRoleGroupManagementPojo> items = pageMapper.findByRoleGroupId(ParamWrapper.wrap("roleGroupId", roleGroupId));
-        long totalCount = items.size();
+        PagedResult<PageRoleGroupManagementPojo> result = new PagedResult<>(items, items.size(), 1, items.size());
 
-        logger.debug("findByRoleGroupId results size={}", items.size());
-        return new PagedResult<>(items, totalCount, 1, (int) totalCount);
+        logger.debug("findByRoleGroupId return={}", result);
+        return result;
     }
 
     @Override
     public PagedResult<PageRoleGroupManagementPojo> findPageRoleGroups(Map<String, Object> params) {
-        logger.debug("findPageRoleGroups called, params={}", params);
+        logger.debug("findPageRoleGroups START");
+        logger.debug("findPageRoleGroups params={}", params);
 
         // hung: DONT REMOVE THIS CODE
-        int page = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "page", 0), 0); 
+        int page = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "page", 0), 0);
         int size = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "size", 20), 20);
         int offset = page * size;
-
         params.put("offset", offset);
         params.put("limit", size);
 
         List<PageRoleGroupManagementPojo> items = pageMapper.findPageRoleGroups(params);
         long totalCount = pageMapper.countPageRoleGroups(params);
+        PagedResult<PageRoleGroupManagementPojo> result = new PagedResult<>(items, totalCount, page, size);
 
-        logger.debug("findPageRoleGroups results size={}", items.size());
-        return new PagedResult<>(items, totalCount, page, size);
+        logger.debug("findPageRoleGroups return={}", result);
+        return result;
     }
 
     @Override
     public PagedResult<PageRoleGroupManagementPojo> searchPageRoleGroups(Map<String, Object> params) {
-        logger.debug("searchPageRoleGroups called, params={}", params);
+        logger.debug("searchPageRoleGroups START");
+        logger.debug("searchPageRoleGroups params={}", params);
 
         // hung: DONT REMOVE THIS CODE
-        int page = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "page", 0), 0); 
+        int page = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "page", 0), 0);
         int size = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "size", 20), 20);
         int offset = page * size;
-
         params.put("offset", offset);
         params.put("limit", size);
 
         List<PageRoleGroupManagementPojo> items = pageMapper.searchPageRoleGroups(params);
         long totalCount = pageMapper.countPageRoleGroups(params);
+        PagedResult<PageRoleGroupManagementPojo> result = new PagedResult<>(items, totalCount, page, size);
 
-        logger.debug("searchPageRoleGroups results size={}", items.size());
-        return new PagedResult<>(items, totalCount, page, size);
+        logger.debug("searchPageRoleGroups return={}", result);
+        return result;
     }
 
     @Override
     public long countPageRoleGroups(Map<String, Object> params) {
-        logger.debug("countPageRoleGroups called, params={}", params);
+        logger.debug("countPageRoleGroups START");
+        logger.debug("countPageRoleGroups params={}", params);
+
         long count = pageMapper.countPageRoleGroups(params);
-        logger.debug("countPageRoleGroups result={}", count);
+
+        logger.debug("countPageRoleGroups return={}", count);
         return count;
     }
 }
