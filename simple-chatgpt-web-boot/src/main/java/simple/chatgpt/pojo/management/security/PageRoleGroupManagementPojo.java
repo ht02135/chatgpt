@@ -1,5 +1,7 @@
 package simple.chatgpt.pojo.management.security;
 
+import java.sql.Timestamp;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -9,16 +11,15 @@ public class PageRoleGroupManagementPojo {
 
     private Long id;
     private String urlPattern;
-    private RoleGroupManagementPojo roleGroup;
-    private java.sql.Timestamp createdAt;
-    private java.sql.Timestamp updatedAt;
+    private RoleGroupManagementPojo roleGroup; // Nested role group
+    private Timestamp createdAt;
+    private Timestamp updatedAt;
 
     public PageRoleGroupManagementPojo() {
         logger.debug("PageRoleGroupManagementPojo constructor called");
     }
 
     public Long getId() {
-        logger.debug("getId called");
         return id;
     }
 
@@ -28,7 +29,6 @@ public class PageRoleGroupManagementPojo {
     }
 
     public String getUrlPattern() {
-        logger.debug("getUrlPattern called");
         return urlPattern;
     }
 
@@ -38,7 +38,6 @@ public class PageRoleGroupManagementPojo {
     }
 
     public RoleGroupManagementPojo getRoleGroup() {
-        logger.debug("getRoleGroup called");
         return roleGroup;
     }
 
@@ -47,23 +46,19 @@ public class PageRoleGroupManagementPojo {
         this.roleGroup = roleGroup;
     }
 
-    public java.sql.Timestamp getCreatedAt() {
-        logger.debug("getCreatedAt called");
+    public Timestamp getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(java.sql.Timestamp createdAt) {
-        logger.debug("setCreatedAt createdAt={}", createdAt);
+    public void setCreatedAt(Timestamp createdAt) {
         this.createdAt = createdAt;
     }
 
-    public java.sql.Timestamp getUpdatedAt() {
-        logger.debug("getUpdatedAt called");
+    public Timestamp getUpdatedAt() {
         return updatedAt;
     }
 
-    public void setUpdatedAt(java.sql.Timestamp updatedAt) {
-        logger.debug("setUpdatedAt updatedAt={}", updatedAt);
+    public void setUpdatedAt(Timestamp updatedAt) {
         this.updatedAt = updatedAt;
     }
 
