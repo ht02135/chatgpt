@@ -23,159 +23,206 @@ public class UserManagementRoleGroupMappingServiceImpl implements UserManagement
 
     @Autowired
     public UserManagementRoleGroupMappingServiceImpl(UserManagementRoleGroupMappingMapper mappingMapper) {
-        logger.debug("UserManagementRoleGroupMappingServiceImpl constructor called");
-        logger.debug("mappingMapper={}", mappingMapper);
-
+        logger.debug("UserManagementRoleGroupMappingServiceImpl: START");
+        logger.debug("UserManagementRoleGroupMappingServiceImpl: mappingMapper={}", mappingMapper);
         this.mappingMapper = mappingMapper;
+        logger.debug("UserManagementRoleGroupMappingServiceImpl: DONE");
     }
 
     // ---------------- CREATE ----------------
     @Override
     public UserManagementRoleGroupMappingPojo insertUserRoleGroup(Map<String, Object> params) {
-        UserManagementRoleGroupMappingPojo mapping = ParamWrapper.unwrap(params, "mapping");
+        logger.debug("insertUserRoleGroup: START");
+        logger.debug("insertUserRoleGroup: params={}", params);
 
-        logger.debug("insertUserRoleGroup called, mapping={}", mapping);
+        UserManagementRoleGroupMappingPojo mapping = ParamWrapper.unwrap(params, "mapping");
         mappingMapper.insertUserRoleGroup(ParamWrapper.wrap("mapping", mapping));
 
-        // Re-fetch full mapping from DB
         UserManagementRoleGroupMappingPojo fullMapping = mappingMapper.findById(
                 ParamWrapper.wrap("id", mapping.getId())
         );
-        logger.debug("insertUserRoleGroup re-fetched fullMapping={}", fullMapping);
 
+        logger.debug("insertUserRoleGroup: fullMapping={}", fullMapping);
         return fullMapping;
     }
 
     // ---------------- UPDATE ----------------
     @Override
     public UserManagementRoleGroupMappingPojo updateUserRoleGroup(Map<String, Object> params) {
-        UserManagementRoleGroupMappingPojo mapping = ParamWrapper.unwrap(params, "mapping");
-        logger.debug("updateUserRoleGroup called, mapping={}", mapping);
+        logger.debug("updateUserRoleGroup: START");
+        logger.debug("updateUserRoleGroup: params={}", params);
 
+        UserManagementRoleGroupMappingPojo mapping = ParamWrapper.unwrap(params, "mapping");
         mappingMapper.updateUserRoleGroup(ParamWrapper.wrap("mapping", mapping));
+
+        logger.debug("updateUserRoleGroup: mapping={}", mapping);
         return mapping;
     }
 
     // ---------------- DELETE ----------------
     @Override
     public void deleteUserRoleGroupById(Map<String, Object> params) {
-        Long id = ParamWrapper.unwrap(params, "id");
-        logger.debug("deleteUserRoleGroupById called, id={}", id);
+        logger.debug("deleteUserRoleGroupById: START");
+        logger.debug("deleteUserRoleGroupById: params={}", params);
 
+        Long id = ParamWrapper.unwrap(params, "id");
         mappingMapper.deleteUserRoleGroupById(ParamWrapper.wrap("id", id));
+
+        logger.debug("deleteUserRoleGroupById: DONE");
     }
 
     @Override
     public void deleteUserRoleGroupByUserAndGroup(Map<String, Object> params) {
+        logger.debug("deleteUserRoleGroupByUserAndGroup: START");
+        logger.debug("deleteUserRoleGroupByUserAndGroup: params={}", params);
+
         Long userId = ParamWrapper.unwrap(params, "userId");
         Long roleGroupId = ParamWrapper.unwrap(params, "roleGroupId");
-        logger.debug("deleteUserRoleGroupByUserAndGroup called, userId={}, roleGroupId={}", userId, roleGroupId);
 
         mappingMapper.deleteUserRoleGroupByUserAndGroup(
                 ParamWrapper.wrap("userId", userId, "roleGroupId", roleGroupId)
         );
+
+        logger.debug("deleteUserRoleGroupByUserAndGroup: DONE");
     }
 
     // ---------------- READ ----------------
     @Override
     public UserManagementRoleGroupMappingPojo findById(Map<String, Object> params) {
-        Long id = ParamWrapper.unwrap(params, "id");
-        logger.debug("findById called, id={}", id);
+        logger.debug("findById: START");
+        logger.debug("findById: params={}", params);
 
-        return mappingMapper.findById(ParamWrapper.wrap("id", id));
+        Long id = ParamWrapper.unwrap(params, "id");
+        UserManagementRoleGroupMappingPojo result = mappingMapper.findById(ParamWrapper.wrap("id", id));
+
+        logger.debug("findById: result={}", result);
+        return result;
     }
 
     @Override
     public UserManagementRoleGroupMappingPojo findByUserIdAndRoleGroupId(Map<String, Object> params) {
+        logger.debug("findByUserIdAndRoleGroupId: START");
+        logger.debug("findByUserIdAndRoleGroupId: params={}", params);
+
         Long userId = ParamWrapper.unwrap(params, "userId");
         Long roleGroupId = ParamWrapper.unwrap(params, "roleGroupId");
-        logger.debug("findByUserIdAndRoleGroupId called, userId={}, roleGroupId={}", userId, roleGroupId);
 
-        return mappingMapper.findByUserIdAndRoleGroupId(
+        UserManagementRoleGroupMappingPojo result = mappingMapper.findByUserIdAndRoleGroupId(
                 ParamWrapper.wrap("userId", userId, "roleGroupId", roleGroupId)
         );
+
+        logger.debug("findByUserIdAndRoleGroupId: result={}", result);
+        return result;
     }
 
     @Override
     public PagedResult<UserManagementRoleGroupMappingPojo> findAllUserRoleGroups() {
-        logger.debug("findAllUserRoleGroups called");
+        logger.debug("findAllUserRoleGroups: START");
 
         List<UserManagementRoleGroupMappingPojo> items = mappingMapper.findAllUserRoleGroups();
         long totalCount = items.size();
 
-        logger.debug("findAllUserRoleGroups result size={}", items.size());
-        return new PagedResult<>(items, totalCount, 1, (int) totalCount);
+        PagedResult<UserManagementRoleGroupMappingPojo> result =
+                new PagedResult<>(items, totalCount, 1, (int) totalCount);
+
+        logger.debug("findAllUserRoleGroups: result={}", result);
+        return result;
     }
 
     @Override
     public PagedResult<UserManagementRoleGroupMappingPojo> findByUserId(Map<String, Object> params) {
-        Long userId = ParamWrapper.unwrap(params, "userId");
-        logger.debug("findByUserId called, userId={}", userId);
+        logger.debug("findByUserId: START");
+        logger.debug("findByUserId: params={}", params);
 
+        Long userId = ParamWrapper.unwrap(params, "userId");
         List<UserManagementRoleGroupMappingPojo> items = mappingMapper.findByUserId(
                 ParamWrapper.wrap("userId", userId)
         );
         long totalCount = items.size();
 
-        logger.debug("findByUserId result size={}", items.size());
-        return new PagedResult<>(items, totalCount, 1, (int) totalCount);
+        PagedResult<UserManagementRoleGroupMappingPojo> result =
+                new PagedResult<>(items, totalCount, 1, (int) totalCount);
+
+        logger.debug("findByUserId: result={}", result);
+        return result;
     }
 
     @Override
     public PagedResult<UserManagementRoleGroupMappingPojo> findByRoleGroupId(Map<String, Object> params) {
-        Long roleGroupId = ParamWrapper.unwrap(params, "roleGroupId");
-        logger.debug("findByRoleGroupId called, roleGroupId={}", roleGroupId);
+        logger.debug("findByRoleGroupId: START");
+        logger.debug("findByRoleGroupId: params={}", params);
 
+        Long roleGroupId = ParamWrapper.unwrap(params, "roleGroupId");
         List<UserManagementRoleGroupMappingPojo> items = mappingMapper.findByRoleGroupId(
                 ParamWrapper.wrap("roleGroupId", roleGroupId)
         );
         long totalCount = items.size();
 
-        logger.debug("findByRoleGroupId result size={}", items.size());
-        return new PagedResult<>(items, totalCount, 1, (int) totalCount);
+        PagedResult<UserManagementRoleGroupMappingPojo> result =
+                new PagedResult<>(items, totalCount, 1, (int) totalCount);
+
+        logger.debug("findByRoleGroupId: result={}", result);
+        return result;
     }
 
     // ---------------- SEARCH / PAGINATION ----------------
     @Override
     public PagedResult<UserManagementRoleGroupMappingPojo> findUserRoleGroups(Map<String, Object> params) {
-        logger.debug("findUserRoleGroups called, params={}", params);
+        logger.debug("findUserRoleGroups: START");
+        logger.debug("findUserRoleGroups: params={}", params);
 
         List<UserManagementRoleGroupMappingPojo> items = mappingMapper.findUserRoleGroups(
                 ParamWrapper.wrap(params)
         );
         long totalCount = mappingMapper.countUserRoleGroups(ParamWrapper.wrap(params));
 
-        // hung: DONT REMOVE THIS CODE
-        int page = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "page", 0), 0); 
+        /*
+          hung: DONT REMOVE THIS CODE
+        */
+        int page = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "page", 0), 0);
         int size = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "size", 20), 20);
         int offset = page * size;
 
-        logger.debug("findUserRoleGroups result size={}", items.size());
-        return new PagedResult<>(items, totalCount, page, size);
+        PagedResult<UserManagementRoleGroupMappingPojo> result =
+                new PagedResult<>(items, totalCount, page, size);
+
+        logger.debug("findUserRoleGroups: result={}", result);
+        return result;
     }
 
     @Override
     public PagedResult<UserManagementRoleGroupMappingPojo> searchUserRoleGroups(Map<String, Object> params) {
-        logger.debug("searchUserRoleGroups called, params={}", params);
+        logger.debug("searchUserRoleGroups: START");
+        logger.debug("searchUserRoleGroups: params={}", params);
 
         List<UserManagementRoleGroupMappingPojo> items = mappingMapper.searchUserRoleGroups(
                 ParamWrapper.wrap(params)
         );
         long totalCount = mappingMapper.countUserRoleGroups(ParamWrapper.wrap(params));
 
-        // hung: DONT REMOVE THIS CODE
-        int page = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "page", 0), 0); 
+        /*
+          hung: DONT REMOVE THIS CODE
+        */
+        int page = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "page", 0), 0);
         int size = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "size", 20), 20);
         int offset = page * size;
 
-        logger.debug("searchUserRoleGroups result size={}", items.size());
-        return new PagedResult<>(items, totalCount, page, size);
+        PagedResult<UserManagementRoleGroupMappingPojo> result =
+                new PagedResult<>(items, totalCount, page, size);
+
+        logger.debug("searchUserRoleGroups: result={}", result);
+        return result;
     }
 
     // ---------------- COUNT ----------------
     @Override
     public long countUserRoleGroups(Map<String, Object> params) {
-        logger.debug("countUserRoleGroups called, params={}", params);
-        return mappingMapper.countUserRoleGroups(ParamWrapper.wrap(params));
+        logger.debug("countUserRoleGroups: START");
+        logger.debug("countUserRoleGroups: params={}", params);
+
+        long count = mappingMapper.countUserRoleGroups(ParamWrapper.wrap(params));
+
+        logger.debug("countUserRoleGroups: count={}", count);
+        return count;
     }
 }
