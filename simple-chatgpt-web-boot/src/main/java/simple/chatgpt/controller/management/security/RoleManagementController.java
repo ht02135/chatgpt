@@ -37,7 +37,7 @@ public class RoleManagementController implements RoleManagementControllerApi {
     }
 
     // ---------------- CREATE ----------------
-    @PostMapping("/insert")
+    @PostMapping("/insertRole")
     public ResponseEntity<Response<RoleManagementPojo>> insertRole(@RequestBody RoleManagementPojo role) {
         logger.debug("insertRole START");
         logger.debug("insertRole role={}", role);
@@ -53,7 +53,7 @@ public class RoleManagementController implements RoleManagementControllerApi {
     }
 
     // ---------------- UPDATE ----------------
-    @PutMapping("/update")
+    @PutMapping("/updateRole")
     public ResponseEntity<Response<RoleManagementPojo>> updateRole(@RequestBody RoleManagementPojo role,
                                                                    @RequestParam(required = false) Long roleId,
                                                                    @RequestParam(required = false) String roleName) {
