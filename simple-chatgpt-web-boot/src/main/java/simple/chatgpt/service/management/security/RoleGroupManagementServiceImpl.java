@@ -32,234 +32,229 @@ public class RoleGroupManagementServiceImpl implements RoleGroupManagementServic
     private final RoleGroupRoleMappingService roleGroupRoleMappingService;
     private final RoleManagementService roleManagementService;
     private final SecurityConfigLoader securityConfigLoader;
-
     private final GenericCache<Long, RoleGroupManagementPojo> roleGroupCache;
 
     @Autowired
     public RoleGroupManagementServiceImpl(
-        RoleGroupManagementMapper groupMapper,
-        RoleGroupRoleMappingService roleGroupRoleMappingService,
-        RoleManagementService roleManagementService,
-        SecurityConfigLoader securityConfigLoader,
-        @Qualifier("roleGroupCache") GenericCache<Long, RoleGroupManagementPojo> roleGroupCache) 
-   {
-        logger.debug("RoleGroupManagementServiceImpl constructor called");
-        logger.debug("groupMapper={}", groupMapper);
-        logger.debug("roleGroupRoleMappingService={}", roleGroupRoleMappingService);
-        logger.debug("roleManagementService={}", roleManagementService);
-        logger.debug("securityConfigLoader={}", securityConfigLoader);
-        logger.debug("roleGroupCache={}", roleGroupCache);
+            RoleGroupManagementMapper groupMapper,
+            RoleGroupRoleMappingService roleGroupRoleMappingService,
+            RoleManagementService roleManagementService,
+            SecurityConfigLoader securityConfigLoader,
+            @Qualifier("roleGroupCache") GenericCache<Long, RoleGroupManagementPojo> roleGroupCache) {
+
+        logger.debug("RoleGroupManagementServiceImpl START");
+        logger.debug("RoleGroupManagementServiceImpl groupMapper={}", groupMapper);
+        logger.debug("RoleGroupManagementServiceImpl roleGroupRoleMappingService={}", roleGroupRoleMappingService);
+        logger.debug("RoleGroupManagementServiceImpl roleManagementService={}", roleManagementService);
+        logger.debug("RoleGroupManagementServiceImpl securityConfigLoader={}", securityConfigLoader);
+        logger.debug("RoleGroupManagementServiceImpl roleGroupCache={}", roleGroupCache);
 
         this.groupMapper = groupMapper;
         this.roleGroupRoleMappingService = roleGroupRoleMappingService;
         this.roleManagementService = roleManagementService;
         this.securityConfigLoader = securityConfigLoader;
         this.roleGroupCache = roleGroupCache;
+
+        logger.debug("RoleGroupManagementServiceImpl DONE");
     }
 
     @PostConstruct
     public void postConstruct() {
+        logger.debug("postConstruct START");
         initializeDB();
+        logger.debug("postConstruct DONE");
     }
 
     public void initializeDB() {
-        logger.debug("initializeDB called");
+        logger.debug("initializeDB START");
 
         if (securityConfigLoader == null || roleGroupCache == null) {
-            logger.error("Missing required beans: securityConfigLoader={}, roleGroupCache={}",
-                    securityConfigLoader, roleGroupCache);
+            logger.error("Missing required beans: securityConfigLoader={}, roleGroupCache={}", securityConfigLoader, roleGroupCache);
+            logger.debug("initializeDB DONE");
             return;
         }
 
         // ----------- LOAD ROLE GROUPS FROM CONFIG -----------
         List<RoleGroupConfig> definedGroups = securityConfigLoader.getRoleGroups();
-        logger.debug("Loaded role groups from config, size={}", definedGroups.size());
+        logger.debug("initializeDB definedGroups={}", definedGroups.size());
 
-        // ----------- FETCH ALL ROLE GROUPS ONCE (BY ID) -----------
+        // ----------- FETCH ALL ROLE GROUPS ONCE -----------
         List<RoleGroupManagementPojo> allGroups = getAllRoleGroups().getItems();
-        logger.debug("Fetched all existing role groups size={}", allGroups.size());
+        logger.debug("initializeDB allGroups={}", allGroups.size());
 
-        // Map by name so we can check existence quickly
         Map<String, RoleGroupManagementPojo> groupByName = allGroups.stream()
                 .collect(Collectors.toMap(RoleGroupManagementPojo::getGroupName, g -> g));
-        logger.debug("Mapped existing role groups by name, size={}", groupByName.size());
+        logger.debug("initializeDB groupByName={}", groupByName.size());
 
-        // ----------- FETCH ALL ROLES ONCE -----------
-        Map<String, RoleManagementPojo> roleByName = roleManagementService
-                .getAllRoles()
+        Map<String, RoleManagementPojo> roleByName = roleManagementService.getAllRoles()
                 .getItems()
                 .stream()
                 .collect(Collectors.toMap(RoleManagementPojo::getRoleName, r -> r));
-        logger.debug("Fetched all roles size={}", roleByName.size());
+        logger.debug("initializeDB roleByName={}", roleByName.size());
 
-        // ----------- MAIN LOOP -----------
         for (RoleGroupConfig rgConfig : definedGroups) {
             String groupName = rgConfig.getName();
             String description = rgConfig.getDescription();
 
-            logger.debug("Processing groupName={} description={}", groupName, description);
-
             RoleGroupManagementPojo groupPojo = groupByName.get(groupName);
             if (groupPojo == null) {
-                logger.debug("Group '{}' not found, inserting new group", groupName);
-
-                groupPojo = new RoleGroupManagementPojo();
-                groupPojo.setGroupName(groupName);
-                groupPojo.setDescription(description);
-                RoleGroupManagementPojo inserted = insertRoleGroup(ParamWrapper.wrap("group", groupPojo));
-
-                logger.debug("Inserted new role group id={} groupName={}", inserted.getId(), inserted.getGroupName());
-                // Also put in local map for subsequent lookups in this same init
+                RoleGroupManagementPojo inserted = insertRoleGroup(ParamWrapper.wrap("group", new RoleGroupManagementPojo() {{
+                    setGroupName(groupName);
+                    setDescription(description);
+                }}));
                 groupByName.put(inserted.getGroupName(), inserted);
-            } else {
-                logger.debug("Group already exists id={} groupName={}", groupPojo.getId(), groupName);
+                logger.debug("initializeDB inserted group id={}", inserted.getId());
             }
 
-            // ----------- MAP ROLES TO GROUP -----------
             for (RoleRefConfig ref : rgConfig.getRoles()) {
                 String roleName = ref.getName();
                 RoleManagementPojo role = roleByName.get(roleName);
-
-                logger.debug("Mapping roleName={} to groupName={}", roleName, groupName);
-
                 if (role != null) {
                     roleGroupRoleMappingService.addRoleToGroupIfNotExists(
-                            ParamWrapper.wrap("roleGroupId", groupPojo.getId(), "roleId", role.getId())
+                            ParamWrapper.wrap("roleGroupId", groupByName.get(groupName).getId(), "roleId", role.getId())
                     );
-                    logger.debug("Mapped role→group: groupName={} roleName={} roleId={}", 
-                            groupName, roleName, role.getId());
-                } else {
-                    logger.warn("Role '{}' not found in pre-fetched roles, skipping mapping to group '{}'",
-                            roleName, groupName);
                 }
             }
         }
 
-        logger.debug("initializeDB completed");
+        logger.debug("initializeDB DONE");
     }
 
     // =================== CREATE ===================
     @Override
     public RoleGroupManagementPojo insertRoleGroup(Map<String, Object> params) {
-        logger.debug("insertRoleGroup called, params={}", params);
+        logger.debug("insertRoleGroup START");
+        logger.debug("insertRoleGroup params={}", params);
 
         RoleGroupManagementPojo group = ParamWrapper.unwrap(params, "group");
-        logger.debug("insertRoleGroup before insert group={}", group);
-
-        // Insert into DB
         groupMapper.insertRoleGroup(ParamWrapper.wrap("group", group));
-        logger.debug("insertRoleGroup after insert, group.id={}", group.getId());
+        RoleGroupManagementPojo fullGroup = groupMapper.findRoleGroupById(ParamWrapper.wrap("roleGroupId", group.getId()));
 
-        // Re-fetch from DB to get all populated fields (timestamps, etc.)
-        RoleGroupManagementPojo fullGroup = groupMapper.findRoleGroupById(
-            ParamWrapper.wrap("roleGroupId", group.getId())
-        );
-        logger.debug("insertRoleGroup fetched fullGroup={}", fullGroup);
-
+        logger.debug("insertRoleGroup return={}", fullGroup);
         return fullGroup;
     }
 
     // =================== UPDATE ===================
     @Override
     public RoleGroupManagementPojo updateRoleGroup(Map<String, Object> params) {
-        logger.debug("updateRoleGroup called, params={}", params);
+        logger.debug("updateRoleGroup START");
+        logger.debug("updateRoleGroup params={}", params);
+
         RoleGroupManagementPojo group = ParamWrapper.unwrap(params, "group");
         groupMapper.updateRoleGroup(ParamWrapper.wrap("group", group));
+
+        logger.debug("updateRoleGroup return={}", group);
         return group;
     }
 
     // =================== DELETE ===================
     @Override
     public void deleteRoleGroupById(Map<String, Object> params) {
-        logger.debug("deleteRoleGroupById called, params={}", params);
+        logger.debug("deleteRoleGroupById START");
+        logger.debug("deleteRoleGroupById params={}", params);
+
         Long id = ParamWrapper.unwrap(params, "roleGroupId");
         roleGroupCache.invalidate(id);
         groupMapper.deleteRoleGroupById(ParamWrapper.wrap("roleGroupId", id));
+
+        logger.debug("deleteRoleGroupById DONE");
     }
 
     // =================== READ ===================
     @Override
     public RoleGroupManagementPojo findRoleGroupById(Map<String, Object> params) {
-        logger.debug("findRoleGroupById called, params={}", params);
+        logger.debug("findRoleGroupById START");
+        logger.debug("findRoleGroupById params={}", params);
 
-        return internalGetRoleGroup(params);
+        RoleGroupManagementPojo result = internalGetRoleGroup(params);
+        logger.debug("findRoleGroupById return={}", result);
+        return result;
     }
 
     @Override
     public PagedResult<RoleGroupManagementPojo> findAllRoleGroups() {
-        logger.debug("findAllRoleGroups called");
+        logger.debug("findAllRoleGroups START");
+
         List<RoleGroupManagementPojo> items = groupMapper.findAllRoleGroups();
-        long totalCount = items != null ? items.size() : 0;
-        return new PagedResult<>(items, totalCount, 1, (int) totalCount);
+        PagedResult<RoleGroupManagementPojo> result = new PagedResult<>(items, items.size(), 1, items.size());
+
+        logger.debug("findAllRoleGroups return={}", result);
+        return result;
     }
 
     @Override
     public PagedResult<RoleGroupManagementPojo> getAllRoleGroups() {
-        logger.debug("getAllRoleGroups called");
+        logger.debug("getAllRoleGroups START");
+
         List<RoleGroupManagementPojo> items = groupMapper.getAllRoleGroups();
-        long totalCount = items != null ? items.size() : 0;
-        return new PagedResult<>(items, totalCount, 1, (int) totalCount);
+        PagedResult<RoleGroupManagementPojo> result = new PagedResult<>(items, items.size(), 1, items.size());
+
+        logger.debug("getAllRoleGroups return={}", result);
+        return result;
     }
 
     // =================== SEARCH / PAGINATION ===================
     @Override
     public PagedResult<RoleGroupManagementPojo> findRoleGroups(Map<String, Object> params) {
-        logger.debug("findRoleGroups called, params={}", params);
+        logger.debug("findRoleGroups START");
+        logger.debug("findRoleGroups params={}", params);
 
         // hung: DONT REMOVE THIS CODE
-        int page = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "page", 0), 0); 
+        int page = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "page", 0), 0);
         int size = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "size", 20), 20);
         int offset = page * size;
-        
         params.put("offset", offset);
         params.put("limit", size);
 
         List<RoleGroupManagementPojo> items = groupMapper.findRoleGroups(params);
         long totalCount = groupMapper.countRoleGroups(params);
+        PagedResult<RoleGroupManagementPojo> result = new PagedResult<>(items, totalCount, page, size);
 
-        return new PagedResult<>(items, totalCount, page, size);
+        logger.debug("findRoleGroups return={}", result);
+        return result;
     }
 
     @Override
     public PagedResult<RoleGroupManagementPojo> searchRoleGroups(Map<String, Object> params) {
-        logger.debug("searchRoleGroups called, params={}", params);
+        logger.debug("searchRoleGroups START");
+        logger.debug("searchRoleGroups params={}", params);
 
         // hung: DONT REMOVE THIS CODE
-        int page = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "page", 0), 0); 
+        int page = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "page", 0), 0);
         int size = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "size", 20), 20);
         int offset = page * size;
-        
         params.put("offset", offset);
         params.put("limit", size);
 
         List<RoleGroupManagementPojo> items = groupMapper.searchRoleGroups(params);
         long totalCount = groupMapper.countRoleGroups(params);
+        PagedResult<RoleGroupManagementPojo> result = new PagedResult<>(items, totalCount, page, size);
 
-        return new PagedResult<>(items, totalCount, page, size);
+        logger.debug("searchRoleGroups return={}", result);
+        return result;
     }
 
     // =================== COUNT ===================
     @Override
     public long countRoleGroups(Map<String, Object> params) {
-        logger.debug("countRoleGroups called, params={}", params);
-        return groupMapper.countRoleGroups(params);
+        logger.debug("countRoleGroups START");
+        logger.debug("countRoleGroups params={}", params);
+
+        long count = groupMapper.countRoleGroups(params);
+
+        logger.debug("countRoleGroups return={}", count);
+        return count;
     }
 
     // =================== HELPER ===================
-    // helper handles cache lookup
     public RoleGroupManagementPojo internalGetRoleGroup(Map<String, Object> params) {
-        Long id = ParamWrapper.unwrap(params, "id");
-        logger.debug("internalGetRoleGroup called, id={}", id);
+        logger.debug("internalGetRoleGroup START");
+        logger.debug("internalGetRoleGroup params={}", params);
 
-        return roleGroupCache.get(id, k -> {
-            logger.debug("internalGetRoleGroup cache miss, loading from DB for id={}", k);
-            RoleGroupManagementPojo dbRoleGroup = groupMapper.findRoleGroupById(ParamWrapper.wrap("id", k));
-            if (dbRoleGroup != null) {
-                logger.debug("internalGetRoleGroup loaded from DB: {}", dbRoleGroup);
-            } else {
-                logger.debug("internalGetRoleGroup DB returned null for id={}", k);
-            }
-            return dbRoleGroup;
-        });
+        Long id = ParamWrapper.unwrap(params, "id");
+        RoleGroupManagementPojo result = roleGroupCache.get(id, k -> groupMapper.findRoleGroupById(ParamWrapper.wrap("id", k)));
+
+        logger.debug("internalGetRoleGroup return={}", result);
+        return result;
     }
 }
