@@ -23,7 +23,7 @@
 
     <!-- Search Actions -->
     <customize-search-actions params="
-        actions: RoleGroupVM.actionGroupMap['search-rolegroup-actions'],
+        actions: RoleGroupVM.actionGroupMap['search-role-group-actions'],
         invokeAction: RoleGroupVM.invokeAction
     "></customize-search-actions>
 
