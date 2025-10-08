@@ -10,15 +10,14 @@
     <resultMap id="PageRoleGroupManagementResultMap" type="simple.chatgpt.pojo.management.security.PageRoleGroupManagementPojo">
         <id property="id" column="id"/>
         <result property="urlPattern" column="url_pattern"/>
-        
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+
         <!-- nested RoleGroup object -->
         <association property="roleGroup" javaType="simple.chatgpt.pojo.management.security.RoleGroupManagementPojo">
             <id property="id" column="role_group_id"/>
             <result property="groupName" column="role_group_name"/>
         </association>
-        
-        <result property="createdAt" column="created_at"/>
-        <result property="updatedAt" column="updated_at"/>
     </resultMap>
 
     <!-- =======================
@@ -57,28 +56,52 @@
          READ
          ======================= -->
     <select id="findAllPageRoleGroups" resultMap="PageRoleGroupManagementResultMap">
-        SELECT p.id, p.url_pattern, p.role_group_id, r.group_name AS role_group_name, p.created_at, p.updated_at
+        SELECT 
+            p.id,
+            p.url_pattern,
+            p.role_group_id,
+            r.group_name AS role_group_name,
+            p.created_at,
+            p.updated_at
         FROM page_role_group_management p
         LEFT JOIN role_group_management r ON p.role_group_id = r.id
         ORDER BY p.created_at DESC
     </select>
-    
+
     <select id="findById" parameterType="map" resultMap="PageRoleGroupManagementResultMap">
-        SELECT p.id, p.url_pattern, p.role_group_id, r.group_name AS role_group_name, p.created_at, p.updated_at
+        SELECT 
+            p.id,
+            p.url_pattern,
+            p.role_group_id,
+            r.group_name AS role_group_name,
+            p.created_at,
+            p.updated_at
         FROM page_role_group_management p
         LEFT JOIN role_group_management r ON p.role_group_id = r.id
         WHERE p.id = #{params.id}
     </select>
 
     <select id="findByUrlPattern" parameterType="map" resultMap="PageRoleGroupManagementResultMap">
-        SELECT p.id, p.url_pattern, p.role_group_id, r.group_name AS role_group_name, p.created_at, p.updated_at
+        SELECT 
+            p.id,
+            p.url_pattern,
+            p.role_group_id,
+            r.group_name AS role_group_name,
+            p.created_at,
+            p.updated_at
         FROM page_role_group_management p
         LEFT JOIN role_group_management r ON p.role_group_id = r.id
         WHERE p.url_pattern = #{params.urlPattern}
     </select>
 
     <select id="findByRoleGroupId" parameterType="map" resultMap="PageRoleGroupManagementResultMap">
-        SELECT p.id, p.url_pattern, p.role_group_id, r.group_name AS role_group_name, p.created_at, p.updated_at
+        SELECT 
+            p.id,
+            p.url_pattern,
+            p.role_group_id,
+            r.group_name AS role_group_name,
+            p.created_at,
+            p.updated_at
         FROM page_role_group_management p
         LEFT JOIN role_group_management r ON p.role_group_id = r.id
         WHERE p.role_group_id = #{params.roleGroupId}
@@ -102,7 +125,13 @@
          SEARCH / PAGINATION
          ======================= -->
     <select id="findPageRoleGroups" parameterType="map" resultMap="PageRoleGroupManagementResultMap">
-        SELECT p.id, p.url_pattern, p.role_group_id, r.group_name AS role_group_name, p.created_at, p.updated_at
+        SELECT 
+            p.id,
+            p.url_pattern,
+            p.role_group_id,
+            r.group_name AS role_group_name,
+            p.created_at,
+            p.updated_at
         FROM page_role_group_management p
         LEFT JOIN role_group_management r ON p.role_group_id = r.id
         <include refid="PageRoleGroupFilter"/>
@@ -115,7 +144,13 @@
     </select>
 
     <select id="searchPageRoleGroups" parameterType="map" resultMap="PageRoleGroupManagementResultMap">
-        SELECT p.id, p.url_pattern, p.role_group_id, r.group_name AS role_group_name, p.created_at, p.updated_at
+        SELECT 
+            p.id,
+            p.url_pattern,
+            p.role_group_id,
+            r.group_name AS role_group_name,
+            p.created_at,
+            p.updated_at
         FROM page_role_group_management p
         LEFT JOIN role_group_management r ON p.role_group_id = r.id
         <include refid="PageRoleGroupFilter"/>
