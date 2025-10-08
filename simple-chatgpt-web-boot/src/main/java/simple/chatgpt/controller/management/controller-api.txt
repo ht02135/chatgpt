@@ -24,21 +24,25 @@ all 5 core API types (Create/Update/List/Get/Delete)
 | ------------- | -------------- | --------------- | ----------------- |
 | Create / Save | /create        | b=`<entity>Obj` | r=n/a             |
 | Update / Save | /update?id=123 | b=`<entity>Obj` | r=n/a             |
-| Get / List    | /list          | b=n/a           | r=`[<entity>Obj]` |
+| Get / List    | /search        | b=n/a           | r=`[<entity>Obj]` |
 | Get / by ID   | /get?id=123    | b=n/a           | r=`<entity>Obj`   |
 | Delete        | /delete?id=123 | b=n/a           | r=n/a             |
+
+i want to pick existing controller method and change the url mapping
+1>existing method for /create
+check payload body for enity else throw exception
+
+2>existing method for /update
+check has id else throw exception
+check payload body for enity else throw exception
+
+3>existing method for /search
+check for params 
+
+4>existing method for /get
+check has id else throw exception
+
+5>existing method for /delete
+check has id else throw exception
 																																															url=`/findByRoleGroupId?roleGroupId=123` b=n/a r=`[currentUserRoleGroup]` |
 /////////////////////
-
-/create → userObj
-/create: This is the URL path of the API you call to create a new entity (in this case, a user).
-userObj: This represents the payload or object you send in the request body when creating a user.
-
-/update?id=123 → userObj
-
-/////////////////
-
-
-/update?id=123: This is the URL path for updating an existing user, with 123 being the user ID you want to update.
-userObj: This is the updated data you send in the request body.
-
