@@ -8,7 +8,7 @@ import simple.chatgpt.util.PagedResult;
 public interface UserManagementService {
 
     // 🔎 LIST / SEARCH
-    PagedResult<UserManagementPojo> searchUsers(Map<String, Object> params);
+    PagedResult<UserManagementPojo> searchUsers(Map<String, String> params);
 
     // 📖 READ
     UserManagementPojo getUserById(Long id);

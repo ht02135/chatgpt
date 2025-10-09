@@ -1,5 +1,6 @@
 package simple.chatgpt.service.management;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -126,17 +127,28 @@ public class UserManagementServiceImpl implements UserManagementService {
 
     // 🔎 LIST / SEARCH
     @Override
-    public PagedResult<UserManagementPojo> searchUsers(Map<String, Object> params) {
+    public PagedResult<UserManagementPojo> searchUsers(Map<String, String> params) {
         logger.debug("searchUsers START");
         logger.debug("searchUsers params={}", params);
 
-        // Pass params directly to mapper; controller owns defaults & sort
-        List<UserManagementPojo> items = userManagementMapper.findUsers(params);
-        long totalCount = userManagementMapper.countUsers(params);
-        PagedResult<UserManagementPojo> result = new PagedResult<>(
-        	items, totalCount, 
-        	SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "page", 0), 0),
-        	SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "size", 20), 20));
+        // hung: DONT REMOVE THIS CODE
+        int page = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "page", 0), 0); 
+        int size = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "size", 20), 20);
+        int offset = page * size;
+
+        Map<String, Object> sqlParams = new HashMap<>();
+        sqlParams.putAll(params);
+        sqlParams.put("offset", offset);
+        sqlParams.put("limit", size);
+
+        String sortField = ParamWrapper.unwrap(params, "sortField", "id");
+        String sortDirection = ParamWrapper.unwrap(params, "sortDirection", "ASC").toUpperCase();
+        sqlParams.put("sortField", sortField);
+        sqlParams.put("sortDirection", sortDirection);
+
+        List<UserManagementPojo> items = userManagementMapper.findUsers(sqlParams);
+        long totalCount = userManagementMapper.countUsers(sqlParams);
+        PagedResult<UserManagementPojo> result = new PagedResult<>(items, totalCount, page, size);
 
         logger.debug("searchUsers return={}", result);
         return result;

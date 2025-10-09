@@ -1,5 +1,6 @@
 package simple.chatgpt.service.management;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -22,7 +23,6 @@ public class UserManagementListMemberServiceImpl implements UserManagementListMe
 
     public UserManagementListMemberServiceImpl(UserManagementListMemberMapper mapper) {
         logger.debug("UserManagementListMemberServiceImpl constructor called");
-        logger.debug("UserManagementListMemberServiceImpl mapper={}", mapper);
         this.mapper = mapper;
     }
 
@@ -32,27 +32,33 @@ public class UserManagementListMemberServiceImpl implements UserManagementListMe
         logger.debug("searchMembers START");
         logger.debug("searchMembers params={}", params);
 
+        // hung: DONT REMOVE THIS CODE
         int page = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "page", 0), 0);
         int size = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "size", 20), 20);
         int offset = page * size;
 
-        if (!params.containsKey("sortField")) params.put("sortField", "id");
-        if (!params.containsKey("sortDirection")) params.put("sortDirection", "ASC");
+        String sortField = ParamWrapper.unwrap(params, "sortField", "id");
+        String sortDirection = ParamWrapper.unwrap(params, "sortDirection", "ASC").toUpperCase();
 
-        params.put("offset", offset);
-        params.put("limit", size);
+        Map<String, Object> sqlParams = new HashMap<>(params);
+        sqlParams.put("offset", offset);
+        sqlParams.put("limit", size);
+        sqlParams.put("sortField", sortField);
+        sqlParams.put("sortDirection", sortDirection);
+
+        logger.debug("searchMembers sqlParams={}", sqlParams);
 
         List<UserManagementListMemberPojo> members;
         long total = 0;
         try {
-            members = mapper.findMembers(params);
+            members = mapper.findMembers(sqlParams);
             total = mapper.countMembers(params);
         } catch (Exception e) {
             logger.error("Error executing searchMembers", e);
             throw new RuntimeException("Database error during searchMembers", e);
         }
 
-        logger.debug("searchMembers DONE size={} total={}", members.size(), total);
+        logger.debug("searchMembers DONE");
         return new PagedResult<>(members, total, page, size);
     }
 
@@ -69,7 +75,7 @@ public class UserManagementListMemberServiceImpl implements UserManagementListMe
             throw new RuntimeException("Database error during countMembers", e);
         }
 
-        logger.debug("countMembers DONE count={}", count);
+        logger.debug("countMembers DONE");
         return count;
     }
 
@@ -81,7 +87,7 @@ public class UserManagementListMemberServiceImpl implements UserManagementListMe
 
         UserManagementListMemberPojo member = mapper.getMemberById(params);
 
-        logger.debug("getMemberById DONE member={}", member);
+        logger.debug("getMemberById DONE");
         return member;
     }
 
@@ -92,7 +98,7 @@ public class UserManagementListMemberServiceImpl implements UserManagementListMe
 
         UserManagementListMemberPojo member = mapper.getMemberByUserName(params);
 
-        logger.debug("getMemberByUserName DONE member={}", member);
+        logger.debug("getMemberByUserName DONE");
         return member;
     }
 
@@ -104,9 +110,8 @@ public class UserManagementListMemberServiceImpl implements UserManagementListMe
 
         mapper.insertMember(params);
 
-        UserManagementListMemberPojo member = ParamWrapper.unwrap(params, "member");
-        logger.debug("createMember DONE member={}", member);
-        return member;
+        logger.debug("createMember DONE");
+        return (UserManagementListMemberPojo) ParamWrapper.unwrap(params, "member");
     }
 
     @Override
@@ -116,7 +121,7 @@ public class UserManagementListMemberServiceImpl implements UserManagementListMe
 
         int count = mapper.batchInsertMembers(params);
 
-        logger.debug("batchCreateMembers DONE count={}", count);
+        logger.debug("batchCreateMembers DONE");
         return count;
     }
 
@@ -128,9 +133,8 @@ public class UserManagementListMemberServiceImpl implements UserManagementListMe
 
         mapper.updateMemberById(params);
 
-        UserManagementListMemberPojo member = ParamWrapper.unwrap(params, "member");
-        logger.debug("updateMemberById DONE member={}", member);
-        return member;
+        logger.debug("updateMemberById DONE");
+        return (UserManagementListMemberPojo) ParamWrapper.unwrap(params, "member");
     }
 
     @Override
@@ -140,9 +144,8 @@ public class UserManagementListMemberServiceImpl implements UserManagementListMe
 
         mapper.updateMemberByUserName(params);
 
-        UserManagementListMemberPojo member = ParamWrapper.unwrap(params, "member");
-        logger.debug("updateMemberByUserName DONE member={}", member);
-        return member;
+        logger.debug("updateMemberByUserName DONE");
+        return (UserManagementListMemberPojo) ParamWrapper.unwrap(params, "member");
     }
 
     // ------------------ DELETE ------------------
@@ -175,4 +178,5 @@ public class UserManagementListMemberServiceImpl implements UserManagementListMe
 
         logger.debug("deleteMembersByListId DONE");
     }
+
 }
