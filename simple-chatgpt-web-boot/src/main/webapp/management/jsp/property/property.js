@@ -100,7 +100,7 @@ function PropertyViewModel(params, config) {
         console.log("property.js -> loadProperties: called");
 
         const qs = self.buildSearchQuery();
-        const url = API_PROPERTY + "?" + qs;
+        const url = `${API_PROPERTY}/search?${qs}`;
 
         try {
             const res = await fetch(url, { headers: { 'Accept': 'application/json' } });

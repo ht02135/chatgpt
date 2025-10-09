@@ -50,8 +50,83 @@ public class PropertyManagementController {
         logger.debug("PropertyManagementController propertyService={}", propertyService);
     }
 
+    // ==============================================================
+    // ================ 5 CORE METHODS (on top) =====================
+    // ==============================================================
+
+    @PostMapping("/create")
+    public ResponseEntity<Response<PropertyManagementPojo>> create(@Valid @RequestBody PropertyManagementPojo property) {
+        logger.debug("create called");
+        logger.debug("create property={}", property);
+
+        if (property == null) {
+            throw new IllegalArgumentException("Property payload must not be null");
+        }
+
+        return createProperty(property);
+    }
+
+    @PutMapping("/update")
+    public ResponseEntity<Response<PropertyManagementPojo>> update(
+            @RequestParam(required = false) Long id,
+            @Valid @RequestBody PropertyManagementPojo property) {
+        logger.debug("update called");
+        logger.debug("update id={}", id);
+        logger.debug("update property={}", property);
+
+        if (id == null) {
+            throw new IllegalArgumentException("ID must be provided for update");
+        }
+        if (property == null) {
+            throw new IllegalArgumentException("Property payload must not be null");
+        }
+
+        return updateProperty(id, null, null, property);
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<Response<PagedResult<PropertyManagementPojo>>> search(@RequestParam Map<String, String> params) {
+        logger.debug("search called");
+        logger.debug("search params={}", params);
+
+        return searchProperties(params);
+    }
+
+    @GetMapping("/get")
+    public ResponseEntity<Response<PropertyManagementPojo>> get(@RequestParam(required = false) Long id) {
+        logger.debug("get called");
+        logger.debug("get id={}", id);
+
+        if (id == null) {
+            throw new IllegalArgumentException("ID must be provided for get");
+        }
+
+        return getProperty(id, null, null);
+    }
+
+    @DeleteMapping("/delete")
+    public ResponseEntity<Response<Void>> delete(@RequestParam(required = false) Long id) {
+        logger.debug("delete called");
+        logger.debug("delete id={}", id);
+
+        if (id == null) {
+            throw new IllegalArgumentException("ID must be provided for delete");
+        }
+
+        return deleteProperty(id, null, null);
+    }
+
+    // ==============================================================
+    // ============ EXISTING METHODS (retained below) ===============
+    // ==============================================================
+
+    /*
+     * hung: existing methods moved below — URL mappings removed or commented out
+     * to avoid collision with 5 core API endpoints above.
+     */
+
     // ------------------ LIST / SEARCH ------------------
-    @GetMapping
+    // @GetMapping
     public ResponseEntity<Response<PagedResult<PropertyManagementPojo>>> searchProperties(
             @RequestParam Map<String, String> params
     ) {
@@ -69,13 +144,13 @@ public class PropertyManagementController {
         params.put("sortDirection", ParamWrapper.unwrap(params, "sortDirection", "asc"));
 
         PagedResult<PropertyManagementPojo> result = propertyService.searchProperties(params);
-        
+
         logger.debug("searchProperties result={}", result);
         return ResponseEntity.ok(Response.success("Fetched successfully", result, HttpStatus.OK.value()));
     }
 
     // ------------------ READ ------------------
-    @GetMapping("/get")
+    // @GetMapping("/get")
     public ResponseEntity<Response<PropertyManagementPojo>> getProperty(
             @RequestParam(required = false) Long id,
             @RequestParam(required = false) String propertyName,
@@ -106,7 +181,7 @@ public class PropertyManagementController {
     }
 
     // ------------------ CREATE ------------------
-    @PostMapping("/create")
+    // @PostMapping("/create")
     public ResponseEntity<Response<PropertyManagementPojo>> createProperty(
             @Valid @RequestBody PropertyManagementPojo property
     ) {
@@ -114,14 +189,14 @@ public class PropertyManagementController {
         logger.debug("createProperty property={}", property);
 
         PropertyManagementPojo created = propertyService.createProperty(property);
-        
+
         logger.debug("createProperty result={}", created);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(Response.success("Property created successfully", created, HttpStatus.CREATED.value()));
     }
 
     // ------------------ UPDATE ------------------
-    @PutMapping("/update")
+    // @PutMapping("/update")
     public ResponseEntity<Response<PropertyManagementPojo>> updateProperty(
             @RequestParam(required = false) Long id,
             @RequestParam(required = false) String propertyName,
@@ -152,7 +227,7 @@ public class PropertyManagementController {
     }
 
     // ------------------ DELETE ------------------
-    @DeleteMapping("/delete")
+    // @DeleteMapping("/delete")
     public ResponseEntity<Response<Void>> deleteProperty(
             @RequestParam(required = false) Long id,
             @RequestParam(required = false) String propertyName,
