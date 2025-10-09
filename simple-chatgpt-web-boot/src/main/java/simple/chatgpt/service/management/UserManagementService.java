@@ -10,7 +10,7 @@ public interface UserManagementService {
     // ======= 5 CORE METHODS (on top) =======
     UserManagementPojo create(UserManagementPojo user);
     UserManagementPojo update(Long id, UserManagementPojo user);
-    PagedResult<UserManagementPojo> list(Map<String, String> params);
+    PagedResult<UserManagementPojo> search(Map<String, String> params);
     UserManagementPojo get(Long id);
     void delete(Long id);
 

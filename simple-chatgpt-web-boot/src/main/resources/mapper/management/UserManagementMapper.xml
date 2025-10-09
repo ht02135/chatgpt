@@ -67,7 +67,7 @@
         WHERE id = #{user.id}
     </update>
 
-    <select id="list" resultMap="UserManagementResultMap" parameterType="map">
+    <select id="search" resultMap="UserManagementResultMap" parameterType="map">
         SELECT * FROM user_management
         <where>
             <if test="params.userName != null and params.userName != ''">
@@ -92,6 +92,8 @@
     <delete id="delete">
         DELETE FROM user_management WHERE id = #{id}
     </delete>
+
+	<!-- ======= OTHER METHODS ======= -->
 
     <!-- 🔎 SEARCH / LIST -->
     <select id="findUsers" resultMap="UserManagementResultMap" parameterType="map">

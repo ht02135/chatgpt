@@ -10,7 +10,7 @@ public interface UserManagementMapper {
     // ======= 5 CORE METHODS (on top) =======
     void create(@Param("user") UserManagementPojo user);
     void update(@Param("id") Long id, @Param("user") UserManagementPojo user);
-    List<UserManagementPojo> list(@Param("params") Map<String, Object> params);
+    List<UserManagementPojo> search(@Param("params") Map<String, Object> params);
     UserManagementPojo get(@Param("id") Long id);
     void delete(@Param("id") Long id);
 

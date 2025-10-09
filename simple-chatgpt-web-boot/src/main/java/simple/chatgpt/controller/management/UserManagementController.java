@@ -54,8 +54,9 @@ public class UserManagementController {
                     .body(Response.error("Missing user payload", null, HttpStatus.BAD_REQUEST.value()));
         }
 
-        // reuse existing method
-        return createUser(user);
+        UserManagementPojo created = userManagementService.create(user);
+        logger.debug("create return={}", created);
+        return ResponseEntity.ok(Response.success("Created successfully", created, HttpStatus.OK.value()));
     }
 
     // ------------------ UPDATE ------------------
@@ -79,18 +80,20 @@ public class UserManagementController {
                     .body(Response.error("Missing user payload", null, HttpStatus.BAD_REQUEST.value()));
         }
 
-        // reuse existing logic
-        return updateUser(id, null, null, user);
+        UserManagementPojo updated = userManagementService.update(id, user);
+        logger.debug("update return={}", updated);
+        return ResponseEntity.ok(Response.success("Updated successfully", updated, HttpStatus.OK.value()));
     }
 
-    // ------------------ SEARCH / LIST ------------------
+    // ------------------ SEARCH ------------------
     @GetMapping("/search")
     public ResponseEntity<Response<PagedResult<UserManagementPojo>>> search(@RequestParam Map<String, String> params) {
         logger.debug("search START");
         logger.debug("search params={}", params);
 
-        // reuse existing searchUsers method
-        return searchUsers(params);
+        PagedResult<UserManagementPojo> result = userManagementService.search(params);
+        logger.debug("search return={}", result);
+        return ResponseEntity.ok(Response.success("Fetched successfully", result, HttpStatus.OK.value()));
     }
 
     // ------------------ GET BY ID ------------------
@@ -105,8 +108,9 @@ public class UserManagementController {
                     .body(Response.error("Missing id parameter", null, HttpStatus.BAD_REQUEST.value()));
         }
 
-        // reuse existing getUser method
-        return getUser(id, null, null);
+        UserManagementPojo user = userManagementService.get(id);
+        logger.debug("get return={}", user);
+        return ResponseEntity.ok(Response.success("Fetched successfully", user, HttpStatus.OK.value()));
     }
 
     // ------------------ DELETE ------------------
@@ -121,8 +125,9 @@ public class UserManagementController {
                     .body(Response.error("Missing id parameter", null, HttpStatus.BAD_REQUEST.value()));
         }
 
-        // reuse existing deleteUser method
-        return deleteUser(id, null, null);
+        userManagementService.delete(id);
+        logger.debug("delete DONE");
+        return ResponseEntity.ok(Response.success("Deleted successfully", null, HttpStatus.OK.value()));
     }
 
     // =========================================================================
