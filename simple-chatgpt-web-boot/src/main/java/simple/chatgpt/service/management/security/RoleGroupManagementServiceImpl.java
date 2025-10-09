@@ -21,7 +21,6 @@ import simple.chatgpt.pojo.management.security.RoleManagementPojo;
 import simple.chatgpt.util.GenericCache;
 import simple.chatgpt.util.PagedResult;
 import simple.chatgpt.util.ParamWrapper;
-import simple.chatgpt.util.SafeConverter;
 
 @Service
 public class RoleGroupManagementServiceImpl implements RoleGroupManagementService {
@@ -74,11 +73,9 @@ public class RoleGroupManagementServiceImpl implements RoleGroupManagementServic
             return;
         }
 
-        // ----------- LOAD ROLE GROUPS FROM CONFIG -----------
         List<RoleGroupConfig> definedGroups = securityConfigLoader.getRoleGroups();
         logger.debug("initializeDB definedGroups={}", definedGroups.size());
 
-        // ----------- FETCH ALL ROLE GROUPS ONCE -----------
         List<RoleGroupManagementPojo> allGroups = getAllRoleGroups().getItems();
         logger.debug("initializeDB allGroups={}", allGroups.size());
 
@@ -199,17 +196,10 @@ public class RoleGroupManagementServiceImpl implements RoleGroupManagementServic
         logger.debug("findRoleGroups START");
         logger.debug("findRoleGroups params={}", params);
 
-        // hung: DONT REMOVE THIS CODE
-        int page = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "page", 0), 0);
-        int size = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "size", 20), 20);
-        int offset = page * size;
-        params.put("offset", offset);
-        params.put("limit", size);
-
         List<RoleGroupManagementPojo> items = groupMapper.findRoleGroups(params);
         long totalCount = groupMapper.countRoleGroups(params);
-        PagedResult<RoleGroupManagementPojo> result = new PagedResult<>(items, totalCount, page, size);
 
+        PagedResult<RoleGroupManagementPojo> result = new PagedResult<>(items, totalCount, 1, (int) totalCount);
         logger.debug("findRoleGroups return={}", result);
         return result;
     }
@@ -219,17 +209,10 @@ public class RoleGroupManagementServiceImpl implements RoleGroupManagementServic
         logger.debug("searchRoleGroups START");
         logger.debug("searchRoleGroups params={}", params);
 
-        // hung: DONT REMOVE THIS CODE
-        int page = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "page", 0), 0);
-        int size = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "size", 20), 20);
-        int offset = page * size;
-        params.put("offset", offset);
-        params.put("limit", size);
-
         List<RoleGroupManagementPojo> items = groupMapper.searchRoleGroups(params);
         long totalCount = groupMapper.countRoleGroups(params);
-        PagedResult<RoleGroupManagementPojo> result = new PagedResult<>(items, totalCount, page, size);
 
+        PagedResult<RoleGroupManagementPojo> result = new PagedResult<>(items, totalCount, 1, (int) totalCount);
         logger.debug("searchRoleGroups return={}", result);
         return result;
     }
@@ -251,16 +234,16 @@ public class RoleGroupManagementServiceImpl implements RoleGroupManagementServic
         logger.debug("internalGetRoleGroup START");
         logger.debug("internalGetRoleGroup params={}", params);
 
-        Long roleGroupId = ParamWrapper.unwrap(params, "roleGroupId"); // <-- fixed
+        Long roleGroupId = ParamWrapper.unwrap(params, "roleGroupId");
         if (roleGroupId == null) {
             logger.error("roleGroupId is null");
             return null;
         }
 
         RoleGroupManagementPojo result = roleGroupCache.get(roleGroupId, k ->
-            groupMapper.findRoleGroupById(ParamWrapper.wrap("roleGroupId", k)) // <-- fixed
+            groupMapper.findRoleGroupById(ParamWrapper.wrap("roleGroupId", k))
         );
-        
+
         logger.debug("internalGetRoleGroup return={}", result);
         return result;
     }
