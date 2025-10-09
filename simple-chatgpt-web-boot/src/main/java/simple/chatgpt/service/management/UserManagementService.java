@@ -13,7 +13,8 @@ public interface UserManagementService {
     PagedResult<UserManagementPojo> search(Map<String, String> params);
     UserManagementPojo get(Long id);
     void delete(Long id);
-
+    
+    // ======= OTHER METHODS =======
     // 🔎 LIST / SEARCH
     PagedResult<UserManagementPojo> searchUsers(Map<String, String> params);
 
