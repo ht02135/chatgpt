@@ -82,3 +82,11 @@ RoleManagementServiceImpl
 
 /////////////////
 
+       // hung: DONT REMOVE THIS CODE
+        int page = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "page", 0), 0);
+        int size = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "size", 20), 20);
+        int offset = page * size;
+        params.put("offset", offset);
+        params.put("limit", size);
+        
+/////////////////////
