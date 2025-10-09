@@ -21,9 +21,11 @@
 	<!-- ======= 5 CORE METHODS (on top) ======= -->
 	<insert id="create" useGeneratedKeys="true"
 		keyProperty="property.id">
-		INSERT INTO property_management (property_key, property_value, description,
+		INSERT INTO property_management (property_key,
+		property_value, description,
 		updated_at)
-		VALUES (#{property.propertyKey}, #{property.propertyValue},
+		VALUES
+		(#{property.propertyKey}, #{property.propertyValue},
 		#{property.description}, #{property.updatedAt})
 	</insert>
 
@@ -39,7 +41,8 @@
 
 	<select id="search" resultMap="PropertyManagementResultMap"
 		parameterType="map">
-		SELECT * FROM property_management
+		SELECT *
+		FROM property_management
 		<where>
 			<if test="params.propertyKey != null and params.propertyKey != ''">
 				AND property_key LIKE CONCAT('%', #{params.propertyKey}, '%')
@@ -50,12 +53,15 @@
 			ORDER BY ${params.sortField} ${params.sortDirection}
 		</if>
 		<if test="params.offset != null and params.limit != null">
-			LIMIT #{params.offset}, #{params.limit}
+			LIMIT CAST(#{params.offset} AS UNSIGNED), CAST(#{params.limit} AS
+			UNSIGNED)
 		</if>
 	</select>
 
+
 	<select id="get" resultMap="PropertyManagementResultMap">
-		SELECT * FROM property_management WHERE id = #{id}
+		SELECT * FROM property_management
+		WHERE id = #{id}
 	</select>
 
 	<delete id="delete">
@@ -77,7 +83,8 @@
 				AND property_name LIKE CONCAT('%', #{params.propertyName}, '%')
 			</if>
 			<if test="params.propertyKey != null and params.propertyKey != ''">
-				AND property_key LIKE CONCAT('%', #{params.propertyKey}, '%')
+				AND property_key LIKE CONCAT('%', #{params.propertyKey},
+				'%')
 			</if>
 			<if test="params.type != null and params.type != ''">
 				AND type LIKE CONCAT('%', #{params.type}, '%')
@@ -104,7 +111,8 @@
 				AND property_name LIKE CONCAT('%', #{params.propertyName}, '%')
 			</if>
 			<if test="params.propertyKey != null and params.propertyKey != ''">
-				AND property_key LIKE CONCAT('%', #{params.propertyKey}, '%')
+				AND property_key LIKE CONCAT('%', #{params.propertyKey},
+				'%')
 			</if>
 			<if test="params.type != null and params.type != ''">
 				AND type LIKE CONCAT('%', #{params.type}, '%')
@@ -119,17 +127,20 @@
 	<!-- READ -->
 	<!-- ========================= -->
 	<select id="findById" resultMap="PropertyManagementResultMap">
-		SELECT * FROM property_management WHERE id = #{id}
+		SELECT * FROM
+		property_management WHERE id = #{id}
 	</select>
 
 	<select id="findByPropertyName"
 		resultMap="PropertyManagementResultMap">
-		SELECT * FROM property_management WHERE property_name = #{propertyName}
+		SELECT * FROM property_management WHERE property_name =
+		#{propertyName}
 	</select>
 
 	<select id="findByPropertyKey"
 		resultMap="PropertyManagementResultMap">
-		SELECT * FROM property_management WHERE property_key = #{propertyKey}
+		SELECT * FROM property_management WHERE property_key =
+		#{propertyKey}
 	</select>
 
 	<!-- ========================= -->
@@ -137,8 +148,10 @@
 	<!-- ========================= -->
 	<insert id="insertProperty" useGeneratedKeys="true"
 		keyProperty="id">
-		INSERT INTO property_management (property_name, property_key, type, value)
-		VALUES (#{property.propertyName}, #{property.propertyKey},
+		INSERT INTO property_management (property_name,
+		property_key, type, value)
+		VALUES (#{property.propertyName},
+		#{property.propertyKey},
 		#{property.type}, #{property.value})
 	</insert>
 
