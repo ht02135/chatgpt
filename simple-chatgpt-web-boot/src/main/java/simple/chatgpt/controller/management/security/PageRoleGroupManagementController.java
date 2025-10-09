@@ -34,6 +34,101 @@ public class PageRoleGroupManagementController implements PageRoleGroupManagemen
         this.pageRoleGroupService = pageRoleGroupService;
         logger.debug("PageRoleGroupManagementController constructor called, pageRoleGroupService={}", pageRoleGroupService);
     }
+    
+    // ==============================================================
+    // ================ 5 CORE METHODS (on top) =====================
+    // ==============================================================
+
+    @PostMapping("/create")
+    public ResponseEntity<Response<PageRoleGroupManagementPojo>> create(
+        @RequestBody(required = false) PageRoleGroupManagementPojo pageRoleGroup) 
+    {
+        logger.debug("create called");
+        logger.debug("create pageRoleGroup={}", pageRoleGroup);
+
+        if (pageRoleGroup == null) {
+            logger.debug("create: missing pageRoleGroup payload");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Response.error("Missing pageRoleGroup payload", null, HttpStatus.BAD_REQUEST.value()));
+        }
+
+        return insertPageRoleGroup(pageRoleGroup);
+    }
+
+    @PutMapping("/update")
+    public ResponseEntity<Response<PageRoleGroupManagementPojo>> update(
+        @RequestParam(required = false) Long id,
+        @RequestBody(required = false) PageRoleGroupManagementPojo pageRoleGroup) 
+    {
+        logger.debug("update called");
+        logger.debug("update id={}", id);
+        logger.debug("update pageRoleGroup={}", pageRoleGroup);
+
+        if (id == null) {
+            logger.debug("update: missing pageRoleGroupId");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Response.error("Missing pageRoleGroupId parameter", null, HttpStatus.BAD_REQUEST.value()));
+        }
+        if (pageRoleGroup == null) {
+            logger.debug("update: missing pageRoleGroup payload");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Response.error("Missing pageRoleGroup payload", null, HttpStatus.BAD_REQUEST.value()));
+        }
+
+        return updatePageRoleGroup(id, pageRoleGroup);
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<Response<PagedResult<PageRoleGroupManagementPojo>>> search(
+        @RequestParam Map<String, Object> params) 
+    {
+        logger.debug("search called");
+        logger.debug("search params={}", params);
+
+        if (params == null || params.isEmpty()) {
+            logger.debug("search: missing parameters");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Response.error("Missing parameters", null, HttpStatus.BAD_REQUEST.value()));
+        }
+
+        return searchPageRoleGroups(params);
+    }
+
+    @GetMapping("/get")
+    public ResponseEntity<Response<PageRoleGroupManagementPojo>> get(
+        @RequestParam(required = false) Long id) 
+    {
+        logger.debug("get called");
+        logger.debug("get id={}", id);
+
+        if (id == null) {
+            logger.debug("get: missing pageRoleGroupId");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Response.error("Missing pageRoleGroupId parameter", null, HttpStatus.BAD_REQUEST.value()));
+        }
+
+        return findById(id);
+    }
+
+    @DeleteMapping("/delete")
+    public ResponseEntity<Response<Void>> delete(
+        @RequestParam(required = false) Long id) 
+    {
+        logger.debug("delete called");
+        logger.debug("delete id={}", id);
+
+        if (id == null) {
+            logger.debug("delete: missing pageRoleGroupId");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Response.error("Missing pageRoleGroupId parameter", null, HttpStatus.BAD_REQUEST.value()));
+        }
+
+        return deletePageRoleGroupById(id);
+    }
+
+    // ==============================================================
+    // ================ EXISTING METHODS (without URL mapping) ======
+    // ==============================================================
 
     // ---------------- CREATE ----------------
     @PostMapping("/insertPageRoleGroup")
