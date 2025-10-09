@@ -11,6 +11,14 @@ import simple.chatgpt.pojo.management.security.UserManagementRoleGroupMappingPoj
 @Mapper
 public interface UserManagementRoleGroupMappingMapper {
 
+    // ======= 5 CORE METHODS (on top) =======
+    void create(@Param("mapping") UserManagementRoleGroupMappingPojo mapping);
+    void update(@Param("id") Long id, @Param("mapping") UserManagementRoleGroupMappingPojo mapping);
+    List<UserManagementRoleGroupMappingPojo> search(@Param("params") Map<String, Object> params);
+    UserManagementRoleGroupMappingPojo get(@Param("id") Long id);
+    void delete(@Param("id") Long id);
+
+    // ======= OTHER METHODS =======
     // ---------------- CREATE ----------------
     int insertUserRoleGroup(@Param("params") Map<String, Object> params);
 

@@ -9,6 +9,14 @@ import simple.chatgpt.pojo.management.UserManagementListMemberPojo;
 
 public interface UserManagementListMemberMapper {
 
+    // ======= 5 CORE METHODS (on top) =======
+    void create(@Param("member") UserManagementListMemberPojo member);
+    void update(@Param("id") Long id, @Param("member") UserManagementListMemberPojo member);
+    List<UserManagementListMemberPojo> search(@Param("params") Map<String, Object> params);
+    UserManagementListMemberPojo get(@Param("id") Long id);
+    void delete(@Param("id") Long id);
+
+    // ======= OTHER METHODS =======
     // ---------------- CREATE ----------------
     int insertMember(@Param("params") Map<String, Object> params);
     int createMember(@Param("params") Map<String, Object> params); // service uses createMember

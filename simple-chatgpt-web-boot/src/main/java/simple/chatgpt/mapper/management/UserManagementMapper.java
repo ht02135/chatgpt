@@ -14,6 +14,7 @@ public interface UserManagementMapper {
     UserManagementPojo get(@Param("id") Long id);
     void delete(@Param("id") Long id);
 
+    // ======= OTHER METHODS  =======
     // 🔎 SEARCH / LIST
     List<UserManagementPojo> findUsers(@Param("params") Map<String, Object> params);
     long countUsers(@Param("params") Map<String, Object> params);
