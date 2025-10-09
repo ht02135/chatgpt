@@ -192,18 +192,26 @@ function RoleGroupRoleViewModel(params, config) {
         } catch(err) { console.error('Delete roleGroupRole error:', err); }
     };
 
-    self.loadRoleGroupRoleById = async function(id) {
-        console.log("roleGroupRoles.js -> loadRoleGroupRoleById id=", id);
-        try {
-			const res = await fetch(`${API_ROLE_GROUP_ROLE}/get?id=${encodeURIComponent(id)}`, { headers:{'Accept':'application/json'} });
-            const data = await res.json();
-            console.log("roleGroupRoles.js -> loadRoleGroupRoleById data=", data);
-            if (data.status==='SUCCESS' && data.data) {
-                const found = data.data.items.find(r => r.id === id);
-                if (found) self.currentRoleGroupRole(new RoleGroupRole(found, self.formConfig?.fields || []));
-            }
-        } catch(err) { console.error('Load roleGroupRole error:', err); }
-    };
+	self.loadRoleGroupRoleById = async function(id) {
+	    console.log("roleGroupRoles.js -> loadRoleGroupRoleById id=", id);
+	    try {
+	        const res = await fetch(`${API_ROLE_GROUP_ROLE}/get?id=${encodeURIComponent(id)}`, { 
+	            headers: { 'Accept': 'application/json' } 
+	        });
+	        const data = await res.json();
+	        console.log("roleGroupRoles.js -> loadRoleGroupRoleById data=", data);
+
+	        if (data.status === 'SUCCESS' && data.data) {
+	            // ✅ Single object (not list)
+	            const found = data.data;
+	            self.currentRoleGroupRole(new RoleGroupRole(found, self.formConfig?.fields || []));
+	        } else {
+	            console.warn("roleGroupRoles.js -> loadRoleGroupRoleById: no data found or status not SUCCESS");
+	        }
+	    } catch (err) {
+	        console.error('Load roleGroupRole error:', err);
+	    }
+	};
 
     // ========================
     // Initialization
