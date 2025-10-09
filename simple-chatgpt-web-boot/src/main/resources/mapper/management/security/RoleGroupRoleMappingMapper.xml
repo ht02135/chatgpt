@@ -3,151 +3,170 @@
     PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="simple.chatgpt.mapper.management.security.RoleGroupRoleMappingMapper">
+<mapper
+	namespace="simple.chatgpt.mapper.management.security.RoleGroupRoleMappingMapper">
 
-    <!-- =======================
-         RESULT MAP
-         ======================= -->
-    <resultMap id="RoleGroupRoleMappingResultMap" type="simple.chatgpt.pojo.management.security.RoleGroupRoleMappingPojo">
-        <id property="id" column="id"/>
-        <result property="roleGroupId" column="role_group_id"/>
-        <result property="roleGroupName" column="role_group_name"/>
-        <result property="roleId" column="role_id"/>
-        <result property="roleName" column="role_name"/>
-        <result property="createdAt" column="created_at"/>
-        <result property="updatedAt" column="updated_at"/>
-    </resultMap>
+	<!-- ======================= RESULT MAP ======================= -->
+	<resultMap id="RoleGroupRoleMappingResultMap"
+		type="simple.chatgpt.pojo.management.security.RoleGroupRoleMappingPojo">
+		<id property="id" column="id" />
+		<result property="roleGroupId" column="role_group_id" />
+		<result property="roleGroupName" column="role_group_name" />
+		<result property="roleId" column="role_id" />
+		<result property="roleName" column="role_name" />
+		<result property="createdAt" column="created_at" />
+		<result property="updatedAt" column="updated_at" />
+	</resultMap>
 
-    <!-- =======================
-         CREATE
-         ======================= -->
-    <insert id="insertMapping" parameterType="map" useGeneratedKeys="true" keyProperty="params.mapping.id">
-        INSERT INTO role_group_role_mapping (role_group_id, role_id, created_at, updated_at)
-        VALUES (#{params.mapping.roleGroupId}, #{params.mapping.roleId}, NOW(), NOW())
-    </insert>
+	<!-- ======================= CREATE ======================= -->
+	<insert id="insertMapping" parameterType="map"
+		useGeneratedKeys="true" keyProperty="params.mapping.id">
+		INSERT INTO role_group_role_mapping (role_group_id, role_id, created_at,
+		updated_at)
+		VALUES (#{params.mapping.roleGroupId}, #{params.mapping.roleId}, NOW(),
+		NOW())
+	</insert>
 
-    <!-- =======================
-         DELETE
-         ======================= -->
-    <delete id="deleteMappingById" parameterType="map">
-        DELETE FROM role_group_role_mapping WHERE id = #{params.id}
-    </delete>
+	<!-- ======================= DELETE ======================= -->
+	<delete id="deleteMappingById" parameterType="map">
+		DELETE FROM role_group_role_mapping WHERE id = #{params.id}
+	</delete>
 
-    <delete id="deleteMappingByGroupAndRole" parameterType="map">
-        DELETE FROM role_group_role_mapping
-        WHERE role_group_id = #{params.roleGroupId} AND role_id = #{params.roleId}
-    </delete>
+	<delete id="deleteMappingByGroupAndRole" parameterType="map">
+		DELETE FROM role_group_role_mapping
+		WHERE role_group_id = #{params.roleGroupId} AND role_id = #{params.roleId}
+	</delete>
 
-    <!-- =======================
-         READ
-         ======================= -->
-    <select id="findById" parameterType="map" resultMap="RoleGroupRoleMappingResultMap">
-        SELECT 
-            m.id,
-            m.role_group_id,
-            rg.group_name AS role_group_name,
-            m.role_id,
-            r.role_name AS role_name,
-            m.created_at,
-            m.updated_at
-        FROM role_group_role_mapping m
-        LEFT JOIN role_group_management rg ON m.role_group_id = rg.id
-        LEFT JOIN role_management r ON m.role_id = r.id
-        WHERE m.id = #{params.id}
-    </select>
+	<!-- ======================= READ ======================= -->
+	<select id="findById" parameterType="map"
+		resultMap="RoleGroupRoleMappingResultMap">
+		SELECT
+		m.id,
+		m.role_group_id,
+		rg.group_name AS role_group_name,
+		m.role_id,
+		r.role_name AS role_name,
+		m.created_at,
+		m.updated_at
+		FROM role_group_role_mapping m
+		LEFT JOIN role_group_management rg ON m.role_group_id = rg.id
+		LEFT JOIN role_management r ON m.role_id = r.id
+		WHERE m.id = #{params.id}
+	</select>
 
-    <select id="findAllMappings" resultMap="RoleGroupRoleMappingResultMap">
-        SELECT 
-            m.id,
-            m.role_group_id,
-            rg.group_name AS role_group_name,
-            m.role_id,
-            r.role_name AS role_name,
-            m.created_at,
-            m.updated_at
-        FROM role_group_role_mapping m
-        LEFT JOIN role_group_management rg ON m.role_group_id = rg.id
-        LEFT JOIN role_management r ON m.role_id = r.id
-        ORDER BY m.created_at DESC
-    </select>
+	<select id="findAllMappings"
+		resultMap="RoleGroupRoleMappingResultMap">
+		SELECT
+		m.id,
+		m.role_group_id,
+		rg.group_name AS role_group_name,
+		m.role_id,
+		r.role_name AS role_name,
+		m.created_at,
+		m.updated_at
+		FROM role_group_role_mapping m
+		LEFT JOIN role_group_management rg ON m.role_group_id = rg.id
+		LEFT JOIN role_management r ON m.role_id = r.id
+		ORDER BY m.created_at DESC
+	</select>
 
-    <select id="findByRoleGroupId" parameterType="map" resultMap="RoleGroupRoleMappingResultMap">
-        SELECT 
-            m.id,
-            m.role_group_id,
-            rg.group_name AS role_group_name,
-            m.role_id,
-            r.role_name AS role_name,
-            m.created_at,
-            m.updated_at
-        FROM role_group_role_mapping m
-        LEFT JOIN role_group_management rg ON m.role_group_id = rg.id
-        LEFT JOIN role_management r ON m.role_id = r.id
-        WHERE m.role_group_id = #{params.roleGroupId}
-        ORDER BY m.created_at DESC
-    </select>
+	<select id="findByRoleGroupId" parameterType="map"
+		resultMap="RoleGroupRoleMappingResultMap">
+		SELECT
+		m.id,
+		m.role_group_id,
+		rg.group_name AS role_group_name,
+		m.role_id,
+		r.role_name AS role_name,
+		m.created_at,
+		m.updated_at
+		FROM role_group_role_mapping m
+		LEFT JOIN role_group_management rg ON m.role_group_id = rg.id
+		LEFT JOIN role_management r ON m.role_id = r.id
+		WHERE m.role_group_id = #{params.roleGroupId}
+		ORDER BY m.created_at DESC
+	</select>
 
-    <select id="findByRoleId" parameterType="map" resultMap="RoleGroupRoleMappingResultMap">
-        SELECT 
-            m.id,
-            m.role_group_id,
-            rg.group_name AS role_group_name,
-            m.role_id,
-            r.role_name AS role_name,
-            m.created_at,
-            m.updated_at
-        FROM role_group_role_mapping m
-        LEFT JOIN role_group_management rg ON m.role_group_id = rg.id
-        LEFT JOIN role_management r ON m.role_id = r.id
-        WHERE m.role_id = #{params.roleId}
-        ORDER BY m.created_at DESC
-    </select>
+	<select id="findByRoleId" parameterType="map"
+		resultMap="RoleGroupRoleMappingResultMap">
+		SELECT
+		m.id,
+		m.role_group_id,
+		rg.group_name AS role_group_name,
+		m.role_id,
+		r.role_name AS role_name,
+		m.created_at,
+		m.updated_at
+		FROM role_group_role_mapping m
+		LEFT JOIN role_group_management rg ON m.role_group_id = rg.id
+		LEFT JOIN role_management r ON m.role_id = r.id
+		WHERE m.role_id = #{params.roleId}
+		ORDER BY m.created_at DESC
+	</select>
 
-    <!-- =======================
-         SQL FILTER FRAGMENT
-         ======================= -->
-    <sql id="RoleGroupRoleMappingFilter">
-        <where>
-            <if test="params.roleGroupId != null">
-                AND m.role_group_id = #{params.roleGroupId}
-            </if>
-            <if test="params.roleId != null">
-                AND m.role_id = #{params.roleId}
-            </if>
-        </where>
-    </sql>
+	<!-- ======================= SQL FILTER FRAGMENT ======================= -->
+	<sql id="RoleGroupRoleMappingFilter">
+		<where>
+			<if test="params.roleGroupId != null">
+				AND m.role_group_id = #{params.roleGroupId}
+			</if>
+			<if test="params.roleId != null">
+				AND m.role_id = #{params.roleId}
+			</if>
+		</where>
+	</sql>
 
-    <!-- =======================
-         SEARCH / PAGINATION
-         ======================= -->
-    <select id="searchMappings" parameterType="map" resultMap="RoleGroupRoleMappingResultMap">
-        SELECT 
-            m.id,
-            m.role_group_id,
-            rg.group_name AS role_group_name,
-            m.role_id,
-            r.role_name AS role_name,
-            m.created_at,
-            m.updated_at
-        FROM role_group_role_mapping m
-        LEFT JOIN role_group_management rg ON m.role_group_id = rg.id
-        LEFT JOIN role_management r ON m.role_id = r.id
-        <include refid="RoleGroupRoleMappingFilter"/>
-        <if test="params.sortField != null and params.sortDirection != null">
-            ORDER BY ${params.sortField} ${params.sortDirection}
-        </if>
-        <if test="params.offset != null and params.limit != null">
-            LIMIT #{params.offset}, #{params.limit}
-        </if>
-    </select>
+	<!-- ======================= SEARCH / PAGINATION ======================= -->
+	<select id="findMappings" parameterType="map"
+		resultMap="RoleGroupRoleMappingResultMap">
+		SELECT
+		m.id,
+		m.role_group_id,
+		rg.group_name AS role_group_name,
+		m.role_id,
+		r.role_name AS role_name,
+		m.created_at,
+		m.updated_at
+		FROM role_group_role_mapping m
+		LEFT JOIN role_group_management rg ON m.role_group_id = rg.id
+		LEFT JOIN role_management r ON m.role_id = r.id
+		<include refid="RoleGroupRoleMappingFilter" />
+		<if test="sortField != null and sortDirection != null">
+			ORDER BY ${sortField} ${sortDirection}
+		</if>
+		<if test="offset != null and limit != null">
+			LIMIT #{offset}, #{limit}
+		</if>
+	</select>
 
-    <!-- =======================
-         COUNT (FOR PAGINATION)
-         ======================= -->
-    <select id="countMappings" parameterType="map" resultType="long">
-        SELECT COUNT(*)
-        FROM role_group_role_mapping m
-        <include refid="RoleGroupRoleMappingFilter"/>
-    </select>
+	<select id="searchMappings" parameterType="map"
+		resultMap="RoleGroupRoleMappingResultMap">
+		SELECT
+		m.id,
+		m.role_group_id,
+		rg.group_name AS role_group_name,
+		m.role_id,
+		r.role_name AS role_name,
+		m.created_at,
+		m.updated_at
+		FROM role_group_role_mapping m
+		LEFT JOIN role_group_management rg ON m.role_group_id = rg.id
+		LEFT JOIN role_management r ON m.role_id = r.id
+		<include refid="RoleGroupRoleMappingFilter" />
+		<if
+			test="params.sortField != null and params.sortDirection != null">
+			ORDER BY ${params.sortField} ${params.sortDirection}
+		</if>
+		<if test="params.offset != null and params.limit != null">
+			LIMIT #{params.offset}, #{params.limit}
+		</if>
+	</select>
+
+	<!-- ======================= COUNT (FOR PAGINATION) ======================= -->
+	<select id="countMappings" parameterType="map" resultType="long">
+		SELECT COUNT(*)
+		FROM role_group_role_mapping m
+		<include refid="RoleGroupRoleMappingFilter" />
+	</select>
 
 </mapper>
