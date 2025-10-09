@@ -21,11 +21,9 @@
 	<!-- ======= 5 CORE METHODS (on top) ======= -->
 	<insert id="create" useGeneratedKeys="true"
 		keyProperty="list.id">
-		INSERT INTO user_management_list (list_name, description,
-		created_by,
+		INSERT INTO user_management_list (list_name, description, created_by,
 		created_at)
-		VALUES (#{list.listName}, #{list.description},
-		#{list.createdBy},
+		VALUES (#{list.listName}, #{list.description}, #{list.createdBy},
 		#{list.createdAt})
 	</insert>
 
@@ -41,8 +39,7 @@
 
 	<select id="search" resultMap="UserManagementListResultMap"
 		parameterType="map">
-		SELECT *
-		FROM user_management_list
+		SELECT * FROM user_management_list
 		<where>
 			<if test="params.listName != null and params.listName != ''">
 				AND list_name LIKE CONCAT('%', #{params.listName}, '%')
@@ -53,15 +50,12 @@
 			ORDER BY ${params.sortField} ${params.sortDirection}
 		</if>
 		<if test="params.offset != null and params.limit != null">
-			LIMIT CAST(#{params.offset} AS UNSIGNED), CAST(#{params.limit} AS
-			UNSIGNED)
+			LIMIT #{params.offset}, #{params.limit}
 		</if>
 	</select>
 
-
 	<select id="get" resultMap="UserManagementListResultMap">
-		SELECT * FROM user_management_list
-		WHERE id = #{id}
+		SELECT * FROM user_management_list WHERE id = #{id}
 	</select>
 
 	<delete id="delete">
@@ -74,104 +68,82 @@
 	<insert id="insertList" parameterType="map"
 		useGeneratedKeys="true" keyProperty="params.list.id">
 		INSERT INTO user_management_list
-		(user_list_name, file_path, original_file_name, description,
-		created_at, updated_at)
+		(user_list_name, file_path, original_file_name, description, created_at, updated_at)
 		VALUES
-		(#{params.list.userListName},
-		#{params.list.filePath}, #{params.list.originalFileName},
+		(#{params.list.userListName}, #{params.list.filePath}, #{params.list.originalFileName},
 		#{params.list.description}, NOW(), NOW())
 	</insert>
 
 	<insert id="createList" parameterType="map"
 		useGeneratedKeys="true" keyProperty="params.list.id">
 		INSERT INTO user_management_list
-		(user_list_name, file_path, original_file_name, description,
-		created_at, updated_at)
+		(user_list_name, file_path, original_file_name, description, created_at, updated_at)
 		VALUES
-		(#{params.list.userListName},
-		#{params.list.filePath}, #{params.list.originalFileName},
+		(#{params.list.userListName}, #{params.list.filePath}, #{params.list.originalFileName},
 		#{params.list.description}, NOW(), NOW())
 	</insert>
 
 	<!-- ======================= UPDATE ======================= -->
 	<update id="updateList" parameterType="map">
-		UPDATE
-		user_management_list
+		UPDATE user_management_list
 		SET
 		user_list_name = #{params.list.userListName},
 		file_path = #{params.list.filePath},
-		original_file_name =
-		#{params.list.originalFileName},
-		description =
-		#{params.list.description},
+		original_file_name = #{params.list.originalFileName},
+		description = #{params.list.description},
 		updated_at = NOW()
-		WHERE id =
-		#{params.listId}
+		WHERE id = #{params.listId}
 	</update>
 
 	<update id="updateListById" parameterType="map">
-		UPDATE
-		user_management_list
+		UPDATE user_management_list
 		SET
 		user_list_name = #{params.list.userListName},
 		file_path = #{params.list.filePath},
-		original_file_name =
-		#{params.list.originalFileName},
-		description =
-		#{params.list.description},
+		original_file_name = #{params.list.originalFileName},
+		description = #{params.list.description},
 		updated_at = NOW()
-		WHERE id =
-		#{params.listId}
+		WHERE id = #{params.listId}
 	</update>
 
 	<!-- ======================= DELETE ======================= -->
 	<delete id="deleteList" parameterType="map">
-		DELETE FROM
-		user_management_list WHERE id = #{params.listId}
+		DELETE FROM user_management_list WHERE id = #{params.listId}
 	</delete>
 
 	<delete id="deleteListById" parameterType="map">
-		DELETE FROM
-		user_management_list WHERE id = #{params.listId}
+		DELETE FROM user_management_list WHERE id = #{params.listId}
 	</delete>
 
 	<!-- ======================= READ ======================= -->
 	<select id="findListById" parameterType="map"
 		resultMap="UserManagementListResultMap">
-		SELECT id, user_list_name, file_path, original_file_name,
-		description,
+		SELECT id, user_list_name, file_path, original_file_name, description,
 		created_at, updated_at
 		FROM user_management_list
-		WHERE id =
-		#{params.listId}
+		WHERE id = #{params.listId}
 	</select>
 
 	<select id="getListById" parameterType="map"
 		resultMap="UserManagementListResultMap">
-		SELECT id, user_list_name, file_path, original_file_name,
-		description,
+		SELECT id, user_list_name, file_path, original_file_name, description,
 		created_at, updated_at
 		FROM user_management_list
-		WHERE id =
-		#{params.listId}
+		WHERE id = #{params.listId}
 	</select>
 
 	<select id="findAllLists"
 		resultMap="UserManagementListResultMap">
-		SELECT id, user_list_name, file_path, original_file_name,
-		description,
+		SELECT id, user_list_name, file_path, original_file_name, description,
 		created_at, updated_at
 		FROM user_management_list
-		ORDER BY
-		created_at DESC
+		ORDER BY created_at DESC
 	</select>
 
 	<select id="getAllLists" resultMap="UserManagementListResultMap">
-		SELECT id, user_list_name,
-		file_path, original_file_name, description,
+		SELECT id, user_list_name, file_path, original_file_name, description,
 		created_at, updated_at
-		FROM
-		user_management_list
+		FROM user_management_list
 		ORDER BY created_at DESC
 	</select>
 

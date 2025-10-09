@@ -19,10 +19,8 @@
 	<!-- ======= 5 CORE METHODS (on top) ======= -->
 	<insert id="create" useGeneratedKeys="true"
 		keyProperty="roleGroup.id">
-		INSERT INTO role_group_management (role_group_name,
-		description, created_at)
-		VALUES (#{roleGroup.roleGroupName},
-		#{roleGroup.description},
+		INSERT INTO role_group_management (role_group_name, description, created_at)
+		VALUES (#{roleGroup.roleGroupName}, #{roleGroup.description},
 		#{roleGroup.createdAt})
 	</insert>
 
@@ -44,16 +42,10 @@
 				AND role_group_name LIKE CONCAT('%', #{params.roleGroupName}, '%')
 			</if>
 		</where>
-		<if test="params.offset != null and params.limit != null">
-			LIMIT CAST(#{params.offset} AS UNSIGNED), CAST(#{params.limit} AS
-			UNSIGNED)
-		</if>
 	</select>
 
-
 	<select id="get" resultMap="RoleGroupManagementResultMap">
-		SELECT * FROM role_group_management
-		WHERE id = #{id}
+		SELECT * FROM role_group_management WHERE id = #{id}
 	</select>
 
 	<delete id="delete">
@@ -84,8 +76,7 @@
 
 	<!-- ======================= DELETE ======================= -->
 	<delete id="deleteRoleGroupById" parameterType="map">
-		DELETE FROM
-		role_group_management WHERE id = #{params.groupId}
+		DELETE FROM role_group_management WHERE id = #{params.groupId}
 	</delete>
 
 	<!-- ======================= READ ======================= -->
@@ -149,8 +140,7 @@
 	<select id="findRoleGroups" parameterType="map"
 		resultMap="RoleGroupManagementResultMap">
 		SELECT id, group_name, description, created_at, updated_at
-		FROM
-		role_group_management
+		FROM role_group_management
 		<include refid="RoleGroupManagementFilter" />
 		<if
 			test="params.sortField != null and params.sortDirection != null">
@@ -164,8 +154,7 @@
 	<select id="searchRoleGroups" parameterType="map"
 		resultMap="RoleGroupManagementResultMap">
 		SELECT id, group_name, description, created_at, updated_at
-		FROM
-		role_group_management
+		FROM role_group_management
 		<include refid="RoleGroupManagementFilter" />
 		<if
 			test="params.sortField != null and params.sortDirection != null">

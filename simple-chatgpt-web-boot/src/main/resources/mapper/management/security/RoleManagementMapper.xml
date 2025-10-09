@@ -19,10 +19,8 @@
 	<!-- ======= 5 CORE METHODS (on top) ======= -->
 	<insert id="create" useGeneratedKeys="true"
 		keyProperty="role.id">
-		INSERT INTO role_management (role_name, role_key,
-		description, created_at)
-		VALUES (#{role.roleName}, #{role.roleKey},
-		#{role.description},
+		INSERT INTO role_management (role_name, role_key, description, created_at)
+		VALUES (#{role.roleName}, #{role.roleKey}, #{role.description},
 		#{role.createdAt})
 	</insert>
 
@@ -49,15 +47,12 @@
 			ORDER BY ${params.sortField} ${params.sortDirection}
 		</if>
 		<if test="params.offset != null and params.limit != null">
-			LIMIT CAST(#{params.offset} AS UNSIGNED), CAST(#{params.limit} AS
-			UNSIGNED)
+			LIMIT #{params.offset}, #{params.limit}
 		</if>
 	</select>
 
-
 	<select id="get" resultMap="RoleManagementResultMap">
-		SELECT * FROM role_management WHERE
-		id = #{id}
+		SELECT * FROM role_management WHERE id = #{id}
 	</select>
 
 	<delete id="delete">
@@ -88,8 +83,7 @@
 
 	<!-- ======================= DELETE ======================= -->
 	<delete id="deleteRoleById" parameterType="map">
-		DELETE FROM
-		role_management WHERE id = #{params.roleId}
+		DELETE FROM role_management WHERE id = #{params.roleId}
 	</delete>
 
 	<!-- ======================= READ ======================= -->
@@ -101,19 +95,15 @@
 	</select>
 
 	<select id="findAllRoles" resultMap="RoleManagementResultMap">
-		SELECT id, role_name,
-		description, created_at, updated_at
+		SELECT id, role_name, description, created_at, updated_at
 		FROM role_management
-		ORDER BY
-		created_at DESC
+		ORDER BY created_at DESC
 	</select>
 
 	<select id="getAllRoles" resultMap="RoleManagementResultMap">
-		SELECT id, role_name,
-		description, created_at, updated_at
+		SELECT id, role_name, description, created_at, updated_at
 		FROM role_management
-		ORDER BY
-		created_at DESC
+		ORDER BY created_at DESC
 	</select>
 
 	<!-- ======================= SQL fragment for filtering ======================= -->
@@ -155,8 +145,7 @@
 	<select id="findRoles" parameterType="map"
 		resultMap="RoleManagementResultMap">
 		SELECT id, role_name, description, created_at, updated_at
-		FROM
-		role_management
+		FROM role_management
 		<include refid="RoleManagementFilter" />
 		<if
 			test="params.sortField != null and params.sortDirection != null">
@@ -170,8 +159,7 @@
 	<select id="searchRoles" parameterType="map"
 		resultMap="RoleManagementResultMap">
 		SELECT id, role_name, description, created_at, updated_at
-		FROM
-		role_management
+		FROM role_management
 		<include refid="RoleManagementFilter" />
 		<if
 			test="params.sortField != null and params.sortDirection != null">

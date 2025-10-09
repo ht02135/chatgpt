@@ -21,8 +21,7 @@
 	<!-- ======= 5 CORE METHODS (on top) ======= -->
 	<insert id="create" useGeneratedKeys="true"
 		keyProperty="mapping.id">
-		INSERT INTO role_group_role_mapping (role_group_id,
-		role_id)
+		INSERT INTO role_group_role_mapping (role_group_id, role_id)
 		VALUES (#{mapping.roleGroupId}, #{mapping.roleId})
 	</insert>
 
@@ -42,16 +41,10 @@
 			<if test="params.roleGroupId != null">AND role_group_id = #{params.roleGroupId}</if>
 			<if test="params.roleId != null">AND role_id = #{params.roleId}</if>
 		</where>
-		<if test="params.offset != null and params.limit != null">
-			LIMIT CAST(#{params.offset} AS UNSIGNED), CAST(#{params.limit} AS
-			UNSIGNED)
-		</if>
 	</select>
 
-
 	<select id="get" resultMap="RoleGroupRoleMappingResultMap">
-		SELECT * FROM role_group_role_mapping
-		WHERE id = #{id}
+		SELECT * FROM role_group_role_mapping WHERE id = #{id}
 	</select>
 
 	<delete id="delete">
