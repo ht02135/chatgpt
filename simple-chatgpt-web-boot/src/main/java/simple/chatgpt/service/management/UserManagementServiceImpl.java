@@ -170,7 +170,12 @@ public class UserManagementServiceImpl implements UserManagementService {
         // force uppercase for sortDirection
         params.put("sortDirection", params.get("sortDirection").toUpperCase());
 
-        List<UserManagementPojo> items = userManagementMapper.search((Map) params);
+        // Hung : mapper expect Map<String, Object> for offset and limit
+    	Map<String, Object> mapperParams = new HashMap<>(params);
+        mapperParams.put("offset", SafeConverter.toIntOrDefault(params.get("offset"), 0));
+        mapperParams.put("limit", SafeConverter.toIntOrDefault(params.get("limit"), 10));
+        
+        List<UserManagementPojo> items = userManagementMapper.search(mapperParams);
         long totalCount = items.size(); // replace with count query if available
 
         PagedResult<UserManagementPojo> result = new PagedResult<>(items, totalCount, page, size);

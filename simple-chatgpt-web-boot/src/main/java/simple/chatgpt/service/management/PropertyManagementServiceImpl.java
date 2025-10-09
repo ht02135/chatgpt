@@ -112,7 +112,12 @@ public class PropertyManagementServiceImpl implements PropertyManagementService 
         if (!params.containsKey("sortDirection")) params.put("sortDirection", "ASC");
         params.put("sortDirection", params.get("sortDirection").toUpperCase());
 
-        List<PropertyManagementPojo> items = propertyMapper.search((Map) params);
+        // Hung : mapper expect Map<String, Object> for offset and limit
+    	Map<String, Object> mapperParams = new HashMap<>(params);
+        mapperParams.put("offset", SafeConverter.toIntOrDefault(params.get("offset"), 0));
+        mapperParams.put("limit", SafeConverter.toIntOrDefault(params.get("limit"), 10));
+        
+        List<PropertyManagementPojo> items = propertyMapper.search(mapperParams);
         long totalCount = items.size();
         PagedResult<PropertyManagementPojo> result = new PagedResult<>(items, totalCount, page, size);
         logger.debug("search return={}", result);

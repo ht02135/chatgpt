@@ -1,5 +1,6 @@
 package simple.chatgpt.service.management.security;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -67,7 +68,12 @@ public class UserManagementRoleGroupMappingServiceImpl implements UserManagement
         if (!params.containsKey("sortDirection")) params.put("sortDirection", "ASC");
         params.put("sortDirection", params.get("sortDirection").toUpperCase());
 
-        List<UserManagementRoleGroupMappingPojo> items = mappingMapper.search((Map) params);
+        // Hung : mapper expect Map<String, Object> for offset and limit
+    	Map<String, Object> mapperParams = new HashMap<>(params);
+        mapperParams.put("offset", SafeConverter.toIntOrDefault(params.get("offset"), 0));
+        mapperParams.put("limit", SafeConverter.toIntOrDefault(params.get("limit"), 10));
+        
+        List<UserManagementRoleGroupMappingPojo> items = mappingMapper.search(mapperParams);
         long totalCount = items.size();
         PagedResult<UserManagementRoleGroupMappingPojo> result = new PagedResult<>(items, totalCount, page, size);
         logger.debug("search return={}", result);

@@ -134,7 +134,12 @@ public class UserManagementListServiceImpl implements UserManagementListService 
 
         logger.debug("search final params={}", params);
 
-        List<UserManagementListPojo> items = listMapper.search((Map) params);
+        // Hung : mapper expect Map<String, Object> for offset and limit
+    	Map<String, Object> mapperParams = new HashMap<>(params);
+        mapperParams.put("offset", SafeConverter.toIntOrDefault(params.get("offset"), 0));
+        mapperParams.put("limit", SafeConverter.toIntOrDefault(params.get("limit"), 10));
+        
+        List<UserManagementListPojo> items = listMapper.search(mapperParams);
         long totalCount = items.size(); // ideally from count query
 
         PagedResult<UserManagementListPojo> result = new PagedResult<>(items, totalCount, page, size);

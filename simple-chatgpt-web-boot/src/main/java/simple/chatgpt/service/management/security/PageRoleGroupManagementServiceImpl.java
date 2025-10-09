@@ -1,5 +1,6 @@
 package simple.chatgpt.service.management.security;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -138,7 +139,12 @@ public class PageRoleGroupManagementServiceImpl implements PageRoleGroupManageme
         if (!params.containsKey("sortDirection")) params.put("sortDirection", "ASC");
         params.put("sortDirection", params.get("sortDirection").toUpperCase());
 
-        List<PageRoleGroupManagementPojo> items = pageMapper.search((Map) params);
+        // Hung : mapper expect Map<String, Object> for offset and limit
+    	Map<String, Object> mapperParams = new HashMap<>(params);
+        mapperParams.put("offset", SafeConverter.toIntOrDefault(params.get("offset"), 0));
+        mapperParams.put("limit", SafeConverter.toIntOrDefault(params.get("limit"), 10));
+        
+        List<PageRoleGroupManagementPojo> items = pageMapper.search(mapperParams);
         long totalCount = items.size();
         PagedResult<PageRoleGroupManagementPojo> result = new PagedResult<>(items, totalCount, page, size);
         logger.debug("search return={}", result);
