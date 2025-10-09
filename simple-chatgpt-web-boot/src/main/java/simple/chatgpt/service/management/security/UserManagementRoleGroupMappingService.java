@@ -20,8 +20,8 @@ public interface UserManagementRoleGroupMappingService {
     void deleteUserRoleGroupByUserAndGroup(Map<String, Object> params);
 
     // ---------------- READ ----------------
-    UserManagementRoleGroupMappingPojo findByUserIdAndRoleGroupId(@Param("params") Map<String, Object> params);
-    UserManagementRoleGroupMappingPojo findById(@Param("params") Map<String, Object> params);
+    UserManagementRoleGroupMappingPojo findByUserIdAndRoleGroupId(Map<String, Object> params);
+    UserManagementRoleGroupMappingPojo findById(Map<String, Object> params);
 
     PagedResult<UserManagementRoleGroupMappingPojo> findAllUserRoleGroups();
     PagedResult<UserManagementRoleGroupMappingPojo> findByUserId(Map<String, Object> params);

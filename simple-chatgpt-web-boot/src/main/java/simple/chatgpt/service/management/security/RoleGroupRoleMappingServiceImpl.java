@@ -133,6 +133,22 @@ public class RoleGroupRoleMappingServiceImpl implements RoleGroupRoleMappingServ
         logger.debug("findByRoleId return={}", result);
         return result;
     }
+    
+    @Override
+    public RoleGroupRoleMappingPojo findById(Map<String, Object> params) {
+        logger.debug("findById START");
+        logger.debug("findById params={}", params);
+
+        if (params == null || !params.containsKey("id")) {
+            logger.debug("findById: missing id param");
+            return null;
+        }
+
+        RoleGroupRoleMappingPojo result = mapper.findById(params);
+
+        logger.debug("findById return={}", result);
+        return result;
+    }
 
     // ---------------- SEARCH / PAGINATION ----------------
     @Override

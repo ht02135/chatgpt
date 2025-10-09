@@ -81,7 +81,7 @@ function RoleGroupRoleViewModel(params, config) {
         try {
             const qs = self.buildSearchQuery();
             console.log("roleGroupRoles.js -> loadRoleGroupRoles: qs=", qs);
-            const res = await fetch(`${API_ROLE_GROUP_ROLE}/searchMappings?${qs}`, { headers: { 'Accept': 'application/json' } });
+            const res = await fetch(`${API_ROLE_GROUP_ROLE}/search?${qs}`, { headers: { 'Accept': 'application/json' } });
             const data = await res.json();
             console.log("roleGroupRoles.js -> loadRoleGroupRoles: response=", data);
 
@@ -171,9 +171,9 @@ function RoleGroupRoleViewModel(params, config) {
 
         const payload = ko.toJS(self.currentRoleGroupRole());
         try {
-            let url = `${API_ROLE_GROUP_ROLE}/add`, method = 'POST';
+            let url = `${API_ROLE_GROUP_ROLE}/acreatedd`, method = 'POST';
             if (self.mode==='edit' && self.currentRoleGroupRole().id && self.currentRoleGroupRole().id()) {
-                url = `${API_ROLE_GROUP_ROLE}/addIfNotExists?roleGroupId=${encodeURIComponent(self.currentRoleGroupRole().roleGroupId())}&roleId=${encodeURIComponent(self.currentRoleGroupRole().roleId())}`;
+                url = `${API_ROLE_GROUP_ROLE}/update?id=${encodeURIComponent(self.currentRoleGroupRole().roleGroupId())}&roleId=${encodeURIComponent(self.currentRoleGroupRole().roleId())}`;
                 method = 'POST';
             }
             console.log("roleGroupRoles.js -> saveRoleGroupRole: url=", url, "method=", method, "payload=", payload);
@@ -187,7 +187,7 @@ function RoleGroupRoleViewModel(params, config) {
         try {
             const id = ko.unwrap(roleGroupRole.id);
             console.log("roleGroupRoles.js -> deleteRoleGroupRole: id=", id);
-            await fetch(`${API_ROLE_GROUP_ROLE}/deleteById?id=${encodeURIComponent(id)}`, { method:'DELETE', headers:{'Accept':'application/json'} });
+            await fetch(`${API_ROLE_GROUP_ROLE}/delete?id=${encodeURIComponent(id)}`, { method:'DELETE', headers:{'Accept':'application/json'} });
             self.loadRoleGroupRoles();
         } catch(err) { console.error('Delete roleGroupRole error:', err); }
     };
@@ -195,7 +195,7 @@ function RoleGroupRoleViewModel(params, config) {
     self.loadRoleGroupRoleById = async function(id) {
         console.log("roleGroupRoles.js -> loadRoleGroupRoleById id=", id);
         try {
-            const res = await fetch(`${API_ROLE_GROUP_ROLE}/listAll`, { headers:{'Accept':'application/json'} });
+			const res = await fetch(`${API_ROLE_GROUP_ROLE}/get?id=${encodeURIComponent(id)}`, { headers:{'Accept':'application/json'} });
             const data = await res.json();
             console.log("roleGroupRoles.js -> loadRoleGroupRoleById data=", data);
             if (data.status==='SUCCESS' && data.data) {
