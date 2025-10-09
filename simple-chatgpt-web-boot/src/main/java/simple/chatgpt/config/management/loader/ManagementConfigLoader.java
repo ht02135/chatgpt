@@ -40,16 +40,11 @@ public class ManagementConfigLoader {
 
     private String configFilePath;
 
-    /*
-     * initConfigPath() is annotated with @PostConstruct, which means 
-     * it is automatically called once by the Spring container after 
-     * the bean is fully constructed and all dependencies are injected.
-    */
     @PostConstruct
     private void initConfigPath() {
         configFilePath = DEFAULT_CONFIG_FILE;
         try {
-        	configFilePath = propertyService.getString(PropertyKey.MANAGEMENT_CONFIG_RELATIVE_PATH);
+            configFilePath = propertyService.getString(PropertyKey.MANAGEMENT_CONFIG_RELATIVE_PATH);
             logger.debug("initConfigPath: Loaded property configFilePath={}", configFilePath);
         } catch (Exception e) {
             logger.error("initConfigPath: Failed to load property configFilePath={}", DEFAULT_CONFIG_FILE, e);
@@ -59,7 +54,7 @@ public class ManagementConfigLoader {
 
     /** Load XML document from classpath */
     private Document loadDocument() throws Exception {
-    	logger.info("loadDocument: called");
+        logger.info("loadDocument: called");
         try (InputStream is = ManagementConfigLoader.class.getResourceAsStream(configFilePath)) {
             if (is == null) throw new RuntimeException("Config file not found: " + configFilePath);
             return DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(is);
@@ -68,8 +63,8 @@ public class ManagementConfigLoader {
 
     /** Load all grid definitions */
     public List<GridConfig> loadGrids() throws Exception {
-    	logger.info("loadGrids: called");
-    	
+        logger.info("loadGrids: called");
+
         Document doc = loadDocument();
         NodeList gridNodes = doc.getElementsByTagName("grid");
         List<GridConfig> grids = new ArrayList<>();
@@ -96,18 +91,23 @@ public class ManagementConfigLoader {
                     }
                 }
 
+                // New: optional path for nested fields
+                String path = c.hasAttribute("path") ? c.getAttribute("path") : null;
+
                 ColumnConfig column;
                 if (c.hasAttribute("actions")) {
-                    column = new ColumnConfig(name, label, visible, sortable, null, c.getAttribute("actions"), index);
-                    // logger.debug("  [Column] name={} actions={} index={}", name, c.getAttribute("actions"), index);
+                    column = new ColumnConfig(name, label, visible, sortable, null, c.getAttribute("actions"), index, path);
                 } else {
                     String dbField = c.hasAttribute("dbField") ? c.getAttribute("dbField") : null;
-                    column = new ColumnConfig(name, label, visible, sortable, dbField, null, index);
-                    // logger.debug("  [Column] name={} dbField={} index={}", name, dbField, index);
+                    column = new ColumnConfig(name, label, visible, sortable, dbField, null, index, path);
                 }
 
                 grid.addColumn(column);
+
+                logger.debug("Loaded column for grid '{}': name={}, label={}, dbField={}, actions={}, path={}, index={}",
+                        grid.getId(), name, label, column.getDbField(), column.getActions(), path, index);
             }
+
             grids.add(grid);
         }
         return grids;
@@ -115,8 +115,8 @@ public class ManagementConfigLoader {
 
     /** Load all form definitions */
     public List<FormConfig> loadForms() throws Exception {
-    	logger.info("loadForms: called");
-    	
+        logger.info("loadForms: called");
+
         Document doc = loadDocument();
         NodeList formNodes = doc.getElementsByTagName("form");
         List<FormConfig> forms = new ArrayList<>();
@@ -144,7 +144,6 @@ public class ManagementConfigLoader {
                         f.hasAttribute("regex") ? f.getAttribute("regex") : null,
                         validatorIds
                 );
-                // logger.debug("  [Field] name={} label={} regex={} validators={}", field.getName(), field.getLabel(), field.getRegex(), validatorIds);
 
                 form.addField(field);
             }
@@ -155,8 +154,8 @@ public class ManagementConfigLoader {
 
     /** Load regex validators */
     public List<RegexConfig> loadRegexes() throws Exception {
-    	logger.info("loadRegexes: called");
-    	
+        logger.info("loadRegexes: called");
+
         Document doc = loadDocument();
         NodeList regexNodes = doc.getElementsByTagName("regex");
         List<RegexConfig> regexes = new ArrayList<>();
@@ -169,15 +168,14 @@ public class ManagementConfigLoader {
                     r.getAttribute("errorMessage")
             );
             regexes.add(regex);
-            // logger.info("[Regex] id={} expr={}", regex.getId(), regex.getExpression());
         }
         return regexes;
     }
 
     /** Load action groups */
     public List<ActionGroupConfig> loadActionGroups() throws Exception {
-    	logger.info("loadActionGroups: called");
-    	
+        logger.info("loadActionGroups: called");
+
         Document doc = loadDocument();
         NodeList actionGroupNodes = doc.getElementsByTagName("actions");
         List<ActionGroupConfig> groups = new ArrayList<>();
@@ -197,7 +195,6 @@ public class ManagementConfigLoader {
 
                 ActionConfig action = new ActionConfig(name, label, visible, jsMethod);
                 group.addAction(action);
-                // logger.debug("  [Action] name={} label={} jsMethod={}", name, label, jsMethod);
             }
             groups.add(group);
         }
@@ -206,8 +203,8 @@ public class ManagementConfigLoader {
 
     /** Load validator groups */
     public List<ValidatorGroupConfig> loadValidators() throws Exception {
-    	logger.info("loadValidators: called");
-    	
+        logger.info("loadValidators: called");
+
         Document doc = loadDocument();
         NodeList validatorGroupNodes = doc.getElementsByTagName("validators");
         List<ValidatorGroupConfig> groups = new ArrayList<>();
@@ -225,7 +222,6 @@ public class ManagementConfigLoader {
                         v.getAttribute("errorMessage")
                 );
                 group.addValidator(validator);
-                // logger.debug("  [Validator] type={} expr={}", validator.getType(), validator.getValidRegexExpression());
             }
             groups.add(group);
         }

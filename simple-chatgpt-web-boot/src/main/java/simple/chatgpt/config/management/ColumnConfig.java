@@ -7,20 +7,13 @@ public class ColumnConfig {
     private boolean sortable;
     private String dbField;
     private String actions;
-    private int index = -1; // default -1 means no index
+    private int index = -1;
+    private String path; // for nested fields
 
     public ColumnConfig() {}
 
-    // basic constructor
-    public ColumnConfig(String name, String label, boolean visible, boolean sortable) {
-        this.name = name;
-        this.label = label;
-        this.visible = visible;
-        this.sortable = sortable;
-    }
-
-    // full constructor including dbField, actions, index
-    public ColumnConfig(String name, String label, boolean visible, boolean sortable, String dbField, String actions, int index) {
+    public ColumnConfig(String name, String label, boolean visible, boolean sortable,
+                        String dbField, String actions, int index, String path) {
         this.name = name;
         this.label = label;
         this.visible = visible;
@@ -28,16 +21,7 @@ public class ColumnConfig {
         this.dbField = dbField;
         this.actions = actions;
         this.index = index;
-    }
-
-    // factory method for dbField
-    public static ColumnConfig withDbField(String name, String label, boolean visible, boolean sortable, String dbField, int index) {
-        return new ColumnConfig(name, label, visible, sortable, dbField, null, index);
-    }
-
-    // factory method for actions
-    public static ColumnConfig withActions(String name, String label, boolean visible, boolean sortable, String actions, int index) {
-        return new ColumnConfig(name, label, visible, sortable, null, actions, index);
+        this.path = path;
     }
 
     // getters/setters
@@ -61,4 +45,7 @@ public class ColumnConfig {
 
     public int getIndex() { return index; }
     public void setIndex(int index) { this.index = index; }
+
+    public String getPath() { return path; }
+    public void setPath(String path) { this.path = path; }
 }

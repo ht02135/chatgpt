@@ -37,7 +37,7 @@ public class UploadConfigLoader {
 
     @PostConstruct
     private void init() {
-    	
+
         logger.debug("init called #############");
         String configFilePath = DEFAULT_CONFIG_FILE;
         try {
@@ -47,7 +47,6 @@ public class UploadConfigLoader {
             logger.error("UploadConfigLoader: Failed to fetch UPLOAD_CONFIG_RELATIVE_PATH, using default {}", configFilePath, e);
         }
         logger.debug("init: configFilePath={}", configFilePath);
-        logger.debug("init called #############");
 
         try (InputStream inputStream = UploadConfigLoader.class.getResourceAsStream(configFilePath)) {
             if (inputStream == null) {
@@ -71,11 +70,15 @@ public class UploadConfigLoader {
                     Element col = (Element) colNodes.item(j);
 
                     String name = col.getAttribute("name");
-                    String dbField = col.hasAttribute("dbField") ? col.getAttribute("dbField") : null;
                     String label = col.hasAttribute("label") ? col.getAttribute("label") : name;
+                    String dbField = col.hasAttribute("dbField") ? col.getAttribute("dbField") : null;
+                    String actions = col.hasAttribute("actions") ? col.getAttribute("actions") : null;
+                    String path = col.hasAttribute("path") ? col.getAttribute("path") : null;
+                    boolean visible = col.hasAttribute("visible") && Boolean.parseBoolean(col.getAttribute("visible"));
+                    boolean sortable = col.hasAttribute("sortable") && Boolean.parseBoolean(col.getAttribute("sortable"));
 
-                    String indexAttr = col.getAttribute("index");
                     int idx = -1;
+                    String indexAttr = col.getAttribute("index");
                     if (indexAttr != null && !indexAttr.isEmpty()) {
                         try { idx = Integer.parseInt(indexAttr); }
                         catch (NumberFormatException nfe) {
@@ -83,13 +86,13 @@ public class UploadConfigLoader {
                         }
                     }
 
-                    ColumnConfig cfg = new ColumnConfig(name, label, true, false, dbField, null, idx);
+                    ColumnConfig cfg = new ColumnConfig(name, label, visible, sortable, dbField, actions, idx, path);
 
-                    // Log upload-specific attributes
+                    // Log extra upload-specific attributes
                     String requiredAttr = col.getAttribute("required");
                     String regexAttr = col.getAttribute("regex");
-                    logger.debug("Loaded column for upload grid '{}': name={}, dbField={}, index={}, required={}, regex={}",
-                            gridId, name, dbField, idx, requiredAttr, regexAttr);
+                    logger.debug("Loaded column for upload grid '{}': name={}, label={}, path={}, index={}, dbField={}, actions={}, required={}, regex={}",
+                            gridId, name, label, path, idx, dbField, actions, requiredAttr, regexAttr);
 
                     if (idx >= 0) {
                         while (indexed.size() <= idx) indexed.add(null);

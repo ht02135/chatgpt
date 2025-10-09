@@ -565,8 +565,8 @@
 			dbField="id" />
 		<column name="urlPattern" label="URL Pattern" visible="true"
 			sortable="true" dbField="url_pattern" />
-		<column name="roleGroupName" label="Role Group" visible="true"
-			sortable="true" dbField="role_group_id" />
+		<column name="roleGroupName" label="Role Group" visible="true" 
+			sortable="true" dbField="role_group_id" path="roleGroup.groupName" />
 		<column name="createdAt" label="Created At" visible="true"
 			sortable="true" dbField="created_at" />
 		<column name="updatedAt" label="Updated At" visible="false"

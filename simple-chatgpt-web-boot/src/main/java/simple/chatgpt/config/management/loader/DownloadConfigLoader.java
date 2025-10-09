@@ -29,7 +29,6 @@ public class DownloadConfigLoader {
     private final PropertyManagementService propertyService;
     private final Map<String, List<ColumnConfig>> gridConfigs = new HashMap<>();
 
-    // Default fallback config
     private static final String DEFAULT_CONFIG_FILE = "/config/management/download-config.xml";
 
     public DownloadConfigLoader(PropertyManagementService propertyService) {
@@ -38,8 +37,8 @@ public class DownloadConfigLoader {
 
     @PostConstruct
     private void init() {
-    	
-    	logger.debug("init called #############");
+
+        logger.debug("init called #############");
         String configFilePath = DEFAULT_CONFIG_FILE;
         try {
             configFilePath = propertyService.getString(PropertyKey.DOWNLOAD_CONFIG_RELATIVE_PATH);
@@ -48,7 +47,6 @@ public class DownloadConfigLoader {
             logger.error("DownloadConfigLoader: Failed to fetch DOWNLOAD_CONFIG_RELATIVE_PATH, using default {}", configFilePath, e);
         }
         logger.debug("init: configFilePath={}", configFilePath);
-        logger.debug("init called #############");
 
         try (InputStream inputStream = DownloadConfigLoader.class.getResourceAsStream(configFilePath)) {
             if (inputStream == null) {
@@ -72,22 +70,25 @@ public class DownloadConfigLoader {
                     Element col = (Element) colNodes.item(j);
 
                     String name = col.getAttribute("name");
-                    String dbField = col.getAttribute("dbField");
+                    String dbField = col.hasAttribute("dbField") ? col.getAttribute("dbField") : null;
                     String label = col.hasAttribute("label") ? col.getAttribute("label") : name;
-                    boolean visible = Boolean.parseBoolean(col.getAttribute("visible"));
-                    String indexAttr = col.getAttribute("index");
+                    boolean visible = col.hasAttribute("visible") && Boolean.parseBoolean(col.getAttribute("visible"));
+                    boolean sortable = col.hasAttribute("sortable") && Boolean.parseBoolean(col.getAttribute("sortable"));
+                    String path = col.hasAttribute("path") ? col.getAttribute("path") : null;
+                    String actions = col.hasAttribute("actions") ? col.getAttribute("actions") : null;
 
+                    String indexAttr = col.getAttribute("index");
                     int idx = -1;
                     if (indexAttr != null && !indexAttr.isEmpty()) {
                         try { idx = Integer.parseInt(indexAttr); }
                         catch (NumberFormatException nfe) {
                             logger.warn("Invalid index '{}' for column '{}' in grid '{}', treating as no-index",
                                     indexAttr, name, gridId);
-                            idx = -1;
                         }
                     }
 
-                    ColumnConfig cfg = new ColumnConfig(name, label, visible, true, dbField, null, idx);
+                    // Directly set path in constructor
+                    ColumnConfig cfg = new ColumnConfig(name, label, visible, sortable, dbField, actions, idx, path);
 
                     if (idx >= 0) {
                         while (indexed.size() <= idx) indexed.add(null);
@@ -96,7 +97,8 @@ public class DownloadConfigLoader {
                         noIndex.add(cfg);
                     }
 
-                    logger.debug("Loaded column for grid '{}': name={}, label={}, index={}", gridId, name, label, idx);
+                    logger.debug("Loaded column for grid '{}': name={}, label={}, path={}, index={}, dbField={}, actions={}",
+                            gridId, name, label, path, idx, dbField, actions);
                 }
 
                 List<ColumnConfig> finalColumns = new ArrayList<>();
