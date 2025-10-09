@@ -28,131 +28,226 @@ import simple.chatgpt.util.SafeConverter;
 @RequestMapping(value = "/management/userlistmembers", produces = MediaType.APPLICATION_JSON_VALUE)
 public class UserManagementListMemberController implements UserManagementListMemberControllerApi {
 
-    private static final Logger logger = LogManager.getLogger(UserManagementListMemberController.class);
+	private static final Logger logger = LogManager.getLogger(UserManagementListMemberController.class);
 
-    private final UserManagementListMemberService memberService;
+	private final UserManagementListMemberService memberService;
 
-    public UserManagementListMemberController(UserManagementListMemberService memberService) {
-        this.memberService = memberService;
-        logger.debug("UserManagementListMemberController constructor called, memberService={}", memberService);
-    }
+	public UserManagementListMemberController(UserManagementListMemberService memberService) {
+		this.memberService = memberService;
+		logger.debug("UserManagementListMemberController constructor called, memberService={}", memberService);
+	}
 
-    // ➕ CREATE MEMBER
-    @PostMapping("/create")
-    public ResponseEntity<Response<UserManagementListMemberPojo>> createMember(
-            @RequestBody UserManagementListMemberPojo member
-    ) {
-        logger.debug("createMember START");
-        logger.debug("createMember member={}", member);
+	// ==============================================================
+	// ================ 5 CORE METHODS (on top) =====================
+	// ==============================================================
 
-        Map<String, Object> params = new HashMap<>();
-        params.put("member", member);
+	@PostMapping("/create")
+	public ResponseEntity<Response<UserManagementListMemberPojo>> create(
+		@RequestBody(required = false) UserManagementListMemberPojo member) 
+	{
+		logger.debug("create called");
+		logger.debug("create member={}", member);
 
-        UserManagementListMemberPojo newMember = memberService.createMember(params);
+		if (member == null) {
+			logger.debug("create: missing member payload");
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+					.body(Response.error("Missing member payload", null, HttpStatus.BAD_REQUEST.value()));
+		}
 
-        logger.debug("createMember newMember={}", newMember);
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(Response.success("Member created successfully", newMember, HttpStatus.CREATED.value()));
-    }
+		return createMember(member);
+	}
 
-    // 📖 GET MEMBER BY ID
-    @GetMapping("/get")
-    public ResponseEntity<Response<UserManagementListMemberPojo>> getMemberById(@RequestParam Long memberId) {
-        logger.debug("getMemberById START");
-        logger.debug("getMemberById memberId={}", memberId);
+	@PutMapping("/update")
+	public ResponseEntity<Response<UserManagementListMemberPojo>> update(
+		@RequestParam(required = false) Long id,
+		@RequestBody(required = false) UserManagementListMemberPojo member) 
+	{
+		logger.debug("update called");
+		logger.debug("update id={}", id);
+		logger.debug("update member={}", member);
 
-        Map<String, Object> params = new HashMap<>();
-        params.put("memberId", memberId);
+		if (id == null) {
+			logger.debug("update: missing memberId");
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+					.body(Response.error("Missing memberId parameter", null, HttpStatus.BAD_REQUEST.value()));
+		}
+		if (member == null) {
+			logger.debug("update: missing member payload");
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+					.body(Response.error("Missing member payload", null, HttpStatus.BAD_REQUEST.value()));
+		}
 
-        UserManagementListMemberPojo member = memberService.getMemberById(params);
-        
-        if (member == null) {
-        	logger.debug("getMemberById Member not found");
-            return ResponseEntity.ok(Response.error("Member not found", null, HttpStatus.NOT_FOUND.value()));
-        }
+		return updateMemberById(id, member);
+	}
 
-        logger.debug("getMemberById return={}", member);
-        return ResponseEntity.ok(Response.success("Member fetched successfully", member, HttpStatus.OK.value()));
-    }
+	@GetMapping("/search")
+	public ResponseEntity<Response<PagedResult<UserManagementListMemberPojo>>> search(
+			@RequestParam Map<String, Object> params) {
+		logger.debug("search called");
+		logger.debug("search params={}", params);
 
-    // 📝 UPDATE MEMBER
-    @PutMapping("/update")
-    public ResponseEntity<Response<UserManagementListMemberPojo>> updateMemberById(
-            @RequestParam Long memberId,
-            @RequestBody UserManagementListMemberPojo member
-    ) {
-        logger.debug("updateMemberById START");
-        logger.debug("updateMemberById memberId={}", memberId);
-        logger.debug("updateMemberById member={}", member);
+		if (params == null || params.isEmpty()) {
+			logger.debug("search: missing parameters");
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+					.body(Response.error("Missing parameters", null, HttpStatus.BAD_REQUEST.value()));
+		}
 
-        Map<String, Object> params = new HashMap<>();
-        params.put("memberId", memberId);
-        params.put("member", member);
+		return searchMembers(params);
+	}
 
-        UserManagementListMemberPojo updatedMember = memberService.updateMemberById(params);
+	@GetMapping("/get")
+	public ResponseEntity<Response<UserManagementListMemberPojo>> get(
+		@RequestParam(required = false) Long id) 
+	{
+		logger.debug("get called");
+		logger.debug("get id={}", id);
 
-        logger.debug("updateMemberById return={}", updatedMember);
-        return ResponseEntity.ok(Response.success("Member updated successfully", updatedMember, HttpStatus.OK.value()));
-    }
+		if (id == null) {
+			logger.debug("get: missing memberId");
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+					.body(Response.error("Missing memberId parameter", null, HttpStatus.BAD_REQUEST.value()));
+		}
 
-    // 🗑 DELETE MEMBER
-    @DeleteMapping("/delete")
-    public ResponseEntity<Response<Void>> deleteMemberById(@RequestParam Long memberId) {
-        logger.debug("deleteMemberById START");
-        logger.debug("deleteMemberById memberId={}", memberId);
+		return getMemberById(id);
+	}
 
-        Map<String, Object> params = new HashMap<>();
-        params.put("memberId", memberId);
-        memberService.deleteMemberById(params);
+	@DeleteMapping("/delete")
+	public ResponseEntity<Response<Void>> delete(
+		@RequestParam(required = false) Long id) 
+	{
+		logger.debug("delete called");
+		logger.debug("delete memberId={}", id);
 
-        logger.debug("deleteMemberById DONE");
-        return ResponseEntity.ok(Response.success("Member deleted successfully", null, HttpStatus.OK.value()));
-    }
+		if (id == null) {
+			logger.debug("delete: missing memberId");
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+					.body(Response.error("Missing memberId parameter", null, HttpStatus.BAD_REQUEST.value()));
+		}
 
-    // 🔍 SEARCH MEMBERS
-    @GetMapping("/search")
-    public ResponseEntity<Response<PagedResult<UserManagementListMemberPojo>>> searchMembers(
-            @RequestParam Map<String, Object> params
-    ) {
-        logger.debug("searchMembers START");
-        logger.debug("searchMembers params={}", params);
+		return deleteMemberById(id);
+	}
 
-        Map<String, Object> serviceParams = new HashMap<>(params);
+	// ==============================================================
+	// ================ EXISTING METHODS (without URL mapping) ======
+	// ==============================================================
 
-        // hung: DONT REMOVE THIS CODE
-        int page = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "page", 0), 0); 
-        int size = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "size", 20), 20);
-        int offset = page * size;
+	// Original createMember, getMemberById, updateMemberById, deleteMemberById,
+	// searchMembers, countMembers
+	// Keep method bodies for internal reuse but remove @PostMapping, @GetMapping,
+	// etc. to avoid conflicts
 
-        serviceParams.put("page", page);
-        serviceParams.put("size", size);
-        serviceParams.put("offset", offset);
-        serviceParams.put("limit", size);
-        serviceParams.put("sortField", ParamWrapper.unwrap(params, "sortField", "id"));
-        serviceParams.put("sortDirection", ParamWrapper.unwrap(params, "sortDirection", "ASC").toUpperCase());
-        serviceParams.put("listId", ParamWrapper.unwrap(params, "listId"));
+	// ➕ CREATE MEMBER
 
-        logger.debug("searchMembers serviceParams={}", serviceParams);
+	public ResponseEntity<Response<UserManagementListMemberPojo>> createMember(
+			@RequestBody UserManagementListMemberPojo member) {
+		logger.debug("createMember START");
+		logger.debug("createMember member={}", member);
 
-        PagedResult<UserManagementListMemberPojo> members = memberService.searchMembers(serviceParams);
-        
-        logger.debug("searchMembers return={}", members);
-        return ResponseEntity.ok(Response.success("Members fetched successfully", members, HttpStatus.OK.value()));
-    }
+		Map<String, Object> params = new HashMap<>();
+		params.put("member", member);
 
-    // ------------------ COUNT MEMBERS ------------------
-    @GetMapping("/count")
-    public ResponseEntity<Response<Long>> countMembers(@RequestParam Map<String, Object> params) {
-        logger.debug("countMembers START");
-        logger.debug("countMembers params={}", params);
+		UserManagementListMemberPojo newMember = memberService.createMember(params);
 
-        Map<String, Object> serviceParams = new HashMap<>(params);
-        serviceParams.put("listId", ParamWrapper.unwrap(params, "listId"));
+		logger.debug("createMember newMember={}", newMember);
+		return ResponseEntity.status(HttpStatus.CREATED)
+				.body(Response.success("Member created successfully", newMember, HttpStatus.CREATED.value()));
+	}
 
-        long count = memberService.countMembers(serviceParams);
-        
-        logger.debug("countMembers return={}", count);
-        return ResponseEntity.ok(Response.success("Count fetched successfully", count, HttpStatus.OK.value()));
-    }
+	// 📖 GET MEMBER BY ID
+
+	public ResponseEntity<Response<UserManagementListMemberPojo>> getMemberById(@RequestParam Long memberId) {
+		logger.debug("getMemberById START");
+		logger.debug("getMemberById memberId={}", memberId);
+
+		Map<String, Object> params = new HashMap<>();
+		params.put("memberId", memberId);
+
+		UserManagementListMemberPojo member = memberService.getMemberById(params);
+
+		if (member == null) {
+			logger.debug("getMemberById Member not found");
+			return ResponseEntity.ok(Response.error("Member not found", null, HttpStatus.NOT_FOUND.value()));
+		}
+
+		logger.debug("getMemberById return={}", member);
+		return ResponseEntity.ok(Response.success("Member fetched successfully", member, HttpStatus.OK.value()));
+	}
+
+	// 📝 UPDATE MEMBER
+
+	public ResponseEntity<Response<UserManagementListMemberPojo>> updateMemberById(@RequestParam Long memberId,
+			@RequestBody UserManagementListMemberPojo member) {
+		logger.debug("updateMemberById START");
+		logger.debug("updateMemberById memberId={}", memberId);
+		logger.debug("updateMemberById member={}", member);
+
+		Map<String, Object> params = new HashMap<>();
+		params.put("memberId", memberId);
+		params.put("member", member);
+
+		UserManagementListMemberPojo updatedMember = memberService.updateMemberById(params);
+
+		logger.debug("updateMemberById return={}", updatedMember);
+		return ResponseEntity.ok(Response.success("Member updated successfully", updatedMember, HttpStatus.OK.value()));
+	}
+
+	// 🗑 DELETE MEMBER
+
+	public ResponseEntity<Response<Void>> deleteMemberById(@RequestParam Long memberId) {
+		logger.debug("deleteMemberById START");
+		logger.debug("deleteMemberById memberId={}", memberId);
+
+		Map<String, Object> params = new HashMap<>();
+		params.put("memberId", memberId);
+		memberService.deleteMemberById(params);
+
+		logger.debug("deleteMemberById DONE");
+		return ResponseEntity.ok(Response.success("Member deleted successfully", null, HttpStatus.OK.value()));
+	}
+
+	// 🔍 SEARCH MEMBERS
+
+	public ResponseEntity<Response<PagedResult<UserManagementListMemberPojo>>> searchMembers(
+			@RequestParam Map<String, Object> params) {
+		logger.debug("searchMembers START");
+		logger.debug("searchMembers params={}", params);
+
+		Map<String, Object> serviceParams = new HashMap<>(params);
+
+		// hung: DONT REMOVE THIS CODE
+		int page = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "page", 0), 0);
+		int size = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "size", 20), 20);
+		int offset = page * size;
+
+		serviceParams.put("page", page);
+		serviceParams.put("size", size);
+		serviceParams.put("offset", offset);
+		serviceParams.put("limit", size);
+		serviceParams.put("sortField", ParamWrapper.unwrap(params, "sortField", "id"));
+		serviceParams.put("sortDirection", ParamWrapper.unwrap(params, "sortDirection", "ASC").toUpperCase());
+		serviceParams.put("listId", ParamWrapper.unwrap(params, "listId"));
+
+		logger.debug("searchMembers serviceParams={}", serviceParams);
+
+		PagedResult<UserManagementListMemberPojo> members = memberService.searchMembers(serviceParams);
+
+		logger.debug("searchMembers return={}", members);
+		return ResponseEntity.ok(Response.success("Members fetched successfully", members, HttpStatus.OK.value()));
+	}
+
+	// ------------------ COUNT MEMBERS ------------------
+	@GetMapping("/count")
+	public ResponseEntity<Response<Long>> countMembers(@RequestParam Map<String, Object> params) {
+		logger.debug("countMembers START");
+		logger.debug("countMembers params={}", params);
+
+		Map<String, Object> serviceParams = new HashMap<>(params);
+		serviceParams.put("listId", ParamWrapper.unwrap(params, "listId"));
+
+		long count = memberService.countMembers(serviceParams);
+
+		logger.debug("countMembers return={}", count);
+		return ResponseEntity.ok(Response.success("Count fetched successfully", count, HttpStatus.OK.value()));
+	}
 
 }

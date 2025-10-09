@@ -200,7 +200,7 @@ function UserListMemberViewModel(params, config) {
 
             let url = `${API_USERLIST_MEMBER}/create`, method = 'POST';
             if (self.mode === 'edit' && self.currentMember().id && self.currentMember().id()) {
-                url = `${API_USERLIST_MEMBER}/update?memberId=${encodeURIComponent(self.currentMember().id())}`;
+                url = `${API_USERLIST_MEMBER}/update?id=${encodeURIComponent(self.currentMember().id())}`;
                 method = 'PUT';
             }
 			console.log("userListMember.js -> saveUserListMember url=",url);
@@ -216,7 +216,7 @@ function UserListMemberViewModel(params, config) {
     self.deleteUserListMember = async function(row) {
         if (!confirm('Are you sure?')) return;
         try {
-            await fetch(`${API_USERLIST_MEMBER}/delete?memberId=${encodeURIComponent(ko.unwrap(row.id))}`, { method: 'DELETE', headers: { 'Accept': 'application/json' } });
+            await fetch(`${API_USERLIST_MEMBER}/delete?id=${encodeURIComponent(ko.unwrap(row.id))}`, { method: 'DELETE', headers: { 'Accept': 'application/json' } });
             self.loadUserListMembers();
         } catch (err) { console.error('Delete member error:', err); }
     };
@@ -226,7 +226,7 @@ function UserListMemberViewModel(params, config) {
 		console.log("userListMember.js -> loadUserListMemberById called");
 		console.log("userListMember.js -> loadUserListMemberById id=",id);
         try {
-            const res = await fetch(`${API_USERLIST_MEMBER}/get?memberId=${encodeURIComponent(id)}`, { headers: { 'Accept': 'application/json' } });
+            const res = await fetch(`${API_USERLIST_MEMBER}/get?id=${encodeURIComponent(id)}`, { headers: { 'Accept': 'application/json' } });
 			console.log("userListMember.js -> loadUserListMemberById res=",res);
 			const data = await res.json();
 			console.log("userListMember.js -> loadUserListMemberById data=",data);
