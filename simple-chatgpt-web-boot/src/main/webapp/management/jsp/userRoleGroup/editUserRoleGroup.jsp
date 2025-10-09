@@ -45,7 +45,7 @@
             // ✅ Load mapping by ID from localStorage
             const editId = localStorage.getItem("editUserRoleGroupId");
             if (editId) {
-                await userRoleGroupVM.loadMappingById(editId);
+                await userRoleGroupVM.loadUserRoleGroupById(editId);
             }
 
             // ✅ Apply Knockout bindings
