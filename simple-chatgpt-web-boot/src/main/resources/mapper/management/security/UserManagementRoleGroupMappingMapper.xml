@@ -3,136 +3,172 @@
     PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="simple.chatgpt.mapper.management.security.UserManagementRoleGroupMappingMapper">
+<mapper
+	namespace="simple.chatgpt.mapper.management.security.UserManagementRoleGroupMappingMapper">
 
-    <!-- =======================
-         RESULT MAP
-         ======================= -->
-    <resultMap id="UserManagementRoleGroupMappingResultMap" type="simple.chatgpt.pojo.management.security.UserManagementRoleGroupMappingPojo">
-        <id property="id" column="id"/>
-        <result property="userId" column="user_id"/>
-        <result property="roleGroupId" column="role_group_id"/>
-        <result property="createdAt" column="created_at"/>
-        <result property="updatedAt" column="updated_at"/>
-    </resultMap>
+	<!-- ======================= RESULT MAP ======================= -->
+	<resultMap id="UserManagementRoleGroupMappingResultMap"
+		type="simple.chatgpt.pojo.management.security.UserManagementRoleGroupMappingPojo">
+		<id property="id" column="id" />
+		<result property="userId" column="user_id" />
+		<result property="roleGroupId" column="role_group_id" />
+		<result property="createdAt" column="created_at" />
+		<result property="updatedAt" column="updated_at" />
+	</resultMap>
 
-    <!-- =======================
-         CREATE
-         ======================= -->
-	<insert id="insertUserRoleGroup" parameterType="map" useGeneratedKeys="true" keyProperty="params.mapping.id">
-    	INSERT INTO user_management_role_group_mapping
-        	(user_id, role_group_id, created_at, updated_at)
-    	VALUES
-        	(#{params.mapping.userId}, #{params.mapping.roleGroupId}, NOW(), NOW())
+	<!-- ======= 5 CORE METHODS (on top) ======= -->
+	<insert id="create" useGeneratedKeys="true"
+		keyProperty="mapping.id">
+		INSERT INTO user_role_group_mapping (user_id, role_group_id, assigned_at)
+		VALUES (#{mapping.userId}, #{mapping.roleGroupId},
+		#{mapping.assignedAt})
 	</insert>
 
-    <!-- =======================
-         UPDATE
-         ======================= -->
-    <update id="updateUserRoleGroup" parameterType="map">
-        UPDATE user_management_role_group_mapping
-        <set>
-            <if test="params.userId != null">user_id = #{params.userId},</if>
-            <if test="params.roleGroupId != null">role_group_id = #{params.roleGroupId},</if>
-            updated_at = NOW()
-        </set>
-        WHERE id = #{params.id}
-    </update>
+	<update id="update">
+		UPDATE user_role_group_mapping
+		<set>
+			<if test="mapping.userId != null">user_id = #{mapping.userId},</if>
+			<if test="mapping.roleGroupId != null">role_group_id = #{mapping.roleGroupId},</if>
+		</set>
+		WHERE id = #{id}
+	</update>
 
-    <!-- =======================
-         DELETE
-         ======================= -->
-    <delete id="deleteUserRoleGroupById" parameterType="map">
-        DELETE FROM user_management_role_group_mapping WHERE id = #{params.id}
-    </delete>
-
-    <delete id="deleteUserRoleGroupByUserAndGroup" parameterType="map">
-        DELETE FROM user_management_role_group_mapping
-        WHERE user_id = #{params.userId} AND role_group_id = #{params.roleGroupId}
-    </delete>
-
-    <!-- =======================
-         READ
-         ======================= -->
-	<select id="findById" parameterType="map" resultType="simple.chatgpt.pojo.management.security.UserManagementRoleGroupMappingPojo">
-    	SELECT *
-    	FROM user_management_role_group_mapping
-    	WHERE id = #{params.id}
-	</select>
-	
-	<select id="findByUserIdAndRoleGroupId" parameterType="map" resultType="simple.chatgpt.pojo.management.security.UserManagementRoleGroupMappingPojo">
-    	SELECT id, user_id, role_group_id, created_at, updated_at
-    	FROM user_management_role_group_mapping
-    	WHERE user_id = #{params.userId} 
-      	AND role_group_id = #{params.roleGroupId}
+	<select id="search"
+		resultMap="UserManagementRoleGroupMappingResultMap"
+		parameterType="map">
+		SELECT * FROM user_role_group_mapping
+		<where>
+			<if test="params.userId != null">AND user_id = #{params.userId}</if>
+			<if test="params.roleGroupId != null">AND role_group_id = #{params.roleGroupId}</if>
+		</where>
 	</select>
 
-    <select id="findAllUserRoleGroups" resultMap="UserManagementRoleGroupMappingResultMap">
-        SELECT id, user_id, role_group_id, created_at, updated_at
-        FROM user_management_role_group_mapping
-        ORDER BY created_at DESC
-    </select>
+	<select id="get"
+		resultMap="UserManagementRoleGroupMappingResultMap">
+		SELECT * FROM user_role_group_mapping WHERE id = #{id}
+	</select>
 
-    <select id="findByUserId" parameterType="map" resultMap="UserManagementRoleGroupMappingResultMap">
-        SELECT id, user_id, role_group_id, created_at, updated_at
-        FROM user_management_role_group_mapping
-        WHERE user_id = #{params.userId}
-    </select>
+	<delete id="delete">
+		DELETE FROM user_role_group_mapping WHERE id = #{id}
+	</delete>
 
-    <select id="findByRoleGroupId" parameterType="map" resultMap="UserManagementRoleGroupMappingResultMap">
-        SELECT id, user_id, role_group_id, created_at, updated_at
-        FROM user_management_role_group_mapping
-        WHERE role_group_id = #{params.roleGroupId}
-    </select>
+	<!-- ======= OTHER METHODS ======= -->
 
-    <!-- =======================
-         SQL FILTER FRAGMENT
-         ======================= -->
-    <sql id="UserRoleGroupFilter">
-        <where>
-            <if test="params.userId != null">
-                AND user_id = #{params.userId}
-            </if>
-            <if test="params.roleGroupId != null">
-                AND role_group_id = #{params.roleGroupId}
-            </if>
-        </where>
-    </sql>
+	<!-- ======================= CREATE ======================= -->
+	<insert id="insertUserRoleGroup" parameterType="map"
+		useGeneratedKeys="true" keyProperty="params.mapping.id">
+		INSERT INTO user_management_role_group_mapping
+		(user_id, role_group_id, created_at, updated_at)
+		VALUES
+		(#{params.mapping.userId}, #{params.mapping.roleGroupId}, NOW(), NOW())
+	</insert>
 
-    <!-- =======================
-         SEARCH / PAGINATION
-         ======================= -->
-    <select id="findUserRoleGroups" parameterType="map" resultMap="UserManagementRoleGroupMappingResultMap">
-        SELECT id, user_id, role_group_id, created_at, updated_at
-        FROM user_management_role_group_mapping
-        <include refid="UserRoleGroupFilter"/>
-        <if test="params.sortField != null and params.sortDirection != null">
-            ORDER BY ${params.sortField} ${params.sortDirection}
-        </if>
-        <if test="params.offset != null and params.limit != null">
-            LIMIT #{params.offset}, #{params.limit}
-        </if>
-    </select>
+	<!-- ======================= UPDATE ======================= -->
+	<update id="updateUserRoleGroup" parameterType="map">
+		UPDATE user_management_role_group_mapping
+		<set>
+			<if test="params.userId != null">user_id = #{params.userId},</if>
+			<if test="params.roleGroupId != null">role_group_id = #{params.roleGroupId},</if>
+			updated_at = NOW()
+		</set>
+		WHERE id = #{params.id}
+	</update>
 
-    <select id="searchUserRoleGroups" parameterType="map" resultMap="UserManagementRoleGroupMappingResultMap">
-        SELECT id, user_id, role_group_id, created_at, updated_at
-        FROM user_management_role_group_mapping
-        <include refid="UserRoleGroupFilter"/>
-        <if test="params.sortField != null and params.sortDirection != null">
-            ORDER BY ${params.sortField} ${params.sortDirection}
-        </if>
-        <if test="params.offset != null and params.limit != null">
-            LIMIT #{params.offset}, #{params.limit}
-        </if>
-    </select>
+	<!-- ======================= DELETE ======================= -->
+	<delete id="deleteUserRoleGroupById" parameterType="map">
+		DELETE FROM user_management_role_group_mapping WHERE id = #{params.id}
+	</delete>
 
-    <!-- =======================
-         COUNT (FOR PAGINATION)
-         ======================= -->
-    <select id="countUserRoleGroups" parameterType="map" resultType="long">
-        SELECT COUNT(*)
-        FROM user_management_role_group_mapping
-        <include refid="UserRoleGroupFilter"/>
-    </select>
+	<delete id="deleteUserRoleGroupByUserAndGroup"
+		parameterType="map">
+		DELETE FROM user_management_role_group_mapping
+		WHERE user_id = #{params.userId} AND role_group_id = #{params.roleGroupId}
+	</delete>
+
+	<!-- ======================= READ ======================= -->
+	<select id="findById" parameterType="map"
+		resultType="simple.chatgpt.pojo.management.security.UserManagementRoleGroupMappingPojo">
+		SELECT *
+		FROM user_management_role_group_mapping
+		WHERE id = #{params.id}
+	</select>
+
+	<select id="findByUserIdAndRoleGroupId" parameterType="map"
+		resultType="simple.chatgpt.pojo.management.security.UserManagementRoleGroupMappingPojo">
+		SELECT id, user_id, role_group_id, created_at, updated_at
+		FROM user_management_role_group_mapping
+		WHERE user_id = #{params.userId}
+		AND role_group_id = #{params.roleGroupId}
+	</select>
+
+	<select id="findAllUserRoleGroups"
+		resultMap="UserManagementRoleGroupMappingResultMap">
+		SELECT id, user_id, role_group_id, created_at, updated_at
+		FROM user_management_role_group_mapping
+		ORDER BY created_at DESC
+	</select>
+
+	<select id="findByUserId" parameterType="map"
+		resultMap="UserManagementRoleGroupMappingResultMap">
+		SELECT id, user_id, role_group_id, created_at, updated_at
+		FROM user_management_role_group_mapping
+		WHERE user_id = #{params.userId}
+	</select>
+
+	<select id="findByRoleGroupId" parameterType="map"
+		resultMap="UserManagementRoleGroupMappingResultMap">
+		SELECT id, user_id, role_group_id, created_at, updated_at
+		FROM user_management_role_group_mapping
+		WHERE role_group_id = #{params.roleGroupId}
+	</select>
+
+	<!-- ======================= SQL FILTER FRAGMENT ======================= -->
+	<sql id="UserRoleGroupFilter">
+		<where>
+			<if test="params.userId != null">
+				AND user_id = #{params.userId}
+			</if>
+			<if test="params.roleGroupId != null">
+				AND role_group_id = #{params.roleGroupId}
+			</if>
+		</where>
+	</sql>
+
+	<!-- ======================= SEARCH / PAGINATION ======================= -->
+	<select id="findUserRoleGroups" parameterType="map"
+		resultMap="UserManagementRoleGroupMappingResultMap">
+		SELECT id, user_id, role_group_id, created_at, updated_at
+		FROM user_management_role_group_mapping
+		<include refid="UserRoleGroupFilter" />
+		<if
+			test="params.sortField != null and params.sortDirection != null">
+			ORDER BY ${params.sortField} ${params.sortDirection}
+		</if>
+		<if test="params.offset != null and params.limit != null">
+			LIMIT #{params.offset}, #{params.limit}
+		</if>
+	</select>
+
+	<select id="searchUserRoleGroups" parameterType="map"
+		resultMap="UserManagementRoleGroupMappingResultMap">
+		SELECT id, user_id, role_group_id, created_at, updated_at
+		FROM user_management_role_group_mapping
+		<include refid="UserRoleGroupFilter" />
+		<if
+			test="params.sortField != null and params.sortDirection != null">
+			ORDER BY ${params.sortField} ${params.sortDirection}
+		</if>
+		<if test="params.offset != null and params.limit != null">
+			LIMIT #{params.offset}, #{params.limit}
+		</if>
+	</select>
+
+	<!-- ======================= COUNT (FOR PAGINATION) ======================= -->
+	<select id="countUserRoleGroups" parameterType="map"
+		resultType="long">
+		SELECT COUNT(*)
+		FROM user_management_role_group_mapping
+		<include refid="UserRoleGroupFilter" />
+	</select>
 
 </mapper>

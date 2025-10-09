@@ -3,135 +3,174 @@
   PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="simple.chatgpt.mapper.management.security.RoleGroupManagementMapper">
+<mapper
+	namespace="simple.chatgpt.mapper.management.security.RoleGroupManagementMapper">
 
-    <!-- =======================
-         ResultMap for POJO
-         ======================= -->
-    <resultMap id="RoleGroupManagementResultMap" type="simple.chatgpt.pojo.management.security.RoleGroupManagementPojo">
-        <id property="id" column="id"/>
-        <result property="groupName" column="group_name"/>
-        <result property="description" column="description"/>
-        <result property="createdAt" column="created_at"/>
-        <result property="updatedAt" column="updated_at"/>
-    </resultMap>
+	<!-- ======================= ResultMap for POJO ======================= -->
+	<resultMap id="RoleGroupManagementResultMap"
+		type="simple.chatgpt.pojo.management.security.RoleGroupManagementPojo">
+		<id property="id" column="id" />
+		<result property="groupName" column="group_name" />
+		<result property="description" column="description" />
+		<result property="createdAt" column="created_at" />
+		<result property="updatedAt" column="updated_at" />
+	</resultMap>
 
-    <!-- =======================
-         CREATE
-         ======================= -->
-    <insert id="insertRoleGroup" parameterType="map" useGeneratedKeys="true" keyProperty="params.group.id">
-        INSERT INTO role_group_management
-        (group_name, description, created_at, updated_at)
-        VALUES
-        (#{params.group.groupName}, #{params.group.description}, NOW(), NOW())
-    </insert>
+	<!-- ======= 5 CORE METHODS (on top) ======= -->
+	<insert id="create" useGeneratedKeys="true"
+		keyProperty="roleGroup.id">
+		INSERT INTO role_group_management (role_group_name, description, created_at)
+		VALUES (#{roleGroup.roleGroupName}, #{roleGroup.description},
+		#{roleGroup.createdAt})
+	</insert>
 
-    <!-- =======================
-         UPDATE
-         ======================= -->
-    <update id="updateRoleGroup" parameterType="map">
-        UPDATE role_group_management
-        <set>
-            <if test="params.group.groupName != null">group_name = #{params.group.groupName},</if>
-            <if test="params.group.description != null">description = #{params.group.description},</if>
-            updated_at = NOW()
-        </set>
-        WHERE id = #{params.group.id}
-    </update>
+	<update id="update">
+		UPDATE role_group_management
+		<set>
+			<if test="roleGroup.roleGroupName != null">role_group_name = #{roleGroup.roleGroupName},</if>
+			<if test="roleGroup.description != null">description = #{roleGroup.description},</if>
+		</set>
+		WHERE id = #{id}
+	</update>
 
-    <!-- =======================
-         DELETE
-         ======================= -->
-    <delete id="deleteRoleGroupById" parameterType="map">
-        DELETE FROM role_group_management WHERE id = #{params.groupId}
-    </delete>
-
-    <!-- =======================
-         READ
-         ======================= -->
-	<select id="findRoleGroupById" parameterType="map" resultMap="RoleGroupManagementResultMap">
-    	SELECT id, group_name, description, created_at, updated_at
-    	FROM role_group_management
-   		WHERE id = #{params.roleGroupId}  
+	<select id="search" resultMap="RoleGroupManagementResultMap"
+		parameterType="map">
+		SELECT * FROM role_group_management
+		<where>
+			<if
+				test="params.roleGroupName != null and params.roleGroupName != ''">
+				AND role_group_name LIKE CONCAT('%', #{params.roleGroupName}, '%')
+			</if>
+		</where>
 	</select>
 
-    <select id="findAllRoleGroups" resultMap="RoleGroupManagementResultMap">
-        SELECT id, group_name, description, created_at, updated_at
-        FROM role_group_management
-        ORDER BY created_at DESC
-    </select>
+	<select id="get" resultMap="RoleGroupManagementResultMap">
+		SELECT * FROM role_group_management WHERE id = #{id}
+	</select>
 
-    <select id="getAllRoleGroups" resultMap="RoleGroupManagementResultMap">
-        SELECT id, group_name, description, created_at, updated_at
-        FROM role_group_management
-        ORDER BY created_at DESC
-    </select>
+	<delete id="delete">
+		DELETE FROM role_group_management WHERE id = #{id}
+	</delete>
 
-    <!-- =======================
-         SQL fragment for filtering
-         ======================= -->
-    <sql id="RoleGroupManagementFilter">
-        <where>
-            <if test="params.group != null or params != null">
-                <if test="(params.group != null and params.group.groupName != null and params.group.groupName != '') 
+	<!-- ======= OTHER METHODS ======= -->
+
+	<!-- ======================= CREATE ======================= -->
+	<insert id="insertRoleGroup" parameterType="map"
+		useGeneratedKeys="true" keyProperty="params.group.id">
+		INSERT INTO role_group_management
+		(group_name, description, created_at, updated_at)
+		VALUES
+		(#{params.group.groupName}, #{params.group.description}, NOW(), NOW())
+	</insert>
+
+	<!-- ======================= UPDATE ======================= -->
+	<update id="updateRoleGroup" parameterType="map">
+		UPDATE role_group_management
+		<set>
+			<if test="params.group.groupName != null">group_name = #{params.group.groupName},</if>
+			<if test="params.group.description != null">description = #{params.group.description},</if>
+			updated_at = NOW()
+		</set>
+		WHERE id = #{params.group.id}
+	</update>
+
+	<!-- ======================= DELETE ======================= -->
+	<delete id="deleteRoleGroupById" parameterType="map">
+		DELETE FROM role_group_management WHERE id = #{params.groupId}
+	</delete>
+
+	<!-- ======================= READ ======================= -->
+	<select id="findRoleGroupById" parameterType="map"
+		resultMap="RoleGroupManagementResultMap">
+		SELECT id, group_name, description, created_at, updated_at
+		FROM role_group_management
+		WHERE id = #{params.roleGroupId}
+	</select>
+
+	<select id="findAllRoleGroups"
+		resultMap="RoleGroupManagementResultMap">
+		SELECT id, group_name, description, created_at, updated_at
+		FROM role_group_management
+		ORDER BY created_at DESC
+	</select>
+
+	<select id="getAllRoleGroups"
+		resultMap="RoleGroupManagementResultMap">
+		SELECT id, group_name, description, created_at, updated_at
+		FROM role_group_management
+		ORDER BY created_at DESC
+	</select>
+
+	<!-- ======================= SQL fragment for filtering ======================= -->
+	<sql id="RoleGroupManagementFilter">
+		<where>
+			<if test="params.group != null or params != null">
+				<if
+					test="(params.group != null and params.group.groupName != null and params.group.groupName != '') 
                           or (params.groupName != null and params.groupName != '')">
-                    AND group_name LIKE CONCAT('%', 
-                        <choose>
-                            <when test="params.group != null and params.group.groupName != null and params.group.groupName != ''">
-                                #{params.group.groupName}
-                            </when>
-                            <otherwise>#{params.groupName}</otherwise>
-                        </choose>, '%')
-                </if>
+					AND group_name LIKE CONCAT('%',
+					<choose>
+						<when
+							test="params.group != null and params.group.groupName != null and params.group.groupName != ''">
+							#{params.group.groupName}
+						</when>
+						<otherwise>#{params.groupName}</otherwise>
+					</choose>
+					, '%')
+				</if>
 
-                <if test="(params.group != null and params.group.description != null and params.group.description != '') 
+				<if
+					test="(params.group != null and params.group.description != null and params.group.description != '') 
                           or (params.description != null and params.description != '')">
-                    AND description LIKE CONCAT('%', 
-                        <choose>
-                            <when test="params.group != null and params.group.description != null and params.group.description != ''">
-                                #{params.group.description}
-                            </when>
-                            <otherwise>#{params.description}</otherwise>
-                        </choose>, '%')
-                </if>
-            </if>
-        </where>
-    </sql>
+					AND description LIKE CONCAT('%',
+					<choose>
+						<when
+							test="params.group != null and params.group.description != null and params.group.description != ''">
+							#{params.group.description}
+						</when>
+						<otherwise>#{params.description}</otherwise>
+					</choose>
+					, '%')
+				</if>
+			</if>
+		</where>
+	</sql>
 
-    <!-- =======================
-         SEARCH / PAGINATION
-         ======================= -->
-    <select id="findRoleGroups" parameterType="map" resultMap="RoleGroupManagementResultMap">
-        SELECT id, group_name, description, created_at, updated_at
-        FROM role_group_management
-        <include refid="RoleGroupManagementFilter"/>
-        <if test="params.sortField != null and params.sortDirection != null">
-            ORDER BY ${params.sortField} ${params.sortDirection}
-        </if>
-        <if test="params.offset != null and params.limit != null">
-            LIMIT #{params.offset}, #{params.limit}
-        </if>
-    </select>
+	<!-- ======================= SEARCH / PAGINATION ======================= -->
+	<select id="findRoleGroups" parameterType="map"
+		resultMap="RoleGroupManagementResultMap">
+		SELECT id, group_name, description, created_at, updated_at
+		FROM role_group_management
+		<include refid="RoleGroupManagementFilter" />
+		<if
+			test="params.sortField != null and params.sortDirection != null">
+			ORDER BY ${params.sortField} ${params.sortDirection}
+		</if>
+		<if test="params.offset != null and params.limit != null">
+			LIMIT #{params.offset}, #{params.limit}
+		</if>
+	</select>
 
-    <select id="searchRoleGroups" parameterType="map" resultMap="RoleGroupManagementResultMap">
-        SELECT id, group_name, description, created_at, updated_at
-        FROM role_group_management
-        <include refid="RoleGroupManagementFilter"/>
-        <if test="params.sortField != null and params.sortDirection != null">
-            ORDER BY ${params.sortField} ${params.sortDirection}
-        </if>
-        <if test="params.offset != null and params.limit != null">
-            LIMIT #{params.offset}, #{params.limit}
-        </if>
-    </select>
+	<select id="searchRoleGroups" parameterType="map"
+		resultMap="RoleGroupManagementResultMap">
+		SELECT id, group_name, description, created_at, updated_at
+		FROM role_group_management
+		<include refid="RoleGroupManagementFilter" />
+		<if
+			test="params.sortField != null and params.sortDirection != null">
+			ORDER BY ${params.sortField} ${params.sortDirection}
+		</if>
+		<if test="params.offset != null and params.limit != null">
+			LIMIT #{params.offset}, #{params.limit}
+		</if>
+	</select>
 
-    <!-- =======================
-         COUNT FOR PAGINATION
-         ======================= -->
-    <select id="countRoleGroups" parameterType="map" resultType="long">
-        SELECT COUNT(*)
-        FROM role_group_management
-        <include refid="RoleGroupManagementFilter"/>
-    </select>
+	<!-- ======================= COUNT FOR PAGINATION ======================= -->
+	<select id="countRoleGroups" parameterType="map"
+		resultType="long">
+		SELECT COUNT(*)
+		FROM role_group_management
+		<include refid="RoleGroupManagementFilter" />
+	</select>
 
 </mapper>

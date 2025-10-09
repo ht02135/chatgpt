@@ -18,23 +18,63 @@
 		<result property="updatedAt" column="updated_at" />
 	</resultMap>
 
+	<!-- ======= 5 CORE METHODS (on top) ======= -->
+	<insert id="create" useGeneratedKeys="true"
+		keyProperty="mapping.id">
+		INSERT INTO role_group_role_mapping (role_group_id, role_id)
+		VALUES (#{mapping.roleGroupId}, #{mapping.roleId})
+	</insert>
+
+	<update id="update">
+		UPDATE role_group_role_mapping
+		<set>
+			<if test="mapping.roleGroupId != null">role_group_id = #{mapping.roleGroupId},</if>
+			<if test="mapping.roleId != null">role_id = #{mapping.roleId},</if>
+		</set>
+		WHERE id = #{id}
+	</update>
+
+	<select id="search" resultMap="RoleGroupRoleMappingResultMap"
+		parameterType="map">
+		SELECT * FROM role_group_role_mapping
+		<where>
+			<if test="params.roleGroupId != null">AND role_group_id = #{params.roleGroupId}</if>
+			<if test="params.roleId != null">AND role_id = #{params.roleId}</if>
+		</where>
+	</select>
+
+	<select id="get" resultMap="RoleGroupRoleMappingResultMap">
+		SELECT * FROM role_group_role_mapping WHERE id = #{id}
+	</select>
+
+	<delete id="delete">
+		DELETE FROM role_group_role_mapping WHERE id = #{id}
+	</delete>
+
+	<!-- ======= OTHER METHODS ======= -->
+
 	<!-- ======================= CREATE ======================= -->
 	<insert id="insertMapping" parameterType="map"
 		useGeneratedKeys="true" keyProperty="params.mapping.id">
-		INSERT INTO role_group_role_mapping (role_group_id, role_id, created_at,
+		INSERT INTO
+		role_group_role_mapping (role_group_id, role_id, created_at,
 		updated_at)
-		VALUES (#{params.mapping.roleGroupId}, #{params.mapping.roleId}, NOW(),
+		VALUES (#{params.mapping.roleGroupId},
+		#{params.mapping.roleId}, NOW(),
 		NOW())
 	</insert>
 
 	<!-- ======================= DELETE ======================= -->
 	<delete id="deleteMappingById" parameterType="map">
-		DELETE FROM role_group_role_mapping WHERE id = #{params.id}
+		DELETE FROM
+		role_group_role_mapping WHERE id = #{params.id}
 	</delete>
 
 	<delete id="deleteMappingByGroupAndRole" parameterType="map">
-		DELETE FROM role_group_role_mapping
-		WHERE role_group_id = #{params.roleGroupId} AND role_id = #{params.roleId}
+		DELETE
+		FROM role_group_role_mapping
+		WHERE role_group_id =
+		#{params.roleGroupId} AND role_id = #{params.roleId}
 	</delete>
 
 	<!-- ======================= READ ======================= -->
@@ -48,8 +88,10 @@
 		r.role_name AS role_name,
 		m.created_at,
 		m.updated_at
-		FROM role_group_role_mapping m
-		LEFT JOIN role_group_management rg ON m.role_group_id = rg.id
+		FROM
+		role_group_role_mapping m
+		LEFT JOIN role_group_management rg ON
+		m.role_group_id = rg.id
 		LEFT JOIN role_management r ON m.role_id = r.id
 		WHERE m.id = #{params.id}
 	</select>
@@ -64,8 +106,10 @@
 		r.role_name AS role_name,
 		m.created_at,
 		m.updated_at
-		FROM role_group_role_mapping m
-		LEFT JOIN role_group_management rg ON m.role_group_id = rg.id
+		FROM
+		role_group_role_mapping m
+		LEFT JOIN role_group_management rg ON
+		m.role_group_id = rg.id
 		LEFT JOIN role_management r ON m.role_id = r.id
 		ORDER BY m.created_at DESC
 	</select>
@@ -80,11 +124,14 @@
 		r.role_name AS role_name,
 		m.created_at,
 		m.updated_at
-		FROM role_group_role_mapping m
-		LEFT JOIN role_group_management rg ON m.role_group_id = rg.id
+		FROM
+		role_group_role_mapping m
+		LEFT JOIN role_group_management rg ON
+		m.role_group_id = rg.id
 		LEFT JOIN role_management r ON m.role_id = r.id
 		WHERE m.role_group_id = #{params.roleGroupId}
-		ORDER BY m.created_at DESC
+		ORDER BY m.created_at
+		DESC
 	</select>
 
 	<select id="findByRoleId" parameterType="map"
@@ -97,8 +144,10 @@
 		r.role_name AS role_name,
 		m.created_at,
 		m.updated_at
-		FROM role_group_role_mapping m
-		LEFT JOIN role_group_management rg ON m.role_group_id = rg.id
+		FROM
+		role_group_role_mapping m
+		LEFT JOIN role_group_management rg ON
+		m.role_group_id = rg.id
 		LEFT JOIN role_management r ON m.role_id = r.id
 		WHERE m.role_id = #{params.roleId}
 		ORDER BY m.created_at DESC
@@ -127,16 +176,19 @@
 		r.role_name AS role_name,
 		m.created_at,
 		m.updated_at
-		FROM role_group_role_mapping m
-		LEFT JOIN role_group_management rg ON m.role_group_id = rg.id
+		FROM
+		role_group_role_mapping m
+		LEFT JOIN role_group_management rg ON
+		m.role_group_id = rg.id
 		LEFT JOIN role_management r ON m.role_id = r.id
-        <include refid="RoleGroupRoleMappingFilter"/>
-        <if test="params.sortField != null and params.sortDirection != null">
-            ORDER BY ${params.sortField} ${params.sortDirection}
-        </if>
-        <if test="params.offset != null and params.limit != null">
-            LIMIT #{params.offset}, #{params.limit}
-        </if>
+		<include refid="RoleGroupRoleMappingFilter" />
+		<if
+			test="params.sortField != null and params.sortDirection != null">
+			ORDER BY ${params.sortField} ${params.sortDirection}
+		</if>
+		<if test="params.offset != null and params.limit != null">
+			LIMIT #{params.offset}, #{params.limit}
+		</if>
 	</select>
 
 	<select id="searchMappings" parameterType="map"
@@ -149,8 +201,10 @@
 		r.role_name AS role_name,
 		m.created_at,
 		m.updated_at
-		FROM role_group_role_mapping m
-		LEFT JOIN role_group_management rg ON m.role_group_id = rg.id
+		FROM
+		role_group_role_mapping m
+		LEFT JOIN role_group_management rg ON
+		m.role_group_id = rg.id
 		LEFT JOIN role_management r ON m.role_id = r.id
 		<include refid="RoleGroupRoleMappingFilter" />
 		<if

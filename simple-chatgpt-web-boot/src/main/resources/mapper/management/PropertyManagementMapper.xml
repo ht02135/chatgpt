@@ -3,128 +3,188 @@
     PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="simple.chatgpt.mapper.management.PropertyManagementMapper">
+<mapper
+	namespace="simple.chatgpt.mapper.management.PropertyManagementMapper">
 
-    <!-- ========================= -->
-    <!-- Result Map -->
-    <!-- ========================= -->
-    <resultMap id="PropertyManagementResultMap" type="simple.chatgpt.pojo.management.PropertyManagementPojo">
-        <id property="id" column="id"/>
-        <result property="propertyName" column="property_name"/>
-        <result property="propertyKey" column="property_key"/>
-        <result property="type" column="type"/>
-        <result property="value" column="value"/>
-    </resultMap>
+	<!-- ========================= -->
+	<!-- Result Map -->
+	<!-- ========================= -->
+	<resultMap id="PropertyManagementResultMap"
+		type="simple.chatgpt.pojo.management.PropertyManagementPojo">
+		<id property="id" column="id" />
+		<result property="propertyName" column="property_name" />
+		<result property="propertyKey" column="property_key" />
+		<result property="type" column="type" />
+		<result property="value" column="value" />
+	</resultMap>
 
-    <!-- ========================= -->
-    <!-- SEARCH / LIST -->
-    <!-- ========================= -->
-    <select id="findProperties" parameterType="map" resultMap="PropertyManagementResultMap">
-        SELECT * FROM property_management
-        <where>
-            <if test="params.propertyName != null and params.propertyName != ''">
-                AND property_name LIKE CONCAT('%', #{params.propertyName}, '%')
-            </if>
-            <if test="params.propertyKey != null and params.propertyKey != ''">
-                AND property_key LIKE CONCAT('%', #{params.propertyKey}, '%')
-            </if>
-            <if test="params.type != null and params.type != ''">
-                AND type LIKE CONCAT('%', #{params.type}, '%')
-            </if>
-            <if test="params.value != null and params.value != ''">
-                AND value LIKE CONCAT('%', #{params.value}, '%')
-            </if>
-        </where>
-        <if test="params.sortField != null and params.sortDirection != null">
-            ORDER BY ${params.sortField} ${params.sortDirection}
-        </if>
-        <if test="params.offset != null and params.limit != null">
-            LIMIT #{params.offset}, #{params.limit}
-        </if>
-    </select>
+	<!-- ======= 5 CORE METHODS (on top) ======= -->
+	<insert id="create" useGeneratedKeys="true"
+		keyProperty="property.id">
+		INSERT INTO property_management (property_key, property_value, description,
+		updated_at)
+		VALUES (#{property.propertyKey}, #{property.propertyValue},
+		#{property.description}, #{property.updatedAt})
+	</insert>
 
-    <select id="countProperties" parameterType="map" resultType="long">
-        SELECT COUNT(*) FROM property_management
-        <where>
-            <if test="params.propertyName != null and params.propertyName != ''">
-                AND property_name LIKE CONCAT('%', #{params.propertyName}, '%')
-            </if>
-            <if test="params.propertyKey != null and params.propertyKey != ''">
-                AND property_key LIKE CONCAT('%', #{params.propertyKey}, '%')
-            </if>
-            <if test="params.type != null and params.type != ''">
-                AND type LIKE CONCAT('%', #{params.type}, '%')
-            </if>
-            <if test="params.value != null and params.value != ''">
-                AND value LIKE CONCAT('%', #{params.value}, '%')
-            </if>
-        </where>
-    </select>
+	<update id="update">
+		UPDATE property_management
+		<set>
+			<if test="property.propertyKey != null">property_key = #{property.propertyKey},</if>
+			<if test="property.propertyValue != null">property_value = #{property.propertyValue},</if>
+			<if test="property.description != null">description = #{property.description},</if>
+		</set>
+		WHERE id = #{id}
+	</update>
 
-    <!-- ========================= -->
-    <!-- READ -->
-    <!-- ========================= -->
-    <select id="findById" resultMap="PropertyManagementResultMap">
-        SELECT * FROM property_management WHERE id = #{id}
-    </select>
+	<select id="search" resultMap="PropertyManagementResultMap"
+		parameterType="map">
+		SELECT * FROM property_management
+		<where>
+			<if test="params.propertyKey != null and params.propertyKey != ''">
+				AND property_key LIKE CONCAT('%', #{params.propertyKey}, '%')
+			</if>
+		</where>
+		<if
+			test="params.sortField != null and params.sortDirection != null">
+			ORDER BY ${params.sortField} ${params.sortDirection}
+		</if>
+		<if test="params.offset != null and params.limit != null">
+			LIMIT #{params.offset}, #{params.limit}
+		</if>
+	</select>
 
-    <select id="findByPropertyName" resultMap="PropertyManagementResultMap">
-        SELECT * FROM property_management WHERE property_name = #{propertyName}
-    </select>
+	<select id="get" resultMap="PropertyManagementResultMap">
+		SELECT * FROM property_management WHERE id = #{id}
+	</select>
 
-    <select id="findByPropertyKey" resultMap="PropertyManagementResultMap">
-        SELECT * FROM property_management WHERE property_key = #{propertyKey}
-    </select>
+	<delete id="delete">
+		DELETE FROM property_management WHERE id = #{id}
+	</delete>
 
-    <!-- ========================= -->
-    <!-- CREATE -->
-    <!-- ========================= -->
-    <insert id="insertProperty" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO property_management (property_name, property_key, type, value)
-        VALUES (#{property.propertyName}, #{property.propertyKey}, #{property.type}, #{property.value})
-    </insert>
+	<!-- ======= OTHER METHODS ======= -->
 
-    <!-- ========================= -->
-    <!-- UPDATE -->
-    <!-- ========================= -->
-    <update id="updateProperty">
-        UPDATE property_management
-        <set>
-            <if test="property.propertyName != null">property_name = #{property.propertyName},</if>
-            <if test="property.propertyKey != null">property_key = #{property.propertyKey},</if>
-            <if test="property.type != null">type = #{property.type},</if>
-            <if test="property.value != null">value = #{property.value},</if>
-        </set>
-        WHERE id = #{property.id}
-    </update>
 
-    <update id="updatePropertyByPropertyName">
-        UPDATE property_management
-        <set>
-            <if test="property.propertyKey != null">property_key = #{property.propertyKey},</if>
-            <if test="property.type != null">type = #{property.type},</if>
-            <if test="property.value != null">value = #{property.value},</if>
-        </set>
-        WHERE property_name = #{property.propertyName}
-    </update>
+	<!-- ========================= -->
+	<!-- SEARCH / LIST -->
+	<!-- ========================= -->
+	<select id="findProperties" parameterType="map"
+		resultMap="PropertyManagementResultMap">
+		SELECT * FROM property_management
+		<where>
+			<if
+				test="params.propertyName != null and params.propertyName != ''">
+				AND property_name LIKE CONCAT('%', #{params.propertyName}, '%')
+			</if>
+			<if test="params.propertyKey != null and params.propertyKey != ''">
+				AND property_key LIKE CONCAT('%', #{params.propertyKey}, '%')
+			</if>
+			<if test="params.type != null and params.type != ''">
+				AND type LIKE CONCAT('%', #{params.type}, '%')
+			</if>
+			<if test="params.value != null and params.value != ''">
+				AND value LIKE CONCAT('%', #{params.value}, '%')
+			</if>
+		</where>
+		<if
+			test="params.sortField != null and params.sortDirection != null">
+			ORDER BY ${params.sortField} ${params.sortDirection}
+		</if>
+		<if test="params.offset != null and params.limit != null">
+			LIMIT #{params.offset}, #{params.limit}
+		</if>
+	</select>
 
-    <update id="updatePropertyByPropertyKey">
-        UPDATE property_management
-        <set>
-            <if test="property.propertyName != null">property_name = #{property.propertyName},</if>
-            <if test="property.type != null">type = #{property.type},</if>
-            <if test="property.value != null">value = #{property.value},</if>
-        </set>
-        WHERE property_key = #{property.propertyKey}
-    </update>
+	<select id="countProperties" parameterType="map"
+		resultType="long">
+		SELECT COUNT(*) FROM property_management
+		<where>
+			<if
+				test="params.propertyName != null and params.propertyName != ''">
+				AND property_name LIKE CONCAT('%', #{params.propertyName}, '%')
+			</if>
+			<if test="params.propertyKey != null and params.propertyKey != ''">
+				AND property_key LIKE CONCAT('%', #{params.propertyKey}, '%')
+			</if>
+			<if test="params.type != null and params.type != ''">
+				AND type LIKE CONCAT('%', #{params.type}, '%')
+			</if>
+			<if test="params.value != null and params.value != ''">
+				AND value LIKE CONCAT('%', #{params.value}, '%')
+			</if>
+		</where>
+	</select>
 
-    <!-- ========================= -->
-    <!-- DELETE -->
-    <!-- ========================= -->
-    <delete id="deleteById">DELETE FROM property_management WHERE id = #{id}</delete>
+	<!-- ========================= -->
+	<!-- READ -->
+	<!-- ========================= -->
+	<select id="findById" resultMap="PropertyManagementResultMap">
+		SELECT * FROM property_management WHERE id = #{id}
+	</select>
 
-    <delete id="deleteByPropertyName">DELETE FROM property_management WHERE property_name = #{propertyName}</delete>
+	<select id="findByPropertyName"
+		resultMap="PropertyManagementResultMap">
+		SELECT * FROM property_management WHERE property_name = #{propertyName}
+	</select>
 
-    <delete id="deleteByPropertyKey">DELETE FROM property_management WHERE property_key = #{propertyKey}</delete>
+	<select id="findByPropertyKey"
+		resultMap="PropertyManagementResultMap">
+		SELECT * FROM property_management WHERE property_key = #{propertyKey}
+	</select>
+
+	<!-- ========================= -->
+	<!-- CREATE -->
+	<!-- ========================= -->
+	<insert id="insertProperty" useGeneratedKeys="true"
+		keyProperty="id">
+		INSERT INTO property_management (property_name, property_key, type, value)
+		VALUES (#{property.propertyName}, #{property.propertyKey},
+		#{property.type}, #{property.value})
+	</insert>
+
+	<!-- ========================= -->
+	<!-- UPDATE -->
+	<!-- ========================= -->
+	<update id="updateProperty">
+		UPDATE property_management
+		<set>
+			<if test="property.propertyName != null">property_name = #{property.propertyName},</if>
+			<if test="property.propertyKey != null">property_key = #{property.propertyKey},</if>
+			<if test="property.type != null">type = #{property.type},</if>
+			<if test="property.value != null">value = #{property.value},</if>
+		</set>
+		WHERE id = #{property.id}
+	</update>
+
+	<update id="updatePropertyByPropertyName">
+		UPDATE property_management
+		<set>
+			<if test="property.propertyKey != null">property_key = #{property.propertyKey},</if>
+			<if test="property.type != null">type = #{property.type},</if>
+			<if test="property.value != null">value = #{property.value},</if>
+		</set>
+		WHERE property_name = #{property.propertyName}
+	</update>
+
+	<update id="updatePropertyByPropertyKey">
+		UPDATE property_management
+		<set>
+			<if test="property.propertyName != null">property_name = #{property.propertyName},</if>
+			<if test="property.type != null">type = #{property.type},</if>
+			<if test="property.value != null">value = #{property.value},</if>
+		</set>
+		WHERE property_key = #{property.propertyKey}
+	</update>
+
+	<!-- ========================= -->
+	<!-- DELETE -->
+	<!-- ========================= -->
+	<delete id="deleteById">DELETE FROM property_management WHERE id = #{id}</delete>
+
+	<delete id="deleteByPropertyName">DELETE FROM property_management WHERE property_name =
+		#{propertyName}</delete>
+
+	<delete id="deleteByPropertyKey">DELETE FROM property_management WHERE property_key =
+		#{propertyKey}</delete>
 
 </mapper>
