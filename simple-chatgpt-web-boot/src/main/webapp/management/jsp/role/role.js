@@ -80,7 +80,7 @@ function RoleViewModel(params, config) {
         try {
             const qs = self.buildSearchQuery();
             console.log("role.js -> loadRoles: qs=", qs);
-            const res = await fetch(`${API_ROLE}/searchRoles?${qs}`, { headers: { 'Accept': 'application/json' } });
+            const res = await fetch(`${API_ROLE}/search?${qs}`, { headers: { 'Accept': 'application/json' } });
             const data = await res.json();
             console.log("role.js -> loadRoles: response=", data);
 
@@ -172,7 +172,7 @@ function RoleViewModel(params, config) {
         try {
             let url = `${API_ROLE}/insertRole`, method='POST';
             if (self.mode==='edit' && self.currentRole().id && self.currentRole().id()) {
-                url = `${API_ROLE}/updateRole?roleId=${encodeURIComponent(self.currentRole().id())}`;
+                url = `${API_ROLE}/update?id=${encodeURIComponent(self.currentRole().id())}`;
                 method = 'PUT';
             }
             console.log("role.js -> saveRole: url=", url, "method=", method, "payload=", payload);
@@ -186,7 +186,7 @@ function RoleViewModel(params, config) {
         try {
             const id = ko.unwrap(role.id);
             console.log("role.js -> deleteRole: id=", id);
-            await fetch(`${API_ROLE}/deleteById?roleId=${encodeURIComponent(id)}`, { method:'DELETE', headers:{'Accept':'application/json'} });
+            await fetch(`${API_ROLE}/delete?id=${encodeURIComponent(id)}`, { method:'DELETE', headers:{'Accept':'application/json'} });
             self.loadRoles();
         } catch(err) { console.error('Delete role error:', err); }
     };
@@ -194,7 +194,7 @@ function RoleViewModel(params, config) {
     self.loadRoleById = async function(id) {
         console.log("role.js -> loadRoleById id=", id);
         try {
-            const res = await fetch(`${API_ROLE}/findById?roleId=${encodeURIComponent(id)}`, { headers:{'Accept':'application/json'} });
+            const res = await fetch(`${API_ROLE}/get?id=${encodeURIComponent(id)}`, { headers:{'Accept':'application/json'} });
             const data = await res.json();
             console.log("role.js -> loadRoleById data=", data);
             if (data.status==='SUCCESS' && data.data) self.currentRole(new Role(data.data, self.formConfig?.fields || []));

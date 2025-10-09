@@ -35,6 +35,104 @@ public class RoleManagementController implements RoleManagementControllerApi {
         this.roleService = roleService;
         logger.debug("RoleManagementController constructor called, roleService={}", roleService);
     }
+    
+    // ==============================================================
+    // ================ 5 CORE METHODS (on top) =====================
+    // ==============================================================
+
+    @PostMapping("/create")
+    public ResponseEntity<Response<RoleManagementPojo>> create(
+    	@RequestBody(required = false) RoleManagementPojo role) 
+    {
+        logger.debug("create called");
+        logger.debug("create role={}", role);
+
+        if (role == null) {
+            logger.debug("create: missing role payload");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Response.error("Missing role payload", null, HttpStatus.BAD_REQUEST.value()));
+        }
+
+        return insertRole(role);
+    }
+
+    @PutMapping("/update")
+    public ResponseEntity<Response<RoleManagementPojo>> update(
+    	@RequestParam(required = false) Long id,
+        @RequestBody(required = false) RoleManagementPojo role) 
+    {
+        logger.debug("update called");
+        logger.debug("update id={}", id);
+        logger.debug("update role={}", role);
+
+        if (id == null) {
+            logger.debug("update: missing roleId");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Response.error("Missing roleId parameter", null, HttpStatus.BAD_REQUEST.value()));
+        }
+        if (role == null) {
+            logger.debug("update: missing role payload");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Response.error("Missing role payload", null, HttpStatus.BAD_REQUEST.value()));
+        }
+
+        return updateRole(role, id, null);
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<Response<PagedResult<RoleManagementPojo>>> search(
+    	@RequestParam Map<String, Object> params)
+    {
+        logger.debug("search called");
+        logger.debug("search params={}", params);
+
+        if (params == null || params.isEmpty()) {
+            logger.debug("search: missing parameters");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Response.error("Missing parameters", null, HttpStatus.BAD_REQUEST.value()));
+        }
+
+        return searchRoles(params);
+    }
+
+    @GetMapping("/get")
+    public ResponseEntity<Response<RoleManagementPojo>> get(
+    	@RequestParam(required = false) Long id) 
+    {
+        logger.debug("get called");
+        logger.debug("get id={}", id);
+
+        if (id == null) {
+            logger.debug("get: missing roleId");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Response.error("Missing roleId parameter", null, HttpStatus.BAD_REQUEST.value()));
+        }
+
+        return findRoleById(id);
+    }
+
+    @DeleteMapping("/delete")
+    public ResponseEntity<Response<Void>> delete(
+    	@RequestParam(required = false) Long id) 
+    {
+        logger.debug("delete called");
+        logger.debug("delete id={}", id);
+
+        if (id == null) {
+            logger.debug("delete: missing roleId");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Response.error("Missing roleId parameter", null, HttpStatus.BAD_REQUEST.value()));
+        }
+
+        return deleteRoleById(id);
+    }
+
+    // ==============================================================
+    // ================ EXISTING METHODS (without URL mapping) ======
+    // ==============================================================
+
+    // Keep previous methods for internal reuse without @PostMapping/@GetMapping/@PutMapping/@DeleteMapping
+    // insertRole(), updateRole(), deleteRoleById(), findRoleById(), findAllRoles(), getAllRoles(), findRoles(), searchRoles(), countRoles()
 
     // ---------------- CREATE ----------------
     @PostMapping("/insertRole")
