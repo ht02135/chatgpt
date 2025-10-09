@@ -1,4 +1,4 @@
-// roleGroupRole.js
+// pageRoleGroup.js
 
 // detect context path dynamically from browser URL
 const PAGERG_CONTEXT_PATH = "/" + window.location.pathname.split("/")[1];
