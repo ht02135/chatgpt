@@ -165,6 +165,7 @@ public class UserManagementServiceImpl implements UserManagementService {
 
         if (!params.containsKey("sortField")) params.put("sortField", "id");
         if (!params.containsKey("sortDirection")) params.put("sortDirection", "ASC");
+        params.put("sortDirection", params.get("sortDirection").toUpperCase());
 
         // force uppercase for sortDirection
         params.put("sortDirection", params.get("sortDirection").toUpperCase());
