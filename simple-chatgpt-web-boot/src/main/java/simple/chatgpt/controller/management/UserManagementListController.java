@@ -54,93 +54,105 @@ public class UserManagementListController {
 				userManagementListService, propertyService);
 	}
 
-	// ==============================================================
-	// ================ 5 CORE METHODS (on top) =====================
-	// ==============================================================
+    // ==============================================================
+    // ================ 5 CORE METHODS (on top) =====================
+    // ==============================================================
 
-	@PostMapping("/create")
-	public ResponseEntity<Response<UserManagementListPojo>> create(
-		@RequestParam(required = false) UserManagementListPojo list) 
-	{
-		logger.debug("create called");
-		logger.debug("create list={}", list);
+    @PostMapping("/create")
+    public ResponseEntity<Response<UserManagementListPojo>> create(
+            @RequestParam(required = false) UserManagementListPojo list) {
+        logger.debug("create called");
+        logger.debug("create list={}", list);
 
-		if (list == null) {
-			logger.debug("create: missing list payload");
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-					.body(Response.error("Missing list payload", null, HttpStatus.BAD_REQUEST.value()));
-		}
+        if (list == null) {
+            logger.debug("create: missing list payload");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Response.error("Missing list payload", null, HttpStatus.BAD_REQUEST.value()));
+        }
 
-		// Use existing createList if applicable
-		return createList(list, null);
-	}
+        UserManagementListPojo saved = userManagementListService.create(list);
+        return ResponseEntity.ok(Response.success("Created successfully", saved, HttpStatus.OK.value()));
+    }
 
-	@PutMapping("/update")
-	public ResponseEntity<Response<UserManagementListPojo>> update(
-		@RequestParam(required = false) Long id,
-		@RequestParam(required = false) UserManagementListPojo list) 
-	{
-		logger.debug("update called");
-		logger.debug("update id={}", id);
-		logger.debug("update list={}", list);
+    @PutMapping("/update")
+    public ResponseEntity<Response<UserManagementListPojo>> update(
+            @RequestParam(required = false) Long id,
+            @RequestParam(required = false) UserManagementListPojo list) {
+        logger.debug("update called");
+        logger.debug("update id={}", id);
+        logger.debug("update list={}", list);
 
-		if (id == null) {
-			logger.debug("update: missing listId");
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-					.body(Response.error("Missing id parameter", null, HttpStatus.BAD_REQUEST.value()));
-		}
+        if (id == null) {
+            logger.debug("update: missing listId");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Response.error("Missing id parameter", null, HttpStatus.BAD_REQUEST.value()));
+        }
 
-		if (list == null) {
-			logger.debug("update: missing list payload");
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-					.body(Response.error("Missing list payload", null, HttpStatus.BAD_REQUEST.value()));
-		}
+        if (list == null) {
+            logger.debug("update: missing list payload");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Response.error("Missing list payload", null, HttpStatus.BAD_REQUEST.value()));
+        }
 
-		// hung: indeed, by design i didnt allow update user list
-		return ResponseEntity.ok(Response.success("Update not implemented yet", null, HttpStatus.BAD_REQUEST.value()));
-	}
+        // hung: by design, update of user list not implemented
+        return ResponseEntity.ok(Response.success("Update not implemented yet", null, HttpStatus.BAD_REQUEST.value()));
+    }
 
-	@GetMapping("/search")
-	public ResponseEntity<Response<PagedResult<UserManagementListPojo>>> search(
-			@RequestParam Map<String, Object> params) {
-		logger.debug("search called");
-		logger.debug("search params={}", params);
+    @GetMapping("/search")
+    public ResponseEntity<Response<PagedResult<UserManagementListPojo>>> search(
+            @RequestParam Map<String, String> params) {
+        logger.debug("search called");
+        logger.debug("search params={}", params);
 
-		// Use existing searchUserLists
-		return searchUserLists(params);
-	}
+        if (!params.containsKey("page")) params.put("page", "0");
+        if (!params.containsKey("size")) params.put("size", "20");
+        int page = SafeConverter.toIntOrDefault(params.get("page"), 0);
+        int size = SafeConverter.toIntOrDefault(params.get("size"), 20);
+        int offset = page * size;
 
-	@GetMapping("/get")
-	public ResponseEntity<Response<UserManagementListPojo>> get(
-		@RequestParam(required = false) Long id) 
-	{
-		logger.debug("get called");
-		logger.debug("get listId={}", id);
+        if (!params.containsKey("offset")) params.put("offset", String.valueOf(offset));
+        if (!params.containsKey("limit")) params.put("limit", String.valueOf(size));
 
-		if (id == null) {
-			logger.debug("get: missing id");
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-					.body(Response.error("Missing id parameter", null, HttpStatus.BAD_REQUEST.value()));
-		}
+        if (!params.containsKey("sortField")) params.put("sortField", "id");
+        if (!params.containsKey("sortDirection")) params.put("sortDirection", "ASC");
+        params.put("sortDirection", params.get("sortDirection").toUpperCase());
 
-		// Use existing getListById
-		return getListById(id);
-	}
+        PagedResult<UserManagementListPojo> result = userManagementListService.search(params);
+        return ResponseEntity.ok(Response.success("Fetched successfully", result, HttpStatus.OK.value()));
+    }
 
-	@DeleteMapping("/delete")
-	public ResponseEntity<Response<Void>> delete(@RequestParam(required = false) Long listId) {
-		logger.debug("delete called");
-		logger.debug("delete listId={}", listId);
+    @GetMapping("/get")
+    public ResponseEntity<Response<UserManagementListPojo>> get(
+            @RequestParam(required = false) Long id) {
+        logger.debug("get called");
+        logger.debug("get listId={}", id);
 
-		if (listId == null) {
-			logger.debug("delete: missing id");
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-					.body(Response.error("Missing id parameter", null, HttpStatus.BAD_REQUEST.value()));
-		}
+        if (id == null) {
+            logger.debug("get: missing id");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Response.error("Missing id parameter", null, HttpStatus.BAD_REQUEST.value()));
+        }
 
-		// Use existing deleteList
-		return deleteList(listId);
-	}
+        UserManagementListPojo list = userManagementListService.get(id);
+        return ResponseEntity.ok(Response.success("Fetched successfully", list, HttpStatus.OK.value()));
+    }
+
+    @DeleteMapping("/delete")
+    public ResponseEntity<Response<Void>> delete(@RequestParam(required = false) Long listId) {
+        logger.debug("delete called");
+        logger.debug("delete listId={}", listId);
+
+        if (listId == null) {
+            logger.debug("delete: missing id");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Response.error("Missing id parameter", null, HttpStatus.BAD_REQUEST.value()));
+        }
+
+        userManagementListService.delete(listId);
+        return ResponseEntity.ok(Response.success("Deleted successfully", null, HttpStatus.OK.value()));
+    }
+
+    // ======= OTHER METHODS =======
 
 	// ==============================================================
 	// ============ EXISTING METHODS (retained below) ===============

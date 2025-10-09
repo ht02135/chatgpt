@@ -22,6 +22,7 @@ import simple.chatgpt.service.management.security.UserManagementRoleGroupMapping
 import simple.chatgpt.util.PagedResult;
 import simple.chatgpt.util.ParamWrapper;
 import simple.chatgpt.util.Response;
+import simple.chatgpt.util.SafeConverter;
 
 @RestController
 @RequestMapping(value = "/management/userrolegroups", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -42,8 +43,7 @@ public class UserManagementRoleGroupMappingController implements UserManagementR
 
     @PostMapping("/create")
     public ResponseEntity<Response<UserManagementRoleGroupMappingPojo>> create(
-    	@RequestBody(required = false) UserManagementRoleGroupMappingPojo mapping) 
-    {
+            @RequestBody(required = false) UserManagementRoleGroupMappingPojo mapping) {
         logger.debug("create called");
         logger.debug("create mapping={}", mapping);
 
@@ -62,9 +62,8 @@ public class UserManagementRoleGroupMappingController implements UserManagementR
 
     @PutMapping("/update")
     public ResponseEntity<Response<UserManagementRoleGroupMappingPojo>> update(
-    	@RequestParam(required = false) Long id,
-        @RequestBody(required = false) UserManagementRoleGroupMappingPojo mapping) 
-    {
+            @RequestParam(required = false) Long id,
+            @RequestBody(required = false) UserManagementRoleGroupMappingPojo mapping) {
         logger.debug("update called");
         logger.debug("update id={}", id);
         logger.debug("update mapping={}", mapping);
@@ -92,24 +91,31 @@ public class UserManagementRoleGroupMappingController implements UserManagementR
 
     @GetMapping("/search")
     public ResponseEntity<Response<PagedResult<UserManagementRoleGroupMappingPojo>>> search(
-            @RequestParam Map<String, Object> params) {
+            @RequestParam Map<String, String> params) {
 
         logger.debug("search called");
         logger.debug("search params={}", params);
 
-        if (params == null || params.isEmpty()) {
-            logger.debug("search: missing parameters");
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(Response.error("Missing parameters", null, HttpStatus.BAD_REQUEST.value()));
-        }
+        // Add defaults only for XML-used params
+        if (!params.containsKey("page")) params.put("page", "0");
+        if (!params.containsKey("size")) params.put("size", "20");
+        int page = SafeConverter.toIntOrDefault(params.get("page"), 0);
+        int size = SafeConverter.toIntOrDefault(params.get("size"), 20);
+        int offset = page * size;
 
-        return searchUserRoleGroups(params);
+        if (!params.containsKey("offset")) params.put("offset", String.valueOf(offset));
+        if (!params.containsKey("limit")) params.put("limit", String.valueOf(size));
+
+        if (!params.containsKey("sortField")) params.put("sortField", "id");
+        if (!params.containsKey("sortDirection")) params.put("sortDirection", "ASC");
+
+        PagedResult<UserManagementRoleGroupMappingPojo> result = mappingService.search(params);
+        return ResponseEntity.ok(Response.success("Fetched successfully", result, HttpStatus.OK.value()));
     }
 
     @GetMapping("/get")
     public ResponseEntity<Response<UserManagementRoleGroupMappingPojo>> get(
             @RequestParam(required = false) Long id) {
-
         logger.debug("get called");
         logger.debug("get id={}", id);
 
@@ -118,16 +124,14 @@ public class UserManagementRoleGroupMappingController implements UserManagementR
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(Response.error("Missing id parameter", null, HttpStatus.BAD_REQUEST.value()));
         }
-        
-        UserManagementRoleGroupMappingPojo result = mappingService.findById(ParamWrapper.wrap("id", id));
 
+        UserManagementRoleGroupMappingPojo result = mappingService.findById(ParamWrapper.wrap("id", id));
         return ResponseEntity.ok(Response.success("Search results", result, HttpStatus.OK.value()));
     }
 
     @DeleteMapping("/delete")
     public ResponseEntity<Response<Void>> delete(
             @RequestParam(required = false) Long id) {
-
         logger.debug("delete called");
         logger.debug("delete id={}", id);
 
@@ -137,8 +141,11 @@ public class UserManagementRoleGroupMappingController implements UserManagementR
                     .body(Response.error("Missing id parameter", null, HttpStatus.BAD_REQUEST.value()));
         }
 
-        return deleteUserRoleGroupById(id);
+        mappingService.delete(id);
+        return ResponseEntity.ok(Response.success("Deleted successfully", null, HttpStatus.OK.value()));
     }
+
+    // ======= OTHER METHODS =======
     
     // ---------------- CREATE ----------------
 

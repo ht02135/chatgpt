@@ -1,6 +1,5 @@
 package simple.chatgpt.controller.management.security;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
@@ -22,6 +21,7 @@ import simple.chatgpt.service.management.security.RoleGroupRoleMappingService;
 import simple.chatgpt.util.PagedResult;
 import simple.chatgpt.util.ParamWrapper;
 import simple.chatgpt.util.Response;
+import simple.chatgpt.util.SafeConverter;
 
 @RestController
 @RequestMapping(value = "/management/rolegrouprolemappings", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -53,7 +53,11 @@ public class RoleGroupRoleMappingController implements RoleGroupRoleMappingContr
                     .body(Response.error("Missing mapping payload", null, HttpStatus.BAD_REQUEST.value()));
         }
 
-        return insertMapping(mapping);
+        RoleGroupRoleMappingPojo created = mappingService.create(mapping);
+
+        logger.debug("create return={}", created);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(Response.success("Mapping created successfully", created, HttpStatus.CREATED.value()));
     }
 
     @PutMapping("/update")
@@ -76,17 +80,15 @@ public class RoleGroupRoleMappingController implements RoleGroupRoleMappingContr
                     .body(Response.error("Missing mapping payload", null, HttpStatus.BAD_REQUEST.value()));
         }
 
-        /*
-        HUNG : REMOVE THE COMMENT
-        for mapping, edit is delete previous mapping and then replace with new mapping
-        */
-        delete(id);
-        return addRoleToGroupIfNotExists(mapping.getRoleGroupId(), mapping.getRoleId());
+        RoleGroupRoleMappingPojo updated = mappingService.update(id, mapping);
+
+        logger.debug("update return={}", updated);
+        return ResponseEntity.ok(Response.success("Mapping updated successfully", updated, HttpStatus.OK.value()));
     }
 
     @GetMapping("/search")
     public ResponseEntity<Response<PagedResult<RoleGroupRoleMappingPojo>>> search(
-        @RequestParam Map<String, Object> params)
+        @RequestParam Map<String, String> params)
     {
         logger.debug("search called");
         logger.debug("search params={}", params);
@@ -97,7 +99,25 @@ public class RoleGroupRoleMappingController implements RoleGroupRoleMappingContr
                     .body(Response.error("Missing parameters", null, HttpStatus.BAD_REQUEST.value()));
         }
 
-        return findMappings(params);
+        // Default pagination
+        if (!params.containsKey("page")) params.put("page", "0");
+        if (!params.containsKey("size")) params.put("size", "20");
+
+        int page = SafeConverter.toIntOrDefault(params.get("page"), 0);
+        int size = SafeConverter.toIntOrDefault(params.get("size"), 20);
+        int offset = page * size;
+
+        if (!params.containsKey("offset")) params.put("offset", String.valueOf(offset));
+        if (!params.containsKey("limit")) params.put("limit", String.valueOf(size));
+
+        if (!params.containsKey("sortField")) params.put("sortField", "id");
+        if (!params.containsKey("sortDirection")) params.put("sortDirection", "ASC");
+        params.put("sortDirection", params.get("sortDirection").toUpperCase());
+
+        PagedResult<RoleGroupRoleMappingPojo> result = mappingService.search(params);
+
+        logger.debug("search return totalCount={}", result.getTotalCount());
+        return ResponseEntity.ok(Response.success("Mappings fetched successfully", result, HttpStatus.OK.value()));
     }
 
     @GetMapping("/get")
@@ -113,13 +133,10 @@ public class RoleGroupRoleMappingController implements RoleGroupRoleMappingContr
                     .body(Response.error("Missing mappingId parameter", null, HttpStatus.BAD_REQUEST.value()));
         }
 
-		Map<String, Object> params = new HashMap<>();
-		params.put("id", id);
-		
-		RoleGroupRoleMappingPojo result = mappingService.findById(params);
+        RoleGroupRoleMappingPojo result = mappingService.get(id);
 
         logger.debug("get return={}", result);
-        return ResponseEntity.ok(Response.success("Mappings fetched successfully", result, HttpStatus.OK.value()));
+        return ResponseEntity.ok(Response.success("Mapping fetched successfully", result, HttpStatus.OK.value()));
     }
 
     @DeleteMapping("/delete")
@@ -135,7 +152,10 @@ public class RoleGroupRoleMappingController implements RoleGroupRoleMappingContr
                     .body(Response.error("Missing mappingId parameter", null, HttpStatus.BAD_REQUEST.value()));
         }
 
-        return deleteMappingById(id);
+        mappingService.delete(id);
+
+        logger.debug("delete successful for id={}", id);
+        return ResponseEntity.ok(Response.success("Mapping deleted successfully", null, HttpStatus.OK.value()));
     }
     
     // ---------------- CREATE ----------------

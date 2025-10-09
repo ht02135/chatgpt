@@ -50,85 +50,100 @@ public class PropertyManagementController {
 		logger.debug("PropertyManagementController propertyService={}", propertyService);
 	}
 
-	// ==============================================================
-	// ================ 5 CORE METHODS (on top) =====================
-	// ==============================================================
+    // ==============================================================
+    // ================ 5 CORE METHODS (on top) =====================
+    // ==============================================================
 
-	@PostMapping("/create")
-	public ResponseEntity<Response<PropertyManagementPojo>> create(
-		@Valid @RequestBody PropertyManagementPojo property) 
-	{
-		logger.debug("create called");
-		logger.debug("create property={}", property);
+    @PostMapping("/create")
+    public ResponseEntity<Response<PropertyManagementPojo>> create(
+            @Valid @RequestBody PropertyManagementPojo property) {
+        logger.debug("create called");
+        logger.debug("create property={}", property);
 
-		if (property == null) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-					.body(Response.error("Missing property payload", null, HttpStatus.BAD_REQUEST.value()));
-		}
+        if (property == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Response.error("Missing property payload", null, HttpStatus.BAD_REQUEST.value()));
+        }
 
-		return createProperty(property);
-	}
+        PropertyManagementPojo saved = propertyService.create(property);
+        return ResponseEntity.ok(Response.success("Created successfully", saved, HttpStatus.OK.value()));
+    }
 
-	@PutMapping("/update")
-	public ResponseEntity<Response<PropertyManagementPojo>> update(
-		@RequestParam(required = false) Long id,
-		@Valid @RequestBody PropertyManagementPojo property) 
-	{
-		logger.debug("update called");
-		logger.debug("update id={}", id);
-		logger.debug("update property={}", property);
+    @PutMapping("/update")
+    public ResponseEntity<Response<PropertyManagementPojo>> update(
+            @RequestParam(required = false) Long id,
+            @Valid @RequestBody PropertyManagementPojo property) {
+        logger.debug("update called");
+        logger.debug("update id={}", id);
+        logger.debug("update property={}", property);
 
-		if (id == null) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-					.body(Response.error("Missing id parameter", null, HttpStatus.BAD_REQUEST.value()));
-		}
-		if (property == null) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-					.body(Response.error("Missing property payload", null, HttpStatus.BAD_REQUEST.value()));
-		}
+        if (id == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Response.error("Missing id parameter", null, HttpStatus.BAD_REQUEST.value()));
+        }
+        if (property == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Response.error("Missing property payload", null, HttpStatus.BAD_REQUEST.value()));
+        }
 
-		return updateProperty(id, null, null, property);
-	}
+        PropertyManagementPojo updated = propertyService.update(id, property);
+        return ResponseEntity.ok(Response.success("Updated successfully", updated, HttpStatus.OK.value()));
+    }
 
-	@GetMapping("/search")
-	public ResponseEntity<Response<PagedResult<PropertyManagementPojo>>> search(
-		@RequestParam Map<String, String> params) 
-	{
-		logger.debug("search called");
-		logger.debug("search params={}", params);
+    @GetMapping("/search")
+    public ResponseEntity<Response<PagedResult<PropertyManagementPojo>>> search(
+            @RequestParam Map<String, String> params) {
+        logger.debug("search called");
+        logger.debug("search params={}", params);
 
-		return searchProperties(params);
-	}
+        // Add defaults for paging & sorting, only params used in XML
+        if (!params.containsKey("page")) params.put("page", "0");
+        if (!params.containsKey("size")) params.put("size", "20");
+        int page = SafeConverter.toIntOrDefault(params.get("page"), 0);
+        int size = SafeConverter.toIntOrDefault(params.get("size"), 20);
+        int offset = page * size;
 
-	@GetMapping("/get")
-	public ResponseEntity<Response<PropertyManagementPojo>> get(
-		@RequestParam(required = false) Long id) 
-	{
-		logger.debug("get called");
-		logger.debug("get id={}", id);
+        if (!params.containsKey("offset")) params.put("offset", String.valueOf(offset));
+        if (!params.containsKey("limit")) params.put("limit", String.valueOf(size));
 
-		if (id == null) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-					.body(Response.error("Missing id parameter", null, HttpStatus.BAD_REQUEST.value()));
-		}
+        if (!params.containsKey("sortField")) params.put("sortField", "id");
+        if (!params.containsKey("sortDirection")) params.put("sortDirection", "ASC");
+        params.put("sortDirection", params.get("sortDirection").toUpperCase());
 
-		return getProperty(id, null, null);
-	}
+        PagedResult<PropertyManagementPojo> result = propertyService.search(params);
+        return ResponseEntity.ok(Response.success("Fetched successfully", result, HttpStatus.OK.value()));
+    }
 
-	@DeleteMapping("/delete")
-	public ResponseEntity<Response<Void>> delete(
-		@RequestParam(required = false) Long id) 
-	{
-		logger.debug("delete called");
-		logger.debug("delete id={}", id);
+    @GetMapping("/get")
+    public ResponseEntity<Response<PropertyManagementPojo>> get(
+            @RequestParam(required = false) Long id) {
+        logger.debug("get called");
+        logger.debug("get id={}", id);
 
-		if (id == null) {
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-					.body(Response.error("Missing id parameter", null, HttpStatus.BAD_REQUEST.value()));
-		}
+        if (id == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Response.error("Missing id parameter", null, HttpStatus.BAD_REQUEST.value()));
+        }
 
-		return deleteProperty(id, null, null);
-	}
+        PropertyManagementPojo property = propertyService.get(id);
+        return ResponseEntity.ok(Response.success("Fetched successfully", property, HttpStatus.OK.value()));
+    }
+
+    @DeleteMapping("/delete")
+    public ResponseEntity<Response<Void>> delete(@RequestParam(required = false) Long id) {
+        logger.debug("delete called");
+        logger.debug("delete id={}", id);
+
+        if (id == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Response.error("Missing id parameter", null, HttpStatus.BAD_REQUEST.value()));
+        }
+
+        propertyService.delete(id);
+        return ResponseEntity.ok(Response.success("Deleted successfully", null, HttpStatus.OK.value()));
+    }
+
+    // ======= OTHER METHODS =======
 
 	// ==============================================================
 	// ============ EXISTING METHODS (retained below) ===============
