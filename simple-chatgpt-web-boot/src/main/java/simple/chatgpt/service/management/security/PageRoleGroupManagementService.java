@@ -6,6 +6,15 @@ import simple.chatgpt.pojo.management.security.PageRoleGroupManagementPojo;
 import simple.chatgpt.util.PagedResult;
 
 public interface PageRoleGroupManagementService {
+	
+	// ======= 5 CORE METHODS (on top) =======
+	PageRoleGroupManagementPojo create(PageRoleGroupManagementPojo pageRoleGroup);
+	PageRoleGroupManagementPojo update(Long id, PageRoleGroupManagementPojo pageRoleGroup);
+	PagedResult<PageRoleGroupManagementPojo> search(Map<String, String> params);
+	PageRoleGroupManagementPojo get(Long id);
+	void delete(Long id);
+
+	// ======= OTHER METHODS =======
 
     // ---------------- CREATE ----------------
     PageRoleGroupManagementPojo insertPageRoleGroup(Map<String, Object> params);

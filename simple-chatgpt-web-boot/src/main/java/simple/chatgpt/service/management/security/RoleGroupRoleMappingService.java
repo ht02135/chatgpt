@@ -8,7 +8,14 @@ import simple.chatgpt.pojo.management.security.RoleGroupRoleMappingPojo;
 import simple.chatgpt.util.PagedResult;
 
 public interface RoleGroupRoleMappingService {
+	// ======= 5 CORE METHODS (on top) =======
+	RoleGroupRoleMappingPojo create(RoleGroupRoleMappingPojo mapping);
+	RoleGroupRoleMappingPojo update(Long id, RoleGroupRoleMappingPojo mapping);
+	PagedResult<RoleGroupRoleMappingPojo> search(Map<String, String> params);
+	RoleGroupRoleMappingPojo get(Long id);
+	void delete(Long id);
 
+	// ======= OTHER METHODS =======
     // ---------------- CREATE ----------------
 	RoleGroupRoleMappingPojo insertMapping(Map<String, Object> params);
 

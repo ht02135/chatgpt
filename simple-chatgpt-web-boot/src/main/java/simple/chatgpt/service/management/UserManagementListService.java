@@ -8,6 +8,14 @@ import simple.chatgpt.util.PagedResult;
 
 public interface UserManagementListService {
 
+	// ======= 5 CORE METHODS (on top) =======
+	UserManagementListPojo create(UserManagementListPojo list);
+	UserManagementListPojo update(Long id, UserManagementListPojo list);
+	PagedResult<UserManagementListPojo> search(Map<String, String> params);
+	UserManagementListPojo get(Long id);
+	void delete(Long id);
+
+	// ======= OTHER METHODS =======
     // ------------------ LIST SEARCH ------------------
     PagedResult<UserManagementListPojo> searchUserLists(Map<String, Object> params);
 

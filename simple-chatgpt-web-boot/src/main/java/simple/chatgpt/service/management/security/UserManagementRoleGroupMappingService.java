@@ -9,6 +9,14 @@ import simple.chatgpt.util.PagedResult;
 
 public interface UserManagementRoleGroupMappingService {
 
+	// ======= 5 CORE METHODS (on top) =======
+	UserManagementRoleGroupMappingPojo create(UserManagementRoleGroupMappingPojo mapping);
+	UserManagementRoleGroupMappingPojo update(Long id, UserManagementRoleGroupMappingPojo mapping);
+	PagedResult<UserManagementRoleGroupMappingPojo> search(Map<String, String> params);
+	UserManagementRoleGroupMappingPojo get(Long id);
+	void delete(Long id);
+
+	// ======= OTHER METHODS =======
     // ---------------- CREATE ----------------
     UserManagementRoleGroupMappingPojo insertUserRoleGroup(Map<String, Object> params);
 
