@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 import simple.chatgpt.mapper.management.security.RoleGroupRoleMappingMapper;
 import simple.chatgpt.pojo.management.security.RoleGroupRoleMappingPojo;
 import simple.chatgpt.util.PagedResult;
-import simple.chatgpt.util.ParamWrapper;
 import simple.chatgpt.util.SafeConverter;
 
 @Service
@@ -24,7 +23,7 @@ public class RoleGroupRoleMappingServiceImpl implements RoleGroupRoleMappingServ
     @Autowired
     public RoleGroupRoleMappingServiceImpl(RoleGroupRoleMappingMapper mapper) {
         logger.debug("RoleGroupRoleMappingServiceImpl START");
-        logger.debug("RoleGroupRoleMappingServiceImpl mapper={}", mapper);
+        logger.debug("mapper={}", mapper);
         this.mapper = mapper;
         logger.debug("RoleGroupRoleMappingServiceImpl DONE");
     }
@@ -33,47 +32,35 @@ public class RoleGroupRoleMappingServiceImpl implements RoleGroupRoleMappingServ
     @Override
     public RoleGroupRoleMappingPojo insertMapping(Map<String, Object> params) {
         logger.debug("insertMapping START");
-        logger.debug("insertMapping params={}", params);
+        logger.debug("params={}", params);
 
-        RoleGroupRoleMappingPojo mapping = ParamWrapper.unwrap(params, "mapping");
+        mapper.insertMapping(params);
+        RoleGroupRoleMappingPojo fullMapping = mapper.findById(params);
 
-        mapper.insertMapping(ParamWrapper.wrap("mapping", mapping));
-
-        RoleGroupRoleMappingPojo fullMapping = mapper.findById(ParamWrapper.wrap("id", mapping.getId()));
-        logger.debug("insertMapping return={}", fullMapping);
+        logger.debug("insertMapping DONE return={}", fullMapping);
         return fullMapping;
     }
 
     @Override
     public RoleGroupRoleMappingPojo addRoleToGroupIfNotExists(Map<String, Object> params) {
         logger.debug("addRoleToGroupIfNotExists START");
-        logger.debug("addRoleToGroupIfNotExists params={}", params);
+        logger.debug("params={}", params);
 
-        if (params == null) {
-            logger.debug("addRoleToGroupIfNotExists return=null");
-            return null;
-        }
+        PagedResult<RoleGroupRoleMappingPojo> existingMappings = findByRoleGroupId(params);
+        Long roleId = ((Number) params.get("roleId")).longValue();
 
-        Long roleGroupId = ((Number) ParamWrapper.unwrap(params, "roleGroupId")).longValue();
-        Long roleId = ((Number) ParamWrapper.unwrap(params, "roleId")).longValue();
-
-        PagedResult<RoleGroupRoleMappingPojo> existingMappings = findByRoleGroupId(ParamWrapper.wrap("roleGroupId", roleGroupId));
         RoleGroupRoleMappingPojo existing = existingMappings.getItems().stream()
                 .filter(m -> roleId.equals(m.getRoleId()))
                 .findFirst()
                 .orElse(null);
 
         if (existing != null) {
-            logger.debug("addRoleToGroupIfNotExists return={}", existing);
+            logger.debug("addRoleToGroupIfNotExists DONE return={}", existing);
             return existing;
         }
 
-        RoleGroupRoleMappingPojo mapping = new RoleGroupRoleMappingPojo();
-        mapping.setRoleGroupId(roleGroupId);
-        mapping.setRoleId(roleId);
-
-        RoleGroupRoleMappingPojo fullMapping = insertMapping(ParamWrapper.wrap("mapping", mapping));
-        logger.debug("addRoleToGroupIfNotExists return={}", fullMapping);
+        RoleGroupRoleMappingPojo fullMapping = insertMapping(params);
+        logger.debug("addRoleToGroupIfNotExists DONE return={}", fullMapping);
         return fullMapping;
     }
 
@@ -81,7 +68,7 @@ public class RoleGroupRoleMappingServiceImpl implements RoleGroupRoleMappingServ
     @Override
     public void deleteMappingById(Map<String, Object> params) {
         logger.debug("deleteMappingById START");
-        logger.debug("deleteMappingById params={}", params);
+        logger.debug("params={}", params);
 
         mapper.deleteMappingById(params);
 
@@ -91,7 +78,7 @@ public class RoleGroupRoleMappingServiceImpl implements RoleGroupRoleMappingServ
     @Override
     public void deleteMappingByGroupAndRole(Map<String, Object> params) {
         logger.debug("deleteMappingByGroupAndRole START");
-        logger.debug("deleteMappingByGroupAndRole params={}", params);
+        logger.debug("params={}", params);
 
         mapper.deleteMappingByGroupAndRole(params);
 
@@ -106,47 +93,42 @@ public class RoleGroupRoleMappingServiceImpl implements RoleGroupRoleMappingServ
         List<RoleGroupRoleMappingPojo> items = mapper.findAllMappings();
         PagedResult<RoleGroupRoleMappingPojo> result = new PagedResult<>(items, items.size(), 1, items.size());
 
-        logger.debug("findAllMappings return={}", result);
+        logger.debug("findAllMappings DONE return={}", result);
         return result;
     }
 
     @Override
     public PagedResult<RoleGroupRoleMappingPojo> findByRoleGroupId(Map<String, Object> params) {
         logger.debug("findByRoleGroupId START");
-        logger.debug("findByRoleGroupId params={}", params);
+        logger.debug("params={}", params);
 
         List<RoleGroupRoleMappingPojo> items = mapper.findByRoleGroupId(params);
         PagedResult<RoleGroupRoleMappingPojo> result = new PagedResult<>(items, items.size(), 1, items.size());
 
-        logger.debug("findByRoleGroupId return={}", result);
+        logger.debug("findByRoleGroupId DONE return={}", result);
         return result;
     }
 
     @Override
     public PagedResult<RoleGroupRoleMappingPojo> findByRoleId(Map<String, Object> params) {
         logger.debug("findByRoleId START");
-        logger.debug("findByRoleId params={}", params);
+        logger.debug("params={}", params);
 
         List<RoleGroupRoleMappingPojo> items = mapper.findByRoleId(params);
         PagedResult<RoleGroupRoleMappingPojo> result = new PagedResult<>(items, items.size(), 1, items.size());
 
-        logger.debug("findByRoleId return={}", result);
+        logger.debug("findByRoleId DONE return={}", result);
         return result;
     }
-    
+
     @Override
     public RoleGroupRoleMappingPojo findById(Map<String, Object> params) {
         logger.debug("findById START");
-        logger.debug("findById params={}", params);
-
-        if (params == null || !params.containsKey("id")) {
-            logger.debug("findById: missing id param");
-            return null;
-        }
+        logger.debug("params={}", params);
 
         RoleGroupRoleMappingPojo result = mapper.findById(params);
 
-        logger.debug("findById return={}", result);
+        logger.debug("findById DONE return={}", result);
         return result;
     }
 
@@ -154,46 +136,36 @@ public class RoleGroupRoleMappingServiceImpl implements RoleGroupRoleMappingServ
     @Override
     public PagedResult<RoleGroupRoleMappingPojo> findMappings(Map<String, Object> params) {
         logger.debug("findMappings START");
-        logger.debug("findMappings params={}", params);
+        logger.debug("params={}", params);
 
-        /*
-          hung: DONT REMOVE THIS CODE
-        */
-        int page = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "page", 0), 0);
-        int size = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "size", 20), 20);
-        int offset = page * size;
-
-        params.put("offset", offset);
+        int page = SafeConverter.toIntOrDefault(params.get("page"), 0);
+        int size = SafeConverter.toIntOrDefault(params.get("size"), 20);
+        params.put("offset", page * size);
         params.put("limit", size);
 
         List<RoleGroupRoleMappingPojo> items = mapper.findMappings(params);
         long totalCount = mapper.countMappings(params);
 
         PagedResult<RoleGroupRoleMappingPojo> result = new PagedResult<>(items, totalCount, page, size);
-        logger.debug("findMappings return={}", result);
+        logger.debug("findMappings DONE return={}", result);
         return result;
     }
 
     @Override
     public PagedResult<RoleGroupRoleMappingPojo> searchMappings(Map<String, Object> params) {
         logger.debug("searchMappings START");
-        logger.debug("searchMappings params={}", params);
+        logger.debug("params={}", params);
 
-        /*
-          hung: DONT REMOVE THIS CODE
-        */
-        int page = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "page", 0), 0);
-        int size = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "size", 20), 20);
-        int offset = page * size;
-
-        params.put("offset", offset);
+        int page = SafeConverter.toIntOrDefault(params.get("page"), 0);
+        int size = SafeConverter.toIntOrDefault(params.get("size"), 20);
+        params.put("offset", page * size);
         params.put("limit", size);
 
         List<RoleGroupRoleMappingPojo> items = mapper.searchMappings(params);
         long totalCount = mapper.countMappings(params);
 
         PagedResult<RoleGroupRoleMappingPojo> result = new PagedResult<>(items, totalCount, page, size);
-        logger.debug("searchMappings return={}", result);
+        logger.debug("searchMappings DONE return={}", result);
         return result;
     }
 
@@ -201,10 +173,11 @@ public class RoleGroupRoleMappingServiceImpl implements RoleGroupRoleMappingServ
     @Override
     public long countMappings(Map<String, Object> params) {
         logger.debug("countMappings START");
-        logger.debug("countMappings params={}", params);
+        logger.debug("params={}", params);
 
         long count = mapper.countMappings(params);
-        logger.debug("countMappings return={}", count);
+
+        logger.debug("countMappings DONE return={}", count);
         return count;
     }
 }
