@@ -56,7 +56,8 @@ public class PropertyManagementController {
 
 	@PostMapping("/create")
 	public ResponseEntity<Response<PropertyManagementPojo>> create(
-			@Valid @RequestBody PropertyManagementPojo property) {
+		@Valid @RequestBody PropertyManagementPojo property) 
+	{
 		logger.debug("create called");
 		logger.debug("create property={}", property);
 
@@ -69,8 +70,10 @@ public class PropertyManagementController {
 	}
 
 	@PutMapping("/update")
-	public ResponseEntity<Response<PropertyManagementPojo>> update(@RequestParam(required = false) Long id,
-			@Valid @RequestBody PropertyManagementPojo property) {
+	public ResponseEntity<Response<PropertyManagementPojo>> update(
+		@RequestParam(required = false) Long id,
+		@Valid @RequestBody PropertyManagementPojo property) 
+	{
 		logger.debug("update called");
 		logger.debug("update id={}", id);
 		logger.debug("update property={}", property);
@@ -89,7 +92,8 @@ public class PropertyManagementController {
 
 	@GetMapping("/search")
 	public ResponseEntity<Response<PagedResult<PropertyManagementPojo>>> search(
-			@RequestParam Map<String, String> params) {
+		@RequestParam Map<String, String> params) 
+	{
 		logger.debug("search called");
 		logger.debug("search params={}", params);
 
@@ -97,7 +101,9 @@ public class PropertyManagementController {
 	}
 
 	@GetMapping("/get")
-	public ResponseEntity<Response<PropertyManagementPojo>> get(@RequestParam(required = false) Long id) {
+	public ResponseEntity<Response<PropertyManagementPojo>> get(
+		@RequestParam(required = false) Long id) 
+	{
 		logger.debug("get called");
 		logger.debug("get id={}", id);
 
@@ -110,7 +116,9 @@ public class PropertyManagementController {
 	}
 
 	@DeleteMapping("/delete")
-	public ResponseEntity<Response<Void>> delete(@RequestParam(required = false) Long id) {
+	public ResponseEntity<Response<Void>> delete(
+		@RequestParam(required = false) Long id) 
+	{
 		logger.debug("delete called");
 		logger.debug("delete id={}", id);
 

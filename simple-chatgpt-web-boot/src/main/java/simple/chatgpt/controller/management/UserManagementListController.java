@@ -60,7 +60,8 @@ public class UserManagementListController implements UserManagementListControlle
 
 	@PostMapping("/create")
 	public ResponseEntity<Response<UserManagementListPojo>> create(
-			@RequestParam(required = false) UserManagementListPojo list) {
+		@RequestParam(required = false) UserManagementListPojo list) 
+	{
 		logger.debug("create called");
 		logger.debug("create list={}", list);
 
@@ -75,13 +76,15 @@ public class UserManagementListController implements UserManagementListControlle
 	}
 
 	@PutMapping("/update")
-	public ResponseEntity<Response<UserManagementListPojo>> update(@RequestParam(required = false) Long listId,
-			@RequestParam(required = false) UserManagementListPojo list) {
+	public ResponseEntity<Response<UserManagementListPojo>> update(
+		@RequestParam(required = false) Long id,
+		@RequestParam(required = false) UserManagementListPojo list) 
+	{
 		logger.debug("update called");
-		logger.debug("update listId={}", listId);
+		logger.debug("update id={}", id);
 		logger.debug("update list={}", list);
 
-		if (listId == null) {
+		if (id == null) {
 			logger.debug("update: missing listId");
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST)
 					.body(Response.error("Missing id parameter", null, HttpStatus.BAD_REQUEST.value()));
@@ -108,18 +111,20 @@ public class UserManagementListController implements UserManagementListControlle
 	}
 
 	@GetMapping("/get")
-	public ResponseEntity<Response<UserManagementListPojo>> get(@RequestParam(required = false) Long listId) {
+	public ResponseEntity<Response<UserManagementListPojo>> get(
+		@RequestParam(required = false) Long id) 
+	{
 		logger.debug("get called");
-		logger.debug("get listId={}", listId);
+		logger.debug("get listId={}", id);
 
-		if (listId == null) {
+		if (id == null) {
 			logger.debug("get: missing id");
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST)
 					.body(Response.error("Missing id parameter", null, HttpStatus.BAD_REQUEST.value()));
 		}
 
 		// Use existing getListById
-		return getListById(listId);
+		return getListById(id);
 	}
 
 	@DeleteMapping("/delete")
