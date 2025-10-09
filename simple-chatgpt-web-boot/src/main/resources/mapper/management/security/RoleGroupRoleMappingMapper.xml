@@ -130,13 +130,13 @@
 		FROM role_group_role_mapping m
 		LEFT JOIN role_group_management rg ON m.role_group_id = rg.id
 		LEFT JOIN role_management r ON m.role_id = r.id
-		<include refid="RoleGroupRoleMappingFilter" />
-		<if test="sortField != null and sortDirection != null">
-			ORDER BY ${sortField} ${sortDirection}
-		</if>
-		<if test="offset != null and limit != null">
-			LIMIT #{offset}, #{limit}
-		</if>
+        <include refid="RoleGroupRoleMappingFilter"/>
+        <if test="params.sortField != null and params.sortDirection != null">
+            ORDER BY ${params.sortField} ${params.sortDirection}
+        </if>
+        <if test="params.offset != null and params.limit != null">
+            LIMIT #{params.offset}, #{params.limit}
+        </if>
 	</select>
 
 	<select id="searchMappings" parameterType="map"
