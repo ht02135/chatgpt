@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -19,22 +20,128 @@ import org.springframework.web.bind.annotation.RestController;
 import simple.chatgpt.pojo.management.security.UserManagementRoleGroupMappingPojo;
 import simple.chatgpt.service.management.security.UserManagementRoleGroupMappingService;
 import simple.chatgpt.util.PagedResult;
+import simple.chatgpt.util.ParamWrapper;
 import simple.chatgpt.util.Response;
 
 @RestController
 @RequestMapping(value = "/management/userrolegroups", produces = MediaType.APPLICATION_JSON_VALUE)
-public class UserRoleGroupManagementController implements UserRoleGroupManagementControllerApi {
+public class UserManagementRoleGroupMappingController implements UserManagementRoleGroupMappingControllerApi {
 
-    private static final Logger logger = LogManager.getLogger(UserRoleGroupManagementController.class);
+    private static final Logger logger = LogManager.getLogger(UserManagementRoleGroupMappingController.class);
 
     private final UserManagementRoleGroupMappingService mappingService;
 
-    public UserRoleGroupManagementController(UserManagementRoleGroupMappingService mappingService) {
+    public UserManagementRoleGroupMappingController(UserManagementRoleGroupMappingService mappingService) {
         this.mappingService = mappingService;
         logger.debug("UserRoleGroupManagementController constructor called, mappingService={}", mappingService);
     }
 
+    // ==============================================================
+    // ================ 5 CORE METHODS (on top) =====================
+    // ==============================================================
+
+    @PostMapping("/create")
+    public ResponseEntity<Response<UserManagementRoleGroupMappingPojo>> create(
+    	@RequestBody(required = false) UserManagementRoleGroupMappingPojo mapping) 
+    {
+        logger.debug("create called");
+        logger.debug("create mapping={}", mapping);
+
+        if (mapping == null) {
+            logger.debug("create: missing payload");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Response.error("Missing payload", null, HttpStatus.BAD_REQUEST.value()));
+        }
+
+        UserManagementRoleGroupMappingPojo created = mappingService.insertUserRoleGroup(ParamWrapper.wrap("mapping", mapping));
+
+        logger.debug("create return={}", created);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(Response.success("User role group mapping created successfully", created, HttpStatus.CREATED.value()));
+    }
+
+    @PutMapping("/update")
+    public ResponseEntity<Response<UserManagementRoleGroupMappingPojo>> update(
+    	@RequestParam(required = false) Long id,
+        @RequestBody(required = false) UserManagementRoleGroupMappingPojo mapping) 
+    {
+        logger.debug("update called");
+        logger.debug("update id={}", id);
+        logger.debug("update mapping={}", mapping);
+
+        if (id == null) {
+            logger.debug("update: missing id");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Response.error("Missing id parameter", null, HttpStatus.BAD_REQUEST.value()));
+        }
+
+        if (mapping == null) {
+            logger.debug("update: missing payload");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Response.error("Missing payload", null, HttpStatus.BAD_REQUEST.value()));
+        }
+
+        mapping.setId(id);
+        logger.debug("update set mapping.id={}", mapping.getId());
+
+        UserManagementRoleGroupMappingPojo updated = mappingService.updateUserRoleGroup(ParamWrapper.wrap("mapping", mapping));
+
+        logger.debug("update return={}", updated);
+        return ResponseEntity.ok(Response.success("User role group mapping updated successfully", updated, HttpStatus.OK.value()));
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<Response<PagedResult<UserManagementRoleGroupMappingPojo>>> search(
+            @RequestParam Map<String, Object> params) {
+
+        logger.debug("search called");
+        logger.debug("search params={}", params);
+
+        if (params == null || params.isEmpty()) {
+            logger.debug("search: missing parameters");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Response.error("Missing parameters", null, HttpStatus.BAD_REQUEST.value()));
+        }
+
+        return searchUserRoleGroups(params);
+    }
+
+    @GetMapping("/get")
+    public ResponseEntity<Response<UserManagementRoleGroupMappingPojo>> get(
+            @RequestParam(required = false) Long id) {
+
+        logger.debug("get called");
+        logger.debug("get id={}", id);
+
+        if (id == null) {
+            logger.debug("get: missing id");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Response.error("Missing id parameter", null, HttpStatus.BAD_REQUEST.value()));
+        }
+        
+        UserManagementRoleGroupMappingPojo result = mappingService.findById(ParamWrapper.wrap("id", id));
+
+        return ResponseEntity.ok(Response.success("Search results", result, HttpStatus.OK.value()));
+    }
+
+    @DeleteMapping("/delete")
+    public ResponseEntity<Response<Void>> delete(
+            @RequestParam(required = false) Long id) {
+
+        logger.debug("delete called");
+        logger.debug("delete id={}", id);
+
+        if (id == null) {
+            logger.debug("delete: missing id");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Response.error("Missing id parameter", null, HttpStatus.BAD_REQUEST.value()));
+        }
+
+        return deleteUserRoleGroupById(id);
+    }
+    
     // ---------------- CREATE ----------------
+
     @PostMapping("/insertUserRoleGroup")
     public ResponseEntity<Response<UserManagementRoleGroupMappingPojo>> insertUserRoleGroup(
             @RequestParam Long userId,
@@ -44,11 +151,18 @@ public class UserRoleGroupManagementController implements UserRoleGroupManagemen
         logger.debug("insertUserRoleGroup userId={}", userId);
         logger.debug("insertUserRoleGroup roleGroupId={}", roleGroupId);
 
-        Map<String, Object> params = new HashMap<>();
-        params.put("userId", userId);
-        params.put("roleGroupId", roleGroupId);
+        if (userId == null || roleGroupId == null) {
+            logger.debug("insertUserRoleGroup: missing userId or roleGroupId");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Response.error("Missing userId or roleGroupId", null, HttpStatus.BAD_REQUEST.value()));
+        }
 
-        UserManagementRoleGroupMappingPojo created = mappingService.insertUserRoleGroup(params);
+        // Build mapping POJO
+        UserManagementRoleGroupMappingPojo mapping = new UserManagementRoleGroupMappingPojo();
+        mapping.setUserId(userId);
+        mapping.setRoleGroupId(roleGroupId);
+
+        UserManagementRoleGroupMappingPojo created = mappingService.insertUserRoleGroup(ParamWrapper.wrap("mapping", mapping));
 
         logger.debug("insertUserRoleGroup return={}", created);
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -67,12 +181,19 @@ public class UserRoleGroupManagementController implements UserRoleGroupManagemen
         logger.debug("updateUserRoleGroup userId={}", userId);
         logger.debug("updateUserRoleGroup roleGroupId={}", roleGroupId);
 
-        Map<String, Object> params = new HashMap<>();
-        params.put("id", id);
-        params.put("userId", userId);
-        params.put("roleGroupId", roleGroupId);
+        if (id == null || userId == null || roleGroupId == null) {
+            logger.debug("updateUserRoleGroup: missing id, userId, or roleGroupId");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Response.error("Missing id, userId, or roleGroupId", null, HttpStatus.BAD_REQUEST.value()));
+        }
 
-        UserManagementRoleGroupMappingPojo updated = mappingService.updateUserRoleGroup(params);
+        // Build mapping POJO with id
+        UserManagementRoleGroupMappingPojo mapping = new UserManagementRoleGroupMappingPojo();
+        mapping.setId(id);
+        mapping.setUserId(userId);
+        mapping.setRoleGroupId(roleGroupId);
+
+        UserManagementRoleGroupMappingPojo updated = mappingService.updateUserRoleGroup(ParamWrapper.wrap("mapping", mapping));
 
         logger.debug("updateUserRoleGroup return={}", updated);
         return ResponseEntity.ok(Response.success("User role group mapping updated successfully", updated, HttpStatus.OK.value()));

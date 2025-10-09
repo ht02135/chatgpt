@@ -36,8 +36,16 @@ public class UserManagementRoleGroupMappingServiceImpl implements UserManagement
         logger.debug("insertUserRoleGroup: params={}", params);
 
         UserManagementRoleGroupMappingPojo mapping = ParamWrapper.unwrap(params, "mapping");
-        mappingMapper.insertUserRoleGroup(ParamWrapper.wrap("mapping", mapping));
+        if (mapping == null) {
+            logger.error("insertUserRoleGroup: mapping is null");
+            throw new IllegalArgumentException("Missing mapping payload");
+        }
 
+        // ✅ Insert the object
+        mappingMapper.insertUserRoleGroup(ParamWrapper.wrap("mapping", mapping));
+        logger.debug("insertUserRoleGroup: mapping inserted, id={}", mapping.getId());
+
+        // Optional: fetch full object if database sets additional fields
         UserManagementRoleGroupMappingPojo fullMapping = mappingMapper.findById(
                 ParamWrapper.wrap("id", mapping.getId())
         );
@@ -52,10 +60,20 @@ public class UserManagementRoleGroupMappingServiceImpl implements UserManagement
         logger.debug("updateUserRoleGroup: START");
         logger.debug("updateUserRoleGroup: params={}", params);
 
+        // Extract the mapping POJO
         UserManagementRoleGroupMappingPojo mapping = ParamWrapper.unwrap(params, "mapping");
-        mappingMapper.updateUserRoleGroup(ParamWrapper.wrap("mapping", mapping));
+        if (mapping == null || mapping.getId() == null) {
+            throw new IllegalArgumentException("Mapping or mapping id is missing");
+        }
 
-        logger.debug("updateUserRoleGroup: mapping={}", mapping);
+        // Delete old mapping by id
+        mappingMapper.deleteUserRoleGroupById(ParamWrapper.wrap("id", mapping.getId()));
+        logger.debug("updateUserRoleGroup: old mapping deleted id={}", mapping.getId());
+
+        // Insert new mapping
+        mappingMapper.insertUserRoleGroup(ParamWrapper.wrap("mapping", mapping));
+        logger.debug("updateUserRoleGroup: new mapping inserted={}", mapping);
+
         return mapping;
     }
 

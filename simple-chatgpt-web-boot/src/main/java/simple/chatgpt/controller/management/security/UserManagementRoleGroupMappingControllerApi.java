@@ -8,7 +8,7 @@ import simple.chatgpt.pojo.management.security.UserManagementRoleGroupMappingPoj
 import simple.chatgpt.util.PagedResult;
 import simple.chatgpt.util.Response;
 
-public interface UserRoleGroupManagementControllerApi {
+public interface UserManagementRoleGroupMappingControllerApi {
 
     // ---------------- CREATE ----------------
     ResponseEntity<Response<UserManagementRoleGroupMappingPojo>> insertUserRoleGroup(Long userId, Long roleGroupId);
