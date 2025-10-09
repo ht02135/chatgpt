@@ -170,7 +170,7 @@ function RoleViewModel(params, config) {
 
         const payload = ko.toJS(self.currentRole());
         try {
-            let url = `${API_ROLE}/insertRole`, method='POST';
+            let url = `${API_ROLE}/update?`, method='POST';
             if (self.mode==='edit' && self.currentRole().id && self.currentRole().id()) {
                 url = `${API_ROLE}/update?id=${encodeURIComponent(self.currentRole().id())}`;
                 method = 'PUT';
