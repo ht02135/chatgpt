@@ -19,13 +19,76 @@ public class UserManagementListMemberServiceImpl implements UserManagementListMe
 
     private static final Logger logger = LogManager.getLogger(UserManagementListMemberServiceImpl.class);
 
-    private final UserManagementListMemberMapper mapper;
+    private final UserManagementListMemberMapper memberMapper;
 
-    public UserManagementListMemberServiceImpl(UserManagementListMemberMapper mapper) {
+    public UserManagementListMemberServiceImpl(UserManagementListMemberMapper memberMapper) {
         logger.debug("UserManagementListMemberServiceImpl constructor called");
-        this.mapper = mapper;
+        this.memberMapper = memberMapper;
     }
 
+    // ==============================================================
+    // ================ 5 CORE METHODS (on top) =====================
+    // ==============================================================
+
+    @Override
+    public UserManagementListMemberPojo create(UserManagementListMemberPojo member) {
+        logger.debug("create called");
+        logger.debug("create member={}", member);
+        memberMapper.create(member);
+        return member;
+    }
+
+    @Override
+    public UserManagementListMemberPojo update(Long id, UserManagementListMemberPojo member) {
+        logger.debug("update called");
+        logger.debug("update id={}", id);
+        logger.debug("update member={}", member);
+        memberMapper.update(id, member);
+        return member;
+    }
+
+    @Override
+    public PagedResult<UserManagementListMemberPojo> search(Map<String, String> params) {
+        logger.debug("search called");
+        logger.debug("search params={}", params);
+
+        if (!params.containsKey("page")) params.put("page", "0");
+        if (!params.containsKey("size")) params.put("size", "20");
+        int page = SafeConverter.toIntOrDefault(params.get("page"), 0);
+        int size = SafeConverter.toIntOrDefault(params.get("size"), 20);
+        int offset = page * size;
+
+        if (!params.containsKey("offset")) params.put("offset", String.valueOf(offset));
+        if (!params.containsKey("limit")) params.put("limit", String.valueOf(size));
+        if (!params.containsKey("sortField")) params.put("sortField", "id");
+        if (!params.containsKey("sortDirection")) params.put("sortDirection", "ASC");
+        params.put("sortDirection", params.get("sortDirection").toUpperCase());
+
+        List<UserManagementListMemberPojo> items = memberMapper.search((Map) params);
+        long totalCount = items.size();
+        PagedResult<UserManagementListMemberPojo> result = new PagedResult<>(items, totalCount, page, size);
+        logger.debug("search return={}", result);
+        return result;
+    }
+
+    @Override
+    public UserManagementListMemberPojo get(Long id) {
+        logger.debug("get called");
+        logger.debug("get id={}", id);
+        UserManagementListMemberPojo member = memberMapper.get(id);
+        logger.debug("get return={}", member);
+        return member;
+    }
+
+    @Override
+    public void delete(Long id) {
+        logger.debug("delete called");
+        logger.debug("delete id={}", id);
+        memberMapper.delete(id);
+    }
+
+    // ======= OTHER METHODS =======
+    
     // ------------------ SEARCH / LIST ------------------
     @Override
     public PagedResult<UserManagementListMemberPojo> searchMembers(Map<String, Object> params) {
@@ -51,8 +114,8 @@ public class UserManagementListMemberServiceImpl implements UserManagementListMe
         List<UserManagementListMemberPojo> members;
         long total = 0;
         try {
-            members = mapper.findMembers(sqlParams);
-            total = mapper.countMembers(params);
+            members = memberMapper.findMembers(sqlParams);
+            total = memberMapper.countMembers(params);
         } catch (Exception e) {
             logger.error("Error executing searchMembers", e);
             throw new RuntimeException("Database error during searchMembers", e);
@@ -69,7 +132,7 @@ public class UserManagementListMemberServiceImpl implements UserManagementListMe
 
         long count;
         try {
-            count = mapper.countMembers(params);
+            count = memberMapper.countMembers(params);
         } catch (Exception e) {
             logger.error("Error executing countMembers", e);
             throw new RuntimeException("Database error during countMembers", e);
@@ -85,7 +148,7 @@ public class UserManagementListMemberServiceImpl implements UserManagementListMe
         logger.debug("getMemberById START");
         logger.debug("getMemberById params={}", params);
 
-        UserManagementListMemberPojo member = mapper.getMemberById(params);
+        UserManagementListMemberPojo member = memberMapper.getMemberById(params);
 
         logger.debug("getMemberById DONE");
         return member;
@@ -96,7 +159,7 @@ public class UserManagementListMemberServiceImpl implements UserManagementListMe
         logger.debug("getMemberByUserName START");
         logger.debug("getMemberByUserName params={}", params);
 
-        UserManagementListMemberPojo member = mapper.getMemberByUserName(params);
+        UserManagementListMemberPojo member = memberMapper.getMemberByUserName(params);
 
         logger.debug("getMemberByUserName DONE");
         return member;
@@ -108,7 +171,7 @@ public class UserManagementListMemberServiceImpl implements UserManagementListMe
         logger.debug("createMember START");
         logger.debug("createMember params={}", params);
 
-        mapper.insertMember(params);
+        memberMapper.insertMember(params);
 
         logger.debug("createMember DONE");
         return (UserManagementListMemberPojo) ParamWrapper.unwrap(params, "member");
@@ -119,7 +182,7 @@ public class UserManagementListMemberServiceImpl implements UserManagementListMe
         logger.debug("batchCreateMembers START");
         logger.debug("batchCreateMembers params={}", params);
 
-        int count = mapper.batchInsertMembers(params);
+        int count = memberMapper.batchInsertMembers(params);
 
         logger.debug("batchCreateMembers DONE");
         return count;
@@ -131,7 +194,7 @@ public class UserManagementListMemberServiceImpl implements UserManagementListMe
         logger.debug("updateMemberById START");
         logger.debug("updateMemberById params={}", params);
 
-        mapper.updateMemberById(params);
+        memberMapper.updateMemberById(params);
 
         logger.debug("updateMemberById DONE");
         return (UserManagementListMemberPojo) ParamWrapper.unwrap(params, "member");
@@ -142,7 +205,7 @@ public class UserManagementListMemberServiceImpl implements UserManagementListMe
         logger.debug("updateMemberByUserName START");
         logger.debug("updateMemberByUserName params={}", params);
 
-        mapper.updateMemberByUserName(params);
+        memberMapper.updateMemberByUserName(params);
 
         logger.debug("updateMemberByUserName DONE");
         return (UserManagementListMemberPojo) ParamWrapper.unwrap(params, "member");
@@ -154,7 +217,7 @@ public class UserManagementListMemberServiceImpl implements UserManagementListMe
         logger.debug("deleteMemberById START");
         logger.debug("deleteMemberById params={}", params);
 
-        mapper.deleteMemberById(params);
+        memberMapper.deleteMemberById(params);
 
         logger.debug("deleteMemberById DONE");
     }
@@ -164,7 +227,7 @@ public class UserManagementListMemberServiceImpl implements UserManagementListMe
         logger.debug("deleteMemberByUserName START");
         logger.debug("deleteMemberByUserName params={}", params);
 
-        mapper.deleteMemberByUserName(params);
+        memberMapper.deleteMemberByUserName(params);
 
         logger.debug("deleteMemberByUserName DONE");
     }
@@ -174,7 +237,7 @@ public class UserManagementListMemberServiceImpl implements UserManagementListMe
         logger.debug("deleteMembersByListId START");
         logger.debug("deleteMembersByListId params={}", params);
 
-        mapper.deleteMembersByListId(params);
+        memberMapper.deleteMembersByListId(params);
 
         logger.debug("deleteMembersByListId DONE");
     }

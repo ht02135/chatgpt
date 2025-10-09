@@ -9,7 +9,7 @@ public interface UserManagementListMemberService {
 
 	// ======= 5 CORE METHODS (on top) =======
 	UserManagementListMemberPojo create(UserManagementListMemberPojo member);
-	UserManagementListMemberPojo update(UserManagementListMemberPojo member);
+	UserManagementListMemberPojo update(Long id, UserManagementListMemberPojo member);
 	PagedResult<UserManagementListMemberPojo> search(Map<String, String> params);
 	UserManagementListMemberPojo get(Long id);
 	void delete(Long id);

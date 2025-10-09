@@ -87,6 +87,80 @@ public class UserManagementListServiceImpl implements UserManagementListService 
         logger.debug("UserManagementListServiceImpl DONE");
     }
 
+    // ==============================================================
+    // ================ 5 CORE METHODS (on top) =====================
+    // ==============================================================
+
+    @Override
+    public UserManagementListPojo create(UserManagementListPojo list) {
+        logger.debug("create called");
+        logger.debug("create list={}", list);
+
+        listMapper.create(list);
+        return list;
+    }
+
+    @Override
+    public UserManagementListPojo update(Long id, UserManagementListPojo list) {
+        logger.debug("update called");
+        logger.debug("update id={}", id);
+        logger.debug("update list={}", list);
+
+        listMapper.update(id, list);
+        return list;
+    }
+
+    @Override
+    public PagedResult<UserManagementListPojo> search(Map<String, String> params) {
+        logger.debug("search called");
+        logger.debug("search params={}", params);
+
+        if (!params.containsKey("page")) params.put("page", "0");
+        if (!params.containsKey("size")) params.put("size", "20");
+
+        int page = SafeConverter.toIntOrDefault(params.get("page"), 0);
+        int size = SafeConverter.toIntOrDefault(params.get("size"), 20);
+        int offset = page * size;
+
+        if (!params.containsKey("offset")) params.put("offset", String.valueOf(offset));
+        if (!params.containsKey("limit")) params.put("limit", String.valueOf(size));
+
+        if (!params.containsKey("sortField")) params.put("sortField", "id");
+        if (!params.containsKey("sortDirection")) params.put("sortDirection", "ASC");
+
+        // force uppercase for sortDirection
+        params.put("sortDirection", params.get("sortDirection").toUpperCase());
+
+        logger.debug("search final params={}", params);
+
+        List<UserManagementListPojo> items = listMapper.search((Map) params);
+        long totalCount = items.size(); // ideally from count query
+
+        PagedResult<UserManagementListPojo> result = new PagedResult<>(items, totalCount, page, size);
+        logger.debug("search result={}", result);
+        return result;
+    }
+
+    @Override
+    public UserManagementListPojo get(Long id) {
+        logger.debug("get called");
+        logger.debug("get id={}", id);
+
+        return listMapper.get(id);
+    }
+
+    @Override
+    public void delete(Long id) {
+        logger.debug("delete called");
+        logger.debug("delete id={}", id);
+
+        listMapper.delete(id);
+    }
+
+    // ==============================================================
+    // ================ OTHER METHODS ===============================
+    // ==============================================================
+    
     // ------------------ SEARCH ------------------
     @Override
     public PagedResult<UserManagementListPojo> searchUserLists(Map<String, Object> params) {

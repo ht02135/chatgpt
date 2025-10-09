@@ -31,18 +31,18 @@ public class PropertyManagementServiceImpl implements PropertyManagementService 
 
 	private static final Logger logger = LogManager.getLogger(PropertyManagementServiceImpl.class);
 
-	private final PropertyManagementMapper mapper;
+	private final PropertyManagementMapper propertyMapper;
 	private final GenericCache<String, PropertyManagementPojo> cache;
 	private final Validator validator;
 
 	@Autowired
-	public PropertyManagementServiceImpl(PropertyManagementMapper mapper,
+	public PropertyManagementServiceImpl(PropertyManagementMapper propertyMapper,
 			@Qualifier("propertyCache") GenericCache<String, PropertyManagementPojo> cache) {
 		logger.debug("PropertyManagementServiceImpl constructor called");
-		logger.debug("PropertyManagementServiceImpl mapper={}", mapper);
+		logger.debug("PropertyManagementServiceImpl propertyMapper={}", propertyMapper);
 		logger.debug("PropertyManagementServiceImpl cache={}", cache);
 
-		this.mapper = mapper;
+		this.propertyMapper = propertyMapper;
 		this.cache = cache;
 
 		ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
@@ -54,32 +54,95 @@ public class PropertyManagementServiceImpl implements PropertyManagementService 
 	private void initDefaults() {
 		logger.debug("initDefaults START");
 
-		if (mapper == null) {
+		if (propertyMapper == null) {
 			logger.error("initDefaults mapper is null, cannot initialize defaults");
 			return;
 		}
 
 		for (PropertyKey key : PropertyKey.values()) {
-			PropertyManagementPojo existing = mapper.findByPropertyKey(key.getKey());
+			PropertyManagementPojo existing = propertyMapper.findByPropertyKey(key.getKey());
 			if (existing == null) {
 				PropertyManagementPojo prop = new PropertyManagementPojo();
 				prop.setPropertyKey(key.getKey());
 				prop.setPropertyName(key.getKey());
 				prop.setType(key.getTypeName());
 				prop.setValue(String.valueOf(key.getDefaultValue()));
-				mapper.insertProperty(prop);
+				propertyMapper.insertProperty(prop);
 			}
 		}
 
 		logger.debug("initDefaults DONE");
 	}
 
+    // ==============================================================
+    // ================ 5 CORE METHODS (on top) =====================
+    // ==============================================================
+
+    @Override
+    public PropertyManagementPojo create(PropertyManagementPojo property) {
+        logger.debug("create called");
+        logger.debug("create property={}", property);
+        propertyMapper.create(property);
+        return property;
+    }
+
+    @Override
+    public PropertyManagementPojo update(Long id, PropertyManagementPojo property) {
+        logger.debug("update called");
+        logger.debug("update id={}", id);
+        logger.debug("update property={}", property);
+        propertyMapper.update(id, property);
+        return property;
+    }
+
+    @Override
+    public PagedResult<PropertyManagementPojo> search(Map<String, String> params) {
+        logger.debug("search called");
+        logger.debug("search params={}", params);
+
+        if (!params.containsKey("page")) params.put("page", "0");
+        if (!params.containsKey("size")) params.put("size", "20");
+        int page = SafeConverter.toIntOrDefault(params.get("page"), 0);
+        int size = SafeConverter.toIntOrDefault(params.get("size"), 20);
+        int offset = page * size;
+
+        if (!params.containsKey("offset")) params.put("offset", String.valueOf(offset));
+        if (!params.containsKey("limit")) params.put("limit", String.valueOf(size));
+        if (!params.containsKey("sortField")) params.put("sortField", "id");
+        if (!params.containsKey("sortDirection")) params.put("sortDirection", "ASC");
+        params.put("sortDirection", params.get("sortDirection").toUpperCase());
+
+        List<PropertyManagementPojo> items = propertyMapper.search((Map) params);
+        long totalCount = items.size();
+        PagedResult<PropertyManagementPojo> result = new PagedResult<>(items, totalCount, page, size);
+        logger.debug("search return={}", result);
+        return result;
+    }
+
+    @Override
+    public PropertyManagementPojo get(Long id) {
+        logger.debug("get called");
+        logger.debug("get id={}", id);
+        PropertyManagementPojo property = propertyMapper.get(id);
+        logger.debug("get return={}", property);
+        return property;
+    }
+
+    @Override
+    public void delete(Long id) {
+        logger.debug("delete called");
+        logger.debug("delete id={}", id);
+        propertyMapper.delete(id);
+    }
+
+    // ======= OTHER METHODS =======
+    
 	private PropertyManagementPojo getCachedProperty(PropertyKey key) {
 		logger.debug("getCachedProperty START");
 		logger.debug("getCachedProperty key={}", key);
 
 		PropertyManagementPojo result = cache.get(key.getKey(), k -> {
-			PropertyManagementPojo prop = mapper.findByPropertyKey(k);
+			PropertyManagementPojo prop = propertyMapper.findByPropertyKey(k);
 			if (prop != null)
 				return prop;
 
@@ -190,7 +253,7 @@ public class PropertyManagementServiceImpl implements PropertyManagementService 
 			throw new IllegalArgumentException("Property validation failed.");
 		}
 
-		mapper.updatePropertyByPropertyKey(prop);
+		propertyMapper.updatePropertyByPropertyKey(prop);
 		cache.invalidate(key.getKey());
 
 		logger.debug("updateProperty DONE");
@@ -202,7 +265,7 @@ public class PropertyManagementServiceImpl implements PropertyManagementService 
 		logger.debug("getPropertyById START");
 		logger.debug("getPropertyById id={}", id);
 
-		PropertyManagementPojo prop = mapper.findById(id);
+		PropertyManagementPojo prop = propertyMapper.findById(id);
 
 		logger.debug("getPropertyById DONE");
 		return prop;
@@ -213,7 +276,7 @@ public class PropertyManagementServiceImpl implements PropertyManagementService 
 		logger.debug("getByPropertyName START");
 		logger.debug("getByPropertyName propertyName={}", propertyName);
 
-		PropertyManagementPojo prop = mapper.findByPropertyName(propertyName);
+		PropertyManagementPojo prop = propertyMapper.findByPropertyName(propertyName);
 
 		logger.debug("getByPropertyName DONE");
 		return prop;
@@ -224,7 +287,7 @@ public class PropertyManagementServiceImpl implements PropertyManagementService 
 		logger.debug("getByPropertyKey START");
 		logger.debug("getByPropertyKey propertyKey={}", propertyKey);
 
-		PropertyManagementPojo prop = mapper.findByPropertyKey(propertyKey);
+		PropertyManagementPojo prop = propertyMapper.findByPropertyKey(propertyKey);
 
 		logger.debug("getByPropertyKey DONE");
 		return prop;
@@ -235,7 +298,7 @@ public class PropertyManagementServiceImpl implements PropertyManagementService 
 		logger.debug("createProperty START");
 		logger.debug("createProperty property={}", property);
 
-		updateDbAndInvalidateCache("createProperty", property, () -> mapper.insertProperty(property));
+		updateDbAndInvalidateCache("createProperty", property, () -> propertyMapper.insertProperty(property));
 
 		logger.debug("createProperty DONE");
 		return property;
@@ -248,7 +311,7 @@ public class PropertyManagementServiceImpl implements PropertyManagementService 
 		logger.debug("updatePropertyById property={}", property);
 
 		property.setId(id);
-		updateDbAndInvalidateCache("updatePropertyById", property, () -> mapper.updateProperty(property));
+		updateDbAndInvalidateCache("updatePropertyById", property, () -> propertyMapper.updateProperty(property));
 
 		logger.debug("updatePropertyById DONE");
 		return property;
@@ -262,7 +325,7 @@ public class PropertyManagementServiceImpl implements PropertyManagementService 
 
 		property.setPropertyName(propertyName);
 		updateDbAndInvalidateCache("updatePropertyByPropertyName", property,
-				() -> mapper.updatePropertyByPropertyName(property));
+				() -> propertyMapper.updatePropertyByPropertyName(property));
 
 		logger.debug("updatePropertyByPropertyName DONE");
 		return property;
@@ -276,7 +339,7 @@ public class PropertyManagementServiceImpl implements PropertyManagementService 
 
 		property.setPropertyKey(propertyKey);
 		updateDbAndInvalidateCache("updatePropertyByPropertyKey", property,
-				() -> mapper.updatePropertyByPropertyKey(property));
+				() -> propertyMapper.updatePropertyByPropertyKey(property));
 
 		logger.debug("updatePropertyByPropertyKey DONE");
 		return property;
@@ -287,7 +350,7 @@ public class PropertyManagementServiceImpl implements PropertyManagementService 
 		logger.debug("deletePropertyById START");
 		logger.debug("deletePropertyById id={}", id);
 
-		mapper.deleteById(id);
+		propertyMapper.deleteById(id);
 
 		logger.debug("deletePropertyById DONE");
 	}
@@ -297,7 +360,7 @@ public class PropertyManagementServiceImpl implements PropertyManagementService 
 		logger.debug("deletePropertyByPropertyName START");
 		logger.debug("deletePropertyByPropertyName propertyName={}", propertyName);
 
-		mapper.deleteByPropertyName(propertyName);
+		propertyMapper.deleteByPropertyName(propertyName);
 
 		logger.debug("deletePropertyByPropertyName DONE");
 	}
@@ -307,7 +370,7 @@ public class PropertyManagementServiceImpl implements PropertyManagementService 
 		logger.debug("deletePropertyByPropertyKey START");
 		logger.debug("deletePropertyByPropertyKey propertyKey={}", propertyKey);
 
-		mapper.deleteByPropertyKey(propertyKey);
+		propertyMapper.deleteByPropertyKey(propertyKey);
 
 		logger.debug("deletePropertyByPropertyKey DONE");
 	}
@@ -334,8 +397,8 @@ public class PropertyManagementServiceImpl implements PropertyManagementService 
 		long totalCount;
 
 		try {
-			items = mapper.findProperties(sqlParams);
-			totalCount = mapper.countProperties(sqlParams);
+			items = propertyMapper.findProperties(sqlParams);
+			totalCount = propertyMapper.countProperties(sqlParams);
 		} catch (Exception e) {
 			logger.error("searchProperties DB error", e);
 			throw new RuntimeException("Database error during searchProperties", e);
