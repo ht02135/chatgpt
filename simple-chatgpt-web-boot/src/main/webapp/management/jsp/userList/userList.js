@@ -92,7 +92,7 @@ function UserListViewModel(params, config) {
         try {
             const qs = self.buildSearchQuery();
 			console.log("userList.js -> loadUserLists: qs=", qs);
-            const res = await fetch(`${API_USERLIST}?${qs}`, { headers: { 'Accept': 'application/json' } });
+			const res = await fetch(`${API_USERLIST}/search?${qs}`, { headers: { 'Accept': 'application/json' } });
 			console.log("userList.js -> loadUserLists: #############");
 			console.log("userList.js -> loadUserLists: res=", res);
 			console.log("userList.js -> loadUserLists: #############");
@@ -283,7 +283,7 @@ function UserListViewModel(params, config) {
 		
         if (!confirm('Are you sure?')) return;
         try {
-            await fetch(`${API_USERLIST}/delete?listId=${encodeURIComponent(ko.unwrap(userList.id))}`, {
+            await fetch(`${API_USERLIST}/delete?id=${encodeURIComponent(ko.unwrap(userList.id))}`, {
                 method: 'DELETE',
                 headers: { 'Accept': 'application/json' }
             });
@@ -296,7 +296,7 @@ function UserListViewModel(params, config) {
 		console.log("userList.js -> loadUserListById called");
 		console.log("userList.js -> loadUserListById listId=",listId);
         try {
-            const res = await fetch(`${API_USERLIST}/get?listId=${encodeURIComponent(listId)}`, { headers: { 'Accept': 'application/json' } });
+            const res = await fetch(`${API_USERLIST}/get?id=${encodeURIComponent(listId)}`, { headers: { 'Accept': 'application/json' } });
 			console.log("userList.js -> loadUserListById res=",res);
 			const data = await res.json();
 			console.log("userList.js -> loadUserListById data=",data);
