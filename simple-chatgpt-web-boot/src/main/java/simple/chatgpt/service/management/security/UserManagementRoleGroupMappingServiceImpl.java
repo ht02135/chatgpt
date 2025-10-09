@@ -29,6 +29,69 @@ public class UserManagementRoleGroupMappingServiceImpl implements UserManagement
         logger.debug("UserManagementRoleGroupMappingServiceImpl constructor DONE");
     }
 
+    // ==============================================================
+    // ================ 5 CORE METHODS (on top) =====================
+    // ==============================================================
+
+    @Override
+    public UserManagementRoleGroupMappingPojo create(UserManagementRoleGroupMappingPojo mapping) {
+        logger.debug("create called");
+        logger.debug("create mapping={}", mapping);
+        mappingMapper.create(mapping);
+        return mapping;
+    }
+
+    @Override
+    public UserManagementRoleGroupMappingPojo update(Long id, UserManagementRoleGroupMappingPojo mapping) {
+        logger.debug("update called");
+        logger.debug("update id={}", id);
+        logger.debug("update mapping={}", mapping);
+        mappingMapper.update(id, mapping);
+        return mapping;
+    }
+
+    @Override
+    public PagedResult<UserManagementRoleGroupMappingPojo> search(Map<String, String> params) {
+        logger.debug("search called");
+        logger.debug("search params={}", params);
+
+        if (!params.containsKey("page")) params.put("page", "0");
+        if (!params.containsKey("size")) params.put("size", "20");
+        int page = SafeConverter.toIntOrDefault(params.get("page"), 0);
+        int size = SafeConverter.toIntOrDefault(params.get("size"), 20);
+        int offset = page * size;
+
+        if (!params.containsKey("offset")) params.put("offset", String.valueOf(offset));
+        if (!params.containsKey("limit")) params.put("limit", String.valueOf(size));
+        if (!params.containsKey("sortField")) params.put("sortField", "id");
+        if (!params.containsKey("sortDirection")) params.put("sortDirection", "ASC");
+        params.put("sortDirection", params.get("sortDirection").toUpperCase());
+
+        List<UserManagementRoleGroupMappingPojo> items = mappingMapper.search((Map) params);
+        long totalCount = items.size();
+        PagedResult<UserManagementRoleGroupMappingPojo> result = new PagedResult<>(items, totalCount, page, size);
+        logger.debug("search return={}", result);
+        return result;
+    }
+
+    @Override
+    public UserManagementRoleGroupMappingPojo get(Long id) {
+        logger.debug("get called");
+        logger.debug("get id={}", id);
+        UserManagementRoleGroupMappingPojo mapping = mappingMapper.get(id);
+        logger.debug("get return={}", mapping);
+        return mapping;
+    }
+
+    @Override
+    public void delete(Long id) {
+        logger.debug("delete called");
+        logger.debug("delete id={}", id);
+        mappingMapper.delete(id);
+    }
+
+    // ======= OTHER METHODS =======
+    
     // ---------------- CREATE ----------------
     @Override
     public UserManagementRoleGroupMappingPojo insertUserRoleGroup(Map<String, Object> params) {

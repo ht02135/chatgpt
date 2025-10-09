@@ -21,6 +21,7 @@ import simple.chatgpt.pojo.management.security.RoleManagementPojo;
 import simple.chatgpt.util.GenericCache;
 import simple.chatgpt.util.PagedResult;
 import simple.chatgpt.util.ParamWrapper;
+import simple.chatgpt.util.SafeConverter;
 
 @Service
 public class RoleGroupManagementServiceImpl implements RoleGroupManagementService {
@@ -117,6 +118,69 @@ public class RoleGroupManagementServiceImpl implements RoleGroupManagementServic
         logger.debug("initializeDB DONE");
     }
 
+    // ==============================================================
+    // ================ 5 CORE METHODS (on top) =====================
+    // ==============================================================
+
+    @Override
+    public RoleGroupManagementPojo create(RoleGroupManagementPojo roleGroup) {
+        logger.debug("create called");
+        logger.debug("create roleGroup={}", roleGroup);
+        groupMapper.create(roleGroup);
+        return roleGroup;
+    }
+
+    @Override
+    public RoleGroupManagementPojo update(Long id, RoleGroupManagementPojo roleGroup) {
+        logger.debug("update called");
+        logger.debug("update id={}", id);
+        logger.debug("update roleGroup={}", roleGroup);
+        groupMapper.update(id, roleGroup);
+        return roleGroup;
+    }
+
+    @Override
+    public PagedResult<RoleGroupManagementPojo> search(Map<String, String> params) {
+        logger.debug("search called");
+        logger.debug("search params={}", params);
+
+        if (!params.containsKey("page")) params.put("page", "0");
+        if (!params.containsKey("size")) params.put("size", "20");
+        int page = SafeConverter.toIntOrDefault(params.get("page"), 0);
+        int size = SafeConverter.toIntOrDefault(params.get("size"), 20);
+        int offset = page * size;
+
+        if (!params.containsKey("offset")) params.put("offset", String.valueOf(offset));
+        if (!params.containsKey("limit")) params.put("limit", String.valueOf(size));
+        if (!params.containsKey("sortField")) params.put("sortField", "id");
+        if (!params.containsKey("sortDirection")) params.put("sortDirection", "ASC");
+        params.put("sortDirection", params.get("sortDirection").toUpperCase());
+
+        List<RoleGroupManagementPojo> items = groupMapper.search((Map) params);
+        long totalCount = items.size();
+        PagedResult<RoleGroupManagementPojo> result = new PagedResult<>(items, totalCount, page, size);
+        logger.debug("search return={}", result);
+        return result;
+    }
+
+    @Override
+    public RoleGroupManagementPojo get(Long id) {
+        logger.debug("get called");
+        logger.debug("get id={}", id);
+        RoleGroupManagementPojo roleGroup = groupMapper.get(id);
+        logger.debug("get return={}", roleGroup);
+        return roleGroup;
+    }
+
+    @Override
+    public void delete(Long id) {
+        logger.debug("delete called");
+        logger.debug("delete id={}", id);
+        groupMapper.delete(id);
+    }
+
+    // ======= OTHER METHODS =======
+    
     // =================== CREATE ===================
     @Override
     public RoleGroupManagementPojo insertRoleGroup(Map<String, Object> params) {

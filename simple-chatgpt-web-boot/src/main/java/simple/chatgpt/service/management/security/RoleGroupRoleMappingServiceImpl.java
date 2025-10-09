@@ -18,7 +18,7 @@ public class RoleGroupRoleMappingServiceImpl implements RoleGroupRoleMappingServ
 
     private static final Logger logger = LogManager.getLogger(RoleGroupRoleMappingServiceImpl.class);
 
-    private final RoleGroupRoleMappingMapper mapper;
+	private final RoleGroupRoleMappingMapper mapper;
 
     @Autowired
     public RoleGroupRoleMappingServiceImpl(RoleGroupRoleMappingMapper mapper) {
@@ -28,6 +28,69 @@ public class RoleGroupRoleMappingServiceImpl implements RoleGroupRoleMappingServ
         logger.debug("RoleGroupRoleMappingServiceImpl DONE");
     }
 
+    // ==============================================================
+    // ================ 5 CORE METHODS (on top) =====================
+    // ==============================================================
+
+    @Override
+    public RoleGroupRoleMappingPojo create(RoleGroupRoleMappingPojo mapping) {
+        logger.debug("create called");
+        logger.debug("create mapping={}", mapping);
+        mapper.create(mapping);
+        return mapping;
+    }
+
+    @Override
+    public RoleGroupRoleMappingPojo update(Long id, RoleGroupRoleMappingPojo mapping) {
+        logger.debug("update called");
+        logger.debug("update id={}", id);
+        logger.debug("update mapping={}", mapping);
+        mapper.update(id, mapping);
+        return mapping;
+    }
+
+    @Override
+    public PagedResult<RoleGroupRoleMappingPojo> search(Map<String, String> params) {
+        logger.debug("search called");
+        logger.debug("search params={}", params);
+
+        if (!params.containsKey("page")) params.put("page", "0");
+        if (!params.containsKey("size")) params.put("size", "20");
+        int page = SafeConverter.toIntOrDefault(params.get("page"), 0);
+        int size = SafeConverter.toIntOrDefault(params.get("size"), 20);
+        int offset = page * size;
+
+        if (!params.containsKey("offset")) params.put("offset", String.valueOf(offset));
+        if (!params.containsKey("limit")) params.put("limit", String.valueOf(size));
+        if (!params.containsKey("sortField")) params.put("sortField", "id");
+        if (!params.containsKey("sortDirection")) params.put("sortDirection", "ASC");
+        params.put("sortDirection", params.get("sortDirection").toUpperCase());
+
+        List<RoleGroupRoleMappingPojo> items = mapper.search((Map) params);
+        long totalCount = items.size();
+        PagedResult<RoleGroupRoleMappingPojo> result = new PagedResult<>(items, totalCount, page, size);
+        logger.debug("search return={}", result);
+        return result;
+    }
+
+    @Override
+    public RoleGroupRoleMappingPojo get(Long id) {
+        logger.debug("get called");
+        logger.debug("get id={}", id);
+        RoleGroupRoleMappingPojo mapping = mapper.get(id);
+        logger.debug("get return={}", mapping);
+        return mapping;
+    }
+
+    @Override
+    public void delete(Long id) {
+        logger.debug("delete called");
+        logger.debug("delete id={}", id);
+        mapper.delete(id);
+    }
+
+    // ======= OTHER METHODS =======
+    
     // ---------------- CREATE ----------------
     @Override
     public RoleGroupRoleMappingPojo insertMapping(Map<String, Object> params) {

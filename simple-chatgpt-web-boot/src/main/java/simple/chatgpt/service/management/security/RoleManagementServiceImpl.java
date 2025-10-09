@@ -96,6 +96,69 @@ public class RoleManagementServiceImpl implements RoleManagementService {
         logger.debug("initializeDB DONE");
     }
 
+    // ==============================================================
+    // ================ 5 CORE METHODS (on top) =====================
+    // ==============================================================
+
+    @Override
+    public RoleManagementPojo create(RoleManagementPojo role) {
+        logger.debug("create called");
+        logger.debug("create role={}", role);
+        roleMapper.create(role);
+        return role;
+    }
+
+    @Override
+    public RoleManagementPojo update(Long id, RoleManagementPojo role) {
+        logger.debug("update called");
+        logger.debug("update id={}", id);
+        logger.debug("update role={}", role);
+        roleMapper.update(id, role);
+        return role;
+    }
+
+    @Override
+    public PagedResult<RoleManagementPojo> search(Map<String, String> params) {
+        logger.debug("search called");
+        logger.debug("search params={}", params);
+
+        if (!params.containsKey("page")) params.put("page", "0");
+        if (!params.containsKey("size")) params.put("size", "20");
+        int page = SafeConverter.toIntOrDefault(params.get("page"), 0);
+        int size = SafeConverter.toIntOrDefault(params.get("size"), 20);
+        int offset = page * size;
+
+        if (!params.containsKey("offset")) params.put("offset", String.valueOf(offset));
+        if (!params.containsKey("limit")) params.put("limit", String.valueOf(size));
+        if (!params.containsKey("sortField")) params.put("sortField", "id");
+        if (!params.containsKey("sortDirection")) params.put("sortDirection", "ASC");
+        params.put("sortDirection", params.get("sortDirection").toUpperCase());
+
+        List<RoleManagementPojo> items = roleMapper.search((Map) params);
+        long totalCount = items.size();
+        PagedResult<RoleManagementPojo> result = new PagedResult<>(items, totalCount, page, size);
+        logger.debug("search return={}", result);
+        return result;
+    }
+
+    @Override
+    public RoleManagementPojo get(Long id) {
+        logger.debug("get called");
+        logger.debug("get id={}", id);
+        RoleManagementPojo role = roleMapper.get(id);
+        logger.debug("get return={}", role);
+        return role;
+    }
+
+    @Override
+    public void delete(Long id) {
+        logger.debug("delete called");
+        logger.debug("delete id={}", id);
+        roleMapper.delete(id);
+    }
+
+    // ======= OTHER METHODS =======
+    
     @Override
     public PagedResult<RoleManagementPojo> findAllRoles() {
         logger.debug("findAllRoles START");

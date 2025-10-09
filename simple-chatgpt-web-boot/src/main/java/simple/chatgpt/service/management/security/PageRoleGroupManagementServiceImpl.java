@@ -18,6 +18,7 @@ import simple.chatgpt.pojo.management.security.PageRoleGroupManagementPojo;
 import simple.chatgpt.pojo.management.security.RoleGroupManagementPojo;
 import simple.chatgpt.util.PagedResult;
 import simple.chatgpt.util.ParamWrapper;
+import simple.chatgpt.util.SafeConverter;
 
 @Service
 public class PageRoleGroupManagementServiceImpl implements PageRoleGroupManagementService {
@@ -99,6 +100,69 @@ public class PageRoleGroupManagementServiceImpl implements PageRoleGroupManageme
         logger.debug("initializeDB DONE");
     }
 
+    // ==============================================================
+    // ================ 5 CORE METHODS (on top) =====================
+    // ==============================================================
+
+    @Override
+    public PageRoleGroupManagementPojo create(PageRoleGroupManagementPojo pageRoleGroup) {
+        logger.debug("create called");
+        logger.debug("create pageRoleGroup={}", pageRoleGroup);
+        pageMapper.create(pageRoleGroup);
+        return pageRoleGroup;
+    }
+
+    @Override
+    public PageRoleGroupManagementPojo update(Long id, PageRoleGroupManagementPojo pageRoleGroup) {
+        logger.debug("update called");
+        logger.debug("update id={}", id);
+        logger.debug("update pageRoleGroup={}", pageRoleGroup);
+        pageMapper.update(id, pageRoleGroup);
+        return pageRoleGroup;
+    }
+
+    @Override
+    public PagedResult<PageRoleGroupManagementPojo> search(Map<String, String> params) {
+        logger.debug("search called");
+        logger.debug("search params={}", params);
+
+        if (!params.containsKey("page")) params.put("page", "0");
+        if (!params.containsKey("size")) params.put("size", "20");
+        int page = SafeConverter.toIntOrDefault(params.get("page"), 0);
+        int size = SafeConverter.toIntOrDefault(params.get("size"), 20);
+        int offset = page * size;
+
+        if (!params.containsKey("offset")) params.put("offset", String.valueOf(offset));
+        if (!params.containsKey("limit")) params.put("limit", String.valueOf(size));
+        if (!params.containsKey("sortField")) params.put("sortField", "id");
+        if (!params.containsKey("sortDirection")) params.put("sortDirection", "ASC");
+        params.put("sortDirection", params.get("sortDirection").toUpperCase());
+
+        List<PageRoleGroupManagementPojo> items = pageMapper.search((Map) params);
+        long totalCount = items.size();
+        PagedResult<PageRoleGroupManagementPojo> result = new PagedResult<>(items, totalCount, page, size);
+        logger.debug("search return={}", result);
+        return result;
+    }
+
+    @Override
+    public PageRoleGroupManagementPojo get(Long id) {
+        logger.debug("get called");
+        logger.debug("get id={}", id);
+        PageRoleGroupManagementPojo pageRoleGroup = pageMapper.get(id);
+        logger.debug("get return={}", pageRoleGroup);
+        return pageRoleGroup;
+    }
+
+    @Override
+    public void delete(Long id) {
+        logger.debug("delete called");
+        logger.debug("delete id={}", id);
+        pageMapper.delete(id);
+    }
+
+    // ======= OTHER METHODS =======
+    
     @Override
     public PageRoleGroupManagementPojo insertPageRoleGroup(Map<String, Object> params) {
         logger.debug("insertPageRoleGroup START");
