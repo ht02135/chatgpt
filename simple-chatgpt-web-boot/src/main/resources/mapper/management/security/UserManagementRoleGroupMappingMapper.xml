@@ -19,13 +19,13 @@
 	<!-- ======= 5 CORE METHODS (on top) ======= -->
 	<insert id="create" useGeneratedKeys="true"
 		keyProperty="mapping.id">
-		INSERT INTO user_role_group_mapping (user_id, role_group_id, assigned_at)
+		INSERT INTO user_management_role_group_mapping (user_id, role_group_id, assigned_at)
 		VALUES (#{mapping.userId}, #{mapping.roleGroupId},
 		#{mapping.assignedAt})
 	</insert>
 
 	<update id="update">
-		UPDATE user_role_group_mapping
+		UPDATE user_management_role_group_mapping
 		<set>
 			<if test="mapping.userId != null">user_id = #{mapping.userId},</if>
 			<if test="mapping.roleGroupId != null">role_group_id = #{mapping.roleGroupId},</if>
@@ -36,7 +36,7 @@
 	<select id="search"
 		resultMap="UserManagementRoleGroupMappingResultMap"
 		parameterType="map">
-		SELECT * FROM user_role_group_mapping
+		SELECT * FROM user_management_role_group_mapping
 		<where>
 			<if test="params.userId != null">AND user_id = #{params.userId}</if>
 			<if test="params.roleGroupId != null">AND role_group_id = #{params.roleGroupId}</if>
@@ -45,11 +45,11 @@
 
 	<select id="get"
 		resultMap="UserManagementRoleGroupMappingResultMap">
-		SELECT * FROM user_role_group_mapping WHERE id = #{id}
+		SELECT * FROM user_management_role_group_mapping WHERE id = #{id}
 	</select>
 
 	<delete id="delete">
-		DELETE FROM user_role_group_mapping WHERE id = #{id}
+		DELETE FROM user_management_role_group_mapping WHERE id = #{id}
 	</delete>
 
 	<!-- ======= OTHER METHODS ======= -->
