@@ -167,205 +167,7 @@ public class UserManagementListServiceImpl implements UserManagementListService 
     // ================ OTHER METHODS ===============================
     // ==============================================================
     
-    // ------------------ SEARCH ------------------
-    @Override
-    public PagedResult<UserManagementListPojo> searchUserLists(Map<String, Object> params) {
-        logger.debug("searchUserLists START");
-        logger.debug("searchUserLists params={}", params);
-
-        // hung: DONT REMOVE THIS CODE
-        int page = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "page", 0), 0);
-        int size = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "size", 20), 20);
-        int offset = page * size;
-
-        String sortField = ParamWrapper.unwrap(params, "sortField", "id");
-        String sortDirection = ParamWrapper.unwrap(params, "sortDirection", "ASC").toUpperCase();
-
-        Map<String, Object> sqlParams = new HashMap<>(params);
-        sqlParams.put("offset", offset);
-        sqlParams.put("limit", size);
-        sqlParams.put("sortField", sortField);
-        sqlParams.put("sortDirection", sortDirection);
-
-        List<UserManagementListPojo> items = listMapper.findLists(sqlParams);
-        long totalCount = listMapper.countLists(sqlParams);
-
-        PagedResult<UserManagementListPojo> result = new PagedResult<>(items, totalCount, page, size);
-        logger.debug("searchUserLists return={}", result);
-        return result;
-    }
-
-    // ------------------ CRUD ------------------
-    @Override
-    public void createList(Map<String, Object> params) {
-        logger.debug("createList START");
-        logger.debug("createList params={}", params);
-
-        UserManagementListPojo list = ParamWrapper.unwrap(params, "list");
-        List<UserManagementListMemberPojo> members = ParamWrapper.unwrap(params, "members");
-
-        logger.debug("createList list={}", list);
-        logger.debug("createList members={}", members);
-
-        Map<String, Object> listParam = new HashMap<>();
-        listParam.put("list", list);
-        listMapper.insertList(listParam);
-
-        Long listId = list.getId();
-        logger.debug("createList generated listId={}", listId);
-
-        if (members != null && !members.isEmpty()) {
-            for (UserManagementListMemberPojo m : members) {
-                m.setListId(listId);
-                logger.debug("createList member listId set: member={}", m);
-            }
-            Map<String, Object> memberParam = new HashMap<>();
-            memberParam.put("members", members);
-            memberMapper.batchInsertMembers(memberParam);
-        }
-
-        logger.debug("createList DONE");
-    }
-
-    @Override
-    public void deleteList(Map<String, Object> params) {
-        logger.debug("deleteList START");
-        logger.debug("deleteList params={}", params);
-
-        Long listId = ParamWrapper.unwrap(params, "listId");
-        logger.debug("deleteList listId={}", listId);
-
-        Map<String, Object> memberParam = new HashMap<>();
-        memberParam.put("listId", listId);
-        memberMapper.deleteMembersByListId(memberParam);
-
-        Map<String, Object> listParam = new HashMap<>();
-        listParam.put("listId", listId);
-        listMapper.deleteList(listParam);
-
-        logger.debug("deleteList DONE for listId={}", listId);
-    }
-
-    @Override
-    public void updateList(Map<String, Object> params) {
-        logger.debug("updateList START");
-        logger.debug("updateList params={}", params);
-
-        UserManagementListPojo list = ParamWrapper.unwrap(params, "list");
-        List<UserManagementListMemberPojo> members = ParamWrapper.unwrap(params, "members");
-
-        logger.debug("updateList list={}", list);
-        logger.debug("updateList members={}", members);
-
-        Map<String, Object> listParam = new HashMap<>();
-        listParam.put("listId", list.getId());
-        listParam.put("userListName", list.getUserListName());
-        listParam.put("filePath", list.getFilePath());
-        listParam.put("originalFileName", list.getOriginalFileName());
-        listParam.put("description", list.getDescription());
-        listMapper.updateList(listParam);
-
-        Long listId = list.getId();
-        if (members != null && !members.isEmpty()) {
-            Map<String, Object> deleteParam = new HashMap<>();
-            deleteParam.put("listId", listId);
-            memberMapper.deleteMembersByListId(deleteParam);
-
-            for (UserManagementListMemberPojo m : members) {
-                m.setListId(listId);
-                logger.debug("updateList member listId set: member={}", m);
-            }
-
-            Map<String, Object> insertParam = new HashMap<>();
-            insertParam.put("members", members);
-            memberMapper.batchInsertMembers(insertParam);
-        }
-
-        logger.debug("updateList DONE for listId={}", listId);
-    }
-
-    @Override
-    public UserManagementListPojo getListById(Map<String, Object> params) {
-        logger.debug("getListById START");
-        logger.debug("getListById params={}", params);
-
-        Long listId = ParamWrapper.unwrap(params, "listId");
-        logger.debug("getListById listId={}", listId);
-
-        Map<String, Object> sqlParams = new HashMap<>();
-        sqlParams.put("listId", listId);
-
-        UserManagementListPojo list = listMapper.findListById(sqlParams);
-        logger.debug("getListById return={}", list);
-        return list;
-    }
-
-    @Override
-    public PagedResult<UserManagementListMemberPojo> getMembersByListId(Map<String, Object> params) {
-        logger.debug("getMembersByListId START");
-        logger.debug("getMembersByListId params={}", params);
-
-        Long listId = ParamWrapper.unwrap(params, "listId");
-        logger.debug("getMembersByListId listId={}", listId);
-
-        // hung: DONT REMOVE THIS CODE
-        int page = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "page", 0), 0);
-        int size = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "size", 20), 20);
-        int offset = page * size;
-
-        Map<String, Object> sqlParams = new HashMap<>();
-        sqlParams.put("listId", listId);
-        sqlParams.put("offset", offset);
-        sqlParams.put("limit", size);
-
-        List<UserManagementListMemberPojo> members = memberMapper.findMembersByListId(sqlParams);
-        long total = memberMapper.countMembers(sqlParams);
-
-        PagedResult<UserManagementListMemberPojo> result = new PagedResult<>(members, total, page, size);
-        logger.debug("getMembersByListId return size={} total={}", members.size(), total);
-        return result;
-    }
-
-    @Override
-    public PagedResult<UserManagementListMemberPojo> searchMembers(Map<String, Object> params) {
-        logger.debug("searchMembers START");
-        logger.debug("searchMembers params={}", params);
-
-        // hung: DONT REMOVE THIS CODE
-        int page = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "page", 0), 0);
-        int size = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "size", 20), 20);
-        int offset = page * size;
-
-        String sortField = ParamWrapper.unwrap(params, "sortField", "id");
-        String sortDirection = ParamWrapper.unwrap(params, "sortDirection", "ASC").toUpperCase();
-
-        Map<String, Object> sqlParams = new HashMap<>(params);
-        sqlParams.put("offset", offset);
-        sqlParams.put("limit", size);
-        sqlParams.put("sortField", sortField);
-        sqlParams.put("sortDirection", sortDirection);
-
-        List<UserManagementListMemberPojo> members = memberMapper.findMembers(sqlParams);
-        long total = memberMapper.countMembers(sqlParams);
-
-        PagedResult<UserManagementListMemberPojo> result = new PagedResult<>(members, total, page, size);
-        logger.debug("searchMembers return size={} total={}", members.size(), total);
-        return result;
-    }
-
-    @Override
-    public long countMembers(Map<String, Object> params) {
-        logger.debug("countMembers START");
-        logger.debug("countMembers params={}", params);
-
-        Map<String, Object> sqlParams = new HashMap<>(params);
-        long count = memberMapper.countMembers(sqlParams);
-
-        logger.debug("countMembers return={}", count);
-        return count;
-    }
-
- // ------------------ CSV/Excel ------------------
+    // ------------------ CSV/Excel ------------------
     @Override
     public void importListFromCsv(Map<String, Object> params) throws Exception {
         logger.debug("importListFromCsv START");
@@ -395,10 +197,7 @@ public class UserManagementListServiceImpl implements UserManagementListService 
             }
         }
 
-        Map<String, Object> createParams = new HashMap<>();
-        createParams.put("list", list);
-        createParams.put("members", members);
-        createList(createParams);
+        create(list);
 
         logger.debug("importListFromCsv DONE for listId={}", list.getId());
     }
@@ -464,10 +263,7 @@ public class UserManagementListServiceImpl implements UserManagementListService 
             }
         }
 
-        Map<String, Object> createParams = new HashMap<>();
-        createParams.put("list", list);
-        createParams.put("members", members);
-        createList(createParams);
+        create(list);
 
         Path path = getListFilePath(list.getId(), originalFileName);
         try (OutputStream os = Files.newOutputStream(path)) {
@@ -516,6 +312,32 @@ public class UserManagementListServiceImpl implements UserManagementListService 
     }
 
     // ------------------ Helpers ------------------
+    
+    private PagedResult<UserManagementListMemberPojo> getMembersByListId(Map<String, Object> params) {
+        logger.debug("getMembersByListId START");
+        logger.debug("getMembersByListId params={}", params);
+
+        Long listId = ParamWrapper.unwrap(params, "listId");
+        logger.debug("getMembersByListId listId={}", listId);
+
+        // hung: DONT REMOVE THIS CODE
+        int page = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "page", 0), 0);
+        int size = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "size", 20), 20);
+        int offset = page * size;
+
+        Map<String, Object> sqlParams = new HashMap<>();
+        sqlParams.put("listId", listId);
+        sqlParams.put("offset", offset);
+        sqlParams.put("limit", size);
+
+        List<UserManagementListMemberPojo> members = memberMapper.findMembersByListId(sqlParams);
+        long total = members.size();
+
+        PagedResult<UserManagementListMemberPojo> result = new PagedResult<>(members, total, page, size);
+        
+        logger.debug("getMembersByListId return size={} total={}", members.size(), total);
+        return result;
+    }
     
     private Path getListFilePath(Long listId, String originalFileName) {
         logger.debug("getListFilePath START");

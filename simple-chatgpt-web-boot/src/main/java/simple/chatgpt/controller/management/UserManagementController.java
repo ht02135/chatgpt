@@ -21,9 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 import simple.chatgpt.pojo.management.UserManagementPojo;
 import simple.chatgpt.service.management.UserManagementService;
 import simple.chatgpt.util.PagedResult;
-import simple.chatgpt.util.ParamWrapper;
 import simple.chatgpt.util.Response;
-import simple.chatgpt.util.SafeConverter;
 
 @RestController
 @RequestMapping(value = "/management/users", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -134,116 +132,4 @@ public class UserManagementController {
     // ORIGINAL METHODS (USED BY CORE)
     // =========================================================================
 
-    public ResponseEntity<Response<PagedResult<UserManagementPojo>>> searchUsers(
-            @RequestParam Map<String, String> params) {
-        logger.debug("searchUsers START");
-        logger.debug("searchUsers raw params={}", params);
-
-        int page = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "page", 0), 0);
-        int size = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "size", 20), 20);
-        int offset = page * size;
-        logger.debug("searchUsers page={}", page);
-        logger.debug("searchUsers size={}", size);
-        logger.debug("searchUsers offset={}", offset);
-
-        params.put("offset", String.valueOf(offset));
-        params.put("limit", String.valueOf(size));
-        params.put("sortField", ParamWrapper.unwrap(params, "sortField", "id"));
-        params.put("sortDirection", ParamWrapper.unwrap(params, "sortDirection", "asc"));
-
-        PagedResult<UserManagementPojo> users = userManagementService.searchUsers(params);
-        logger.debug("searchUsers result={}", users);
-        return ResponseEntity.ok(Response.success("Fetched successfully", users, HttpStatus.OK.value()));
-    }
-
-    public ResponseEntity<Response<UserManagementPojo>> getUser(@RequestParam(required = false) Long id,
-            @RequestParam(required = false) String userName, @RequestParam(required = false) String userKey) {
-        logger.debug("getUser START");
-        logger.debug("getUser id={}", id);
-        logger.debug("getUser userName={}", userName);
-        logger.debug("getUser userKey={}", userKey);
-
-        UserManagementPojo user = null;
-
-        if (id != null) {
-            user = userManagementService.getUserById(id);
-        } else if (userName != null) {
-            user = userManagementService.getByUserName(userName);
-        } else if (userKey != null) {
-            user = userManagementService.getByUserKey(userKey);
-        }
-
-        if (user == null) {
-            logger.debug("getUser: User not found");
-            return ResponseEntity.ok(Response.error("User not found", null, HttpStatus.NOT_FOUND.value()));
-        }
-
-        logger.debug("getUser result={}", user);
-        return ResponseEntity.ok(Response.success("Fetched successfully", user, HttpStatus.OK.value()));
-    }
-
-    public ResponseEntity<Response<UserManagementPojo>> createUser(@Valid @RequestBody UserManagementPojo user) {
-        logger.debug("createUser START");
-        logger.debug("createUser user={}", user);
-
-        UserManagementPojo created = userManagementService.createUser(user);
-        logger.debug("createUser created={}", created);
-
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(Response.success("User created successfully", created, HttpStatus.CREATED.value()));
-    }
-
-    public ResponseEntity<Response<UserManagementPojo>> updateUser(
-            @RequestParam(required = false) Long id,
-            @RequestParam(required = false) String userName,
-            @RequestParam(required = false) String userKey,
-            @Valid @RequestBody UserManagementPojo user) {
-        logger.debug("updateUser START");
-        logger.debug("updateUser id={}", id);
-        logger.debug("updateUser userName={}", userName);
-        logger.debug("updateUser userKey={}", userKey);
-        logger.debug("updateUser user={}", user);
-
-        UserManagementPojo updated = null;
-
-        if (id != null) {
-            updated = userManagementService.updateUserById(id, user);
-        } else if (userName != null) {
-            updated = userManagementService.updateUserByUserName(userName, user);
-        } else if (userKey != null) {
-            updated = userManagementService.updateUserByUserKey(userKey, user);
-        } else {
-            logger.debug("updateUser: No key provided");
-            return ResponseEntity.ok(Response.error("At least one key must be provided for update", null,
-                    HttpStatus.BAD_REQUEST.value()));
-        }
-
-        logger.debug("updateUser updated={}", updated);
-        return ResponseEntity.ok(Response.success("User updated successfully", updated, HttpStatus.OK.value()));
-    }
-
-    public ResponseEntity<Response<Void>> deleteUser(
-            @RequestParam(required = false) Long id,
-            @RequestParam(required = false) String userName,
-            @RequestParam(required = false) String userKey) {
-        logger.debug("deleteUser START");
-        logger.debug("deleteUser id={}", id);
-        logger.debug("deleteUser userName={}", userName);
-        logger.debug("deleteUser userKey={}", userKey);
-
-        if (id != null) {
-            userManagementService.deleteUserById(id);
-        } else if (userName != null) {
-            userManagementService.deleteUserByUserName(userName);
-        } else if (userKey != null) {
-            userManagementService.deleteUserByUserKey(userKey);
-        } else {
-            logger.debug("deleteUser: No key provided");
-            return ResponseEntity.ok(Response.error("At least one key must be provided for delete", null,
-                    HttpStatus.BAD_REQUEST.value()));
-        }
-
-        logger.debug("deleteUser DONE");
-        return ResponseEntity.ok(Response.success("User deleted successfully", null, HttpStatus.OK.value()));
-    }
 }
