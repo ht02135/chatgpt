@@ -33,8 +33,9 @@
 
     <!-- ======= 5 CORE METHODS (on top) ======= -->
     
+	<!-- void create(@Param("entity") entityPojo entity) -->
     <!-- ======================= CREATE ======================= -->
-    <insert id="create" useGeneratedKeys="true" keyProperty="user.id">
+    <insert id="create" parameterType="map" useGeneratedKeys="true" keyProperty="user.id">
         INSERT INTO user_management
         (user_name, user_key, password, first_name, last_name, email, address_line_1,
          address_line_2, city, state, post_code, country, active, locked, last_login_ip,
@@ -45,8 +46,9 @@
          #{user.active}, #{user.locked}, #{user.lastLoginIp}, #{user.lastLoginAt}, #{user.jwtSecretVersion})
     </insert>
 
+	<!-- void update(@Param("id") Long id, @Param("entity") entityPojo entity) -->
 	<!-- ======================= UPDATE ======================= -->
-    <update id="update">
+    <update id="update" parameterType="map">
         UPDATE user_management
         <set>
             <if test="user.userName != null">user_name = #{user.userName},</if>
@@ -70,8 +72,9 @@
         WHERE id = #{id}
     </update>
 
+	<!-- List<entityPojo> search(@Param("params") Map<String, Object> params) -->
 	<!-- ======================= SEARCH / PAGINATION ======================= -->
-    <select id="search" resultMap="UserManagementResultMap" parameterType="map">
+    <select id="search" parameterType="map" resultMap="UserManagementResultMap">
         SELECT * FROM user_management
         <where>
             <if test="params.userName != null and params.userName != ''">
@@ -122,13 +125,15 @@
         </if>
     </select>
 
+	<!-- entityPojo get(@Param("id") Long id) -->
 	<!-- ======================= READ ======================= -->
-    <select id="get" resultMap="UserManagementResultMap">
+    <select id="get" parameterType="long" resultMap="UserManagementResultMap">
         SELECT * FROM user_management WHERE id = #{id}
     </select>
 
+	<!-- void delete(@Param("id") Long id) -->
 	<!-- ======================= DELETE ======================= -->
-    <delete id="delete">
+    <delete id="delete" parameterType="long">
         DELETE FROM user_management WHERE id = #{id}
     </delete>
 

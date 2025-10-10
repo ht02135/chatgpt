@@ -6,7 +6,7 @@
 <mapper
 	namespace="simple.chatgpt.mapper.management.UserManagementListMapper">
 
-	<!-- ======================= ResultMap for POJO ======================= -->
+	<!-- ======================= RESULT MAP for POJO ======================= -->
 	<resultMap id="UserManagementListResultMap"
 		type="simple.chatgpt.pojo.management.UserManagementListPojo">
 		<id property="id" column="id" />
@@ -20,9 +20,9 @@
 
 	<!-- ======= 5 CORE METHODS (on top) ======= -->
 
+	<!-- void create(@Param("entity") entityPojo entity) -->
 	<!-- ======================= CREATE ======================= -->
-	<insert id="create" parameterType="map" useGeneratedKeys="true"
-		keyProperty="list.id">
+	<insert id="create" parameterType="map" useGeneratedKeys="true" keyProperty="list.id">
 		INSERT INTO user_management_list
 		(user_list_name,
 		file_path, original_file_name, description, created_at, updated_at)
@@ -32,6 +32,7 @@
 		#{list.description}, NOW(), NOW())
 	</insert>
 	
+	<!-- void update(@Param("id") Long id, @Param("entity") entityPojo entity) -->
 	<!-- ======================= UPDATE ======================= -->
 	<update id="update" parameterType="map">
 		UPDATE user_management_list
@@ -75,9 +76,9 @@
 		</where>
 	</sql>
 	
+    <!-- List<entityPojo> search(@Param("params") Map<String, Object> params) -->
 	<!-- ======================= SEARCH / PAGINATION ======================= -->
-	<select id="search" resultMap="UserManagementListResultMap"
-		parameterType="map">
+	<select id="search" parameterType="map" resultMap="UserManagementListResultMap">
 		SELECT id, user_list_name, file_path, original_file_name, description,
 		created_at, updated_at
 		FROM user_management_list
@@ -91,14 +92,16 @@
 		</if>
 	</select>
 
+	<!-- entityPojo get(@Param("id") Long id) -->
 	<!-- ======================= READ ======================= -->
-	<select id="get" resultMap="UserManagementListResultMap">
+	<select id="get" parameterType="long" resultMap="UserManagementListResultMap">
 		SELECT * FROM user_management_list
 		WHERE id = #{id}
 	</select>
 
+	<!-- void delete(@Param("id") Long id) -->
 	<!-- ======================= DELETE ======================= -->
-	<delete id="delete">
+	<delete id="delete" parameterType="long">
 		DELETE FROM user_management_list WHERE id = #{id}
 	</delete>
 

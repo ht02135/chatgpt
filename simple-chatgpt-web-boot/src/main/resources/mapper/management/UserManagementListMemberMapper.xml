@@ -6,7 +6,7 @@
 <mapper
 	namespace="simple.chatgpt.mapper.management.UserManagementListMemberMapper">
 
-	<!-- ======================= ResultMap for POJO ======================= -->
+	<!-- ======================= RESULT MAP for POJO ======================= -->
 	<resultMap id="UserManagementListMemberResultMap"
 		type="simple.chatgpt.pojo.management.UserManagementListMemberPojo">
 		<id property="id" column="id" />
@@ -29,9 +29,9 @@
 
 	<!-- ======= 5 CORE METHODS (on top) ======= -->
 
+	<!-- void create(@Param("entity") entityPojo entity) -->
 	<!-- ======================= CREATE ======================= -->
-	<insert id="create" parameterType="map" useGeneratedKeys="true"
-		keyProperty="member.id">
+	<insert id="create" parameterType="map" useGeneratedKeys="true" keyProperty="member.id">
 		INSERT INTO user_management_list_member
 		(list_id,
 		user_name, user_key, password, first_name, last_name, email,
@@ -45,8 +45,9 @@
 		#{member.country})
 	</insert>
 
+	<!-- void update(@Param("id") Long id, @Param("entity") entityPojo entity) -->
 	<!-- ======================= UPDATE ======================= -->
-	<update id="update">
+	<update id="update" parameterType="map">
 		UPDATE user_management_list_member
 		<set>
 			updated_at = NOW(),
@@ -204,9 +205,9 @@
 		</where>
 	</sql>
 
+    <!-- List<entityPojo> search(@Param("params") Map<String, Object> params) -->
 	<!-- ======================= SEARCH / PAGINATION ======================= -->
-	<select id="search"
-		resultMap="UserManagementListMemberResultMap" parameterType="map">
+	<select id="search" parameterType="map" resultMap="UserManagementListMemberResultMap">
 		SELECT * FROM user_management_list_member
 		<include refid="UserManagementListMemberFilter" />
 		<if
@@ -218,14 +219,16 @@
 		</if>
 	</select>
 
+	<!-- entityPojo get(@Param("id") Long id) -->
 	<!-- ======================= READ ======================= -->
-	<select id="get" resultMap="UserManagementListMemberResultMap">
+	<select id="get" parameterType="long" resultMap="UserManagementListMemberResultMap">
 		SELECT * FROM
 		user_management_list_member WHERE id = #{id}
 	</select>
 
+	<!-- void delete(@Param("id") Long id) -->
 	<!-- ======================= DELETE ======================= -->
-	<delete id="delete">
+	<delete id="delete" parameterType="long">
 		DELETE FROM user_management_list_member WHERE id =
 		#{id}
 	</delete>

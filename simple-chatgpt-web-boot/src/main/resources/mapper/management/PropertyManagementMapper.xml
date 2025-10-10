@@ -23,6 +23,7 @@
 	<!-- ========================= -->
 	<!-- CREATE -->
 	<!-- ========================= -->
+	<!-- void create(@Param("entity") entityPojo entity) -->
 	<insert id="create" useGeneratedKeys="true"
 		keyProperty="property.id">
 		INSERT INTO property_management (property_name, property_key, type, value)
@@ -33,6 +34,7 @@
 	<!-- ========================= -->
 	<!-- UPDATE -->
 	<!-- ========================= -->
+	<!-- void update(@Param("id") Long id, @Param("entity") entityPojo entity) -->
 	<update id="update">
 		UPDATE property_management
 		<set>
@@ -47,6 +49,7 @@
 	<!-- ========================= -->
 	<!-- SEARCH / LIST -->
 	<!-- ========================= -->
+	<!-- List<entityPojo> search(@Param("params") Map<String, Object> params) -->
 	<select id="search" resultMap="PropertyManagementResultMap"
 		parameterType="map">
 		SELECT * FROM property_management
@@ -64,21 +67,24 @@
 		</if>
 	</select>
 
-	<select id="get" resultMap="PropertyManagementResultMap">
+	<!-- entityPojo get(@Param("id") Long id) -->
+	<!-- ======================= GET ======================= -->
+	<select id="get" parameterType="long" resultMap="PropertyManagementResultMap">
 		SELECT * FROM property_management WHERE id = #{id}
 	</select>
 
 	<!-- ========================= -->
 	<!-- DELETE -->
 	<!-- ========================= -->
-	<delete id="delete">
+	<!-- void delete(@Param("id") Long id) -->
+	<delete id="delete" parameterType="long">
 		DELETE FROM property_management WHERE id = #{id}
 	</delete>
 
 	<!-- ======= OTHER METHODS ======= -->
 
-	<select id="findByPropertyKey"
-		resultMap="PropertyManagementResultMap">
+	<!-- PropertyManagementPojo findByPropertyKey(@Param("propertyKey") String propertyKey) -->
+	<select id="findByPropertyKey" parameterType="String" resultMap="PropertyManagementResultMap">
 		SELECT * FROM property_management WHERE property_key = #{propertyKey}
 	</select>
 	
