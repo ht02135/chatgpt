@@ -151,6 +151,10 @@ public class RoleGroupManagementServiceImpl implements RoleGroupManagementServic
         Map<String, Object> params = new HashMap<>();
         // No offset/limit => all rows
         List<RoleGroupManagementPojo> roleGroups = groupMapper.search(params);
+        
+        // populate cache automatically using get()
+        roleGroups.forEach(roleGroup -> roleGroupCache.get(roleGroup.getId(), k -> roleGroup));
+        
         return roleGroups;
     }
     
