@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import simple.chatgpt.mapper.management.UserManagementListMemberMapper;
 import simple.chatgpt.pojo.management.UserManagementListMemberPojo;
+import simple.chatgpt.pojo.management.UserManagementListPojo;
 import simple.chatgpt.util.PagedResult;
 import simple.chatgpt.util.SafeConverter;
 
@@ -92,5 +93,29 @@ public class UserManagementListMemberServiceImpl implements UserManagementListMe
     }
 
     // ======= OTHER METHODS =======
+    
+    @Override
+    public List<UserManagementListMemberPojo> getAll() {
+        logger.debug("getAll called");
+
+        // Reuse search mapper with empty params to get everything
+        Map<String, Object> params = new HashMap<>();
+        // No offset/limit => all rows
+        List<UserManagementListMemberPojo> memebers = memberMapper.search(params);
+        
+        return memebers;
+    }
+        
+    @Override
+    public List<UserManagementListMemberPojo> getByListId(Long listId) {
+        logger.debug("getByListId called");
+
+        // Reuse search mapper with empty params to get everything
+        Map<String, Object> params = new HashMap<>();
+        params.put("listId", listId); // mapper uses // #{params.listId}
+        List<UserManagementListMemberPojo> memebers = memberMapper.search(params);
+        
+        return memebers;
+    }
     
 }

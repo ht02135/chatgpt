@@ -1,8 +1,10 @@
 package simple.chatgpt.service.management;
 
+import java.util.List;
 import java.util.Map;
 
 import simple.chatgpt.pojo.management.UserManagementListMemberPojo;
+import simple.chatgpt.pojo.management.UserManagementListPojo;
 import simple.chatgpt.util.PagedResult;
 
 public interface UserManagementListMemberService {
@@ -16,4 +18,7 @@ public interface UserManagementListMemberService {
 
 	// ======= OTHER METHODS =======
 
+	List<UserManagementListMemberPojo> getAll();
+	List<UserManagementListMemberPojo> getByListId(Long listId);	// #{params.listId}
+	
 }
