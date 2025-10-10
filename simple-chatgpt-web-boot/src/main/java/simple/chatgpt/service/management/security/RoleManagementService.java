@@ -15,26 +15,11 @@ public interface RoleManagementService {
 	void delete(Long id);
 
 	// ======= OTHER METHODS =======
+	
     // ---------------- CREATE ----------------
     RoleManagementPojo insertRole(Map<String, Object> params); // matches mapper.insertRole
 
-    // ---------------- UPDATE ----------------
-    RoleManagementPojo updateRole(Map<String, Object> params); // matches mapper.updateRole
-
-    // ---------------- DELETE ----------------
-    void deleteRoleById(Map<String, Object> params); // matches mapper.deleteRoleById
-
-    // ---------------- READ ----------------
-    RoleManagementPojo findRoleById(Map<String, Object> params); // matches mapper.findRoleById
-
     // ---------------- FETCH ALL ----------------
     PagedResult<RoleManagementPojo> findAllRoles(); // matches mapper.findAllRoles
-    PagedResult<RoleManagementPojo> getAllRoles();  // matches mapper.getAllRoles
-
-    // ---------------- SEARCH / PAGINATION ----------------
-    PagedResult<RoleManagementPojo> findRoles(Map<String, Object> params);   // matches mapper.findRoles
-    PagedResult<RoleManagementPojo> searchRoles(Map<String, Object> params); // matches mapper.searchRoles
     
-    // ---------------- COUNT ----------------
-    long countRoles(Map<String, Object> params); // matches mapper.countRoles
 }

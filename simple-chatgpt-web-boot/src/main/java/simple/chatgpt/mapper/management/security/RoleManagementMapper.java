@@ -19,25 +19,11 @@ public interface RoleManagementMapper {
     void delete(@Param("id") Long id);
 
     // ======= OTHER METHODS =======
+    
     // ---------------- CREATE ----------------
     int insertRole(@Param("params") Map<String, Object> params);
 
-    // ---------------- UPDATE ----------------
-    int updateRole(@Param("params") Map<String, Object> params);
-
-    // ---------------- DELETE ----------------
-    int deleteRoleById(@Param("params") Map<String, Object> params);
-
     // ---------------- READ ----------------
     RoleManagementPojo findRoleById(@Param("params") Map<String, Object> params);
-
     List<RoleManagementPojo> findAllRoles();
-    List<RoleManagementPojo> getAllRoles();
-
-    // ---------------- SEARCH / PAGINATION ----------------
-    List<RoleManagementPojo> findRoles(@Param("params") Map<String, Object> params);
-    List<RoleManagementPojo> searchRoles(@Param("params") Map<String, Object> params);
-
-    // ---------------- COUNT ----------------
-    long countRoles(@Param("params") Map<String, Object> params);
 }
