@@ -152,7 +152,10 @@ public class RoleManagementServiceImpl implements RoleManagementService {
         Map<String, Object> params = new HashMap<>();
         // No offset/limit => all rows
         List<RoleManagementPojo> roles = roleMapper.search(params);
+        
+        // populate cache automatically using get()
+        roles.forEach(role -> roleCache.get(role.getId(), k -> role));
+        
         return roles;
     }
-
 }
