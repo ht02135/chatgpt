@@ -1,99 +1,83 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <security-config>
 
-    <!-- ========================= -->
-    <!-- Base Roles -->
-    <!-- ========================= -->
-    <roles>
-        <role name="ADMIN_ROLE" description="Admin privileges"/>
-        <role name="USER_ROLE" description="Standard user privileges"/>
-    </roles>
+	<!-- ========================= -->
+	<!-- Base Roles -->
+	<!-- ========================= -->
+	<roles>
+	    <role name="ROOT_ROLE" description="ROOT privileges" />
+		<role name="ADMIN_ROLE" description="Admin privileges" />
+		<role name="USER_ROLE" description="Standard user privileges" />
+	</roles>
 
-    <!-- ========================= -->
-    <!-- Role Groups -->
-    <!-- ========================= -->
-    <role-groups>
-        <role-group name="ADMIN_ROLE_GROUP">
-            <role-ref name="ADMIN_ROLE"/>
-            <role-ref name="USER_ROLE"/>
-        </role-group>
+	<!-- ========================= -->
+	<!-- Role Groups -->
+	<!-- ========================= -->
+	<role-groups>
+		<role-group name="ROOT_ROLE_GROUP">
+			<role-ref name="ADMIN_ROLE" />
+			<role-ref name="ADMIN_ROLE" />
+			<role-ref name="USER_ROLE" />
+		</role-group>
+		<role-group name="ROOT_ROLE_GROUP">
+			<role-ref name="ADMIN_ROLE" />
+			<role-ref name="USER_ROLE" />
+		</role-group>
+		<role-group name="USER_ROLE_GROUP">
+			<role-ref name="USER_ROLE" />
+		</role-group>
+	</role-groups>
 
-        <role-group name="USER_ROLE_GROUP">
-            <role-ref name="USER_ROLE"/>
-        </role-group>
-    </role-groups>
+	<!-- ========================= -->
+	<!-- Page → Role Group mapping -->
+	<!-- ========================= -->
+	<page-role-groups>
+		<page-role-group url-pattern="/property/**"
+			role-group="ADMIN_ROLE_GROUP" />
+		<page-role-group url-pattern="/role/**"
+			role-group="ADMIN_ROLE_GROUP" />
+		<page-role-group url-pattern="/roleGroup/**"
+			role-group="ADMIN_ROLE_GROUP" />
+		<page-role-group url-pattern="/roleGroupRole/**"
+			role-group="ADMIN_ROLE_GROUP" />
+		<page-role-group url-pattern="/user/**"
+			role-group="USER_ROLE_GROUP" />
+		<page-role-group url-pattern="/userList/**"
+			role-group="USER_ROLE_GROUP" />
+		<page-role-group url-pattern="/userRoleGroup/**"
+			role-group="ADMIN_ROLE_GROUP" />
+		<page-role-group url-pattern="/pageRoleGroup/**"
+			role-group="ADMIN_ROLE_GROUP" />
+	</page-role-groups>
 
-    <!-- ========================= -->
-    <!-- Page → Role Group mapping -->
-    <!-- ========================= -->
-    <page-role-groups>
-        <page-role-group url-pattern="/property/**" role-group="ADMIN_ROLE_GROUP"/>
-        <page-role-group url-pattern="/user/**" role-group="USER_ROLE_GROUP"/>
-        <page-role-group url-pattern="/userList/**" role-group="ADMIN_ROLE_GROUP"/>
-    </page-role-groups>
+	<!-- ========================= -->
+	<!-- Default Users -->
+	<!-- ========================= -->
+	<users>
+		<user user_name="root" user_key="root" password="ZAQ!zaq1"
+			first_name="System" last_name="Root" email="root@eyahoo.com"
+			address_line_1="1 Admin Way" address_line_2="" city="SystemCity"
+			state="CA" post_code="90001" country="USA" active="true"
+			locked="false" role-group="ROOT_ROLE_GROUP" />
 
-    <!-- ========================= -->
-    <!-- Default Users -->
-    <!-- ========================= -->
-    <users>
-        <user
-            user_name="root"
-            user_key="root"
-            password="ZAQ!zaq1"
-            first_name="System"
-            last_name="Root"
-            email="root@example.com"
-            address_line_1="1 Admin Way"
-            address_line_2=""
-            city="SystemCity"
-            state="CA"
-            post_code="90001"
-            country="USA"
-            active="true"
-            locked="false"
-            role-group="ADMIN_ROLE_GROUP"
-        />
+		<user user_name="admin" user_key="admin" password="ZAQ!zaq1"
+			first_name="Admin" last_name="User" email="admin@yahoo.com"
+			address_line_1="2 Admin Way" address_line_2="" city="SystemCity"
+			state="CA" post_code="90002" country="USA" active="true"
+			locked="false" role-group="ADMIN_ROLE_GROUP" />
+		<user user_name="user1" user_key="user1" password="ZAQ!zaq1"
+			first_name="John" last_name="Doe" email="user1@yahoo.com"
+			address_line_1="100 Main Street" address_line_2="Apt 1"
+			city="SystemCity" state="CA" post_code="90003" country="USA"
+			active="true" locked="false" role-group="USER_ROLE_GROUP" />	
+		<user user_name="custom1" user_key="custom1" password="ZAQ!zaq1"
+			first_name="John2" last_name="Doe2" email="user2@yahoo.com"
+			address_line_1="100 Main Street" address_line_2="Apt 1"
+			city="SystemCity" state="CA" post_code="90003" country="USA"
+			active="true" locked="false" role-group="USER_ROLE_GROUP" />
+	</users>
 
-        <user
-            user_name="admin"
-            user_key="admin"
-            password="ZAQ!zaq1"
-            first_name="Admin"
-            last_name="User"
-            email="admin@example.com"
-            address_line_1="2 Admin Way"
-            address_line_2=""
-            city="SystemCity"
-            state="CA"
-            post_code="90002"
-            country="USA"
-            active="true"
-            locked="false"
-            role-group="ADMIN_ROLE_GROUP"
-        />
+	<!-- i will use above to load initial role, role-group, page-role-group 
+		into db. later i will add ui to manage more of them... -->
 
-        <user
-            user_name="user1"
-            user_key="user1"
-            password="ZAQ!zaq1"
-            first_name="John"
-            last_name="Doe"
-            email="user1@example.com"
-            address_line_1="100 Main Street"
-            address_line_2="Apt 1"
-            city="SystemCity"
-            state="CA"
-            post_code="90003"
-            country="USA"
-            active="true"
-            locked="false"
-            role-group="USER_ROLE_GROUP"
-        />
-    </users>
-
-    <!-- 
-    i will use above to load initial role, role-group, page-role-group into
-    db.  later i will add ui to manage more of them...
-    -->
-    
 </security-config>
