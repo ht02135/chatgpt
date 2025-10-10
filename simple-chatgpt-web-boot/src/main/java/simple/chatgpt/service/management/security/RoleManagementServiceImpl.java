@@ -143,5 +143,16 @@ public class RoleManagementServiceImpl implements RoleManagementService {
     }
 
     // ======= OTHER METHODS =======
-    
+
+    @Override
+    public List<RoleManagementPojo> getAll() {
+        logger.debug("getAll called");
+
+        // Reuse search mapper with empty params to get everything
+        Map<String, Object> params = new HashMap<>();
+        // No offset/limit => all rows
+        List<RoleManagementPojo> roles = roleMapper.search(params);
+        return roles;
+    }
+
 }
