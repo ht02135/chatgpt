@@ -28,10 +28,8 @@ import simple.chatgpt.config.management.ColumnConfig;
 import simple.chatgpt.config.management.loader.DownloadConfigLoader;
 import simple.chatgpt.config.management.loader.UploadConfigLoader;
 import simple.chatgpt.mapper.management.UserManagementListMapper;
-import simple.chatgpt.mapper.management.UserManagementListMemberMapper;
 import simple.chatgpt.pojo.management.UserManagementListMemberPojo;
 import simple.chatgpt.pojo.management.UserManagementListPojo;
-import simple.chatgpt.pojo.management.security.RoleManagementPojo;
 import simple.chatgpt.util.PagedResult;
 import simple.chatgpt.util.ParamWrapper;
 import simple.chatgpt.util.SafeConverter;
@@ -45,23 +43,23 @@ public class UserManagementListServiceImpl implements UserManagementListService 
     private final DownloadConfigLoader downloadConfigLoader;
     private final UploadConfigLoader uploadConfigLoader;
     private final UserManagementListMapper listMapper;
-    private final UserManagementListMemberMapper memberMapper;
+    private final UserManagementListMemberService memberService;
     private final Path storageDir;
     private final List<ColumnConfig> uploadColumns;
     private final List<ColumnConfig> downloadColumns;
 
     public UserManagementListServiceImpl(UserManagementListMapper listMapper,
-                                         UserManagementListMemberMapper memberMapper,
+                                         UserManagementListMemberService memberService,
                                          DownloadConfigLoader downloadConfigLoader,
                                          UploadConfigLoader uploadConfigLoader) throws Exception {
         logger.debug("UserManagementListServiceImpl START");
         logger.debug("UserManagementListServiceImpl listMapper={}", listMapper);
-        logger.debug("UserManagementListServiceImpl memberMapper={}", memberMapper);
+        logger.debug("UserManagementListServiceImpl memberService={}", memberService);
         logger.debug("UserManagementListServiceImpl downloadConfigLoader={}", downloadConfigLoader);
         logger.debug("UserManagementListServiceImpl uploadConfigLoader={}", uploadConfigLoader);
 
         this.listMapper = listMapper;
-        this.memberMapper = memberMapper;
+        this.memberService = memberService;
         this.downloadConfigLoader = downloadConfigLoader;
         this.uploadConfigLoader = uploadConfigLoader;
 
@@ -316,7 +314,7 @@ public class UserManagementListServiceImpl implements UserManagementListService 
         mapperParams.put("listId", listId);
         mapperParams.put("offset", offset);
         mapperParams.put("limit", size);
-        List<UserManagementListMemberPojo> members = memberMapper.findMembersByListId(mapperParams);
+        List<UserManagementListMemberPojo> members = memberService.getMembersByParams(mapperParams);
         long total = members.size();
 
         logger.debug("getMembersByListId result size={} total={}", members.size(), total);

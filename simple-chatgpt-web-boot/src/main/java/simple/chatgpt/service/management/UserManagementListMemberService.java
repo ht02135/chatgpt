@@ -18,7 +18,8 @@ public interface UserManagementListMemberService {
 
 	// ======= OTHER METHODS =======
 
+	List<UserManagementListMemberPojo> getMembersByParams(Map<String, Object> params);
+	List<UserManagementListMemberPojo> getMembersByListId(Long listId);	// #{params.listId}
 	List<UserManagementListMemberPojo> getAll();
-	List<UserManagementListMemberPojo> getByListId(Long listId);	// #{params.listId}
 	
 }
