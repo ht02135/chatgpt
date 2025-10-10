@@ -83,7 +83,10 @@ public class RoleManagementServiceImpl implements RoleManagementService {
         logger.debug("update called");
         logger.debug("update id={}", id);
         logger.debug("update role={}", role);
+
         roleMapper.update(id, role);
+        // Hung: invalidate cache after update
+        roleCache.invalidate(id);
         return role;
     }
 
@@ -120,8 +123,12 @@ public class RoleManagementServiceImpl implements RoleManagementService {
     public RoleManagementPojo get(Long id) {
         logger.debug("get called");
         logger.debug("get id={}", id);
-        RoleManagementPojo role = roleMapper.get(id);
-        logger.debug("get return={}", role);
+
+        // Hung: use roleCache to fetch by id; Caffeine will load from mapper if absent
+        RoleManagementPojo role = roleCache.get(id, k -> {
+            RoleManagementPojo loaded = roleMapper.get(k);
+            return loaded;
+        });
         return role;
     }
 
@@ -129,6 +136,9 @@ public class RoleManagementServiceImpl implements RoleManagementService {
     public void delete(Long id) {
         logger.debug("delete called");
         logger.debug("delete id={}", id);
+
+        // Hung: invalidate cache first to ensure consistency
+        roleCache.invalidate(id);
         roleMapper.delete(id);
     }
 
