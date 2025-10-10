@@ -2,6 +2,7 @@ package simple.chatgpt.service.management;
 
 import java.util.Map;
 import simple.chatgpt.pojo.management.UserManagementPojo;
+import simple.chatgpt.pojo.management.security.PageRoleGroupManagementPojo;
 import simple.chatgpt.util.PagedResult;
 import java.util.List;
 
@@ -16,4 +17,7 @@ public interface UserManagementService {
     
     // ======= OTHER METHODS =======
     
+	public List<UserManagementPojo> getUserdByParams(Map<String, Object> params);
+	public List<UserManagementPojo> getUserdByUserName(String userName); // #{params.userName}
+	public List<UserManagementPojo> getAll();
 }

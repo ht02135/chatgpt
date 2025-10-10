@@ -1,7 +1,9 @@
 package simple.chatgpt.service.management.security;
 
+import java.util.List;
 import java.util.Map;
 
+import simple.chatgpt.pojo.management.security.PageRoleGroupManagementPojo;
 import simple.chatgpt.pojo.management.security.UserManagementRoleGroupMappingPojo;
 import simple.chatgpt.util.PagedResult;
 
@@ -16,4 +18,7 @@ public interface UserManagementRoleGroupMappingService {
 
 	// ======= OTHER METHODS =======
 	
+	public List<UserManagementRoleGroupMappingPojo> getMappingsByParams(Map<String, Object> params);
+	public List<UserManagementRoleGroupMappingPojo> getMappingsByUserId(Long userId); // #{params.userId}
+	public List<UserManagementRoleGroupMappingPojo> getAll();
 }

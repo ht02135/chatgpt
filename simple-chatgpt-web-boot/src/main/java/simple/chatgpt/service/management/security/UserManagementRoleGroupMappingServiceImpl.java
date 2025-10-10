@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 import simple.chatgpt.mapper.management.security.UserManagementRoleGroupMappingMapper;
 import simple.chatgpt.pojo.management.security.UserManagementRoleGroupMappingPojo;
 import simple.chatgpt.util.PagedResult;
-import simple.chatgpt.util.ParamWrapper;
 import simple.chatgpt.util.SafeConverter;
 
 @Service
@@ -104,4 +103,36 @@ public class UserManagementRoleGroupMappingServiceImpl implements UserManagement
 
 	// ======= OTHER METHODS =======
 
+	public List<UserManagementRoleGroupMappingPojo> getMappingsByParams(Map<String, Object> params)
+	{
+        logger.debug("getMappingsByParams called");
+
+        List<UserManagementRoleGroupMappingPojo> mappings = mappingMapper.search(params);
+        return mappings;
+	}
+	
+	// #{params.userId}
+	public List<UserManagementRoleGroupMappingPojo> getMappingsByUserId(Long userId)
+	{
+        logger.debug("getMappingsByUserId called");
+
+        // Reuse search mapper with empty params to get everything
+        Map<String, Object> params = new HashMap<>();
+        params.put("userId", userId); 
+        List<UserManagementRoleGroupMappingPojo> mappings = getMappingsByParams(params);
+        
+        return mappings;
+	}
+	
+	public List<UserManagementRoleGroupMappingPojo> getAll()
+	{
+        logger.debug("getAll called");
+
+        // Reuse search mapper with empty params to get everything
+        Map<String, Object> params = new HashMap<>();
+        // No offset/limit => all rows
+        List<UserManagementRoleGroupMappingPojo> mappings = getMappingsByParams(params);
+        
+        return mappings;	
+	}
 }

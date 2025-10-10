@@ -3,7 +3,6 @@ package simple.chatgpt.service.management;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 
@@ -13,15 +12,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import simple.chatgpt.config.management.loader.SecurityConfigLoader;
-import simple.chatgpt.config.management.security.UserConfig;
 import simple.chatgpt.mapper.management.UserManagementMapper;
 import simple.chatgpt.pojo.management.UserManagementPojo;
-import simple.chatgpt.pojo.management.security.RoleGroupManagementPojo;
-import simple.chatgpt.pojo.management.security.UserManagementRoleGroupMappingPojo;
 import simple.chatgpt.service.management.security.RoleGroupManagementService;
 import simple.chatgpt.service.management.security.UserManagementRoleGroupMappingService;
 import simple.chatgpt.util.PagedResult;
-import simple.chatgpt.util.ParamWrapper;
 import simple.chatgpt.util.SafeConverter;
 
 @Service
@@ -136,4 +131,37 @@ public class UserManagementServiceImpl implements UserManagementService {
     // ORIGINAL METHODS (USED BY CORE)
     // =========================================================================
 
+	public List<UserManagementPojo> getUserdByParams(Map<String, Object> params)
+	{
+        logger.debug("getUserdByParams called");
+
+        List<UserManagementPojo> mappings = userManagementMapper.search(params);
+        return mappings;
+	}
+	
+	// #{params.userName}
+	public List<UserManagementPojo> getUserdByUserName(String userName)
+	{
+        logger.debug("getMappingsByUrlPattern called");
+
+        // Reuse search mapper with empty params to get everything
+        Map<String, Object> params = new HashMap<>();
+        params.put("userName", userName); 
+        List<UserManagementPojo> users = getUserdByParams(params);
+        
+        return users;
+	}
+	
+	public List<UserManagementPojo> getAll()
+	{
+        logger.debug("getAll called");
+
+        // Reuse search mapper with empty params to get everything
+        Map<String, Object> params = new HashMap<>();
+        // No offset/limit => all rows
+        List<UserManagementPojo> users = getUserdByParams(params);
+        
+        return users;
+	}
+	
 }
