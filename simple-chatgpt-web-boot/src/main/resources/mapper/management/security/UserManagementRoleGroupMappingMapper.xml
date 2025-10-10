@@ -21,9 +21,8 @@
 	<!-- void create(@Param("entity") entityPojo entity) -->
 	<!-- ======================= CREATE ======================= -->
 	<insert id="create" parameterType="map" useGeneratedKeys="true" keyProperty="mapping.id">
-		INSERT INTO user_management_role_group_mapping (user_id, role_group_id, assigned_at)
-		VALUES (#{mapping.userId}, #{mapping.roleGroupId},
-		#{mapping.assignedAt})
+		INSERT INTO user_management_role_group_mapping (user_id, role_group_id, created_at)
+		VALUES (#{mapping.userId}, #{mapping.roleGroupId}, NOW())
 	</insert>
 
 	<!-- void update(@Param("id") Long id, @Param("entity") entityPojo entity) -->
