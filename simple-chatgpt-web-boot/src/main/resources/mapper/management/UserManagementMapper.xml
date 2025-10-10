@@ -67,7 +67,7 @@
             <if test="user.lastLoginAt != null">last_login_at = #{user.lastLoginAt},</if>
             <if test="user.jwtSecretVersion != null">jwt_secret_version = #{user.jwtSecretVersion},</if>
         </set>
-        WHERE id = #{user.id}
+        WHERE id = #{id}
     </update>
 
 	<!-- ======================= SEARCH / PAGINATION ======================= -->
