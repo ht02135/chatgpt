@@ -91,6 +91,9 @@ public class PropertyManagementServiceImpl implements PropertyManagementService 
         logger.debug("update called");
         logger.debug("update id={}", id);
         logger.debug("update property={}", property);
+        
+        // Invalidate cache first, then update DB
+        cache.invalidate(property.getPropertyKey()); // invalidate only
         propertyMapper.update(id, property);
         return property;
     }
@@ -137,6 +140,12 @@ public class PropertyManagementServiceImpl implements PropertyManagementService 
     public void delete(Long id) {
         logger.debug("delete called");
         logger.debug("delete id={}", id);
+        
+        // Invalidate cache first, then delete DB
+        PropertyManagementPojo property = propertyMapper.get(id);
+        if (property != null) {
+            cache.invalidate(property.getPropertyKey()); // invalidate only
+        }
         propertyMapper.delete(id);
     }
 
