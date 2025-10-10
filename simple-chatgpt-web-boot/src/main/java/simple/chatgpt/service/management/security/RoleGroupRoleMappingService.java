@@ -1,9 +1,12 @@
 package simple.chatgpt.service.management.security;
 
+import java.util.List;
 import java.util.Map;
 
 import org.apache.ibatis.annotations.Param;
 
+import simple.chatgpt.pojo.management.UserManagementListMemberPojo;
+import simple.chatgpt.pojo.management.security.RoleGroupManagementPojo;
 import simple.chatgpt.pojo.management.security.RoleGroupRoleMappingPojo;
 import simple.chatgpt.util.PagedResult;
 
@@ -17,4 +20,8 @@ public interface RoleGroupRoleMappingService {
 
 	// ======= OTHER METHODS =======
 
+	public List<RoleGroupRoleMappingPojo> getMappingsByParams(Map<String, Object> params);
+	public List<RoleGroupRoleMappingPojo> getMappingsByRoleGroupId(Long roleGroupId); // #{params.roleGroupId}
+	List<RoleGroupRoleMappingPojo> getAll();;
+	
 }

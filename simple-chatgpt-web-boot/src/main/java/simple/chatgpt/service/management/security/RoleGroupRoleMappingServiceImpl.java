@@ -97,4 +97,37 @@ public class RoleGroupRoleMappingServiceImpl implements RoleGroupRoleMappingServ
 
     // ======= OTHER METHODS =======
 
+    @Override
+    public List<RoleGroupRoleMappingPojo> getMappingsByParams(Map<String, Object> params)
+    {
+        logger.debug("getMembersByParams called");
+
+        List<RoleGroupRoleMappingPojo> mappings = mapper.search(params);
+        return mappings;
+    }
+    
+    @Override
+	public List<RoleGroupRoleMappingPojo> getMappingsByRoleGroupId(Long roleGroupId)
+    {
+        logger.debug("getMembersByListId called");
+
+        // Reuse search mapper with empty params to get everything
+        Map<String, Object> params = new HashMap<>();
+        params.put("roleGroupId", roleGroupId); // mapper uses // #{params.listId}
+        List<RoleGroupRoleMappingPojo> mappings = getMappingsByParams(params);
+        
+        return mappings;
+    }
+    
+    @Override
+    public List<RoleGroupRoleMappingPojo> getAll() {
+        logger.debug("getAll called");
+
+        // Reuse search mapper with empty params to get everything
+        Map<String, Object> params = new HashMap<>();
+        // No offset/limit => all rows
+        List<RoleGroupRoleMappingPojo> mappings = getMappingsByParams(params);
+        
+        return mappings;
+    }
 }

@@ -98,8 +98,7 @@ public class UserManagementListMemberServiceImpl implements UserManagementListMe
     {
         logger.debug("getMembersByParams called");
 
-        Map<String, Object> mapperParam = new HashMap<>(params);
-        List<UserManagementListMemberPojo> memebers = memberMapper.search(mapperParam);
+        List<UserManagementListMemberPojo> memebers = memberMapper.search(params);
         return memebers;
     }
     
