@@ -19,24 +19,34 @@
 	</resultMap>
 
 	<!-- ======= 5 CORE METHODS (on top) ======= -->
+
+	<!-- ========================= -->
+	<!-- CREATE -->
+	<!-- ========================= -->
 	<insert id="create" useGeneratedKeys="true"
 		keyProperty="property.id">
-		INSERT INTO property_management (property_key, property_value, description,
-		updated_at)
-		VALUES (#{property.propertyKey}, #{property.propertyValue},
-		#{property.description}, #{property.updatedAt})
+		INSERT INTO property_management (property_name, property_key, type, value)
+		VALUES (#{property.propertyName}, #{property.propertyKey},
+		#{property.type}, #{property.value})
 	</insert>
 
+	<!-- ========================= -->
+	<!-- UPDATE -->
+	<!-- ========================= -->
 	<update id="update">
 		UPDATE property_management
 		<set>
+			<if test="property.propertyName != null">property_name = #{property.propertyName},</if>
 			<if test="property.propertyKey != null">property_key = #{property.propertyKey},</if>
-			<if test="property.propertyValue != null">property_value = #{property.propertyValue},</if>
-			<if test="property.description != null">description = #{property.description},</if>
+			<if test="property.type != null">type = #{property.type},</if>
+			<if test="property.value != null">value = #{property.value},</if>
 		</set>
 		WHERE id = #{id}
 	</update>
 
+	<!-- ========================= -->
+	<!-- SEARCH / LIST -->
+	<!-- ========================= -->
 	<select id="search" resultMap="PropertyManagementResultMap"
 		parameterType="map">
 		SELECT * FROM property_management
@@ -58,133 +68,18 @@
 		SELECT * FROM property_management WHERE id = #{id}
 	</select>
 
+	<!-- ========================= -->
+	<!-- DELETE -->
+	<!-- ========================= -->
 	<delete id="delete">
 		DELETE FROM property_management WHERE id = #{id}
 	</delete>
 
 	<!-- ======= OTHER METHODS ======= -->
 
-
-	<!-- ========================= -->
-	<!-- SEARCH / LIST -->
-	<!-- ========================= -->
-	<select id="findProperties" parameterType="map"
-		resultMap="PropertyManagementResultMap">
-		SELECT * FROM property_management
-		<where>
-			<if
-				test="params.propertyName != null and params.propertyName != ''">
-				AND property_name LIKE CONCAT('%', #{params.propertyName}, '%')
-			</if>
-			<if test="params.propertyKey != null and params.propertyKey != ''">
-				AND property_key LIKE CONCAT('%', #{params.propertyKey}, '%')
-			</if>
-			<if test="params.type != null and params.type != ''">
-				AND type LIKE CONCAT('%', #{params.type}, '%')
-			</if>
-			<if test="params.value != null and params.value != ''">
-				AND value LIKE CONCAT('%', #{params.value}, '%')
-			</if>
-		</where>
-		<if
-			test="params.sortField != null and params.sortDirection != null">
-			ORDER BY ${params.sortField} ${params.sortDirection}
-		</if>
-		<if test="params.offset != null and params.limit != null">
-			LIMIT #{params.offset}, #{params.limit}
-		</if>
-	</select>
-
-	<select id="countProperties" parameterType="map"
-		resultType="long">
-		SELECT COUNT(*) FROM property_management
-		<where>
-			<if
-				test="params.propertyName != null and params.propertyName != ''">
-				AND property_name LIKE CONCAT('%', #{params.propertyName}, '%')
-			</if>
-			<if test="params.propertyKey != null and params.propertyKey != ''">
-				AND property_key LIKE CONCAT('%', #{params.propertyKey}, '%')
-			</if>
-			<if test="params.type != null and params.type != ''">
-				AND type LIKE CONCAT('%', #{params.type}, '%')
-			</if>
-			<if test="params.value != null and params.value != ''">
-				AND value LIKE CONCAT('%', #{params.value}, '%')
-			</if>
-		</where>
-	</select>
-
-	<!-- ========================= -->
-	<!-- READ -->
-	<!-- ========================= -->
-	<select id="findById" resultMap="PropertyManagementResultMap">
-		SELECT * FROM property_management WHERE id = #{id}
-	</select>
-
-	<select id="findByPropertyName"
-		resultMap="PropertyManagementResultMap">
-		SELECT * FROM property_management WHERE property_name = #{propertyName}
-	</select>
-
 	<select id="findByPropertyKey"
 		resultMap="PropertyManagementResultMap">
 		SELECT * FROM property_management WHERE property_key = #{propertyKey}
 	</select>
-
-	<!-- ========================= -->
-	<!-- CREATE -->
-	<!-- ========================= -->
-	<insert id="insertProperty" useGeneratedKeys="true"
-		keyProperty="id">
-		INSERT INTO property_management (property_name, property_key, type, value)
-		VALUES (#{property.propertyName}, #{property.propertyKey},
-		#{property.type}, #{property.value})
-	</insert>
-
-	<!-- ========================= -->
-	<!-- UPDATE -->
-	<!-- ========================= -->
-	<update id="updateProperty">
-		UPDATE property_management
-		<set>
-			<if test="property.propertyName != null">property_name = #{property.propertyName},</if>
-			<if test="property.propertyKey != null">property_key = #{property.propertyKey},</if>
-			<if test="property.type != null">type = #{property.type},</if>
-			<if test="property.value != null">value = #{property.value},</if>
-		</set>
-		WHERE id = #{property.id}
-	</update>
-
-	<update id="updatePropertyByPropertyName">
-		UPDATE property_management
-		<set>
-			<if test="property.propertyKey != null">property_key = #{property.propertyKey},</if>
-			<if test="property.type != null">type = #{property.type},</if>
-			<if test="property.value != null">value = #{property.value},</if>
-		</set>
-		WHERE property_name = #{property.propertyName}
-	</update>
-
-	<update id="updatePropertyByPropertyKey">
-		UPDATE property_management
-		<set>
-			<if test="property.propertyName != null">property_name = #{property.propertyName},</if>
-			<if test="property.type != null">type = #{property.type},</if>
-			<if test="property.value != null">value = #{property.value},</if>
-		</set>
-		WHERE property_key = #{property.propertyKey}
-	</update>
-
-	<!-- ========================= -->
-	<!-- DELETE -->
-	<!-- ========================= -->
-	<delete id="deleteById">DELETE FROM property_management WHERE id = #{id}</delete>
-
-	<delete id="deleteByPropertyName">DELETE FROM property_management WHERE property_name =
-		#{propertyName}</delete>
-
-	<delete id="deleteByPropertyKey">DELETE FROM property_management WHERE property_key =
-		#{propertyKey}</delete>
-
+	
 </mapper>
