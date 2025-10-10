@@ -28,45 +28,43 @@
 	</resultMap>
 
 	<!-- ======= 5 CORE METHODS (on top) ======= -->
-	<insert id="create" useGeneratedKeys="true"
+
+	<!-- ======================= CREATE ======================= -->
+	<insert id="create" parameterType="map" useGeneratedKeys="true"
 		keyProperty="member.id">
-		INSERT INTO user_management_list_member (list_id, user_id, added_at)
-		VALUES (#{member.listId}, #{member.userId}, #{member.addedAt})
+		INSERT INTO user_management_list_member
+		(list_id,
+		user_name, user_key, password, first_name, last_name, email,
+		address_line_1, address_line_2, city, state, post_code, country)
+		VALUES
+		(#{member.listId}, #{member.userName}, #{member.userKey},
+		#{member.password}, #{member.firstName}, #{member.lastName},
+		#{member.email},
+		#{member.addressLine1}, #{member.addressLine2},
+		#{member.city}, #{member.state}, #{member.postCode},
+		#{member.country})
 	</insert>
 
+	<!-- ======================= UPDATE ======================= -->
 	<update id="update">
 		UPDATE user_management_list_member
 		<set>
-			<if test="member.userId != null">user_id = #{member.userId},</if>
+			updated_at = NOW(),
+			<if test="member.userName != null">user_name = #{member.userName},</if>
+			<if test="member.userKey != null">user_key = #{member.userKey},</if>
+			<if test="member.password != null">password = #{member.password},</if>
+			<if test="member.firstName != null">first_name = #{member.firstName},</if>
+			<if test="member.lastName != null">last_name = #{member.lastName},</if>
+			<if test="member.email != null">email = #{member.email},</if>
+			<if test="member.addressLine1 != null">address_line_1 = #{member.addressLine1},</if>
+			<if test="member.addressLine2 != null">address_line_2 = #{member.addressLine2},</if>
+			<if test="member.city != null">city = #{member.city},</if>
+			<if test="member.state != null">state = #{member.state},</if>
+			<if test="member.postCode != null">post_code = #{member.postCode},</if>
+			<if test="member.country != null">country = #{member.country},</if>
 		</set>
 		WHERE id = #{id}
 	</update>
-
-	<select id="search"
-		resultMap="UserManagementListMemberResultMap" parameterType="map">
-		SELECT * FROM user_management_list_member
-		<where>
-			<if test="params.listId != null">AND list_id = #{params.listId}</if>
-			<if test="params.userId != null">AND user_id = #{params.userId}</if>
-		</where>
-		<if
-			test="params.sortField != null and params.sortDirection != null">
-			ORDER BY ${params.sortField} ${params.sortDirection}
-		</if>
-		<if test="params.offset != null and params.limit != null">
-			LIMIT #{params.offset}, #{params.limit}
-		</if>
-	</select>
-
-	<select id="get" resultMap="UserManagementListMemberResultMap">
-		SELECT * FROM user_management_list_member WHERE id = #{id}
-	</select>
-
-	<delete id="delete">
-		DELETE FROM user_management_list_member WHERE id = #{id}
-	</delete>
-
-	<!-- ======= OTHER METHODS ======= -->
 
 	<!-- ======================= SQL fragment for filtering/search ======================= -->
 	<sql id="UserManagementListMemberFilter">
@@ -206,150 +204,32 @@
 		</where>
 	</sql>
 
-	<!-- ======================= CREATE ======================= -->
-	<insert id="insertMember" parameterType="map"
-		useGeneratedKeys="true" keyProperty="params.member.id">
-		INSERT INTO user_management_list_member
-		(list_id, user_name, user_key, password, first_name, last_name, email,
-		address_line_1, address_line_2, city, state, post_code, country)
-		VALUES
-		(#{params.member.listId}, #{params.member.userName}, #{params.member.userKey},
-		#{params.member.password},
-		#{params.member.firstName}, #{params.member.lastName}, #{params.member.email},
-		#{params.member.addressLine1}, #{params.member.addressLine2},
-		#{params.member.city},
-		#{params.member.state}, #{params.member.postCode}, #{params.member.country})
-	</insert>
-
-	<insert id="createMember" parameterType="map"
-		useGeneratedKeys="true" keyProperty="params.member.id">
-		INSERT INTO user_management_list_member
-		(list_id, user_name, user_key, password, first_name, last_name, email,
-		address_line_1, address_line_2, city, state, post_code, country)
-		VALUES
-		(#{params.member.listId}, #{params.member.userName}, #{params.member.userKey},
-		#{params.member.password},
-		#{params.member.firstName}, #{params.member.lastName}, #{params.member.email},
-		#{params.member.addressLine1}, #{params.member.addressLine2},
-		#{params.member.city},
-		#{params.member.state}, #{params.member.postCode}, #{params.member.country})
-	</insert>
-
-	<insert id="batchInsertMembers" parameterType="map">
-		INSERT INTO user_management_list_member
-		(list_id, user_name, user_key, password, first_name, last_name, email,
-		address_line_1, address_line_2, city, state, post_code, country)
-		VALUES
-		<foreach collection="params.members" item="member"
-			separator=",">
-			(#{member.listId}, #{member.userName}, #{member.userKey}, #{member.password},
-			#{member.firstName}, #{member.lastName}, #{member.email},
-			#{member.addressLine1}, #{member.addressLine2}, #{member.city},
-			#{member.state}, #{member.postCode}, #{member.country})
-		</foreach>
-	</insert>
+	<!-- ======================= SEARCH / PAGINATION ======================= -->
+	<select id="search"
+		resultMap="UserManagementListMemberResultMap" parameterType="map">
+		SELECT * FROM user_management_list_member
+		<include refid="UserManagementListMemberFilter" />
+		<if
+			test="params.sortField != null and params.sortDirection != null">
+			ORDER BY ${params.sortField} ${params.sortDirection}
+		</if>
+		<if test="params.offset != null and params.limit != null">
+			LIMIT #{params.offset}, #{params.limit}
+		</if>
+	</select>
 
 	<!-- ======================= READ ======================= -->
-	<select id="getMemberById" parameterType="map"
-		resultMap="UserManagementListMemberResultMap">
-		SELECT * FROM user_management_list_member WHERE id = #{params.memberId}
+	<select id="get" resultMap="UserManagementListMemberResultMap">
+		SELECT * FROM
+		user_management_list_member WHERE id = #{id}
 	</select>
-
-	<select id="getMemberByUserName" parameterType="map"
-		resultMap="UserManagementListMemberResultMap">
-		SELECT * FROM user_management_list_member WHERE user_name =
-		#{params.member.userName}
-	</select>
-
-	<!-- ======================= UPDATE ======================= -->
-	<update id="updateMemberById" parameterType="map">
-		UPDATE user_management_list_member
-		<set>
-			updated_at = NOW(),
-			<if test="params.member.userName != null">user_name = #{params.member.userName},</if>
-			<if test="params.member.userKey != null">user_key = #{params.member.userKey},</if>
-			<if test="params.member.password != null">password = #{params.member.password},</if>
-			<if test="params.member.firstName != null">first_name = #{params.member.firstName},</if>
-			<if test="params.member.lastName != null">last_name = #{params.member.lastName},</if>
-			<if test="params.member.email != null">email = #{params.member.email},</if>
-			<if test="params.member.addressLine1 != null">address_line_1 = #{params.member.addressLine1},</if>
-			<if test="params.member.addressLine2 != null">address_line_2 = #{params.member.addressLine2},</if>
-			<if test="params.member.city != null">city = #{params.member.city},</if>
-			<if test="params.member.state != null">state = #{params.member.state},</if>
-			<if test="params.member.postCode != null">post_code = #{params.member.postCode},</if>
-			<if test="params.member.country != null">country = #{params.member.country},</if>
-		</set>
-		WHERE id = #{params.memberId}
-	</update>
-
-	<update id="updateMemberByUserName" parameterType="map">
-		UPDATE user_management_list_member
-		<set>
-			updated_at = NOW(),
-			<if test="params.member.userKey != null">user_key = #{params.member.userKey},</if>
-			<if test="params.member.password != null">password = #{params.member.password},</if>
-			<if test="params.member.firstName != null">first_name = #{params.member.firstName},</if>
-			<if test="params.member.lastName != null">last_name = #{params.member.lastName},</if>
-			<if test="params.member.email != null">email = #{params.member.email},</if>
-			<if test="params.member.addressLine1 != null">address_line_1 = #{params.member.addressLine1},</if>
-			<if test="params.member.addressLine2 != null">address_line_2 = #{params.member.addressLine2},</if>
-			<if test="params.member.city != null">city = #{params.member.city},</if>
-			<if test="params.member.state != null">state = #{params.member.state},</if>
-			<if test="params.member.postCode != null">post_code = #{params.member.postCode},</if>
-			<if test="params.member.country != null">country = #{params.member.country},</if>
-		</set>
-		WHERE user_name = #{params.member.userName}
-	</update>
 
 	<!-- ======================= DELETE ======================= -->
-	<delete id="deleteMemberById" parameterType="map">
-		DELETE FROM user_management_list_member WHERE id = #{params.memberId}
+	<delete id="delete">
+		DELETE FROM user_management_list_member WHERE id =
+		#{id}
 	</delete>
 
-	<delete id="deleteMemberByUserName" parameterType="map">
-		DELETE FROM user_management_list_member WHERE user_name =
-		#{params.member.userName}
-	</delete>
-
-	<delete id="deleteMembersByListId" parameterType="map">
-		DELETE FROM user_management_list_member WHERE list_id = #{params.listId}
-	</delete>
-
-	<!-- ======================= SEARCH / LIST ======================= -->
-	<select id="findMembers" parameterType="map"
-		resultMap="UserManagementListMemberResultMap">
-		SELECT * FROM user_management_list_member
-		<include refid="UserManagementListMemberFilter" />
-		<if
-			test="params.sortField != null and params.sortDirection != null">
-			ORDER BY ${params.sortField} ${params.sortDirection}
-		</if>
-		<if test="params.offset != null and params.limit != null">
-			LIMIT #{params.offset}, #{params.limit}
-		</if>
-	</select>
-
-	<select id="searchMembers" parameterType="map"
-		resultMap="UserManagementListMemberResultMap">
-		<include refid="UserManagementListMemberFilter" />
-		<if
-			test="params.sortField != null and params.sortDirection != null">
-			ORDER BY ${params.sortField} ${params.sortDirection}
-		</if>
-		<if test="params.offset != null and params.limit != null">
-			LIMIT #{params.offset}, #{params.limit}
-		</if>
-	</select>
-
-	<select id="findMembersByListId" parameterType="map"
-		resultMap="UserManagementListMemberResultMap">
-		SELECT * FROM user_management_list_member
-		WHERE list_id = #{params.listId}
-	</select>
-
-	<select id="countMembers" parameterType="map" resultType="long">
-		SELECT COUNT(*) FROM user_management_list_member
-		<include refid="UserManagementListMemberFilter" />
-	</select>
+	<!-- ======= OTHER METHODS ======= -->
 
 </mapper>
