@@ -4,29 +4,157 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.PostConstruct;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import simple.chatgpt.config.management.loader.SecurityConfigLoader;
+import simple.chatgpt.config.management.security.UserConfig;
 import simple.chatgpt.mapper.management.security.UserManagementRoleGroupMappingMapper;
+import simple.chatgpt.pojo.management.UserManagementPojo;
+import simple.chatgpt.pojo.management.security.RoleGroupManagementPojo;
 import simple.chatgpt.pojo.management.security.UserManagementRoleGroupMappingPojo;
+import simple.chatgpt.service.management.UserManagementService;
 import simple.chatgpt.util.PagedResult;
 import simple.chatgpt.util.SafeConverter;
 
 @Service
 public class UserManagementRoleGroupMappingServiceImpl implements UserManagementRoleGroupMappingService {
 
-	private static final Logger logger = LogManager.getLogger(UserManagementRoleGroupMappingServiceImpl.class);
+    private static final Logger logger = LogManager.getLogger(UserManagementRoleGroupMappingServiceImpl.class);
 
-	private final UserManagementRoleGroupMappingMapper mappingMapper;
+    private final UserManagementRoleGroupMappingMapper mappingMapper;
+    private final UserManagementService userService;                
+    private final SecurityConfigLoader securityConfigLoader;       
+    private final RoleGroupManagementService roleGroupService;     
 
-	@Autowired
-	public UserManagementRoleGroupMappingServiceImpl(UserManagementRoleGroupMappingMapper mappingMapper) {
-		logger.debug("UserManagementRoleGroupMappingServiceImpl constructor START");
-		logger.debug("UserManagementRoleGroupMappingServiceImpl mappingMapper={}", mappingMapper);
-		this.mappingMapper = mappingMapper;
-		logger.debug("UserManagementRoleGroupMappingServiceImpl constructor DONE");
+    @Autowired
+    public UserManagementRoleGroupMappingServiceImpl(
+            UserManagementRoleGroupMappingMapper mappingMapper,
+            UserManagementService userService,
+            SecurityConfigLoader securityConfigLoader,
+            RoleGroupManagementService roleGroupService) {
+
+        logger.debug("UserManagementRoleGroupMappingServiceImpl constructor START");
+        logger.debug("UserManagementRoleGroupMappingServiceImpl mappingMapper={}", mappingMapper);
+        logger.debug("UserManagementRoleGroupMappingServiceImpl userService={}", userService);
+        logger.debug("UserManagementRoleGroupMappingServiceImpl securityConfigLoader={}", securityConfigLoader);
+        logger.debug("UserManagementRoleGroupMappingServiceImpl roleGroupService={}", roleGroupService);
+
+        this.mappingMapper = mappingMapper;
+        this.userService = userService;
+        this.securityConfigLoader = securityConfigLoader;
+        this.roleGroupService = roleGroupService;
+
+        logger.debug("UserManagementRoleGroupMappingServiceImpl constructor DONE");
+    }
+
+	@PostConstruct
+	public void initializeDB() {
+	    logger.debug("initializeDB called");
+
+	    try {
+	        // ======================================================
+	        // STEP 1: Load users from XML config
+	        // ======================================================
+	        List<UserConfig> xmlUsers = securityConfigLoader.getUsers();
+	        logger.debug("initializeDB xmlUsers={}", xmlUsers);
+
+	        if (xmlUsers == null || xmlUsers.isEmpty()) {
+	            logger.debug("initializeDB no users found in XML, skipping");
+	            return;
+	        }
+
+	        // ======================================================
+	        // STEP 2: Load all role groups for mapping
+	        // ======================================================
+	        List<RoleGroupManagementPojo> allRoleGroups = roleGroupService.getAll();
+	        Map<String, RoleGroupManagementPojo> roleGroupMap = new HashMap<>();
+	        for (RoleGroupManagementPojo rg : allRoleGroups) {
+	            roleGroupMap.put(rg.getGroupName(), rg);
+	        }
+	        logger.debug("initializeDB roleGroupMap keys={}", roleGroupMap.keySet());
+
+	        // ======================================================
+	        // STEP 3: Iterate XML users
+	        // ======================================================
+	        for (UserConfig userConfig : xmlUsers) {
+	            logger.debug("initializeDB processing userConfig={}", userConfig);
+	            logger.debug("initializeDB userConfig.userName={}", userConfig.getUserName());
+	            logger.debug("initializeDB userConfig.roleGroup={}", userConfig.getRoleGroup());
+
+	            // ==================================================
+	            // STEP 3a: Ensure user exists via UserManagementService
+	            // ==================================================
+	            List<UserManagementPojo> users = userService.getUserdByUserName(userConfig.getUserName());
+	            UserManagementPojo userPojo;
+	            if (users.isEmpty()) {
+	                logger.debug("initializeDB user not found, creating user userName={}", userConfig.getUserName());
+
+	                userPojo = new UserManagementPojo();
+	                userPojo.setUserName(userConfig.getUserName());
+	                userPojo.setUserKey(userConfig.getUserKey());
+	                userPojo.setPassword(userConfig.getPassword());
+	                userPojo.setFirstName(userConfig.getFirstName());
+	                userPojo.setLastName(userConfig.getLastName());
+	                userPojo.setEmail(userConfig.getEmail());
+	                userPojo.setAddressLine1(userConfig.getAddressLine1());
+	                userPojo.setAddressLine2(userConfig.getAddressLine2());
+	                userPojo.setCity(userConfig.getCity());
+	                userPojo.setState(userConfig.getState());
+	                userPojo.setPostCode(userConfig.getPostCode());
+	                userPojo.setCountry(userConfig.getCountry());
+	                userPojo.setActive(userConfig.isActive());
+	                userPojo.setLocked(userConfig.isLocked());
+
+	                userService.create(userPojo);
+	                logger.debug("initializeDB created new userPojo={}", userPojo);
+	            } else {
+	                userPojo = users.get(0);
+	                logger.debug("initializeDB found existing userPojo={}", userPojo);
+	            }
+
+	            // ==================================================
+	            // STEP 3b: Map user to role group
+	            // ==================================================
+	            RoleGroupManagementPojo roleGroupPojo = roleGroupMap.get(userConfig.getRoleGroup());
+	            if (roleGroupPojo == null) {
+	                logger.warn("initializeDB skipping mapping: roleGroup not found for user={}", userPojo.getUserName());
+	                continue;
+	            }
+
+	            // Check if mapping exists
+	            Map<String, Object> mappingParams = new HashMap<>();
+	            mappingParams.put("userId", userPojo.getId());
+	            mappingParams.put("roleGroupId", roleGroupPojo.getId());
+
+	            List<UserManagementRoleGroupMappingPojo> existingMappings = getMappingsByParams(mappingParams);
+	            logger.debug("initializeDB existingMappings.size={}", existingMappings.size());
+
+	            if (existingMappings.isEmpty()) {
+	                UserManagementRoleGroupMappingPojo mapping = new UserManagementRoleGroupMappingPojo();
+	                mapping.setUserId(userPojo.getId());
+	                mapping.setRoleGroupId(roleGroupPojo.getId());
+
+	                create(mapping);
+	                logger.debug("initializeDB created new mapping={}", mapping);
+	            } else {
+	                logger.debug("initializeDB mapping already exists for user={} roleGroup={}", 
+	                             userPojo.getUserName(), roleGroupPojo.getGroupName());
+	            }
+	        }
+
+	        logger.debug("initializeDB completed successfully");
+
+	    } catch (Exception e) {
+	        logger.error("initializeDB failed", e);
+	        throw new RuntimeException("Failed to initialize user-role-group mappings", e);
+	    }
+
+	    logger.debug("initializeDB DONE");
 	}
 
 	// ==============================================================
