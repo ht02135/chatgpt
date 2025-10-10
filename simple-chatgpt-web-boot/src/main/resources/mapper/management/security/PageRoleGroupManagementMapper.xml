@@ -13,7 +13,7 @@
 		<result property="createdAt" column="created_at" />
 		<result property="updatedAt" column="updated_at" />
 
-		<!-- nested RoleGroup object -->
+		<!-- Nested RoleGroup object -->
 		<association property="roleGroup"
 			javaType="simple.chatgpt.pojo.management.security.RoleGroupManagementPojo">
 			<id property="id" column="role_group_id" />
@@ -22,189 +22,81 @@
 	</resultMap>
 
 	<!-- ======= 5 CORE METHODS (on top) ======= -->
-	<insert id="create" useGeneratedKeys="true"
-		keyProperty="pageRoleGroup.id">
-		INSERT INTO page_role_group_management (page_id, role_group_id)
-		VALUES (#{pageRoleGroup.pageId}, #{pageRoleGroup.roleGroupId})
-	</insert>
+	
+	<!--  void create(@Param("entity") entityPojo entity) -->
+	<!-- ======================= CREATE ======================= -->
+    <insert id="create" parameterType="map" useGeneratedKeys="true" keyProperty="pageRoleGroup.id">
+        INSERT INTO page_role_group_management (url_pattern, role_group_id, created_at, updated_at)
+        VALUES (#{pageRoleGroup.urlPattern}, #{pageRoleGroup.roleGroup.id}, NOW(), NOW())
+    </insert>
 
-	<update id="update">
-		UPDATE page_role_group_management
-		<set>
-			<if test="pageRoleGroup.pageId != null">page_id = #{pageRoleGroup.pageId},</if>
-			<if test="pageRoleGroup.roleGroupId != null">role_group_id = #{pageRoleGroup.roleGroupId},</if>
-		</set>
-		WHERE id = #{id}
-	</update>
+	<!--  void update(@Param("id") Long id, @Param("entity") entityPojo entity) -->
+	<!-- ======================= UPDATE ======================= -->
+    <update id="update" parameterType="map">
+        UPDATE page_role_group_management
+        <set>
+            <if test="pageRoleGroup.urlPattern != null">url_pattern = #{pageRoleGroup.urlPattern},</if>
+            <if test="pageRoleGroup.roleGroup != null and pageRoleGroup.roleGroup.id != null">
+                role_group_id = #{pageRoleGroup.roleGroup.id},
+            </if>
+            updated_at = NOW()
+        </set>
+        WHERE id = #{id}
+    </update>
 
-	<select id="search" resultMap="PageRoleGroupManagementResultMap"
-		parameterType="map">
-		SELECT * FROM page_role_group_management
-		<where>
-			<if test="params.pageId != null">AND page_id = #{params.pageId}</if>
-			<if test="params.roleGroupId != null">AND role_group_id = #{params.roleGroupId}</if>
-		</where>
+	<!--  List<entityPojo> search(@Param("params") Map<String, Object> params) -->
+    <!-- ======================= SEARCH / PAGINATION ======================= -->
+    <sql id="PageRoleGroupFilter">
+        <where>
+            <if test="params.urlPattern != null and params.urlPattern != ''">
+                AND p.url_pattern LIKE CONCAT('%', #{params.urlPattern}, '%')
+            </if>
+            <if test="params.roleGroupId != null">
+                AND p.role_group_id = #{params.roleGroupId}
+            </if>
+        </where>
+    </sql>
+    
+    <select id="search" parameterType="map" resultMap="PageRoleGroupManagementResultMap">
+        SELECT
+            p.id,
+            p.url_pattern,
+            p.role_group_id,
+            r.group_name AS role_group_name,
+            p.created_at,
+            p.updated_at
+        FROM page_role_group_management p
+        LEFT JOIN role_group_management r ON p.role_group_id = r.id
+        <include refid="PageRoleGroupFilter" />
+        <if test="params.sortField != null and params.sortDirection != null">
+            ORDER BY ${params.sortField} ${params.sortDirection}
+        </if>
+        <if test="params.offset != null and params.limit != null">
+            LIMIT #{params.offset}, #{params.limit}
+		</if>
 	</select>
 
-	<select id="get" resultMap="PageRoleGroupManagementResultMap">
-		SELECT * FROM page_role_group_management WHERE id = #{id}
-	</select>
+	<!--  entityPojo get(@Param("id") Long id) -->
+	<!-- ======================= GET ======================= -->
+    <select id="get" parameterType="long" resultMap="PageRoleGroupManagementResultMap">
+        SELECT
+            p.id,
+            p.url_pattern,
+            p.role_group_id,
+            r.group_name AS role_group_name,
+            p.created_at,
+            p.updated_at
+        FROM page_role_group_management p
+        LEFT JOIN role_group_management r ON p.role_group_id = r.id
+        WHERE p.id = #{id}
+    </select>
 
-	<delete id="delete">
+	<!--  void delete(@Param("id") Long id) -->
+	<!-- ======================= DELETE ======================= -->
+    <delete id="delete" parameterType="long">
 		DELETE FROM page_role_group_management WHERE id = #{id}
 	</delete>
 
 	<!-- ======= OTHER METHODS ======= -->
-
-
-	<!-- ======================= CREATE ======================= -->
-	<insert id="insertPageRoleGroup" parameterType="map"
-		useGeneratedKeys="true" keyProperty="params.pageRoleGroup.id">
-		INSERT INTO page_role_group_management (url_pattern, role_group_id,
-		created_at, updated_at)
-		VALUES (#{params.pageRoleGroup.urlPattern},
-		#{params.pageRoleGroup.roleGroup.id}, NOW(), NOW())
-	</insert>
-
-	<!-- ======================= UPDATE ======================= -->
-	<update id="updatePageRoleGroup" parameterType="map">
-		UPDATE page_role_group_management
-		<set>
-			<if test="params.pageRoleGroup.urlPattern != null">
-				url_pattern = #{params.pageRoleGroup.urlPattern},
-			</if>
-			<if
-				test="params.pageRoleGroup.roleGroup != null and params.pageRoleGroup.roleGroup.id != null">
-				role_group_id = #{params.pageRoleGroup.roleGroup.id},
-			</if>
-			updated_at = NOW()
-		</set>
-		WHERE id = #{params.pageRoleGroup.id}
-	</update>
-
-	<!-- ======================= DELETE ======================= -->
-	<delete id="deletePageRoleGroupById" parameterType="map">
-		DELETE FROM page_role_group_management WHERE id = #{params.id}
-	</delete>
-
-	<!-- ======================= READ ======================= -->
-	<select id="findAllPageRoleGroups"
-		resultMap="PageRoleGroupManagementResultMap">
-		SELECT
-		p.id,
-		p.url_pattern,
-		p.role_group_id,
-		r.group_name AS role_group_name,
-		p.created_at,
-		p.updated_at
-		FROM page_role_group_management p
-		LEFT JOIN role_group_management r ON p.role_group_id = r.id
-		ORDER BY p.created_at DESC
-	</select>
-
-	<select id="findById" parameterType="map"
-		resultMap="PageRoleGroupManagementResultMap">
-		SELECT
-		p.id,
-		p.url_pattern,
-		p.role_group_id,
-		r.group_name AS role_group_name,
-		p.created_at,
-		p.updated_at
-		FROM page_role_group_management p
-		LEFT JOIN role_group_management r ON p.role_group_id = r.id
-		WHERE p.id = #{params.id}
-	</select>
-
-	<select id="findByUrlPattern" parameterType="map"
-		resultMap="PageRoleGroupManagementResultMap">
-		SELECT
-		p.id,
-		p.url_pattern,
-		p.role_group_id,
-		r.group_name AS role_group_name,
-		p.created_at,
-		p.updated_at
-		FROM page_role_group_management p
-		LEFT JOIN role_group_management r ON p.role_group_id = r.id
-		WHERE p.url_pattern = #{params.urlPattern}
-	</select>
-
-	<select id="findByRoleGroupId" parameterType="map"
-		resultMap="PageRoleGroupManagementResultMap">
-		SELECT
-		p.id,
-		p.url_pattern,
-		p.role_group_id,
-		r.group_name AS role_group_name,
-		p.created_at,
-		p.updated_at
-		FROM page_role_group_management p
-		LEFT JOIN role_group_management r ON p.role_group_id = r.id
-		WHERE p.role_group_id = #{params.roleGroupId}
-	</select>
-
-	<!-- ======================= SQL FILTER FRAGMENT ======================= -->
-	<sql id="PageRoleGroupFilter">
-		<where>
-			<if test="params.urlPattern != null and params.urlPattern != ''">
-				AND p.url_pattern LIKE CONCAT('%', #{params.urlPattern}, '%')
-			</if>
-			<if test="params.roleGroupId != null">
-				AND p.role_group_id = #{params.roleGroupId}
-			</if>
-		</where>
-	</sql>
-
-	<!-- ======================= SEARCH / PAGINATION ======================= -->
-	<select id="findPageRoleGroups" parameterType="map"
-		resultMap="PageRoleGroupManagementResultMap">
-		SELECT
-		p.id,
-		p.url_pattern,
-		p.role_group_id,
-		r.group_name AS role_group_name,
-		p.created_at,
-		p.updated_at
-		FROM page_role_group_management p
-		LEFT JOIN role_group_management r ON p.role_group_id = r.id
-		<include refid="PageRoleGroupFilter" />
-		<if
-			test="params.sortField != null and params.sortDirection != null">
-			ORDER BY ${params.sortField} ${params.sortDirection}
-		</if>
-		<if test="params.offset != null and params.limit != null">
-			LIMIT #{params.offset}, #{params.limit}
-		</if>
-	</select>
-
-	<select id="searchPageRoleGroups" parameterType="map"
-		resultMap="PageRoleGroupManagementResultMap">
-		SELECT
-		p.id,
-		p.url_pattern,
-		p.role_group_id,
-		r.group_name AS role_group_name,
-		p.created_at,
-		p.updated_at
-		FROM page_role_group_management p
-		LEFT JOIN role_group_management r ON p.role_group_id = r.id
-		<include refid="PageRoleGroupFilter" />
-		<if
-			test="params.sortField != null and params.sortDirection != null">
-			ORDER BY ${params.sortField} ${params.sortDirection}
-		</if>
-		<if test="params.offset != null and params.limit != null">
-			LIMIT #{params.offset}, #{params.limit}
-		</if>
-	</select>
-
-	<!-- ======================= COUNT (FOR PAGINATION) ======================= -->
-	<select id="countPageRoleGroups" parameterType="map"
-		resultType="long">
-		SELECT COUNT(*)
-		FROM page_role_group_management p
-		<include refid="PageRoleGroupFilter" />
-	</select>
 
 </mapper>
