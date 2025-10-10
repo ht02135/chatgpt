@@ -11,6 +11,18 @@ public class UserManagementRoleGroupMappingPojo {
 
     private Long id;
     private Long userId;
+    /*
+    Hung : DONT REMOVE
+    Keeping private RoleGroupManagementPojo roleGroup; lets the 
+    PageRoleGroupManagementPojo directly hold the full role group object instead 
+    of just its ID, which makes the code more object-oriented, easier to read, 
+    simplifies logging/debugging, reduces extra DB lookups, and allows direct 
+    access to role group details without additional service calls.
+    ///////////////////
+    private Long roleGroupId; // stores only the foreign key to the role 
+    group, keeps POJO lightweight, aligns directly with DB schema, avoids 
+    unnecessary object nesting, and simplifies persistence and mapping
+    */
     private Long roleGroupId;
     private Timestamp createdAt;
     private Timestamp updatedAt;
