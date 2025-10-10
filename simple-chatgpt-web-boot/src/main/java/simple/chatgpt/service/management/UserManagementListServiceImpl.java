@@ -198,7 +198,6 @@ public class UserManagementListServiceImpl implements UserManagementListService 
         }
 
         create(list);
-
         logger.debug("importListFromCsv DONE for listId={}", list.getId());
     }
 
@@ -210,11 +209,7 @@ public class UserManagementListServiceImpl implements UserManagementListService 
         Long listId = ParamWrapper.unwrap(params, "listId");
         OutputStream outputStream = ParamWrapper.unwrap(params, "outputStream");
 
-        Map<String, Object> pagingParams = new HashMap<>(params);
-        pagingParams.put("page", 0);
-        pagingParams.put("size", Integer.MAX_VALUE);
-
-        PagedResult<UserManagementListMemberPojo> result = getMembersByListId(pagingParams);
+        PagedResult<UserManagementListMemberPojo> result = getMembersByListId(listId);
         List<UserManagementListMemberPojo> members = result.getItems();
 
         try (CSVWriter writer = new CSVWriter(new java.io.OutputStreamWriter(outputStream))) {
@@ -264,7 +259,6 @@ public class UserManagementListServiceImpl implements UserManagementListService 
         }
 
         create(list);
-
         Path path = getListFilePath(list.getId(), originalFileName);
         try (OutputStream os = Files.newOutputStream(path)) {
             os.write(bytes);
@@ -282,11 +276,7 @@ public class UserManagementListServiceImpl implements UserManagementListService 
         Long listId = ParamWrapper.unwrap(params, "listId");
         OutputStream outputStream = ParamWrapper.unwrap(params, "outputStream");
 
-        Map<String, Object> pagingParams = new HashMap<>(params);
-        pagingParams.put("page", 0);
-        pagingParams.put("size", Integer.MAX_VALUE);
-
-        PagedResult<UserManagementListMemberPojo> result = getMembersByListId(pagingParams);
+        PagedResult<UserManagementListMemberPojo> result = getMembersByListId(listId);
         List<UserManagementListMemberPojo> members = result.getItems();
 
         try (Workbook workbook = new XSSFWorkbook()) {
@@ -313,8 +303,23 @@ public class UserManagementListServiceImpl implements UserManagementListService 
 
     // ------------------ Helpers ------------------
     
-    private PagedResult<UserManagementListMemberPojo> getMembersByListId(Map<String, Object> params) {
-        return null;
+    private PagedResult<UserManagementListMemberPojo> getMembersByListId(Long listId) {
+        logger.debug("getMembersByListId START");
+        logger.debug("getMembersByListId listId={}", listId);
+
+        int page = 0;
+        int size = Integer.MAX_VALUE;
+        int offset = page * size;
+
+        Map<String, Object> mapperParams = new HashMap<>();
+        mapperParams.put("listId", listId);
+        mapperParams.put("offset", offset);
+        mapperParams.put("limit", size);
+        List<UserManagementListMemberPojo> members = memberMapper.findMembersByListId(mapperParams);
+        long total = members.size();
+
+        logger.debug("getMembersByListId result size={} total={}", members.size(), total);
+        return new PagedResult<>(members, total, page, size);
     }
     
     private Path getListFilePath(Long listId, String originalFileName) {

@@ -160,8 +160,10 @@ public class UserManagementListController {
 
 	// ------------------ IMPORT LIST ------------------
 	@PostMapping("/import")
-	public ResponseEntity<Response<UserManagementListPojo>> importList(@RequestPart("list") UserManagementListPojo list,
-			@RequestPart("file") MultipartFile file) {
+	public ResponseEntity<Response<UserManagementListPojo>> importList(
+		@RequestPart("list") UserManagementListPojo list,
+		@RequestPart("file") MultipartFile file) 
+	{
 		logger.debug("importList START");
 		logger.debug("importList list={}", list);
 		logger.debug("importList fileName={}", file.getOriginalFilename());
@@ -194,7 +196,10 @@ public class UserManagementListController {
 
 	// ------------------ EXPORT LIST ------------------
 	@GetMapping("/export/csv")
-	public void exportListToCsv(@RequestParam Long listId, HttpServletResponse response) {
+	public void exportListToCsv(
+		@RequestParam Long listId, 
+		HttpServletResponse response) 
+	{
 		logger.debug("exportListToCsv START");
 		logger.debug("exportListToCsv listId={}", listId);
 
@@ -216,7 +221,10 @@ public class UserManagementListController {
 	}
 
 	@GetMapping("/export/excel")
-	public void exportListToExcel(@RequestParam Long listId, HttpServletResponse response) {
+	public void exportListToExcel(
+		@RequestParam Long listId, 
+		HttpServletResponse response) 
+	{
 		logger.debug("exportListToExcel START");
 		logger.debug("exportListToExcel listId={}", listId);
 
@@ -239,7 +247,10 @@ public class UserManagementListController {
 
 	// ------------------ DOWNLOAD SAMPLE CSV ------------------
 	@GetMapping("/download/sample")
-	public void downloadSampleCsv(HttpServletRequest request, HttpServletResponse response) {
+	public void downloadSampleCsv(
+		HttpServletRequest request, 
+		HttpServletResponse response) 
+	{
 		logger.debug("downloadSampleCsv START");
 
 		String sampleCSVRelativePath = "/management/data/user_lists/test_user_lists_1.csv";
