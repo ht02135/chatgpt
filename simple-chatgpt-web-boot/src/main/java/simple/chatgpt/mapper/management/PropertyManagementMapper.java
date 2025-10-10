@@ -9,40 +9,14 @@ import simple.chatgpt.pojo.management.PropertyManagementPojo;
 
 public interface PropertyManagementMapper {
 
-    // ======= 5 CORE METHODS (on top) =======
-    void create(@Param("property") PropertyManagementPojo property);
-    void update(@Param("id") Long id, @Param("property") PropertyManagementPojo property);
-    List<PropertyManagementPojo> search(@Param("params") Map<String, Object> params);
-    PropertyManagementPojo get(@Param("id") Long id);
-    void delete(@Param("id") Long id);
+	// ======= 5 CORE METHODS (on top) =======
+	void create(@Param("property") PropertyManagementPojo property);
+	void update(@Param("id") Long id, @Param("property") PropertyManagementPojo property);
+	List<PropertyManagementPojo> search(@Param("params") Map<String, Object> params);
+	PropertyManagementPojo get(@Param("id") Long id);
+	void delete(@Param("id") Long id);
 
-    // ======= OTHER METHODS =======
-    // 🔎 SEARCH / LIST
-    List<PropertyManagementPojo> findProperties(@Param("params") Map<String, Object> params);
+	// ======= OTHER METHODS =======
 
-    long countProperties(@Param("params") Map<String, Object> params);
-
-    // 📖 READ
-    PropertyManagementPojo findById(@Param("id") Long id);
-
-    PropertyManagementPojo findByPropertyName(@Param("propertyName") String propertyName);
-
-    PropertyManagementPojo findByPropertyKey(@Param("propertyKey") String propertyKey);
-
-    // ➕ CREATE
-    void insertProperty(@Param("property") PropertyManagementPojo property);
-
-    // ✏️ UPDATE
-    void updateProperty(@Param("property") PropertyManagementPojo property);
-
-    void updatePropertyByPropertyName(@Param("property") PropertyManagementPojo property);
-
-    void updatePropertyByPropertyKey(@Param("property") PropertyManagementPojo property);
-
-    // 🗑 DELETE
-    void deleteById(@Param("id") Long id);
-
-    void deleteByPropertyName(@Param("propertyName") String propertyName);
-
-    void deleteByPropertyKey(@Param("propertyKey") String propertyKey);
+	PropertyManagementPojo findByPropertyKey(@Param("propertyKey") String propertyKey);
 }
