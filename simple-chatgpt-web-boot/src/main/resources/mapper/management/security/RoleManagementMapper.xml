@@ -17,94 +17,26 @@
 	</resultMap>
 
 	<!-- ======= 5 CORE METHODS (on top) ======= -->
+
+	<!-- ======================= CREATE ======================= -->
 	<insert id="create" useGeneratedKeys="true"
 		keyProperty="role.id">
-		INSERT INTO role_management (role_name, role_key, description, created_at)
-		VALUES (#{role.roleName}, #{role.roleKey}, #{role.description},
-		#{role.createdAt})
+		INSERT INTO role_management
+		(role_name, description, created_at, updated_at)
+		VALUES
+		(#{role.roleName}, #{role.role.description}, NOW(), NOW())
 	</insert>
 
+	<!-- ======================= UPDATE ======================= -->
 	<update id="update">
 		UPDATE role_management
 		<set>
 			<if test="role.roleName != null">role_name = #{role.roleName},</if>
-			<if test="role.roleKey != null">role_key = #{role.roleKey},</if>
 			<if test="role.description != null">description = #{role.description},</if>
+			updated_at = NOW()
 		</set>
 		WHERE id = #{id}
 	</update>
-
-	<select id="search" resultMap="RoleManagementResultMap"
-		parameterType="map">
-		SELECT * FROM role_management
-		<where>
-			<if test="params.roleName != null and params.roleName != ''">
-				AND role_name LIKE CONCAT('%', #{params.roleName}, '%')
-			</if>
-		</where>
-		<if
-			test="params.sortField != null and params.sortDirection != null">
-			ORDER BY ${params.sortField} ${params.sortDirection}
-		</if>
-		<if test="params.offset != null and params.limit != null">
-			LIMIT #{params.offset}, #{params.limit}
-		</if>
-	</select>
-
-	<select id="get" resultMap="RoleManagementResultMap">
-		SELECT * FROM role_management WHERE id = #{id}
-	</select>
-
-	<delete id="delete">
-		DELETE FROM role_management WHERE id = #{id}
-	</delete>
-
-	<!-- ======= OTHER METHODS ======= -->
-
-	<!-- ======================= CREATE ======================= -->
-	<insert id="insertRole" parameterType="map"
-		useGeneratedKeys="true" keyProperty="params.role.id">
-		INSERT INTO role_management
-		(role_name, description, created_at, updated_at)
-		VALUES
-		(#{params.role.roleName}, #{params.role.description}, NOW(), NOW())
-	</insert>
-
-	<!-- ======================= UPDATE ======================= -->
-	<update id="updateRole" parameterType="map">
-		UPDATE role_management
-		<set>
-			<if test="params.role.roleName != null">role_name = #{params.role.roleName},</if>
-			<if test="params.role.description != null">description = #{params.role.description},</if>
-			updated_at = NOW()
-		</set>
-		WHERE id = #{params.role.id}
-	</update>
-
-	<!-- ======================= DELETE ======================= -->
-	<delete id="deleteRoleById" parameterType="map">
-		DELETE FROM role_management WHERE id = #{params.roleId}
-	</delete>
-
-	<!-- ======================= READ ======================= -->
-	<select id="findRoleById" parameterType="map"
-		resultMap="RoleManagementResultMap">
-		SELECT id, role_name, description, created_at, updated_at
-		FROM role_management
-		WHERE id = #{params.roleId}
-	</select>
-
-	<select id="findAllRoles" resultMap="RoleManagementResultMap">
-		SELECT id, role_name, description, created_at, updated_at
-		FROM role_management
-		ORDER BY created_at DESC
-	</select>
-
-	<select id="getAllRoles" resultMap="RoleManagementResultMap">
-		SELECT id, role_name, description, created_at, updated_at
-		FROM role_management
-		ORDER BY created_at DESC
-	</select>
 
 	<!-- ======================= SQL fragment for filtering ======================= -->
 	<sql id="RoleManagementFilter">
@@ -142,10 +74,11 @@
 	</sql>
 
 	<!-- ======================= SEARCH / PAGINATION ======================= -->
-	<select id="findRoles" parameterType="map"
-		resultMap="RoleManagementResultMap">
+	<select id="search" resultMap="RoleManagementResultMap"
+		parameterType="map">
 		SELECT id, role_name, description, created_at, updated_at
-		FROM role_management
+		FROM
+		role_management
 		<include refid="RoleManagementFilter" />
 		<if
 			test="params.sortField != null and params.sortDirection != null">
@@ -156,25 +89,17 @@
 		</if>
 	</select>
 
-	<select id="searchRoles" parameterType="map"
-		resultMap="RoleManagementResultMap">
-		SELECT id, role_name, description, created_at, updated_at
-		FROM role_management
-		<include refid="RoleManagementFilter" />
-		<if
-			test="params.sortField != null and params.sortDirection != null">
-			ORDER BY ${params.sortField} ${params.sortDirection}
-		</if>
-		<if test="params.offset != null and params.limit != null">
-			LIMIT #{params.offset}, #{params.limit}
-		</if>
+	<!-- ======================= READ ======================= -->
+	<select id="get" resultMap="RoleManagementResultMap">
+		SELECT * FROM role_management WHERE
+		id = #{id}
 	</select>
 
-	<!-- ======================= COUNT FOR PAGINATION ======================= -->
-	<select id="countRoles" parameterType="map" resultType="long">
-		SELECT COUNT(*)
-		FROM role_management
-		<include refid="RoleManagementFilter" />
-	</select>
+	<!-- ======================= DELETE ======================= -->
+	<delete id="delete">
+		DELETE FROM role_management WHERE id = #{id}
+	</delete>
+
+	<!-- ======= OTHER METHODS ======= -->
 
 </mapper>
