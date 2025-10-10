@@ -32,6 +32,8 @@
     </resultMap>
 
     <!-- ======= 5 CORE METHODS (on top) ======= -->
+    
+    <!-- ======================= CREATE ======================= -->
     <insert id="create" useGeneratedKeys="true" keyProperty="user.id">
         INSERT INTO user_management
         (user_name, user_key, password, first_name, last_name, email, address_line_1,
@@ -43,6 +45,7 @@
          #{user.active}, #{user.locked}, #{user.lastLoginIp}, #{user.lastLoginAt}, #{user.jwtSecretVersion})
     </insert>
 
+	<!-- ======================= UPDATE ======================= -->
     <update id="update">
         UPDATE user_management
         <set>
@@ -67,6 +70,7 @@
         WHERE id = #{user.id}
     </update>
 
+	<!-- ======================= SEARCH / PAGINATION ======================= -->
     <select id="search" resultMap="UserManagementResultMap" parameterType="map">
         SELECT * FROM user_management
         <where>
@@ -118,10 +122,12 @@
         </if>
     </select>
 
+	<!-- ======================= READ ======================= -->
     <select id="get" resultMap="UserManagementResultMap">
         SELECT * FROM user_management WHERE id = #{id}
     </select>
 
+	<!-- ======================= DELETE ======================= -->
     <delete id="delete">
         DELETE FROM user_management WHERE id = #{id}
     </delete>
