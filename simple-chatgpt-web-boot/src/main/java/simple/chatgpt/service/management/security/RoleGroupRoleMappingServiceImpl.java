@@ -131,4 +131,11 @@ public class RoleGroupRoleMappingServiceImpl implements RoleGroupRoleMappingServ
         
         return mappings;
     }
+    
+    public void deleteByRoleGroupId(Long roleGroupId) {
+        List<RoleGroupRoleMappingPojo> mappings = getMappingsByRoleGroupId(roleGroupId);
+        for (RoleGroupRoleMappingPojo mapping : mappings) {
+            delete(mapping.getId());
+        }
+    }
 }

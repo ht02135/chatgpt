@@ -68,96 +68,87 @@ public class RoleGroupManagementServiceImpl implements RoleGroupManagementServic
     public void initializeDB() {
         logger.debug("initializeDB called");
 
-        try {
-            // ======================================================
-            // STEP 1. Load role groups from XML config
-            // ======================================================
-            List<RoleGroupConfig> roleGroupConfigs = securityConfigLoader.getRoleGroups();
-            logger.debug("initializeDB roleGroupConfigs={}", roleGroupConfigs);
+        List<RoleGroupConfig> roleGroupConfigs = securityConfigLoader.getRoleGroups();
+        for (RoleGroupConfig rgConfig : roleGroupConfigs) {
+            String groupName = rgConfig.getName();
+            logger.debug("initializeDB processing roleGroupConfig={}", groupName);
 
-            for (RoleGroupConfig rgConfig : roleGroupConfigs) {
-                logger.debug("initializeDB processing roleGroupConfig={}", rgConfig);
-                logger.debug("initializeDB roleGroupConfig.name={}", rgConfig.getName());
-                logger.debug("initializeDB roleGroupConfig.description={}", rgConfig.getDescription());
-                logger.debug("initializeDB roleGroupConfig.roles={}", rgConfig.getRoles());
+            // ===============================
+            // STEP 1: Check if role group exists
+            // ===============================
+            Map<String, String> params = new HashMap<>();
+            params.put("groupName", groupName);
+            PagedResult<RoleGroupManagementPojo> searchResult = this.search(params);
+            RoleGroupManagementPojo groupPojo;
 
-                // ======================================================
-                // STEP 2. Check if group exists already
-                // ======================================================
-                Map<String, Object> params = new HashMap<>();
-                params.put("groupName", rgConfig.getName());
-                List<RoleGroupManagementPojo> existingGroups = groupMapper.search(params);
-                logger.debug("initializeDB existingGroups.size={}", existingGroups.size());
-
-                RoleGroupManagementPojo groupPojo;
-                if (existingGroups.isEmpty()) {
-                    // ======================================================
-                    // STEP 3. Create new group
-                    // ======================================================
-                    groupPojo = new RoleGroupManagementPojo();
-                    groupPojo.setGroupName(rgConfig.getName());
-                    groupPojo.setDescription(rgConfig.getDescription());
-                    groupMapper.create(groupPojo);
-                    logger.debug("initializeDB created new groupPojo={}", groupPojo);
-                } else {
-                    groupPojo = existingGroups.get(0);
-                    logger.debug("initializeDB found existing groupPojo={}", groupPojo);
-                }
-
-                // ======================================================
-                // STEP 4. Link roles to group
-                // ======================================================
-                Long roleGroupId = groupPojo.getId();
-                logger.debug("initializeDB roleGroupId={}", roleGroupId);
-
-                // delete all existing mappings for clean re-sync
-                List<RoleGroupRoleMappingPojo> existingMappings =
-                        roleGroupRoleMappingService.getMappingsByRoleGroupId(roleGroupId);
-                logger.debug("initializeDB existingMappings.size={}", existingMappings.size());
-                for (RoleGroupRoleMappingPojo mappingPojo : existingMappings) {
-                    roleGroupRoleMappingService.delete(mappingPojo.getId());
-                    logger.debug("initializeDB deleted old mapping id={}", mappingPojo.getId());
-                }
-
-                // ======================================================
-                // STEP 5. Insert fresh mappings based on XML config
-                // ======================================================
-                List<RoleRefConfig> roleRefs = rgConfig.getRoles();
-                for (RoleRefConfig roleRef : roleRefs) {
-                    logger.debug("initializeDB processing roleRef={}", roleRef);
-                    logger.debug("initializeDB roleRef.name={}", roleRef.getName());
-
-                    Map<String, String> roleParams = new HashMap<>();
-                    roleParams.put("roleName", roleRef.getName());
-                    PagedResult<RoleManagementPojo> searchResult = roleManagementService.search(roleParams);
-                    List<RoleManagementPojo> matchedRoles = searchResult.getItems();
-                    logger.debug("initializeDB matchedRoles.size={}", matchedRoles.size());
-
-                    if (matchedRoles.isEmpty()) {
-                        logger.debug("initializeDB skipping missing roleRef.name={}", roleRef.getName());
-                        continue;
-                    }
-
-                    RoleManagementPojo role = matchedRoles.get(0);
-
-                    RoleGroupRoleMappingPojo mapping = new RoleGroupRoleMappingPojo();
-                    mapping.setRoleGroupId(roleGroupId);
-                    mapping.setRoleId(role.getId());
-                    mapping.setRoleGroupName(groupPojo.getGroupName());
-                    mapping.setRoleName(role.getRoleName());
-
-                    roleGroupRoleMappingService.create(mapping);
-                    logger.debug("initializeDB created mapping={}", mapping);
-                }
-
-                logger.debug("initializeDB finished roleGroupConfig.name={}", rgConfig.getName());
+            if (searchResult.getTotalCount() > 0) {
+                groupPojo = searchResult.getItems().get(0);
+                logger.debug("initializeDB found existing role group id={}", groupPojo.getId());
+            } else {
+                // ===============================
+                // STEP 2: Create new role group
+                // ===============================
+                groupPojo = new RoleGroupManagementPojo();
+                groupPojo.setGroupName(groupName);
+                groupPojo.setDescription(rgConfig.getDescription());
+                this.create(groupPojo);
+                logger.debug("initializeDB created new role group id={}", groupPojo.getId());
             }
 
-            logger.debug("initializeDB completed successfully");
+            Long roleGroupId = groupPojo.getId();
 
-        } catch (Exception e) {
-            logger.error("initializeDB failed", e);
-            throw new RuntimeException("Failed to initialize role groups from XML", e);
+            // ======================================================
+            // STEP 3. Remove existing mappings
+            // ======================================================
+            try {
+                roleGroupRoleMappingService.deleteByRoleGroupId(roleGroupId);
+                logger.debug("initializeDB cleared existing mappings for roleGroupId={}", roleGroupId);
+            } catch (Exception e) {
+            	logger.warn("initializeDB: ####################");
+                logger.warn("initializeDB failed to clear mappings for roleGroupId={}: {}", roleGroupId, e.getMessage());
+                logger.warn("initializeDB: ####################");
+            }
+
+            // ======================================================
+            // STEP 4. Insert fresh mappings based on XML config
+            // ======================================================
+            List<RoleRefConfig> roleRefs = rgConfig.getRoles();
+            for (RoleRefConfig roleRef : roleRefs) {
+                logger.debug("initializeDB processing roleRef={}", roleRef);
+                logger.debug("initializeDB roleRef.name={}", roleRef.getName());
+
+                Map<String, String> roleParams = new HashMap<>();
+                roleParams.put("roleName", roleRef.getName());
+                PagedResult<RoleManagementPojo> matchedRolesResult = roleManagementService.search(roleParams);
+                List<RoleManagementPojo> matchedRoles = matchedRolesResult.getItems();
+                logger.debug("initializeDB matchedRoles.size={}", matchedRoles.size());
+
+                if (matchedRoles.isEmpty()) {
+                    logger.debug("initializeDB skipping missing roleRef.name={}", roleRef.getName());
+                    continue;
+                }
+
+                RoleManagementPojo role = matchedRoles.get(0);
+
+                RoleGroupRoleMappingPojo mapping = new RoleGroupRoleMappingPojo();
+                mapping.setRoleGroupId(roleGroupId);
+                mapping.setRoleId(role.getId());
+                mapping.setRoleGroupName(groupPojo.getGroupName());
+                mapping.setRoleName(role.getRoleName());
+
+                // ===============================
+                // STEP 5. Try-catch create mapping
+                // ===============================
+                try {
+                    roleGroupRoleMappingService.create(mapping);
+                    logger.debug("initializeDB created mapping={}", mapping);
+                } catch (Exception e) {
+                	logger.warn("initializeDB: ####################");
+                    logger.warn("initializeDB failed to create mapping for roleRef.name={} and roleGroupId={}: {}",
+                                roleRef.getName(), roleGroupId, e.getMessage());
+                    logger.warn("initializeDB: ####################");
+                }
+            }
         }
 
         logger.debug("initializeDB DONE");
