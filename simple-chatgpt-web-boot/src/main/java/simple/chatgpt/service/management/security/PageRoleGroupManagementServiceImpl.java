@@ -12,8 +12,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import simple.chatgpt.config.management.loader.SecurityConfigLoader;
+import simple.chatgpt.config.management.security.PageRoleGroupConfig;
 import simple.chatgpt.mapper.management.security.PageRoleGroupManagementMapper;
 import simple.chatgpt.pojo.management.security.PageRoleGroupManagementPojo;
+import simple.chatgpt.pojo.management.security.RoleGroupManagementPojo;
 import simple.chatgpt.util.PagedResult;
 import simple.chatgpt.util.SafeConverter;
 
@@ -56,6 +58,76 @@ public class PageRoleGroupManagementServiceImpl implements PageRoleGroupManageme
     }
 
     private void initializeDB() {
+        logger.debug("initializeDB called");
+
+        try {
+            // ======================================================
+            // STEP 1. Load page-role-groups from XML config
+            // ======================================================
+            List<PageRoleGroupConfig> pageRoleGroupConfigs = securityConfigLoader.getPageRoleGroups();
+            logger.debug("initializeDB pageRoleGroupConfigs={}", pageRoleGroupConfigs);
+
+            for (PageRoleGroupConfig prgConfig : pageRoleGroupConfigs) {
+                logger.debug("initializeDB processing prgConfig={}", prgConfig);
+                logger.debug("initializeDB prgConfig.urlPattern={}", prgConfig.getUrlPattern());
+                logger.debug("initializeDB prgConfig.roleGroup={}", prgConfig.getRoleGroup());
+
+                // ======================================================
+                // STEP 2. Lookup RoleGroupManagementPojo for this role-group
+                // ======================================================
+                Map<String, Object> rgParams = new HashMap<>();
+                rgParams.put("groupName", prgConfig.getRoleGroup());
+                List<RoleGroupManagementPojo> matchedGroups = roleGroupService.getAll();
+                RoleGroupManagementPojo roleGroupPojo = null;
+                for (RoleGroupManagementPojo rg : matchedGroups) {
+                    if (rg.getGroupName().equals(prgConfig.getRoleGroup())) {
+                        roleGroupPojo = rg;
+                        break;
+                    }
+                }
+
+                if (roleGroupPojo == null) {
+                    logger.warn("initializeDB skipping page-role-group because roleGroup not found: {}", prgConfig.getRoleGroup());
+                    continue;
+                }
+
+                // ======================================================
+                // STEP 3. Check if page-role-group already exists
+                // ======================================================
+                Map<String, Object> pageParams = new HashMap<>();
+                pageParams.put("urlPattern", prgConfig.getUrlPattern());
+                pageParams.put("roleGroupId", roleGroupPojo.getId());
+
+                List<PageRoleGroupManagementPojo> existingPages = getMappingsByParams(pageParams);
+                logger.debug("initializeDB existingPages.size={}", existingPages.size());
+
+                PageRoleGroupManagementPojo pagePojo;
+                if (existingPages.isEmpty()) {
+                    // ======================================================
+                    // STEP 4. Create new page-role-group
+                    // ======================================================
+                    pagePojo = new PageRoleGroupManagementPojo();
+                    pagePojo.setUrlPattern(prgConfig.getUrlPattern());
+                    pagePojo.setRoleGroup(roleGroupPojo);
+
+                    create(pagePojo);
+                    logger.debug("initializeDB created new pagePojo={}", pagePojo);
+                } else {
+                    pagePojo = existingPages.get(0);
+                    logger.debug("initializeDB found existing pagePojo={}", pagePojo);
+                }
+
+                logger.debug("initializeDB finished page-role-group urlPattern={}", prgConfig.getUrlPattern());
+            }
+
+            logger.debug("initializeDB completed successfully");
+
+        } catch (Exception e) {
+            logger.error("initializeDB failed", e);
+            throw new RuntimeException("Failed to initialize page-role-groups from XML", e);
+        }
+
+        logger.debug("initializeDB DONE");
     }
 
     // ==============================================================
