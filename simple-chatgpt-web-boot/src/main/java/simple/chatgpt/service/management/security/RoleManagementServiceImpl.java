@@ -22,7 +22,6 @@ import simple.chatgpt.mapper.management.security.RoleManagementMapper;
 import simple.chatgpt.pojo.management.security.RoleManagementPojo;
 import simple.chatgpt.util.GenericCache;
 import simple.chatgpt.util.PagedResult;
-import simple.chatgpt.util.ParamWrapper;
 import simple.chatgpt.util.SafeConverter;
 
 @Service
@@ -62,8 +61,56 @@ public class RoleManagementServiceImpl implements RoleManagementService {
         initializeDB();
         logger.debug("postConstruct DONE");
     }
-
+    
     public void initializeDB() {
+        logger.debug("initializeDB called");
+
+        try {
+            // load roles from XML config
+            List<RoleConfig> xmlRoles = securityConfigLoader.getRoles();
+            logger.debug("initializeDB xmlRoles={}", xmlRoles);
+
+            if (xmlRoles == null || xmlRoles.isEmpty()) {
+                logger.debug("initializeDB no roles found in XML, skipping");
+                return;
+            }
+
+            // get existing roles from DB
+            List<RoleManagementPojo> existingRoles = getAll();
+            logger.debug("initializeDB existingRoles={}", existingRoles);
+
+            // map existing role names for quick lookup
+            Map<String, RoleManagementPojo> existingRoleMap = existingRoles.stream()
+                    .collect(Collectors.toMap(RoleManagementPojo::getRoleName, r -> r, (a, b) -> a));
+            logger.debug("initializeDB existingRoleMap keys={}", existingRoleMap.keySet());
+
+            // iterate xmlRoles and insert if missing
+            for (RoleConfig rc : xmlRoles) {
+                logger.debug("initializeDB processing rc={}", rc);
+
+                String name = rc.getName();
+                String desc = rc.getDescription();
+
+                if (!existingRoleMap.containsKey(name)) {
+                    logger.debug("initializeDB inserting new role name={}", name);
+                    logger.debug("initializeDB inserting new role desc={}", desc);
+
+                    RoleManagementPojo newRole = new RoleManagementPojo();
+                    newRole.setRoleName(name);
+                    newRole.setDescription(desc);
+                    create(newRole);
+
+                    // cache new role
+                    roleCache.get(newRole.getId(), k -> newRole);
+                } else {
+                    logger.debug("initializeDB role already exists name={}", name);
+                }
+            }
+
+            logger.debug("initializeDB DONE");
+        } catch (Exception e) {
+            logger.error("initializeDB failed", e);
+        }
     }
 
     // ==============================================================
