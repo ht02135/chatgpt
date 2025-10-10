@@ -19,32 +19,11 @@ public interface UserManagementRoleGroupMappingMapper {
     void delete(@Param("id") Long id);
 
     // ======= OTHER METHODS =======
+    
     // ---------------- CREATE ----------------
     int insertUserRoleGroup(@Param("params") Map<String, Object> params);
 
-    // ---------------- UPDATE ----------------
-    int updateUserRoleGroup(@Param("params") Map<String, Object> params);
-
-    // ---------------- DELETE ----------------
-    int deleteUserRoleGroupById(@Param("params") Map<String, Object> params);
-
-    int deleteUserRoleGroupByUserAndGroup(@Param("params") Map<String, Object> params);
-
     // ---------------- READ ----------------
     UserManagementRoleGroupMappingPojo findById(@Param("params") Map<String, Object> params);
-    
     UserManagementRoleGroupMappingPojo findByUserIdAndRoleGroupId(@Param("params") Map<String, Object> params);
-    
-    List<UserManagementRoleGroupMappingPojo> findAllUserRoleGroups();
-
-    List<UserManagementRoleGroupMappingPojo> findByUserId(@Param("params") Map<String, Object> params);
-
-    List<UserManagementRoleGroupMappingPojo> findByRoleGroupId(@Param("params") Map<String, Object> params);
-
-    // ---------------- SEARCH / PAGINATION ----------------
-    List<UserManagementRoleGroupMappingPojo> findUserRoleGroups(@Param("params") Map<String, Object> params);
-
-    List<UserManagementRoleGroupMappingPojo> searchUserRoleGroups(@Param("params") Map<String, Object> params);
-
-    long countUserRoleGroups(@Param("params") Map<String, Object> params);
 }
