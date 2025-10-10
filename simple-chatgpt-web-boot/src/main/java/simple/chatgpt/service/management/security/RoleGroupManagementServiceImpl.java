@@ -142,5 +142,16 @@ public class RoleGroupManagementServiceImpl implements RoleGroupManagementServic
     }
     
     // ======= OTHER METHODS =======
+
+    @Override
+    public List<RoleGroupManagementPojo> getAll() {
+        logger.debug("getAll called");
+
+        // Reuse search mapper with empty params to get everything
+        Map<String, Object> params = new HashMap<>();
+        // No offset/limit => all rows
+        List<RoleGroupManagementPojo> roleGroups = groupMapper.search(params);
+        return roleGroups;
+    }
     
 }

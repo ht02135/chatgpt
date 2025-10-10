@@ -1,8 +1,10 @@
 package simple.chatgpt.service.management.security;
 
+import java.util.List;
 import java.util.Map;
 
 import simple.chatgpt.pojo.management.security.RoleGroupManagementPojo;
+import simple.chatgpt.pojo.management.security.RoleManagementPojo;
 import simple.chatgpt.util.PagedResult;
 
 public interface RoleGroupManagementService {
@@ -16,4 +18,5 @@ public interface RoleGroupManagementService {
 
 	// ======= OTHER METHODS =======
 
+	List<RoleGroupManagementPojo> getAll();
 }
