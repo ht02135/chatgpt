@@ -31,6 +31,7 @@ import simple.chatgpt.mapper.management.UserManagementListMapper;
 import simple.chatgpt.mapper.management.UserManagementListMemberMapper;
 import simple.chatgpt.pojo.management.UserManagementListMemberPojo;
 import simple.chatgpt.pojo.management.UserManagementListPojo;
+import simple.chatgpt.pojo.management.security.RoleManagementPojo;
 import simple.chatgpt.util.PagedResult;
 import simple.chatgpt.util.ParamWrapper;
 import simple.chatgpt.util.SafeConverter;
@@ -369,5 +370,17 @@ public class UserManagementListServiceImpl implements UserManagementListService 
         }
 
         logger.debug("setFieldValue DONE");
+    }
+    
+    @Override
+    public List<UserManagementListPojo> getAll() {
+        logger.debug("getAll called");
+
+        // Reuse search mapper with empty params to get everything
+        Map<String, Object> params = new HashMap<>();
+        // No offset/limit => all rows
+        List<UserManagementListPojo> userLists = listMapper.search(params);
+        
+        return userLists;
     }
 }

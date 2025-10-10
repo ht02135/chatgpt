@@ -1,8 +1,10 @@
 package simple.chatgpt.service.management;
 
+import java.util.List;
 import java.util.Map;
 
 import simple.chatgpt.pojo.management.UserManagementListPojo;
+import simple.chatgpt.pojo.management.security.RoleManagementPojo;
 import simple.chatgpt.util.PagedResult;
 
 public interface UserManagementListService {
@@ -22,4 +24,5 @@ public interface UserManagementListService {
     void importListFromExcel(Map<String, Object> params) throws Exception; // params include InputStream, list, originalFileName
     void exportListToExcel(Map<String, Object> params) throws Exception;   // params include listId, OutputStream
     
+    List<UserManagementListPojo> getAll();
 }
