@@ -3,7 +3,6 @@ package simple.chatgpt.service.management.security;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 
@@ -14,14 +13,10 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import simple.chatgpt.config.management.loader.SecurityConfigLoader;
-import simple.chatgpt.config.management.security.RoleGroupConfig;
-import simple.chatgpt.config.management.security.RoleRefConfig;
 import simple.chatgpt.mapper.management.security.RoleGroupManagementMapper;
 import simple.chatgpt.pojo.management.security.RoleGroupManagementPojo;
-import simple.chatgpt.pojo.management.security.RoleManagementPojo;
 import simple.chatgpt.util.GenericCache;
 import simple.chatgpt.util.PagedResult;
-import simple.chatgpt.util.ParamWrapper;
 import simple.chatgpt.util.SafeConverter;
 
 @Service
@@ -86,7 +81,11 @@ public class RoleGroupManagementServiceImpl implements RoleGroupManagementServic
         logger.debug("update called");
         logger.debug("update id={}", id);
         logger.debug("update roleGroup={}", roleGroup);
+
+        // DB update first
         groupMapper.update(id, roleGroup);
+        // Invalidate cache after DB update
+        roleGroupCache.invalidate(id);
         return roleGroup;
     }
 
@@ -123,8 +122,11 @@ public class RoleGroupManagementServiceImpl implements RoleGroupManagementServic
     public RoleGroupManagementPojo get(Long id) {
         logger.debug("get called");
         logger.debug("get id={}", id);
-        RoleGroupManagementPojo roleGroup = groupMapper.get(id);
-        logger.debug("get return={}", roleGroup);
+
+        RoleGroupManagementPojo roleGroup = roleGroupCache.get(id, k -> {
+            RoleGroupManagementPojo fromDb = groupMapper.get(k);
+            return fromDb;
+        });
         return roleGroup;
     }
 
@@ -132,9 +134,13 @@ public class RoleGroupManagementServiceImpl implements RoleGroupManagementServic
     public void delete(Long id) {
         logger.debug("delete called");
         logger.debug("delete id={}", id);
+
+        // Invalidate cache first
+        roleGroupCache.invalidate(id);
+        // Then delete from DB
         groupMapper.delete(id);
     }
-
+    
     // ======= OTHER METHODS =======
     
 }
