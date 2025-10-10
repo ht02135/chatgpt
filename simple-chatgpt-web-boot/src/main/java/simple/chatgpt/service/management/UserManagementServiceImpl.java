@@ -71,7 +71,6 @@ public class UserManagementServiceImpl implements UserManagementService {
                 .getItems()
                 .stream()
                 .collect(Collectors.toMap(RoleGroupManagementPojo::getGroupName, rg -> rg));
-        logger.debug("initializeDB roleGroupByName size={}", roleGroupByName.size());
 
         for (UserConfig u : users) {
             logger.debug("initializeDB processing user userName={}", u.getUserName());
@@ -95,9 +94,9 @@ public class UserManagementServiceImpl implements UserManagementService {
                 user.setLocked(u.isLocked());
 
                 logger.debug("initializeDB before insertUser user={}", user);
-                userManagementMapper.insertUser(user);
+                userManagementMapper.create(user);
                 existing = user;
-                logger.debug("initializeDB after insertUser user={}", user);
+                logger.debug("initializeDB after insertUser existing={}", existing);
             }
 
             String roleGroupName = u.getRoleGroup();
@@ -204,48 +203,6 @@ public class UserManagementServiceImpl implements UserManagementService {
     // ORIGINAL METHODS (USED BY CORE)
     // =========================================================================
 
-    // 🔎 LIST / SEARCH
-    @Override
-    public PagedResult<UserManagementPojo> searchUsers(Map<String, String> params) {
-        logger.debug("searchUsers START");
-        logger.debug("searchUsers params={}", params);
-
-        // hung: DONT REMOVE THIS CODE
-        int page = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "page", 0), 0); 
-        int size = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "size", 20), 20);
-        int offset = page * size;
-
-        Map<String, Object> sqlParams = new HashMap<>();
-        sqlParams.putAll(params);
-        sqlParams.put("offset", offset);
-        sqlParams.put("limit", size);
-
-        String sortField = ParamWrapper.unwrap(params, "sortField", "id");
-        String sortDirection = ParamWrapper.unwrap(params, "sortDirection", "ASC").toUpperCase();
-        sqlParams.put("sortField", sortField);
-        sqlParams.put("sortDirection", sortDirection);
-
-        List<UserManagementPojo> items = userManagementMapper.findUsers(sqlParams);
-        long totalCount = userManagementMapper.countUsers(sqlParams);
-        PagedResult<UserManagementPojo> result = new PagedResult<>(items, totalCount, page, size);
-
-        logger.debug("searchUsers return={}", result);
-        return result;
-    }
-
-    // 📖 READ
-    @Override
-    public UserManagementPojo getUserById(Long id) {
-        logger.debug("getUserById START");
-        logger.debug("getUserById id={}", id);
-
-        UserManagementPojo user = userManagementMapper.findById(id);
-
-        logger.debug("getUserById return={}", user);
-        return user;
-    }
-
-    @Override
     public UserManagementPojo getByUserName(String userName) {
         logger.debug("getByUserName START");
         logger.debug("getByUserName userName={}", userName);
@@ -254,99 +211,5 @@ public class UserManagementServiceImpl implements UserManagementService {
 
         logger.debug("getByUserName return={}", user);
         return user;
-    }
-
-    @Override
-    public UserManagementPojo getByUserKey(String userKey) {
-        logger.debug("getByUserKey START");
-        logger.debug("getByUserKey userKey={}", userKey);
-
-        UserManagementPojo user = userManagementMapper.findByUserKey(userKey);
-
-        logger.debug("getByUserKey return={}", user);
-        return user;
-    }
-
-    // ➕ CREATE
-    @Override
-    public UserManagementPojo createUser(UserManagementPojo user) {
-        logger.debug("createUser START");
-        logger.debug("createUser user={}", user);
-
-        userManagementMapper.insertUser(user);
-
-        logger.debug("createUser return={}", user);
-        return user;
-    }
-
-    // ✏️ UPDATE
-    @Override
-    public UserManagementPojo updateUserById(Long id, UserManagementPojo user) {
-        logger.debug("updateUserById START");
-        logger.debug("updateUserById id={}", id);
-        logger.debug("updateUserById user={}", user);
-
-        user.setId(id);
-        userManagementMapper.updateUser(user);
-
-        logger.debug("updateUserById return={}", user);
-        return user;
-    }
-
-    @Override
-    public UserManagementPojo updateUserByUserName(String userName, UserManagementPojo user) {
-        logger.debug("updateUserByUserName START");
-        logger.debug("updateUserByUserName userName={}", userName);
-        logger.debug("updateUserByUserName user={}", user);
-
-        user.setUserName(userName);
-        userManagementMapper.updateUserByUserName(user);
-
-        logger.debug("updateUserByUserName return={}", user);
-        return user;
-    }
-
-    @Override
-    public UserManagementPojo updateUserByUserKey(String userKey, UserManagementPojo user) {
-        logger.debug("updateUserByUserKey START");
-        logger.debug("updateUserByUserKey userKey={}", userKey);
-        logger.debug("updateUserByUserKey user={}", user);
-
-        user.setUserKey(userKey);
-        userManagementMapper.updateUserByUserKey(user);
-
-        logger.debug("updateUserByUserKey return={}", user);
-        return user;
-    }
-
-    // 🗑 DELETE
-    @Override
-    public void deleteUserById(Long id) {
-        logger.debug("deleteUserById START");
-        logger.debug("deleteUserById id={}", id);
-
-        userManagementMapper.deleteById(id);
-
-        logger.debug("deleteUserById DONE");
-    }
-
-    @Override
-    public void deleteUserByUserName(String userName) {
-        logger.debug("deleteUserByUserName START");
-        logger.debug("deleteUserByUserName userName={}", userName);
-
-        userManagementMapper.deleteByUserName(userName);
-
-        logger.debug("deleteUserByUserName DONE");
-    }
-
-    @Override
-    public void deleteUserByUserKey(String userKey) {
-        logger.debug("deleteUserByUserKey START");
-        logger.debug("deleteUserByUserKey userKey={}", userKey);
-
-        userManagementMapper.deleteByUserKey(userKey);
-
-        logger.debug("deleteUserByUserKey DONE");
     }
 }
