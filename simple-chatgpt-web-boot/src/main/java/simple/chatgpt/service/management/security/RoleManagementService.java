@@ -16,10 +16,4 @@ public interface RoleManagementService {
 
 	// ======= OTHER METHODS =======
 	
-    // ---------------- CREATE ----------------
-    RoleManagementPojo insertRole(Map<String, Object> params); // matches mapper.insertRole
-
-    // ---------------- FETCH ALL ----------------
-    PagedResult<RoleManagementPojo> findAllRoles(); // matches mapper.findAllRoles
-    
 }

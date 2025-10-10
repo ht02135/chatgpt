@@ -104,33 +104,4 @@ public class UserManagementRoleGroupMappingServiceImpl implements UserManagement
 
 	// ======= OTHER METHODS =======
 
-    @Override
-    public UserManagementRoleGroupMappingPojo insertUserRoleGroup(Map<String, Object> params) {
-        logger.debug("insertUserRoleGroup START");
-        logger.debug("insertUserRoleGroup params={}", params);
-
-        UserManagementRoleGroupMappingPojo mapping = ParamWrapper.unwrap(params, "mapping");
-        if (mapping == null) {
-            logger.error("insertUserRoleGroup: mapping is null");
-            throw new IllegalArgumentException("Missing mapping payload");
-        }
-
-        mappingMapper.insertUserRoleGroup(params);  // pass original params directly
-        logger.debug("insertUserRoleGroup mapping inserted id={}", mapping.getId());
-
-        UserManagementRoleGroupMappingPojo fullMapping = mappingMapper.findById(params);
-        logger.debug("insertUserRoleGroup DONE fullMapping={}", fullMapping);
-        return fullMapping;
-    }
-    
-    @Override
-    public UserManagementRoleGroupMappingPojo findByUserIdAndRoleGroupId(Map<String, Object> params) {
-        logger.debug("findByUserIdAndRoleGroupId START");
-        logger.debug("findByUserIdAndRoleGroupId params={}", params);
-
-        UserManagementRoleGroupMappingPojo result = mappingMapper.findByUserIdAndRoleGroupId(params);
-
-        logger.debug("findByUserIdAndRoleGroupId DONE result={}", result);
-        return result;
-    }
 }

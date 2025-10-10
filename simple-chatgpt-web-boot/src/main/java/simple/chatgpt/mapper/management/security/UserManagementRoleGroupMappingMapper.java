@@ -20,10 +20,4 @@ public interface UserManagementRoleGroupMappingMapper {
 
     // ======= OTHER METHODS =======
     
-    // ---------------- CREATE ----------------
-    int insertUserRoleGroup(@Param("params") Map<String, Object> params);
-
-    // ---------------- READ ----------------
-    UserManagementRoleGroupMappingPojo findById(@Param("params") Map<String, Object> params);
-    UserManagementRoleGroupMappingPojo findByUserIdAndRoleGroupId(@Param("params") Map<String, Object> params);
 }

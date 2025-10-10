@@ -19,29 +19,5 @@ public interface PageRoleGroupManagementMapper {
     void delete(@Param("id") Long id);
 
     // ======= OTHER METHODS =======
-    // ---------------- CREATE ----------------
-    int insertPageRoleGroup(@Param("params") Map<String, Object> params);
 
-    // ---------------- UPDATE ----------------
-    int updatePageRoleGroup(@Param("params") Map<String, Object> params);
-
-    // ---------------- DELETE ----------------
-    int deletePageRoleGroupById(@Param("params") Map<String, Object> params);
-
-    // ---------------- READ ----------------
-    List<PageRoleGroupManagementPojo> findAllPageRoleGroups();
-
-    PageRoleGroupManagementPojo findById(@Param("params") Map<String, Object> params);
-
-    PageRoleGroupManagementPojo findByUrlPattern(@Param("params") Map<String, Object> params);
-
-    List<PageRoleGroupManagementPojo> findByRoleGroupId(@Param("params") Map<String, Object> params);
-
-    // ---------------- SEARCH / PAGINATION ----------------
-    List<PageRoleGroupManagementPojo> findPageRoleGroups(@Param("params") Map<String, Object> params);
-
-    List<PageRoleGroupManagementPojo> searchPageRoleGroups(@Param("params") Map<String, Object> params);
-
-    // ---------------- COUNT ----------------
-    long countPageRoleGroups(@Param("params") Map<String, Object> params);
 }

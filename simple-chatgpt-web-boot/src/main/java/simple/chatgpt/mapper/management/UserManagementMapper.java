@@ -18,6 +18,4 @@ public interface UserManagementMapper {
 
     // ======= OTHER METHODS  =======
 
-	UserManagementPojo findByUserName(@Param("userName") String userName);
-
 }

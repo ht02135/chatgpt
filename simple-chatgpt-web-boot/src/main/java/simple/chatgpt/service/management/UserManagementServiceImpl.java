@@ -55,73 +55,6 @@ public class UserManagementServiceImpl implements UserManagementService {
 
     @PostConstruct
     public void initializeDB() {
-        logger.debug("initializeDB START");
-
-        if (securityConfigLoader == null) {
-            logger.error("Missing required beans: securityConfigLoader={}", securityConfigLoader);
-            logger.debug("initializeDB DONE");
-            return;
-        }
-
-        List<UserConfig> users = securityConfigLoader.getUsers();
-        logger.debug("initializeDB users size={}", users.size());
-
-        Map<String, RoleGroupManagementPojo> roleGroupByName = roleGroupService
-                .getAllRoleGroups()
-                .getItems()
-                .stream()
-                .collect(Collectors.toMap(RoleGroupManagementPojo::getGroupName, rg -> rg));
-
-        for (UserConfig u : users) {
-            logger.debug("initializeDB processing user userName={}", u.getUserName());
-
-            UserManagementPojo existing = userManagementMapper.findByUserName(u.getUserName());
-            if (existing == null) {
-                UserManagementPojo user = new UserManagementPojo();
-                user.setUserName(u.getUserName());
-                user.setUserKey(u.getUserKey());
-                user.setPassword(u.getPassword());
-                user.setFirstName(u.getFirstName());
-                user.setLastName(u.getLastName());
-                user.setEmail(u.getEmail());
-                user.setAddressLine1(u.getAddressLine1());
-                user.setAddressLine2(u.getAddressLine2());
-                user.setCity(u.getCity());
-                user.setState(u.getState());
-                user.setPostCode(u.getPostCode());
-                user.setCountry(u.getCountry());
-                user.setActive(u.isActive());
-                user.setLocked(u.isLocked());
-
-                logger.debug("initializeDB before insertUser user={}", user);
-                userManagementMapper.create(user);
-                existing = user;
-                logger.debug("initializeDB after insertUser existing={}", existing);
-            }
-
-            String roleGroupName = u.getRoleGroup();
-            if (roleGroupName != null && !roleGroupName.isEmpty()) {
-                RoleGroupManagementPojo group = roleGroupByName.get(roleGroupName);
-                if (group != null) {
-                    Map<String, Object> mappingParams = ParamWrapper.wrap("userId", existing.getId(), "roleGroupId", group.getId());
-                    UserManagementRoleGroupMappingPojo existingMapping =
-                            mappingService.findByUserIdAndRoleGroupId(mappingParams);
-
-                    if (existingMapping == null) {
-                        UserManagementRoleGroupMappingPojo mapping = new UserManagementRoleGroupMappingPojo();
-                        mapping.setUserId(existing.getId());
-                        mapping.setRoleGroupId(group.getId());
-
-                        logger.debug("initializeDB before insertUserRoleGroup mapping={}", mapping);
-                        mappingService.insertUserRoleGroup(ParamWrapper.wrap("mapping", mapping));
-                        logger.debug("Mapped user userName={} to roleGroup={} mappingId={}",
-                                u.getUserName(), roleGroupName, mapping.getId());
-                    }
-                }
-            }
-        }
-
-        logger.debug("initializeDB DONE");
     }
     
     // =========================================================================
@@ -203,13 +136,4 @@ public class UserManagementServiceImpl implements UserManagementService {
     // ORIGINAL METHODS (USED BY CORE)
     // =========================================================================
 
-    public UserManagementPojo getByUserName(String userName) {
-        logger.debug("getByUserName START");
-        logger.debug("getByUserName userName={}", userName);
-
-        UserManagementPojo user = userManagementMapper.findByUserName(userName);
-
-        logger.debug("getByUserName return={}", user);
-        return user;
-    }
 }

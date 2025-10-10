@@ -16,6 +16,4 @@ public interface UserManagementRoleGroupMappingService {
 
 	// ======= OTHER METHODS =======
 	
-    UserManagementRoleGroupMappingPojo insertUserRoleGroup(Map<String, Object> params);
-    UserManagementRoleGroupMappingPojo findByUserIdAndRoleGroupId(Map<String, Object> params);
 }

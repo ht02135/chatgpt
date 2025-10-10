@@ -314,29 +314,7 @@ public class UserManagementListServiceImpl implements UserManagementListService 
     // ------------------ Helpers ------------------
     
     private PagedResult<UserManagementListMemberPojo> getMembersByListId(Map<String, Object> params) {
-        logger.debug("getMembersByListId START");
-        logger.debug("getMembersByListId params={}", params);
-
-        Long listId = ParamWrapper.unwrap(params, "listId");
-        logger.debug("getMembersByListId listId={}", listId);
-
-        // hung: DONT REMOVE THIS CODE
-        int page = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "page", 0), 0);
-        int size = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "size", 20), 20);
-        int offset = page * size;
-
-        Map<String, Object> sqlParams = new HashMap<>();
-        sqlParams.put("listId", listId);
-        sqlParams.put("offset", offset);
-        sqlParams.put("limit", size);
-
-        List<UserManagementListMemberPojo> members = memberMapper.findMembersByListId(sqlParams);
-        long total = members.size();
-
-        PagedResult<UserManagementListMemberPojo> result = new PagedResult<>(members, total, page, size);
-        
-        logger.debug("getMembersByListId return size={} total={}", members.size(), total);
-        return result;
+        return null;
     }
     
     private Path getListFilePath(Long listId, String originalFileName) {

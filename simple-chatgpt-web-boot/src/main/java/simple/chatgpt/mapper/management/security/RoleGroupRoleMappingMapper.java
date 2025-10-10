@@ -19,21 +19,5 @@ public interface RoleGroupRoleMappingMapper {
     void delete(@Param("id") Long id);
 
     // ======= OTHER METHODS =======
-    // ---------------- CREATE ----------------
-    int insertMapping(@Param("params") Map<String, Object> params);
 
-    // ---------------- DELETE ----------------
-    int deleteMappingById(@Param("params") Map<String, Object> params);
-    int deleteMappingByGroupAndRole(@Param("params") Map<String, Object> params);
-
-    // ---------------- READ ----------------
-    RoleGroupRoleMappingPojo findById(@Param("params") Map<String, Object> params);
-    List<RoleGroupRoleMappingPojo> findAllMappings();
-    List<RoleGroupRoleMappingPojo> findByRoleGroupId(@Param("params") Map<String, Object> params);
-    List<RoleGroupRoleMappingPojo> findByRoleId(@Param("params") Map<String, Object> params);
-
-    // ---------------- SEARCH / PAGINATION ----------------
-    List<RoleGroupRoleMappingPojo> findMappings(@Param("params") Map<String, Object> params);
-    List<RoleGroupRoleMappingPojo> searchMappings(@Param("params") Map<String, Object> params);
-    long countMappings(@Param("params") Map<String, Object> params);
 }
