@@ -22,6 +22,6 @@ public interface RoleGroupRoleMappingService {
 
 	public List<RoleGroupRoleMappingPojo> getMappingsByParams(Map<String, Object> params);
 	public List<RoleGroupRoleMappingPojo> getMappingsByRoleGroupId(Long roleGroupId); // #{params.roleGroupId}
-	List<RoleGroupRoleMappingPojo> getAll();;
+	List<RoleGroupRoleMappingPojo> getAll();
 	
 }

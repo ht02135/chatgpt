@@ -1,5 +1,6 @@
 package simple.chatgpt.service.management.security;
 
+import java.util.List;
 import java.util.Map;
 
 import simple.chatgpt.pojo.management.security.PageRoleGroupManagementPojo;
@@ -15,5 +16,8 @@ public interface PageRoleGroupManagementService {
 	void delete(Long id);
 
 	// ======= OTHER METHODS =======
-
+	
+	public List<PageRoleGroupManagementPojo> getMappingsByParams(Map<String, Object> params);
+	public List<PageRoleGroupManagementPojo> getMappingsByUrlPattern(String urlPattern); //#{params.urlPattern}
+	public List<PageRoleGroupManagementPojo> getAll();
 }

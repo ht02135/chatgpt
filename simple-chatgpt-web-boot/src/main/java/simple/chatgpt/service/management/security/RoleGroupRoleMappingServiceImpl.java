@@ -106,6 +106,7 @@ public class RoleGroupRoleMappingServiceImpl implements RoleGroupRoleMappingServ
         return mappings;
     }
     
+    // mapper uses #{params.listId}
     @Override
 	public List<RoleGroupRoleMappingPojo> getMappingsByRoleGroupId(Long roleGroupId)
     {
@@ -113,7 +114,7 @@ public class RoleGroupRoleMappingServiceImpl implements RoleGroupRoleMappingServ
 
         // Reuse search mapper with empty params to get everything
         Map<String, Object> params = new HashMap<>();
-        params.put("roleGroupId", roleGroupId); // mapper uses // #{params.listId}
+        params.put("roleGroupId", roleGroupId); 
         List<RoleGroupRoleMappingPojo> mappings = getMappingsByParams(params);
         
         return mappings;

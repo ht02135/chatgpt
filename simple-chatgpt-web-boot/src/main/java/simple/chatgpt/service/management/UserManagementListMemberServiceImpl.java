@@ -102,13 +102,14 @@ public class UserManagementListMemberServiceImpl implements UserManagementListMe
         return memebers;
     }
     
+    // mapper uses #{params.listId}
     @Override
     public List<UserManagementListMemberPojo> getMembersByListId(Long listId) {
         logger.debug("getMembersByListId called");
 
         // Reuse search mapper with empty params to get everything
         Map<String, Object> params = new HashMap<>();
-        params.put("listId", listId); // mapper uses // #{params.listId}
+        params.put("listId", listId); 
         List<UserManagementListMemberPojo> memebers = getMembersByParams(params);
         
         return memebers;

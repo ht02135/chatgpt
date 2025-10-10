@@ -3,7 +3,6 @@ package simple.chatgpt.service.management.security;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 
@@ -13,12 +12,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import simple.chatgpt.config.management.loader.SecurityConfigLoader;
-import simple.chatgpt.config.management.security.PageRoleGroupConfig;
 import simple.chatgpt.mapper.management.security.PageRoleGroupManagementMapper;
 import simple.chatgpt.pojo.management.security.PageRoleGroupManagementPojo;
-import simple.chatgpt.pojo.management.security.RoleGroupManagementPojo;
 import simple.chatgpt.util.PagedResult;
-import simple.chatgpt.util.ParamWrapper;
 import simple.chatgpt.util.SafeConverter;
 
 @Service
@@ -129,5 +125,41 @@ public class PageRoleGroupManagementServiceImpl implements PageRoleGroupManageme
     }
 
     // ======= OTHER METHODS =======
-    
+
+    @Override
+	public List<PageRoleGroupManagementPojo> getMappingsByParams(Map<String, Object> params)
+	{
+        logger.debug("getMappingsByParams called");
+
+        List<PageRoleGroupManagementPojo> mappings = pageMapper.search(params);
+        return mappings;
+	}
+	
+	// mapper uses #{params.urlPattern}
+    @Override
+	public List<PageRoleGroupManagementPojo> getMappingsByUrlPattern(String urlPattern)
+	{
+        logger.debug("getMappingsByUrlPattern called");
+
+        // Reuse search mapper with empty params to get everything
+        Map<String, Object> params = new HashMap<>();
+        params.put("urlPattern", urlPattern); 
+        List<PageRoleGroupManagementPojo> mappings = getMappingsByParams(params);
+        
+        return mappings;
+	}
+	
+    @Override
+    public List<PageRoleGroupManagementPojo> getAll()
+	{
+        logger.debug("getAll called");
+
+        // Reuse search mapper with empty params to get everything
+        Map<String, Object> params = new HashMap<>();
+        // No offset/limit => all rows
+        List<PageRoleGroupManagementPojo> mappings = getMappingsByParams(params);
+        
+        return mappings;	
+	}
+	
 }
