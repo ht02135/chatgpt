@@ -5,7 +5,7 @@
 <mapper
 	namespace="simple.chatgpt.mapper.management.security.PageRoleGroupManagementMapper">
 
-	<!-- ======================= RESULT MAP ======================= -->
+	<!-- ======================= RESULT MAP for POJO ======================= -->
 	<resultMap id="PageRoleGroupManagementResultMap"
 		type="simple.chatgpt.pojo.management.security.PageRoleGroupManagementPojo">
 		<id property="id" column="id" />
@@ -23,14 +23,14 @@
 
 	<!-- ======= 5 CORE METHODS (on top) ======= -->
 	
-	<!--  void create(@Param("entity") entityPojo entity) -->
+	<!-- void create(@Param("entity") entityPojo entity) -->
 	<!-- ======================= CREATE ======================= -->
     <insert id="create" parameterType="map" useGeneratedKeys="true" keyProperty="pageRoleGroup.id">
         INSERT INTO page_role_group_management (url_pattern, role_group_id, created_at, updated_at)
         VALUES (#{pageRoleGroup.urlPattern}, #{pageRoleGroup.roleGroup.id}, NOW(), NOW())
     </insert>
 
-	<!--  void update(@Param("id") Long id, @Param("entity") entityPojo entity) -->
+	<!-- void update(@Param("id") Long id, @Param("entity") entityPojo entity) -->
 	<!-- ======================= UPDATE ======================= -->
     <update id="update" parameterType="map">
         UPDATE page_role_group_management
@@ -44,7 +44,6 @@
         WHERE id = #{id}
     </update>
 
-	<!--  List<entityPojo> search(@Param("params") Map<String, Object> params) -->
     <!-- ======================= SEARCH / PAGINATION ======================= -->
     <sql id="PageRoleGroupFilter">
         <where>
@@ -57,6 +56,7 @@
         </where>
     </sql>
     
+    <!-- List<entityPojo> search(@Param("params") Map<String, Object> params) -->
     <select id="search" parameterType="map" resultMap="PageRoleGroupManagementResultMap">
         SELECT
             p.id,
@@ -76,7 +76,7 @@
 		</if>
 	</select>
 
-	<!--  entityPojo get(@Param("id") Long id) -->
+	<!-- entityPojo get(@Param("id") Long id) -->
 	<!-- ======================= GET ======================= -->
     <select id="get" parameterType="long" resultMap="PageRoleGroupManagementResultMap">
         SELECT
@@ -91,7 +91,7 @@
         WHERE p.id = #{id}
     </select>
 
-	<!--  void delete(@Param("id") Long id) -->
+	<!-- void delete(@Param("id") Long id) -->
 	<!-- ======================= DELETE ======================= -->
     <delete id="delete" parameterType="long">
 		DELETE FROM page_role_group_management WHERE id = #{id}

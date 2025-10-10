@@ -6,7 +6,7 @@
 <mapper
 	namespace="simple.chatgpt.mapper.management.security.RoleGroupRoleMappingMapper">
 
-	<!-- ======================= RESULT MAP ======================= -->
+	<!-- ======================= RESULT MAP for POJO ======================= -->
 	<resultMap id="RoleGroupRoleMappingResultMap"
 		type="simple.chatgpt.pojo.management.security.RoleGroupRoleMappingPojo">
 		<id property="id" column="id" />
@@ -20,17 +20,18 @@
 
 	<!-- ======= 5 CORE METHODS (on top) ======= -->
 
+	<!-- void create(@Param("entity") entityPojo entity) -->
 	<!-- ======================= CREATE ======================= -->
-	<insert id="create" useGeneratedKeys="true"
-		keyProperty="mapping.id">
+	<insert id="create" parameterType="map" useGeneratedKeys="true" keyProperty="mapping.id">
 		INSERT INTO
 		role_group_role_mapping (role_group_id, role_id, created_at, updated_at)
 		VALUES (#{mapping.roleGroupId},#{mapping.roleId}, NOW(),
 		NOW())
 	</insert>
 
+	<!-- void update(@Param("id") Long id, @Param("entity") entityPojo entity) -->
 	<!-- ======================= UPDATE ======================= -->
-	<update id="update">
+	<update id="update" parameterType="map">
 		UPDATE role_group_role_mapping
 		<set>
 			<if test="mapping.roleGroupId != null">role_group_id = #{mapping.roleGroupId},</if>
@@ -52,8 +53,8 @@
 	</sql>
 
 	<!-- ======================= SEARCH / PAGINATION ======================= -->
-	<select id="search" resultMap="RoleGroupRoleMappingResultMap"
-		parameterType="map">
+	<!-- List<entityPojo> search(@Param("params") Map<String, Object> params) -->
+	<select id="search" parameterType="map" resultMap="RoleGroupRoleMappingResultMap">
 		SELECT
 		m.id,
 		m.role_group_id,
@@ -77,8 +78,9 @@
 		</if>
 	</select>
 
+    <!-- entityPojo get(@Param("id") Long id) -->
 	<!-- ======================= READ ======================= -->
-	<select id="get" resultMap="RoleGroupRoleMappingResultMap">
+	<select id="get" parameterType="long" resultMap="RoleGroupRoleMappingResultMap">
 		SELECT
 		m.id,
 		m.role_group_id,
@@ -98,7 +100,7 @@
 	</select>
 
 	<!-- ======================= DELETE ======================= -->
-	<delete id="delete">
+	<delete id="delete" parameterType="long">
 		DELETE FROM role_group_role_mapping WHERE id = #{id}
 	</delete>
 

@@ -6,7 +6,7 @@
 <mapper
 	namespace="simple.chatgpt.mapper.management.security.RoleGroupManagementMapper">
 
-	<!-- ======================= ResultMap for POJO ======================= -->
+	<!-- ======================= RESULT MAP for POJO ======================= -->
 	<resultMap id="RoleGroupManagementResultMap"
 		type="simple.chatgpt.pojo.management.security.RoleGroupManagementPojo">
 		<id property="id" column="id" />
@@ -18,16 +18,17 @@
 
 	<!-- ======= 5 CORE METHODS (on top) ======= -->
 	
+	<!-- void create(@Param("entity") entityPojo entity) -->
 	<!-- ======================= CREATE ======================= -->
-	<insert id="create" useGeneratedKeys="true"
-		keyProperty="roleGroup.id">
+	<insert id="create" parameterType="map" useGeneratedKeys="true" keyProperty="roleGroup.id">
         INSERT INTO role_group_management
         (group_name, description, created_at, updated_at)
         VALUES (#{roleGroup.groupName}, #{roleGroup.description}, NOW(), NOW())
 	</insert>
 
+	<!--  void update(@Param("id") Long id, @Param("entity") entityPojo entity) -->
 	<!-- ======================= UPDATE ======================= -->
-	<update id="update">
+	<update id="update" parameterType="map">
 		UPDATE role_group_management
 		<set>
 			<if test="roleGroup.roleGroupName != null">role_group_name = #{roleGroup.roleGroupName},</if>
@@ -67,8 +68,8 @@
         </where>
     </sql>
     
-	<select id="search" resultMap="RoleGroupManagementResultMap"
-		parameterType="map">
+    <!-- List<entityPojo> search(@Param("params") Map<String, Object> params) -->
+	<select id="search" parameterType="map" resultMap="RoleGroupManagementResultMap">
         SELECT id, group_name, description, created_at, updated_at
         FROM role_group_management
         <include refid="RoleGroupManagementFilter" />
@@ -81,12 +82,12 @@
 	</select>
 
 	<!-- ======================= GET ======================= -->
-	<select id="get" resultMap="RoleGroupManagementResultMap">
+	<select id="get" parameterType="long" resultMap="RoleGroupManagementResultMap">
 		SELECT * FROM role_group_management WHERE id = #{id}
 	</select>
 
 	<!-- ======================= DELETE ======================= -->
-	<delete id="delete">
+	<delete id="delete" parameterType="long">
 		DELETE FROM role_group_management WHERE id = #{id}
 	</delete>
 
