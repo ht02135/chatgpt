@@ -6,7 +6,7 @@
 <mapper
 	namespace="simple.chatgpt.mapper.management.security.RoleManagementMapper">
 
-	<!-- ======================= ResultMap for POJO ======================= -->
+	<!-- ======================= RESULT MAP for POJO ======================= -->
 	<resultMap id="RoleManagementResultMap"
 		type="simple.chatgpt.pojo.management.security.RoleManagementPojo">
 		<id property="id" column="id" />
@@ -18,17 +18,18 @@
 
 	<!-- ======= 5 CORE METHODS (on top) ======= -->
 
+	<!-- void create(@Param("entity") entityPojo entity) -->
 	<!-- ======================= CREATE ======================= -->
-	<insert id="create" useGeneratedKeys="true"
-		keyProperty="role.id">
+	<insert id="create" parameterType="map" useGeneratedKeys="true" keyProperty="role.id">
 		INSERT INTO role_management
 		(role_name, description, created_at, updated_at)
 		VALUES
 		(#{role.roleName}, #{role.role.description}, NOW(), NOW())
 	</insert>
 
+	<!-- void update(@Param("id") Long id, @Param("entity") entityPojo entity) -->
 	<!-- ======================= UPDATE ======================= -->
-	<update id="update">
+	<update id="update" parameterType="map">
 		UPDATE role_management
 		<set>
 			<if test="role.roleName != null">role_name = #{role.roleName},</if>
@@ -73,9 +74,9 @@
 		</where>
 	</sql>
 
+	<!-- List<entityPojo> search(@Param("params") Map<String, Object> params) -->
 	<!-- ======================= SEARCH / PAGINATION ======================= -->
-	<select id="search" resultMap="RoleManagementResultMap"
-		parameterType="map">
+	<select id="search" parameterType="map" resultMap="RoleManagementResultMap">
 		SELECT id, role_name, description, created_at, updated_at
 		FROM
 		role_management
@@ -89,14 +90,16 @@
 		</if>
 	</select>
 
+    <!-- entityPojo get(@Param("id") Long id) -->
 	<!-- ======================= READ ======================= -->
-	<select id="get" resultMap="RoleManagementResultMap">
+	<select id="get" parameterType="long" resultMap="RoleManagementResultMap">
 		SELECT * FROM role_management WHERE
 		id = #{id}
 	</select>
 
+	<!-- void delete(@Param("id") Long id) -->
 	<!-- ======================= DELETE ======================= -->
-	<delete id="delete">
+	<delete id="delete" parameterType="long">
 		DELETE FROM role_management WHERE id = #{id}
 	</delete>
 

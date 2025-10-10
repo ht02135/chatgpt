@@ -6,7 +6,7 @@
 <mapper
 	namespace="simple.chatgpt.mapper.management.security.UserManagementRoleGroupMappingMapper">
 
-	<!-- ======================= RESULT MAP ======================= -->
+	<!-- ======================= RESULT MAP for POJO ======================= -->
 	<resultMap id="UserManagementRoleGroupMappingResultMap"
 		type="simple.chatgpt.pojo.management.security.UserManagementRoleGroupMappingPojo">
 		<id property="id" column="id" />
@@ -18,16 +18,17 @@
 
 	<!-- ======= 5 CORE METHODS (on top) ======= -->
 	
+	<!-- void create(@Param("entity") entityPojo entity) -->
 	<!-- ======================= CREATE ======================= -->
-	<insert id="create" useGeneratedKeys="true"
-		keyProperty="mapping.id">
+	<insert id="create" parameterType="map" useGeneratedKeys="true" keyProperty="mapping.id">
 		INSERT INTO user_management_role_group_mapping (user_id, role_group_id, assigned_at)
 		VALUES (#{mapping.userId}, #{mapping.roleGroupId},
 		#{mapping.assignedAt})
 	</insert>
 
+	<!-- void update(@Param("id") Long id, @Param("entity") entityPojo entity) -->
 	<!-- ======================= UPDATE ======================= -->
-	<update id="update">
+	<update id="update" parameterType="map">
 		UPDATE user_management_role_group_mapping
 		<set>
 			<if test="mapping.userId != null">user_id = #{mapping.userId},</if>
@@ -49,10 +50,9 @@
 		</where>
 	</sql>
 	
+    <!-- List<entityPojo> search(@Param("params") Map<String, Object> params) -->
 	<!-- ======================= SEARCH / PAGINATION ======================= -->
-	<select id="search"
-		resultMap="UserManagementRoleGroupMappingResultMap"
-		parameterType="map">
+	<select id="search" parameterType="map" resultMap="UserManagementRoleGroupMappingResultMap">
 		SELECT id, user_id, role_group_id, created_at, updated_at
 		FROM user_management_role_group_mapping
 		<include refid="UserRoleGroupFilter" />
@@ -66,13 +66,12 @@
 	</select>
 
 	<!-- ======================= READ ======================= -->
-	<select id="get"
-		resultMap="UserManagementRoleGroupMappingResultMap">
+	<select id="get" parameterType="long" resultMap="UserManagementRoleGroupMappingResultMap">
 		SELECT * FROM user_management_role_group_mapping WHERE id = #{id}
 	</select>
 
 	<!-- ======================= DELETE ======================= -->
-	<delete id="delete">
+	<delete id="delete" parameterType="long">
 		DELETE FROM user_management_role_group_mapping WHERE id = #{id}
 	</delete>
 
