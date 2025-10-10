@@ -14,8 +14,6 @@ import org.springframework.stereotype.Service;
 import simple.chatgpt.config.management.loader.SecurityConfigLoader;
 import simple.chatgpt.mapper.management.UserManagementMapper;
 import simple.chatgpt.pojo.management.UserManagementPojo;
-import simple.chatgpt.service.management.security.RoleGroupManagementService;
-import simple.chatgpt.service.management.security.UserManagementRoleGroupMappingService;
 import simple.chatgpt.util.PagedResult;
 import simple.chatgpt.util.SafeConverter;
 
@@ -26,24 +24,16 @@ public class UserManagementServiceImpl implements UserManagementService {
 
     private final UserManagementMapper userManagementMapper;
     private final SecurityConfigLoader securityConfigLoader;
-    private final RoleGroupManagementService roleGroupService;
-    private final UserManagementRoleGroupMappingService mappingService;
 
     @Autowired
     public UserManagementServiceImpl(UserManagementMapper userManagementMapper,
-                                     SecurityConfigLoader securityConfigLoader,
-                                     RoleGroupManagementService roleGroupService,
-                                     UserManagementRoleGroupMappingService mappingService) {
+                                     SecurityConfigLoader securityConfigLoader) {
         logger.debug("UserManagementServiceImpl START");
         logger.debug("UserManagementServiceImpl userManagementMapper={}", userManagementMapper);
         logger.debug("UserManagementServiceImpl securityConfigLoader={}", securityConfigLoader);
-        logger.debug("UserManagementServiceImpl roleGroupService={}", roleGroupService);
-        logger.debug("UserManagementServiceImpl mappingService={}", mappingService);
 
         this.userManagementMapper = userManagementMapper;
         this.securityConfigLoader = securityConfigLoader;
-        this.roleGroupService = roleGroupService;
-        this.mappingService = mappingService;
 
         logger.debug("UserManagementServiceImpl DONE");
     }
