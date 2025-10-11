@@ -8,30 +8,19 @@ i need to setup spring security filter chain for spring boot
 can you provide steps to do 1> and 2>
 
 	<roles>
-		<role name="ADMIN_ROLE" description="Admin privileges" />
 		<role name="USER_ROLE" description="Standard user privileges" />
 	</roles>
 	<role-groups>
-		<role-group name="ADMIN_ROLE_GROUP">
-			<role-ref name="ADMIN_ROLE" />
-			<role-ref name="USER_ROLE" />
-		</role-group>
+
 		<role-group name="USER_ROLE_GROUP">
 			<role-ref name="USER_ROLE" />
 		</role-group>
 	</role-groups>
 	<page-role-groups>
-		<page-role-group url-pattern="/property/**"
-			role-group-ref="ADMIN_ROLE_GROUP" />
 		<page-role-group url-pattern="/user/**"
 			role-group-ref="USER_ROLE_GROUP" />
 	</page-role-groups>
 	<users>
-		<user user_name="admin" user_key="admin" password="ZAQ!zaq1"
-			first_name="Admin" last_name="User" email="admin@yahoo.com"
-			address_line_1="2 Admin Way" address_line_2="" city="SystemCity"
-			state="CA" post_code="90002" country="USA" active="true"
-			locked="false" role-group-ref="ADMIN_ROLE_GROUP" />
 		<user user_name="user1" user_key="user1" password="ZAQ!zaq1"
 			first_name="John" last_name="Doe" email="user1@yahoo.com"
 			address_line_1="100 Main Street" address_line_2="Apt 1"
@@ -39,6 +28,17 @@ can you provide steps to do 1> and 2>
 			active="true" locked="false" role-group-ref="USER_ROLE_GROUP" />	
 	</users>
 	
+////////////
+
+Step	Component	Purpose
+1	SecurityConfig	Define filter chain
+2	JwtAuthenticationFilter	Extract JWT from header
+3	JwtTokenProvider	Validate and issue tokens
+4	CustomUserDetailsService	Load user + roles
+5	AuthController	Handle /auth/login
+6	PageRoleGroupService	Map pages → role groups
+7	DynamicAccessFilter	Authorize per URL using role group mapping
+
 ////////////
 
 Step 1 — JWT Authentication Setup
