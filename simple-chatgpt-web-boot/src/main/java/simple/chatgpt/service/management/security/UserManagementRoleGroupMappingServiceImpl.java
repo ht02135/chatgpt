@@ -72,83 +72,127 @@ public class UserManagementRoleGroupMappingServiceImpl implements UserManagement
 	        // STEP 2: Load all role groups for mapping
 	        // ======================================================
 	        List<RoleGroupManagementPojo> allRoleGroups = roleGroupService.getAll();
+	        logger.debug("initializeDB allRoleGroups={}", allRoleGroups);
+
 	        Map<String, RoleGroupManagementPojo> roleGroupMap = new HashMap<>();
 	        for (RoleGroupManagementPojo rg : allRoleGroups) {
 	            roleGroupMap.put(rg.getGroupName(), rg);
+	            logger.debug("initializeDB added roleGroup to map groupName={}", rg.getGroupName());
 	        }
 	        logger.debug("initializeDB roleGroupMap keys={}", roleGroupMap.keySet());
 
 	        // ======================================================
-	        // STEP 3: Iterate XML users
+	        // STEP 3: Process each user from XML
 	        // ======================================================
 	        for (UserConfig userConfig : xmlUsers) {
 	            logger.debug("initializeDB processing userConfig={}", userConfig);
-	            logger.debug("initializeDB userConfig.userName={}", userConfig.getUserName());
-	            logger.debug("initializeDB userConfig.roleGroup={}", userConfig.getRoleGroup());
 
 	            // ==================================================
 	            // STEP 3a: Ensure user exists via UserManagementService
 	            // ==================================================
-	            List<UserManagementPojo> users = userService.getUserdByUserName(userConfig.getUserName());
+	            logger.debug("initializeDB STEP 3a: Ensure user exists via UserManagementService called");
+
+	            UserManagementPojo existingUser = userService.getUserByUserName(userConfig.getUserName());
+	            logger.debug("initializeDB existingUser={}", existingUser);
+
 	            UserManagementPojo userPojo;
-	            if (users.isEmpty()) {
-	                logger.debug("initializeDB user not found, creating user userName={}", userConfig.getUserName());
+
+	            if (existingUser == null) {
+	                logger.debug("initializeDB user not found, creating new user userName={}", userConfig.getUserName());
 
 	                userPojo = new UserManagementPojo();
+	                logger.debug("initializeDB creating new UserManagementPojo userPojo={}", userPojo);
+
 	                userPojo.setUserName(userConfig.getUserName());
+	                logger.debug("initializeDB userName={}", userConfig.getUserName());
+
 	                userPojo.setUserKey(userConfig.getUserKey());
+	                logger.debug("initializeDB userKey={}", userConfig.getUserKey());
+
 	                userPojo.setPassword(userConfig.getPassword());
+	                logger.debug("initializeDB password=[PROTECTED]");
+
 	                userPojo.setFirstName(userConfig.getFirstName());
+	                logger.debug("initializeDB firstName={}", userConfig.getFirstName());
+
 	                userPojo.setLastName(userConfig.getLastName());
+	                logger.debug("initializeDB lastName={}", userConfig.getLastName());
+
 	                userPojo.setEmail(userConfig.getEmail());
+	                logger.debug("initializeDB email={}", userConfig.getEmail());
+
 	                userPojo.setAddressLine1(userConfig.getAddressLine1());
+	                logger.debug("initializeDB addressLine1={}", userConfig.getAddressLine1());
+
 	                userPojo.setAddressLine2(userConfig.getAddressLine2());
+	                logger.debug("initializeDB addressLine2={}", userConfig.getAddressLine2());
+
 	                userPojo.setCity(userConfig.getCity());
+	                logger.debug("initializeDB city={}", userConfig.getCity());
+
 	                userPojo.setState(userConfig.getState());
+	                logger.debug("initializeDB state={}", userConfig.getState());
+
 	                userPojo.setPostCode(userConfig.getPostCode());
+	                logger.debug("initializeDB postCode={}", userConfig.getPostCode());
+
 	                userPojo.setCountry(userConfig.getCountry());
+	                logger.debug("initializeDB country={}", userConfig.getCountry());
+
 	                userPojo.setActive(userConfig.isActive());
+	                logger.debug("initializeDB active={}", userConfig.isActive());
+
 	                userPojo.setLocked(userConfig.isLocked());
+	                logger.debug("initializeDB locked={}", userConfig.isLocked());
 
 	                userService.create(userPojo);
 	                logger.debug("initializeDB created new userPojo={}", userPojo);
 	            } else {
-	                userPojo = users.get(0);
+	                userPojo = existingUser;
 	                logger.debug("initializeDB found existing userPojo={}", userPojo);
 	            }
 
 	            // ==================================================
 	            // STEP 3b: Map user to role group
 	            // ==================================================
+	            logger.debug("initializeDB STEP 3b: Map user to role group called");
+
 	            RoleGroupManagementPojo roleGroupPojo = roleGroupMap.get(userConfig.getRoleGroup());
+	            logger.debug("initializeDB roleGroupPojo={}", roleGroupPojo);
+
 	            if (roleGroupPojo == null) {
 	                logger.warn("initializeDB skipping mapping: roleGroup not found for user={}", userPojo.getUserName());
 	                continue;
 	            }
 
-	            // Check if mapping exists
+	            // Check if mapping already exists
 	            Map<String, Object> mappingParams = new HashMap<>();
 	            mappingParams.put("userId", userPojo.getId());
 	            mappingParams.put("roleGroupId", roleGroupPojo.getId());
+	            logger.debug("initializeDB mappingParams={}", mappingParams);
 
 	            List<UserManagementRoleGroupMappingPojo> existingMappings = getMappingsByParams(mappingParams);
 	            logger.debug("initializeDB existingMappings.size={}", existingMappings.size());
 
 	            if (existingMappings.isEmpty()) {
 	                UserManagementRoleGroupMappingPojo mapping = new UserManagementRoleGroupMappingPojo();
+	                logger.debug("initializeDB creating new mapping={}", mapping);
+
 	                mapping.setUserId(userPojo.getId());
+	                logger.debug("initializeDB userId={}", userPojo.getId());
+
 	                mapping.setRoleGroupId(roleGroupPojo.getId());
+	                logger.debug("initializeDB roleGroupId={}", roleGroupPojo.getId());
 
 	                create(mapping);
 	                logger.debug("initializeDB created new mapping={}", mapping);
 	            } else {
-	                logger.debug("initializeDB mapping already exists for user={} roleGroup={}", 
-	                             userPojo.getUserName(), roleGroupPojo.getGroupName());
+	                logger.debug("initializeDB mapping already exists for user={} roleGroup={}",
+	                        userPojo.getUserName(), roleGroupPojo.getGroupName());
 	            }
 	        }
 
 	        logger.debug("initializeDB completed successfully");
-
 	    } catch (Exception e) {
 	        logger.error("initializeDB failed", e);
 	        throw new RuntimeException("Failed to initialize user-role-group mappings", e);

@@ -641,6 +641,62 @@ public List<String> getAllowedRoleGroups(String url);
 
 //////////////////
 
+public class UserRegistrationRequest {
+    private String username;
+    private String password;
+    private String email; // optional
+    // Add other fields if needed
+
+    // Getters and setters
+}
+
+@RestController
+@RequestMapping("/api/auth")
+public class RegistrationController {
+
+    private static final Logger logger = LogManager.getLogger(RegistrationController.class);
+
+    private final UserManagementService userManagementService;
+
+    public RegistrationController(UserManagementService userManagementService) {
+        logger.debug("RegistrationController constructor called");
+        logger.debug("RegistrationController userManagementService={}", userManagementService);
+        this.userManagementService = userManagementService;
+    }
+
+    @PostMapping("/register")
+    public ResponseEntity<String> registerUser(@RequestBody UserRegistrationRequest request) {
+        logger.debug("registerUser called");
+        logger.debug("registerUser request={}", request);
+
+        // Optional: validate input
+        if (request.getUsername() == null || request.getPassword() == null) {
+            logger.debug("registerUser invalid request");
+            return ResponseEntity.badRequest().body("Username and password are required");
+        }
+
+        // Check if user exists
+        if (!userManagementService.getUserdByUserName(request.getUsername()).isEmpty()) {
+            logger.debug("registerUser username already exists={}", request.getUsername());
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Username already exists");
+        }
+
+        // Create a new user POJO
+        UserManagementPojo newUser = new UserManagementPojo();
+        newUser.setUserName(request.getUsername());
+        newUser.setPassword(request.getPassword()); // TODO: encode password
+        newUser.setActive(true);
+        newUser.setLocked(false);
+        // assign default role
+        newUser.setRoleGroupRefs(List.of("USER_ROLE"));
+
+        userManagementService.createUser(newUser); // implement in your service
+
+        logger.debug("registerUser user created={}", newUser);
+
+        return ResponseEntity.ok("User registered successfully");
+    }
+}
 
 
 

@@ -121,25 +121,12 @@ public class UserManagementServiceImpl implements UserManagementService {
     // ORIGINAL METHODS (USED BY CORE)
     // =========================================================================
 
-	public List<UserManagementPojo> getUserdByParams(Map<String, Object> params)
+	public List<UserManagementPojo> getUserByParams(Map<String, Object> params)
 	{
-        logger.debug("getUserdByParams called");
+        logger.debug("getUserByParams called");
 
         List<UserManagementPojo> mappings = userManagementMapper.search(params);
         return mappings;
-	}
-	
-	// #{params.userName}
-	public List<UserManagementPojo> getUserdByUserName(String userName)
-	{
-        logger.debug("getMappingsByUrlPattern called");
-
-        // Reuse search mapper with empty params to get everything
-        Map<String, Object> params = new HashMap<>();
-        params.put("userName", userName); 
-        List<UserManagementPojo> users = getUserdByParams(params);
-        
-        return users;
 	}
 	
 	public List<UserManagementPojo> getAll()
@@ -149,9 +136,32 @@ public class UserManagementServiceImpl implements UserManagementService {
         // Reuse search mapper with empty params to get everything
         Map<String, Object> params = new HashMap<>();
         // No offset/limit => all rows
-        List<UserManagementPojo> users = getUserdByParams(params);
+        List<UserManagementPojo> users = getUserByParams(params);
         
         return users;
+	}
+	
+	// #{params.userName}
+	@Override
+	public UserManagementPojo getUserByUserName(String userName) {
+	    logger.debug("getUserByUserName called");
+	    logger.debug("getUserByUserName userName={}", userName);
+
+	    Map<String, Object> params = new HashMap<>();
+	    params.put("userName", userName);
+
+	    List<UserManagementPojo> users = getUserByParams(params);
+	    logger.debug("getUserByUserName users={}", users);
+
+	    if (users == null || users.isEmpty()) {
+	        logger.debug("getUserByUserName: no user found for userName={}", userName);
+	        return null;
+	    }
+
+	    UserManagementPojo foundUser = users.get(0);
+	    logger.debug("getUserByUserName foundUser={}", foundUser);
+
+	    return foundUser;
 	}
 	
 }

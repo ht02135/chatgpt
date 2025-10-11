@@ -17,7 +17,8 @@ public interface UserManagementService {
     
     // ======= OTHER METHODS =======
     
-	public List<UserManagementPojo> getUserdByParams(Map<String, Object> params);
-	public List<UserManagementPojo> getUserdByUserName(String userName); // #{params.userName}
+	public List<UserManagementPojo> getUserByParams(Map<String, Object> params);
 	public List<UserManagementPojo> getAll();
+	public UserManagementPojo getUserByUserName(String userName); // #{params.userName}
+	
 }

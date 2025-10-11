@@ -234,12 +234,10 @@ public class RoleGroupManagementServiceImpl implements RoleGroupManagementServic
     // ======= OTHER METHODS =======
 
     @Override
-    public List<RoleGroupManagementPojo> getAll() {
-        logger.debug("getAll called");
+    public List<RoleGroupManagementPojo> getRoleGroupByParams(Map<String, Object> params)
+    {
+        logger.debug("getRoleGroupByParams called");
 
-        // Reuse search mapper with empty params to get everything
-        Map<String, Object> params = new HashMap<>();
-        // No offset/limit => all rows
         List<RoleGroupManagementPojo> roleGroups = groupMapper.search(params);
         
         // populate cache automatically using get()
@@ -247,5 +245,48 @@ public class RoleGroupManagementServiceImpl implements RoleGroupManagementServic
         
         return roleGroups;
     }
+	
+    @Override
+    public List<RoleGroupManagementPojo> getAll() {
+        logger.debug("getAll called");
+
+        // Reuse search mapper with empty params to get everything
+        Map<String, Object> params = new HashMap<>();
+        List<RoleGroupManagementPojo> roleGroups = getRoleGroupByParams(params);
+        
+        // populate cache automatically using get()
+        roleGroups.forEach(roleGroup -> roleGroupCache.get(roleGroup.getId(), k -> roleGroup));
+        
+        return roleGroups;
+    }
+    
+    // #{params.groupName}
+    @Override
+    public RoleGroupManagementPojo getRoleGroupByGroupName(String groupName) {
+        logger.debug("getRoleGroupByGroupName called");
+        logger.debug("getRoleGroupByGroupName groupName={}", groupName);
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("groupName", groupName);
+
+        List<RoleGroupManagementPojo> roleGroups = getRoleGroupByParams(params);
+        logger.debug("getRoleGroupByGroupName roleGroups={}", roleGroups);
+
+        if (roleGroups == null || roleGroups.isEmpty()) {
+            logger.debug("getRoleGroupByGroupName: no role group found for groupName={}", groupName);
+            return null;
+        }
+
+        // Get the first matching role group
+        RoleGroupManagementPojo foundRoleGroup = roleGroups.get(0);
+        logger.debug("getRoleGroupByGroupName foundRoleGroup={}", foundRoleGroup);
+
+        // populate cache automatically using get()
+        roleGroupCache.get(foundRoleGroup.getId(), k -> foundRoleGroup);
+        logger.debug("getRoleGroupByGroupName cached roleGroup id={}", foundRoleGroup.getId());
+
+        return foundRoleGroup;
+    }
+
     
 }

@@ -32,15 +32,14 @@ public class JwtUserDetailsServiceImpl implements UserDetailsService {
         logger.debug("loadUserByUsername called");
         logger.debug("loadUserByUsername username={}", username);
 
-        List<UserManagementPojo> users = userManagementService.getUserdByUserName(username);
-        logger.debug("loadUserByUsername users={}", users);
+        UserManagementPojo user = userManagementService.getUserByUserName(username);
+        logger.debug("loadUserByUsername user={}", user);
 
-        if (users == null || users.isEmpty()) {
+        if (user == null) {
             logger.debug("User not found for username={}", username);
             throw new UsernameNotFoundException("User not found: " + username);
         }
 
-        UserManagementPojo user = users.get(0);
         logger.debug("loadUserByUsername user={}", user);
 
         // Map all role-groups to authorities
