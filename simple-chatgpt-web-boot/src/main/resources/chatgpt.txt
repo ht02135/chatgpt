@@ -431,8 +431,196 @@ Step	Component	Purpose
 7	DynamicAccessFilter	Authorize per URL using role group mapping
 
 ////////////////
+////////////////
 
+1>CustomUserDetailsService (Authentication side)
 
+Spring Security requires a bean that implements
+org.springframework.security.core.userdetails.UserDetailsService.
+That’s how it loads a user (and their roles/authorities) during authentication.
+
+Your existing UserManagementService and UserManagementRoleGroupMappingService already contain the data needed for this.
+So instead of writing raw SQL or XML lookup, you just wrap those services inside CustomUserDetailsService.
+
+public interface UserDetailsService {
+    UserDetails loadUserByUsername(String username) throws UsernameNotFoundException;
+}
+
+@Service
+public class CustomUserDetailsService implements UserDetailsService {
+
+    private static final Logger logger = LogManager.getLogger(CustomUserDetailsService.class);
+
+    private final UserManagementService userService;
+    private final UserManagementRoleGroupMappingService userRoleGroupMappingService;
+    private final RoleGroupRoleMappingService roleGroupRoleMappingService;
+    private final RoleManagementService roleService;
+
+    public CustomUserDetailsService(UserManagementService userService,
+                                    UserManagementRoleGroupMappingService userRoleGroupMappingService,
+                                    RoleGroupRoleMappingService roleGroupRoleMappingService,
+                                    RoleManagementService roleService) {
+        this.userService = userService;
+        this.userRoleGroupMappingService = userRoleGroupMappingService;
+        this.roleGroupRoleMappingService = roleGroupRoleMappingService;
+        this.roleService = roleService;
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        logger.debug("loadUserByUsername called");
+        logger.debug("loadUserByUsername username={}", username);
+
+        List<UserManagementPojo> users = userService.getUserdByUserName(username);
+        if (users == null || users.isEmpty()) {
+            throw new UsernameNotFoundException("User not found: " + username);
+        }
+
+        UserManagementPojo user = users.get(0);
+        logger.debug("loadUserByUsername user={}", user);
+
+        // fetch role groups for the user
+        List<UserManagementRoleGroupMappingPojo> roleGroupMappings =
+                userRoleGroupMappingService.getMappingsByUserId(user.getId());
+        logger.debug("loadUserByUsername roleGroupMappings={}", roleGroupMappings);
+
+        // collect all roles from those groups
+        Set<String> roleNames = new HashSet<>();
+        for (UserManagementRoleGroupMappingPojo rg : roleGroupMappings) {
+            List<RoleGroupRoleMappingPojo> groupRoles =
+                    roleGroupRoleMappingService.getMappingsByRoleGroupId(rg.getRoleGroupId());
+            for (RoleGroupRoleMappingPojo gr : groupRoles) {
+                RoleManagementPojo role = roleService.get(gr.getRoleId());
+                if (role != null) roleNames.add(role.getRoleName());
+            }
+        }
+
+        logger.debug("loadUserByUsername roleNames={}", roleNames);
+
+        return org.springframework.security.core.userdetails.User.builder()
+                .username(user.getUserName())
+                .password(user.getPassword()) // must be encoded or use {noop}
+                .roles(roleNames.toArray(new String[0]))
+                .build();
+    }
+}
+
+////////////////////
+
+2>PageRoleGroupService (Authorization side)
+
+You need to decide which URLs are accessible by which role groups.
+Your PageRoleGroupManagementService already models this relationship, so you don’t need a new database or XML.
+
+Instead of a standalone static map, create a small service that reads those mappings dynamically.
+
+You can make a small interface like:
+public interface PageRoleGroupService {
+    List<String> getAllowedRoleGroups(String url);
+}
+
+Implementation using your DB service
+@Service
+public class PageRoleGroupServiceImpl implements PageRoleGroupService {
+
+    private static final Logger logger = LogManager.getLogger(PageRoleGroupServiceImpl.class);
+
+    private final PageRoleGroupManagementService pageRoleGroupManagementService;
+
+    public PageRoleGroupServiceImpl(PageRoleGroupManagementService pageRoleGroupManagementService) {
+        this.pageRoleGroupManagementService = pageRoleGroupManagementService;
+    }
+
+    @Override
+    public List<String> getAllowedRoleGroups(String url) {
+        logger.debug("getAllowedRoleGroups called");
+        logger.debug("getAllowedRoleGroups url={}", url);
+
+        List<PageRoleGroupManagementPojo> mappings =
+                pageRoleGroupManagementService.getAll();
+
+        List<String> result = new ArrayList<>();
+        for (PageRoleGroupManagementPojo mapping : mappings) {
+            if (url.matches(mapping.getUrlPattern().replace("**", ".*"))) {
+                result.add(mapping.getRoleGroupRef());
+            }
+        }
+
+        logger.debug("getAllowedRoleGroups result={}", result);
+        return result;
+    }
+}
+
+This lets your DynamicAccessFilter (authorization filter) query what role-groups can access a given URL dynamically.
+
+//////////////////
+
+| Component                    | Need It? | Interface                                       | Implementation Source                                                                                                         |
+| ---------------------------- | -------- | ----------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| **CustomUserDetailsService** | ✅ Yes    | `UserDetailsService` (Spring built-in)          | Uses `UserManagementService`, `UserManagementRoleGroupMappingService`, `RoleGroupRoleMappingService`, `RoleManagementService` |
+| **PageRoleGroupService**     | ✅ Yes    | `PageRoleGroupService` (custom small interface) | Uses `PageRoleGroupManagementService`                                                                                         |
+
+///////////////////
+
+my setup will probably be
+
+JWT Auth:
+   └─ JwtAuthenticationFilter
+       └─ JwtTokenProvider
+           └─ CustomUserDetailsService
+               └─ JwtUserDetailsService
+               └─ UserManagementRoleGroupMappingService
+               └─ RoleGroupRoleMappingService
+               └─ RoleManagementService
+
+Authorization (per page):
+   └─ DynamicAccessFilter
+       └─ JwtPageRoleGroupService
+           └─ PageRoleGroupManagementService
+
+1>JwtUserDetailsService
+UserDetails loadUserByUsername(String username) throws UsernameNotFoundException;
+
+2>JwtPageRoleGroupService
+public List<String> getAllowedRoleGroups(String url)
+
+///////////////////
+
+JWT Authentication Layer
+
+JwtAuthenticationFilter
+   └─ JwtTokenProvider
+       └─ CustomUserDetailsService
+           └─ JwtUserDetailsService         <-- your interface
+           └─ UserManagementRoleGroupMappingService
+           └─ RoleGroupRoleMappingService
+           └─ RoleManagementService
+
+Purpose: Authenticate the user via JWT.
+
+Flow: JWT filter extracts token → JwtTokenProvider validates → CustomUserDetailsService loads UserDetails → Spring Security sets Authentication in context.
+
+JwtUserDetailsService interface:
+
+UserDetails loadUserByUsername(String username) throws UsernameNotFoundException;
+
+/////////////////////
+
+Authorization Layer (per-page access)
+
+DynamicAccessFilter
+   └─ JwtPageRoleGroupService           <-- your interface
+       └─ PageRoleGroupManagementService
+
+Purpose: Authorize access to URLs based on role-groups.
+
+Flow: Filter checks request.getRequestURI() → calls JwtPageRoleGroupService.getAllowedRoleGroups(url) → compares allowed groups to user’s role-groups → grants or denies access.
+
+JwtPageRoleGroupService interface:
+
+public List<String> getAllowedRoleGroups(String url);
+
+//////////////////
 
 
 
