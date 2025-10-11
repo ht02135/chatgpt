@@ -5,7 +5,9 @@ import java.sql.Timestamp;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-public class PageRoleGroupManagementPojo {
+import simple.chatgpt.pojo.management.security.jwt.JwtRoleGroup;
+
+public class PageRoleGroupManagementPojo implements JwtRoleGroup {
 
     private static final Logger logger = LogManager.getLogger(PageRoleGroupManagementPojo.class);
 
@@ -43,7 +45,11 @@ public class PageRoleGroupManagementPojo {
 
     public RoleGroupManagementPojo getRoleGroup() { return roleGroup; }
     public void setRoleGroup(RoleGroupManagementPojo roleGroup) { this.roleGroup = roleGroup; }
-
+	@Override
+	public String getRoleGroupRef() {
+	    return getRoleGroup().getGroupName(); // e.g., "ADMIN_ROLE_GROUP"
+	}
+	
     public Timestamp getCreatedAt() { return createdAt; }
     public void setCreatedAt(Timestamp createdAt) { this.createdAt = createdAt; }
 
@@ -60,4 +66,5 @@ public class PageRoleGroupManagementPojo {
                 ", updatedAt=" + updatedAt +
                 '}';
     }
+    
 }
