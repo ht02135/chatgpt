@@ -199,19 +199,66 @@ public class RoleManagementServiceImpl implements RoleManagementService {
     }
 
     // ======= OTHER METHODS =======
-
+    
     @Override
-    public List<RoleManagementPojo> getAll() {
-        logger.debug("getAll called");
+	public List<RoleManagementPojo> getRoleByParams(Map<String, Object> params)
+	{
+        logger.debug("getRoleByParams called");
 
-        // Reuse search mapper with empty params to get everything
-        Map<String, Object> params = new HashMap<>();
-        // No offset/limit => all rows
         List<RoleManagementPojo> roles = roleMapper.search(params);
         
         // populate cache automatically using get()
         roles.forEach(role -> roleCache.get(role.getId(), k -> role));
         
         return roles;
-    }
+	}
+	
+	@Override
+	public List<RoleManagementPojo> getAll() {
+        logger.debug("getAll called");
+
+        // Reuse search mapper with empty params to get everything
+        Map<String, Object> params = new HashMap<>();
+        List<RoleManagementPojo> roles = getRoleByParams(params);
+        
+        // populate cache automatically using get()
+        roles.forEach(role -> roleCache.get(role.getId(), k -> role));
+        
+        return roles;
+	}
+	
+	// #{params.roleName}
+	@Override
+	public RoleManagementPojo getRoleByRoleName(String roleName) {
+        logger.debug("getRoleByRoleName called");
+        logger.debug("getRoleByRoleName groupName={}", roleName);
+
+        // Query database by groupName
+        Map<String, Object> params = new HashMap<>();
+        params.put("roleName", roleName);
+
+        List<RoleManagementPojo> roles = getRoleByParams(params);
+
+        if (roles == null || roles.isEmpty()) {
+            return null;
+        }
+
+        // Take the first matching role group
+        RoleManagementPojo role = roles.get(0);
+
+        /*
+        hung : dont remove
+        normally we wan to run cache first, but the cache is id->pojo
+        and this method is groupName, so no cache. but since we get
+        the pojo, we cache it by id anyway...
+        */
+        // Cache it using ID as key
+        roleCache.get(role.getId(), k -> {
+            return role;
+        });
+
+        logger.debug("getRoleGroupByGroupName returning role={}", role);
+        return role;
+	}
+
 }

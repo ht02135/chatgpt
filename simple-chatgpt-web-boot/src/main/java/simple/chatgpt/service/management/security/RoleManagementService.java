@@ -17,5 +17,7 @@ public interface RoleManagementService {
 
 	// ======= OTHER METHODS =======
 	
-	List<RoleManagementPojo> getAll();
+	public List<RoleManagementPojo> getRoleByParams(Map<String, Object> params);
+	public List<RoleManagementPojo> getAll();
+	public RoleManagementPojo getRoleByRoleName(String roleName); // #{params.roleName}
 }

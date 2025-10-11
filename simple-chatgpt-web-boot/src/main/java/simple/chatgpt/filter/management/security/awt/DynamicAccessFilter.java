@@ -1,3 +1,5 @@
+package simple.chatgpt.filter.management.security.awt;
+
 import java.io.IOException;
 
 import javax.servlet.FilterChain;
@@ -32,8 +34,10 @@ public class DynamicAccessFilter extends OncePerRequestFilter {
 
         var auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth != null) {
+        	// roles from JwtUserDetailsServiceImpl.loadUserByUsername
             var roles = auth.getAuthorities().stream().map(a -> a.getAuthority()).toList();
-            var allowed = pageRoleGroupService.getAllowedRoleGroups(url);
+            // allowed from pageRoleGroupService.getAllowedRoles
+            var allowed = pageRoleGroupService.getAllowedRoles(url);
 
             logger.debug("doFilterInternal roles={}", roles);
             logger.debug("doFilterInternal allowed={}", allowed);

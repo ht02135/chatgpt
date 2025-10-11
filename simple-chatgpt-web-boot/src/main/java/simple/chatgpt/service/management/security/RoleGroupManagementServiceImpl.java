@@ -280,16 +280,13 @@ public class RoleGroupManagementServiceImpl implements RoleGroupManagementServic
         params.put("groupName", groupName);
 
         List<RoleGroupManagementPojo> roleGroups = getRoleGroupByParams(params);
-        logger.debug("getRoleGroupByGroupName DB returned roleGroups={}", roleGroups);
 
         if (roleGroups == null || roleGroups.isEmpty()) {
-            logger.debug("getRoleGroupByGroupName: no role group found for groupName={}", groupName);
             return null;
         }
 
         // Take the first matching role group
         RoleGroupManagementPojo roleGroup = roleGroups.get(0);
-        logger.debug("getRoleGroupByGroupName found roleGroup={}", roleGroup);
 
         /*
         hung : dont remove
@@ -299,7 +296,6 @@ public class RoleGroupManagementServiceImpl implements RoleGroupManagementServic
         */
         // Cache it using ID as key
         roleGroupCache.get(roleGroup.getId(), k -> {
-            logger.debug("getRoleGroupByGroupName caching roleGroup id={}", k);
             return roleGroup;
         });
 

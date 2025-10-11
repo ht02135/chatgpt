@@ -11,4 +11,5 @@ public interface JwtPageRoleGroupService {
      * @return list of allowed role-group names
      */
     List<String> getAllowedRoleGroups(String url);
+    List<String> getAllowedRoles(String url);
 }
