@@ -7,6 +7,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -14,7 +15,7 @@ import simple.chatgpt.pojo.management.UserManagementPojo;
 import simple.chatgpt.service.management.UserManagementService;
 
 @Service
-public class JwtUserDetailsServiceImpl implements JwtUserDetailsService {
+public class JwtUserDetailsServiceImpl implements UserDetailsService {
 
     private static final Logger logger = LogManager.getLogger(JwtUserDetailsServiceImpl.class);
 
