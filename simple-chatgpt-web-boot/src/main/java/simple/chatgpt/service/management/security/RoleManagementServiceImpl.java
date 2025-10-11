@@ -161,6 +161,15 @@ public class RoleManagementServiceImpl implements RoleManagementService {
         
         List<RoleManagementPojo> items = roleMapper.search(mapperParams);
         long totalCount = items.size();
+        
+        // === Populate cache by ID ===
+        for (RoleManagementPojo role : items) {
+            roleCache.get(role.getId(), k -> {
+                logger.debug("search: caching role id={}", k);
+                return role;
+            });
+        }
+        
         PagedResult<RoleManagementPojo> result = new PagedResult<>(items, totalCount, page, size);
         logger.debug("search return={}", result);
         return result;

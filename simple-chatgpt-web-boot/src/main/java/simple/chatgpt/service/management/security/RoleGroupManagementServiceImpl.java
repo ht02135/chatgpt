@@ -203,6 +203,15 @@ public class RoleGroupManagementServiceImpl implements RoleGroupManagementServic
         
         List<RoleGroupManagementPojo> items = groupMapper.search(mapperParams);
         long totalCount = items.size();
+        
+        // === Populate cache by ID ===
+        for (RoleGroupManagementPojo roleGroup : items) {
+            roleGroupCache.get(roleGroup.getId(), k -> {
+                logger.debug("search: caching roleGroup id={}", k);
+                return roleGroup;
+            });
+        }
+        
         PagedResult<RoleGroupManagementPojo> result = new PagedResult<>(items, totalCount, page, size);
         logger.debug("search return={}", result);
         return result;
@@ -266,27 +275,36 @@ public class RoleGroupManagementServiceImpl implements RoleGroupManagementServic
         logger.debug("getRoleGroupByGroupName called");
         logger.debug("getRoleGroupByGroupName groupName={}", groupName);
 
+        // Query database by groupName
         Map<String, Object> params = new HashMap<>();
         params.put("groupName", groupName);
 
         List<RoleGroupManagementPojo> roleGroups = getRoleGroupByParams(params);
-        logger.debug("getRoleGroupByGroupName roleGroups={}", roleGroups);
+        logger.debug("getRoleGroupByGroupName DB returned roleGroups={}", roleGroups);
 
         if (roleGroups == null || roleGroups.isEmpty()) {
             logger.debug("getRoleGroupByGroupName: no role group found for groupName={}", groupName);
             return null;
         }
 
-        // Get the first matching role group
-        RoleGroupManagementPojo foundRoleGroup = roleGroups.get(0);
-        logger.debug("getRoleGroupByGroupName foundRoleGroup={}", foundRoleGroup);
+        // Take the first matching role group
+        RoleGroupManagementPojo roleGroup = roleGroups.get(0);
+        logger.debug("getRoleGroupByGroupName found roleGroup={}", roleGroup);
 
-        // populate cache automatically using get()
-        roleGroupCache.get(foundRoleGroup.getId(), k -> foundRoleGroup);
-        logger.debug("getRoleGroupByGroupName cached roleGroup id={}", foundRoleGroup.getId());
+        /*
+        hung : dont remove
+        normally we wan to run cache first, but the cache is id->pojo
+        and this method is groupName, so no cache. but since we get
+        the pojo, we cache it by id anyway...
+        */
+        // Cache it using ID as key
+        roleGroupCache.get(roleGroup.getId(), k -> {
+            logger.debug("getRoleGroupByGroupName caching roleGroup id={}", k);
+            return roleGroup;
+        });
 
-        return foundRoleGroup;
+        logger.debug("getRoleGroupByGroupName returning roleGroup={}", roleGroup);
+        return roleGroup;
     }
-
     
 }
