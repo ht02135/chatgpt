@@ -3,10 +3,11 @@ package simple.chatgpt.pojo.management;
 import java.util.List;
 
 import simple.chatgpt.pojo.management.security.RoleGroupManagementPojo;
+import simple.chatgpt.pojo.management.security.jwt.JwtUser;
 import simple.chatgpt.validator.management.user.ValidManagementUser;
 
 @ValidManagementUser
-public class UserManagementPojo {
+public class UserManagementPojo implements JwtUser {
 
     private static final org.apache.logging.log4j.Logger logger = org.apache.logging.log4j.LogManager.getLogger(UserManagementPojo.class);
 
@@ -89,12 +90,29 @@ public class UserManagementPojo {
 
     public List<RoleGroupManagementPojo> getRoleGroups() { return roleGroups; }
     public void setRoleGroups(List<RoleGroupManagementPojo> roleGroups) { this.roleGroups = roleGroups; }
-
+	@Override
+	public List<String> getRoleGroupRefs() {
+	    if (roleGroups == null || roleGroups.isEmpty()) {
+	        return List.of(); // empty list
+	    }
+	    return roleGroups.stream()
+	            .map(RoleGroupManagementPojo::getGroupName)
+	            .toList();  // Java 16+, or use Collectors.toList() for older versions
+	}
+	
     public boolean isActive() { return active; }
     public void setActive(boolean active) { this.active = active; }
+	@Override
+	public boolean getActive() {
+		return isActive();
+	}
 
     public boolean isLocked() { return locked; }
     public void setLocked(boolean locked) { this.locked = locked; }
+	@Override
+	public boolean getLocked() {
+		return isLocked();
+	}
 
     public String getLastLoginIp() { return lastLoginIp; }
     public void setLastLoginIp(String lastLoginIp) { this.lastLoginIp = lastLoginIp; }
