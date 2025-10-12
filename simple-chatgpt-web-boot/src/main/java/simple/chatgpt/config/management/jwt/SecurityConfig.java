@@ -13,17 +13,30 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
+import simple.chatgpt.service.management.PropertyManagementService;
+
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+	
+    // Define the auth URL prefix as a constant
+    public static final String AUTH_URL = "/auth/**";
 
     private static final Logger logger = LogManager.getLogger(SecurityConfig.class);
-    private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
-    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final PropertyManagementService propertyService;
+
+    public SecurityConfig(
+        JwtAuthenticationFilter jwtAuthenticationFilter,
+        PropertyManagementService propertyService
+    ) {
         logger.debug("SecurityConfig constructor called");
-        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
         logger.debug("SecurityConfig jwtAuthenticationFilter={}", jwtAuthenticationFilter);
+        logger.debug("SecurityConfig propertyService={}", propertyService);
+
+        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+        this.propertyService = propertyService;
     }
 
     @Bean
@@ -40,7 +53,7 @@ public class SecurityConfig {
             // Authorize requests
             .authorizeHttpRequests(auth -> auth
                 // Permit all requests to /auth/**
-                .requestMatchers(new AntPathRequestMatcher("/auth/**")).permitAll()
+                .requestMatchers(new AntPathRequestMatcher(AUTH_URL)).permitAll()
                 // All other requests require authentication
                 .anyRequest().authenticated()
             );
