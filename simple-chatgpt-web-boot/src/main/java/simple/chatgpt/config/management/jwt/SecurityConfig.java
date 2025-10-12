@@ -13,30 +13,42 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
-import simple.chatgpt.service.management.PropertyManagementService;
+import simple.chatgpt.filter.management.security.awt.DynamicAccessFilter;
+
+/*
+Goals:
+- Permit all /auth/** requests (login, registration, etc.)
+- Use CustomAuthenticationEntryPoint to handle unauthenticated requests
+- Apply DynamicAccessFilter for runtime authorization on all other endpoints
+- Add JwtAuthenticationFilter for JWT validation
+- Keep JWT stateless setup (SessionCreationPolicy.STATELESS)
+- Support formLogin and logout
+*/
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
-	
-    // Define the auth URL prefix as a constant
-    public static final String AUTH_URL = "/auth/**";
 
     private static final Logger logger = LogManager.getLogger(SecurityConfig.class);
+    public static final String AUTH_URL = "/auth/**";
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
-    private final PropertyManagementService propertyService;
+    private final CustomAuthenticationEntryPoint authenticationEntryPoint;
+    private final DynamicAccessFilter dynamicAccessFilter;
 
     public SecurityConfig(
-        JwtAuthenticationFilter jwtAuthenticationFilter,
-        PropertyManagementService propertyService
+            JwtAuthenticationFilter jwtAuthenticationFilter,
+            CustomAuthenticationEntryPoint authenticationEntryPoint,
+            DynamicAccessFilter dynamicAccessFilter
     ) {
         logger.debug("SecurityConfig constructor called");
         logger.debug("SecurityConfig jwtAuthenticationFilter={}", jwtAuthenticationFilter);
-        logger.debug("SecurityConfig propertyService={}", propertyService);
+        logger.debug("SecurityConfig authenticationEntryPoint={}", authenticationEntryPoint);
+        logger.debug("SecurityConfig dynamicAccessFilter={}", dynamicAccessFilter);
 
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
-        this.propertyService = propertyService;
+        this.authenticationEntryPoint = authenticationEntryPoint;
+        this.dynamicAccessFilter = dynamicAccessFilter;
     }
 
     @Bean
@@ -44,22 +56,72 @@ public class SecurityConfig {
         logger.debug("securityFilterChain called");
 
         http
-            // Disable CSRF since we are using JWT
             .csrf(csrf -> csrf.disable())
-
-            // Stateless session (no HttpSession)
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
-            // Authorize requests
+            // Permit /auth/** endpoints without authentication
             .authorizeHttpRequests(auth -> auth
-                // Permit all requests to /auth/**
                 .requestMatchers(new AntPathRequestMatcher(AUTH_URL)).permitAll()
-                // All other requests require authentication
-                .anyRequest().authenticated()
+                .anyRequest().authenticated() // all other requests require authentication
+            )
+
+            /*
+            When an unauthenticated user tries to access a protected URL 
+            (.anyRequest().authenticated()), Spring Security needs to decide what to do.
+			authenticationEntryPoint(authenticationEntryPoint) tells Spring:
+			“If the user is not logged in, call this CustomAuthenticationEntryPoint.”
+			Your CustomAuthenticationEntryPoint might:
+			Redirect the user to /login.jsp, or
+			Return a JSON error for APIs
+			Essentially, it’s the “unauthorized handler” for requests without valid credentials.
+            */
+            // Use custom entry point for unauthenticated requests
+            .exceptionHandling(ex -> ex
+                .authenticationEntryPoint(authenticationEntryPoint)
             );
 
-        // Add JWT filter before the standard authentication filter
+            /*
+            Enables form-based login (classic web login).
+			loginPage("/login.jsp") → Spring will use your JSP page as the login form.
+			permitAll() → anyone can access /login.jsp without being authenticated.
+			Behind the scenes:
+			Spring registers a UsernamePasswordAuthenticationFilter to handle 
+			POST requests from /login.jsp.
+			On successful login, Spring creates a session and stores the user 
+			authentication in SecurityContextHolder.
+            */
+            // Form login page not needed for jwt
+        	/*
+            .formLogin(form -> form
+                .loginPage("/login.jsp")
+                .permitAll()
+            )
+            */
+
+            /*
+            Configures logout behavior:
+			logoutUrl("/logout") → This URL triggers logout.
+			logoutSuccessUrl("/logout.jsp") → After logging out, redirect the user here.
+			invalidateHttpSession(true) → Destroy the HTTP session (remove all session attributes).
+			deleteCookies("JSESSIONID") → Remove the session cookie so the user is fully logged out.
+			permitAll() → anyone can access /logout without being logged in.
+            */
+            // Logout handling not needed for jwt
+        	/*
+            .logout(logout -> logout
+                .logoutUrl("/logout")
+                .logoutSuccessUrl("/logout.jsp")
+                .invalidateHttpSession(true)
+                .deleteCookies("JSESSIONID")
+                .permitAll()
+            );
+            */
+
+        // Add JWT authentication filter first
         http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+
+        // Add DynamicAccessFilter after JWT is validated
+        http.addFilterAfter(dynamicAccessFilter, JwtAuthenticationFilter.class);
 
         return http.build();
     }

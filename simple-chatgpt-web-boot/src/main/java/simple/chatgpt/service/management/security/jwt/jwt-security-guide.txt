@@ -859,6 +859,15 @@ Optional notes:
 
 You don’t need a separate AuthenticationEntryPoint for logout; logout redirection is handled in SecurityConfig.logout().
 
+//////////////
+
+Goals
+Permit all /auth/** requests (login, registration, etc.)
+Use CustomAuthenticationEntryPoint to handle unauthenticated requests
+Apply DynamicAccessFilter for runtime authorization on all other endpoints
+Add JwtAuthenticationFilter for JWT validation
+Keep JWT stateless setup (SessionCreationPolicy.STATELESS)
+Optionally disable formLogin and logout if you rely on JWT entirely
 
 
 
