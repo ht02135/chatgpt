@@ -244,5 +244,11 @@ public class AuthController {
 
 /////////////
 
+| Page                             | Action                                             |
+| -------------------------------- | -------------------------------------------------- |
+| `login.jsp`                      | Calls `/auth/login`, stores JWT locally            |
+| `register.jsp`                   | Calls `/auth/register`, creates new user           |
+| `logout.jsp`                     | Deletes JWT client-side, redirects to `/login.jsp` |
+| `CustomAuthenticationEntryPoint` | Redirects unauthenticated requests to `/login.jsp` |
 
 
