@@ -27,6 +27,12 @@ public enum PropertyKey {
 	DOWNLOAD_CONFIG_RELATIVE_PATH("download_config_relative_path", String.class, "/config/management/download-config.xml"),
 	SAMPLE_CSV_RELATIVE_PATH("sample_csv_relative_path", String.class, "/management/data/user_lists/test_user_lists_1.csv"),
 	
+	LOGIN_URL_RELATIVE_PATH("login_url_relative_path", String.class, "/login"),
+	LOGIN_REDIRECT_URL_RELATIVE_PATH("login_redirect_url_relative_path", String.class, "/login.jsp"),
+	
+	LOGOUT_URL_RELATIVE_PATH("logout_url_relative_path", String.class, "/logout"),
+	LOGOUT_REDIRECT_URL_RELATIVE_PATH("logout_redirect_url_relative_path", String.class, "/logout.jsp"),
+	
 	DISABLE_USER_SAVE("disable_user_save", Boolean.class, Boolean.FALSE),
 	
     SOME_BOOLEAN("some_boolean", Boolean.class, Boolean.FALSE),

@@ -831,7 +831,7 @@ public class SecurityConfig {
             // logout config
             .logout(logout -> logout
                 .logoutUrl("/logout")               // URL to trigger logout
-                .logoutSuccessUrl("/logout.js")     // redirect after logout
+                .logoutSuccessUrl("/logout.jsp")     // redirect after logout
                 .invalidateHttpSession(true)
                 .deleteCookies("JSESSIONID")
                 .permitAll()
