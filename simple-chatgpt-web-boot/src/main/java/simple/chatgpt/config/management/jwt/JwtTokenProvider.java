@@ -53,6 +53,7 @@ public class JwtTokenProvider {
                 .compact();
     }
 
+    // get user from token, and load the user details
     public Authentication getAuthentication(String token) {
         logger.debug("getAuthentication called");
         logger.debug("getAuthentication token={}", token);
@@ -76,6 +77,8 @@ public class JwtTokenProvider {
         return null;
     }
 
+    // resolveToken() is responsible for extracting the JWT token from 
+    // the incoming HTTP request — usually from the Authorization header.
     public boolean validateToken(String token) {
         logger.debug("validateToken called");
         logger.debug("validateToken token={}", token);
@@ -89,6 +92,7 @@ public class JwtTokenProvider {
         }
     }
 
+    // get userName from token
     public String getUsername(String token) {
         logger.debug("getUsername called");
         logger.debug("getUsername token={}", token);
