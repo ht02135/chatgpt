@@ -42,7 +42,7 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
         logger.debug("commence requestURI={}", request.getRequestURI());
         logger.debug("commence authException={}", authException.getMessage());
 
-        String loginRedirectURLRelativePath = "/login.jsp";
+        String loginRedirectURLRelativePath = "/public/login.jsp";
         try {
             loginRedirectURLRelativePath = propertyService.getString(PropertyKey.LOGIN_REDIRECT_URL_RELATIVE_PATH);
             logger.debug("commence: Loaded property LOGIN_REDIRECT_URL_RELATIVE_PATH={}", loginRedirectURLRelativePath);

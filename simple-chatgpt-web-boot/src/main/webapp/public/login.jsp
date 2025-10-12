@@ -16,6 +16,9 @@
     <button type="submit">Login</button>
 </form>
 
+<!-- Link to register page -->
+<p>Don't have an account? <a href="register.jsp">Register here</a></p>
+
 <script>
     // ===== Constants =====
     const AUTH_CONTEXT_PATH = "/" + window.location.pathname.split("/")[1];

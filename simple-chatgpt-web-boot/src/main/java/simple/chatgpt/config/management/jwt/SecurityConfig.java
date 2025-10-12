@@ -31,6 +31,7 @@ public class SecurityConfig {
 
     private static final Logger logger = LogManager.getLogger(SecurityConfig.class);
     public static final String AUTH_URL = "/auth/**";
+    public static final String PUBLIC_URL = "/public/**";
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final CustomAuthenticationEntryPoint authenticationEntryPoint;
@@ -62,6 +63,7 @@ public class SecurityConfig {
             // Permit /auth/** endpoints without authentication
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers(new AntPathRequestMatcher(AUTH_URL)).permitAll()
+                .requestMatchers(new AntPathRequestMatcher(PUBLIC_URL)).permitAll()
                 .anyRequest().authenticated() // all other requests require authentication
             )
 
