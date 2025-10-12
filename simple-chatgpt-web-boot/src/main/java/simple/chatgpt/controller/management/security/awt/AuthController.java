@@ -16,6 +16,10 @@ import simple.chatgpt.config.management.jwt.JwtTokenProvider;
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
+	
+    // ===== Constants for JSON keys =====
+    private static final String USERNAME = "username";
+    private static final String PASSWORD = "password";
 
     private static final Logger logger = LogManager.getLogger(AuthController.class);
     private final AuthenticationManager authenticationManager;
@@ -33,7 +37,7 @@ public class AuthController {
         logger.debug("login creds={}", creds);
 
         var auth = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(creds.get("username"), creds.get("password")));
+                new UsernamePasswordAuthenticationToken(creds.get(USERNAME), creds.get(PASSWORD)));
         logger.debug("login auth={}", auth);
 
         var user = (org.springframework.security.core.userdetails.User) auth.getPrincipal();
