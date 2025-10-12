@@ -4,64 +4,77 @@
 <head>
     <meta charset="UTF-8">
     <title>Register</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.5.1/knockout-min.js"></script>
 </head>
 <body>
 
 <h2>Register</h2>
 
-<form id="registerForm">
-    <label>Username: <input type="text" name="userName" required /></label><br><br>
-    <label>Password: <input type="password" name="password" required /></label><br><br>
-    <label>First Name: <input type="text" name="firstName" required /></label><br><br>
-    <label>Last Name: <input type="text" name="lastName" required /></label><br><br>
-    <label>Email: <input type="email" name="email" required /></label><br><br>
+<form data-bind="submit: register">
+    <label>Username: <input type="text" data-bind="value: userName" required /></label><br><br>
+    <label>Password: <input type="password" data-bind="value: password" required /></label><br><br>
+    <label>First Name: <input type="text" data-bind="value: firstName" required /></label><br><br>
+    <label>Last Name: <input type="text" data-bind="value: lastName" required /></label><br><br>
+    <label>Email: <input type="email" data-bind="value: email" required /></label><br><br>
     <button type="submit">Register</button>
 </form>
 
 <script>
-// ===== Constants =====
-const AUTH_CONTEXT_PATH = "/" + window.location.pathname.split("/")[1];
-const API_AUTH_REGISTER = `${AUTH_CONTEXT_PATH}/api/auth/register`; // API URL with /api
-const LOGIN_PAGE = `${AUTH_CONTEXT_PATH}/login.jsp`;
+    // ===== Constants =====
+    const AUTH_CONTEXT_PATH = "/" + window.location.pathname.split("/")[1];
+    const API_AUTH_REGISTER = `${AUTH_CONTEXT_PATH}/api/auth/register`;
+    const LOGIN_PAGE = `${AUTH_CONTEXT_PATH}/login.jsp`;
 
-document.getElementById('registerForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
+    function RegisterViewModel() {
+        const self = this;
 
-    const formData = {
-        userName: e.target.userName.value,
-        password: e.target.password.value,
-        firstName: e.target.firstName.value,
-        lastName: e.target.lastName.value,
-        email: e.target.email.value
-    };
+        // ===== Observables for form data =====
+        self.userName = ko.observable('');
+        self.password = ko.observable('');
+        self.firstName = ko.observable('');
+        self.lastName = ko.observable('');
+        self.email = ko.observable('');
 
-    try {
-        console.log("register.jsp -> submitting register:", API_AUTH_REGISTER);
+        // ===== Submit handler =====
+        self.register = async function() {
+            const formData = {
+                userName: self.userName(),
+                password: self.password(),
+                firstName: self.firstName(),
+                lastName: self.lastName(),
+                email: self.email()
+            };
 
-        const response = await fetch(API_AUTH_REGISTER, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-            body: JSON.stringify(formData)
-        });
+            try {
+                console.log("register.jsp -> submitting register:", API_AUTH_REGISTER);
 
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
+                const response = await fetch(API_AUTH_REGISTER, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                    body: JSON.stringify(formData)
+                });
 
-        const text = await response.text();
-        console.log("register.jsp -> register response:", text);
-        alert(text);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
 
-        // Optionally redirect to login page after successful registration
-        if (text.toLowerCase().includes('success')) {
-            window.location.href = LOGIN_PAGE;
-        }
+                const text = await response.text();
+                console.log("register.jsp -> register response:", text);
+                alert(text);
 
-    } catch (err) {
-        console.error('Register error:', err);
-        alert('Registration failed: ' + err.message);
+                // Redirect to login page if registration is successful
+                if (text.toLowerCase().includes('success')) {
+                    window.location.href = LOGIN_PAGE;
+                }
+
+            } catch (err) {
+                console.error('Register error:', err);
+                alert('Registration failed: ' + err.message);
+            }
+        };
     }
-});
+
+    ko.applyBindings(new RegisterViewModel());
 </script>
 
 </body>
