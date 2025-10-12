@@ -117,6 +117,14 @@ public class SecurityConfig {
             );
             */
 
+        /*
+        jwtAuthenticationFilter is a custom filter you wrote that:
+		Reads the Authorization: Bearer <token> header from the request
+		Validates the JWT
+		Creates an Authentication object and sets it in SecurityContextHolder
+		addFilterBefore(..., UsernamePasswordAuthenticationFilter.class) means:
+		“Place this JWT filter before Spring’s default username/password login filter in the security filter chain.” 
+        */
         // Add JWT authentication filter first
         http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
