@@ -41,6 +41,7 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
         logger.debug("commence START");
         
         logger.debug("commence requestURI={}", request.getRequestURI());
+        logger.debug("commence contextPath={}", request.getContextPath());
         logger.debug("commence authException={}", authException.getMessage());
 
         String loginRedirectURLRelativePath = "/public/login.jsp";
