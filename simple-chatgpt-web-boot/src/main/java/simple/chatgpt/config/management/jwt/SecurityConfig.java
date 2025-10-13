@@ -33,6 +33,7 @@ public class SecurityConfig {
 
     // ===================== Constants =====================
     public static final String AUTH_URL = "/management/jsp/auth/**";
+    public static final String API_URL = "/api/**";
     public static final String API_AUTH_URL = "/api/management/auth/**";
     public static final String PUBLIC_URL = "/public/**";
 
@@ -78,6 +79,7 @@ public class SecurityConfig {
             .requestMatchers(new AntPathRequestMatcher(INDEX_FILE)).permitAll()
             .requestMatchers(new AntPathRequestMatcher(DASHBOARD_FILE)).permitAll()
             .requestMatchers(new AntPathRequestMatcher(AUTH_URL)).permitAll()
+            .requestMatchers(new AntPathRequestMatcher(API_URL)).permitAll()
             .requestMatchers(new AntPathRequestMatcher(API_AUTH_URL)).permitAll()
             .anyRequest().authenticated()
         );
