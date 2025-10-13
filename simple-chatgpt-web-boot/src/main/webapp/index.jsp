@@ -1,53 +1,39 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%
+    // ===== Server-side redirect based on token in localStorage cookie or session =====
+    // (assuming you store JWT in a cookie named "jwtToken")
+    String token = null;
+    if (request.getCookies() != null) {
+        for (javax.servlet.http.Cookie c : request.getCookies()) {
+            if ("jwtToken".equals(c.getName())) {
+                token = c.getValue();
+                break;
+            }
+        }
+    }
+
+    if (token != null && !token.isEmpty()) {
+        // Token exists, redirect to dashboard
+        response.sendRedirect(request.getContextPath() + "/dashboard.jsp");
+        return; // stop further processing
+    } else {
+        // No token, redirect to login
+        response.sendRedirect(request.getContextPath() + "/login.jsp");
+        return;
+    }
+%>
+
+<!-- ===== Fallback HTML for users with cookies disabled ===== -->
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Welcome</title>
-    <style>
-        body { font-family: Arial, sans-serif; line-height: 1.6; }
-        h1 { color: #333; }
-        hr { margin: 20px 0; }
-        .section { margin-bottom: 20px; }
-        .section p { margin: 5px 0; }
-    </style>
+    <meta charset="UTF-8">
+    <title>Redirecting...</title>
 </head>
 <body>
-
-<h1>Welcome to Simple ChatGPT Web</h1>
-
-<!-- User Management Section -->
-<div class="section">
-    <h2>User Management</h2>
-    <p><a href="${pageContext.request.contextPath}/management/jsp/user/users.jsp">Manage Users</a></p>
-    <p><a href="${pageContext.request.contextPath}/management/jsp/userList/userLists.jsp">Manage User Lists</a></p>
-</div>
-
-<hr>
-
-<!-- Property Management Section -->
-<div class="section">
-    <h2>Property Management</h2>
-    <p><a href="${pageContext.request.contextPath}/management/jsp/property/properties.jsp">Manage Properties</a></p>
-</div>
-
-<hr>
-
-<!-- Role Management Section -->
-<div class="section">
-    <h2>Role Management</h2>
-    <p><a href="${pageContext.request.contextPath}/management/jsp/role/roles.jsp">Manage Roles</a></p>
-    <p><a href="${pageContext.request.contextPath}/management/jsp/roleGroup/roleGroups.jsp">Manage Role Groups</a></p>
-    <p><a href="${pageContext.request.contextPath}/management/jsp/roleGroupRole/roleGroupRoles.jsp">Manage Role Group Roles</a></p>
-    <p><a href="${pageContext.request.contextPath}/management/jsp/pageRoleGroup/pageRoleGroups.jsp">Manage Page Role Groups</a></p>
-    <p><a href="${pageContext.request.contextPath}/management/jsp/userRoleGroup/userRoleGroups.jsp">Manage User Role Groups</a></p>
-</div>
-
-<hr>
-
-<!-- Logout -->
-<div class="section">
-    <p><a href="${pageContext.request.contextPath}/auth/logout.jsp">Logout</a></p>
-</div>
-
+    <h2>Redirecting...</h2>
+    <p>If you are not redirected automatically, 
+        <a href="<%=request.getContextPath()%>/login.jsp">click here to login</a>.
+    </p>
 </body>
 </html>

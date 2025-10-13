@@ -1,8 +1,31 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%
+    // ==============================
+    // SERVER-SIDE: Read JWT token from cookies
+    // This runs on the server BEFORE the page is sent to the browser
+    // ==============================
+    String jwtToken = null;
+    javax.servlet.http.Cookie[] cookies = request.getCookies();
+    if (cookies != null) {
+        for (javax.servlet.http.Cookie c : cookies) {
+            if ("jwtToken".equals(c.getName())) {
+                jwtToken = c.getValue();
+                break;
+            }
+        }
+    }
+    // Redirect to login if token is missing
+    if (jwtToken == null || jwtToken.isEmpty()) {
+        response.sendRedirect("login.jsp");
+        return;
+    }
+%>
+
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Welcome</title>
+    <meta charset="UTF-8">
+    <title>Dashboard</title>
     <style>
         body { font-family: Arial, sans-serif; line-height: 1.6; }
         h1 { color: #333; }
@@ -13,7 +36,7 @@
 </head>
 <body>
 
-<h1>Welcome to Simple ChatGPT Web</h1>
+<h1>Welcome to Simple ChatGPT Dashboard</h1>
 
 <!-- User Management Section -->
 <div class="section">
@@ -44,10 +67,38 @@
 
 <hr>
 
-<!-- Logout -->
+<!-- Logout Section -->
 <div class="section">
     <p><a href="${pageContext.request.contextPath}/auth/logout.jsp">Logout</a></p>
 </div>
+
+<!-- ==============================
+     CLIENT-SIDE: JavaScript using JWT token
+     This runs in the browser AFTER the page is loaded
+     ============================== -->
+<script>
+    const jwtToken = "<%= jwtToken %>"; // injected from server-side
+    console.debug("dashboard.jsp -> JWT token available for API calls:", jwtToken);
+
+    // Example: fetch user data from API using token
+    async function fetchUserData() {
+        try {
+            const response = await fetch('<%= request.getContextPath() %>/api/management/user/data', {
+                headers: {
+                    'Authorization': 'Bearer ' + jwtToken,
+                    'Content-Type': 'application/json'
+                }
+            });
+            if (!response.ok) throw new Error('HTTP error! status: ' + response.status);
+            const data = await response.json();
+            console.log('User data:', data);
+        } catch (err) {
+            console.error('Error fetching user data:', err);
+        }
+    }
+
+    fetchUserData();
+</script>
 
 </body>
 </html>
