@@ -129,6 +129,7 @@ public class UserManagementPojo implements JwtUser {
                 "id=" + id +
                 ", userName='" + userName + '\'' +
                 ", userKey='" + userKey + '\'' +
+                ", password='" + password + '\'' +
                 ", email='" + email + '\'' +
                 ", active=" + active +
                 ", locked=" + locked +
@@ -138,4 +139,5 @@ public class UserManagementPojo implements JwtUser {
                 ", roleGroups=" + roleGroups +
                 '}';
     }
+
 }
