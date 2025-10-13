@@ -4,16 +4,22 @@
 <head>
     <meta charset="UTF-8">
     <title>Logout</title>
-    <script src="../management/js/knockout-latest.js"></script>
+    <script>
+        // Dynamically load knockout-latest.js relative to context path
+        const CONTEXT_PATH = window.location.pathname.substring(0, window.location.pathname.indexOf('/', 1));
+        const KO_SCRIPT = `${CONTEXT_PATH}/management/js/knockout-latest.js`;
+        const script = document.createElement('script');
+        script.src = KO_SCRIPT;
+        document.head.appendChild(script);
+    </script>
 </head>
 <body>
 
 <button data-bind="click: logout">Logout</button>
 
 <script>
-    // ===== Constants =====
-    const AUTH_CONTEXT_PATH = "/" + window.location.pathname.split("/")[1];
-    const LOGIN_PAGE = `${AUTH_CONTEXT_PATH}/login.jsp`;
+    // Compute login page URL dynamically
+    const LOGIN_PAGE = `${CONTEXT_PATH}/public/login.jsp`;
 
     function LogoutViewModel() {
         const self = this;

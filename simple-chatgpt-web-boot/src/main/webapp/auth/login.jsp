@@ -4,7 +4,13 @@
 <head>
     <meta charset="UTF-8">
     <title>Login</title>
-	<script src="../management/js/knockout-latest.js"></script>
+    <script>
+        const CONTEXT_PATH = window.location.pathname.substring(0, window.location.pathname.indexOf('/', 1));
+        const KO_SCRIPT = `${CONTEXT_PATH}/management/js/knockout-latest.js`;
+        const script = document.createElement('script');
+        script.src = KO_SCRIPT;
+        document.head.appendChild(script);
+    </script>
 </head>
 <body>
 
@@ -16,14 +22,11 @@
     <button type="submit">Login</button>
 </form>
 
-<!-- Link to register page -->
 <p>Don't have an account? <a href="./register.jsp">Register here</a></p>
 
 <script>
-    // ===== Constants =====
-    const AUTH_CONTEXT_PATH = "/" + window.location.pathname.split("/")[1];
-    const API_AUTH_LOGIN = `${AUTH_CONTEXT_PATH}/api/auth/login`;
-    const DASHBOARD_PAGE = `${AUTH_CONTEXT_PATH}/dashboard.jsp`;
+    const API_AUTH_LOGIN = `${CONTEXT_PATH}/api/auth/login`;
+    const DASHBOARD_PAGE = `${CONTEXT_PATH}/public/dashboard.jsp`;
 
     function LoginViewModel() {
         const self = this;
@@ -47,9 +50,7 @@
                     })
                 });
 
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 
                 const data = await response.json();
                 console.log("login.jsp -> login response:", data);
@@ -61,7 +62,6 @@
                 } else {
                     alert('Login failed: no token returned');
                 }
-
             } catch (err) {
                 console.error('Login error:', err);
                 alert('Login failed: ' + err.message);

@@ -4,7 +4,14 @@
 <head>
     <meta charset="UTF-8">
     <title>Register</title>
-    <script src="../management/js/knockout-latest.js"></script>
+    <script>
+        // Dynamically load knockout-latest.js relative to context path
+        const CONTEXT_PATH = window.location.pathname.substring(0, window.location.pathname.indexOf('/', 1));
+        const KO_SCRIPT = `${CONTEXT_PATH}/management/js/knockout-latest.js`;
+        const script = document.createElement('script');
+        script.src = KO_SCRIPT;
+        document.head.appendChild(script);
+    </script>
 </head>
 <body>
 
@@ -20,22 +27,18 @@
 </form>
 
 <script>
-    // ===== Constants =====
-    const AUTH_CONTEXT_PATH = "/" + window.location.pathname.split("/")[1];
-    const API_AUTH_REGISTER = `${AUTH_CONTEXT_PATH}/api/auth/register`;
-    const LOGIN_PAGE = `${AUTH_CONTEXT_PATH}/login.jsp`;
+    const API_AUTH_REGISTER = `${CONTEXT_PATH}/api/auth/register`;
+    const LOGIN_PAGE = `${CONTEXT_PATH}/public/login.jsp`;
 
     function RegisterViewModel() {
         const self = this;
 
-        // ===== Observables for form data =====
         self.userName = ko.observable('');
         self.password = ko.observable('');
         self.firstName = ko.observable('');
         self.lastName = ko.observable('');
         self.email = ko.observable('');
 
-        // ===== Submit handler =====
         self.register = async function() {
             const formData = {
                 userName: self.userName(),
@@ -54,9 +57,7 @@
                     body: JSON.stringify(formData)
                 });
 
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
+                if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 
                 const text = await response.text();
                 console.log("register.jsp -> register response:", text);
