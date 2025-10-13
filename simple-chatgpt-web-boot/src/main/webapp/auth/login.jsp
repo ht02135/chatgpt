@@ -4,13 +4,6 @@
 <head>
     <meta charset="UTF-8">
     <title>Login</title>
-    <script>
-        const CONTEXT_PATH = window.location.pathname.substring(0, window.location.pathname.indexOf('/', 1));
-        const KO_SCRIPT = `${CONTEXT_PATH}/management/js/knockout-latest.js`;
-        const script = document.createElement('script');
-        script.src = KO_SCRIPT;
-        document.head.appendChild(script);
-    </script>
 </head>
 <body>
 
@@ -25,9 +18,24 @@
 <p>Don't have an account? <a href="./register.jsp">Register here</a></p>
 
 <script>
-    const API_AUTH_LOGIN = `${CONTEXT_PATH}/api/auth/login`;
-    const DASHBOARD_PAGE = `${CONTEXT_PATH}/public/dashboard.jsp`;
+    // ===== Constants =====
+    const CONTEXT_PATH = window.location.pathname.substring(0, window.location.pathname.indexOf('/', 1));
+    const KO_SCRIPT = `${CONTEXT_PATH}/management/js/knockout-latest.js`;
 
+    // Dynamically load Knockout.js
+    const script = document.createElement('script');
+    script.src = KO_SCRIPT;
+    script.onload = () => {
+        // Knockout loaded → now apply bindings
+        ko.applyBindings(new LoginViewModel());
+    };
+    script.onerror = () => {
+        console.error("Failed to load Knockout.js from", KO_SCRIPT);
+        alert("Failed to load required scripts. Please refresh or contact admin.");
+    };
+    document.head.appendChild(script);
+
+    // ===== ViewModel =====
     function LoginViewModel() {
         const self = this;
 
@@ -35,6 +43,9 @@
         self.password = ko.observable('');
 
         self.submitLogin = async function() {
+            const API_AUTH_LOGIN = `${CONTEXT_PATH}/api/auth/login`;
+            const DASHBOARD_PAGE = `${CONTEXT_PATH}/public/dashboard.jsp`;
+
             try {
                 console.log("login.jsp -> submitting login:", API_AUTH_LOGIN);
 
@@ -68,8 +79,6 @@
             }
         };
     }
-
-    ko.applyBindings(new LoginViewModel());
 </script>
 
 </body>
