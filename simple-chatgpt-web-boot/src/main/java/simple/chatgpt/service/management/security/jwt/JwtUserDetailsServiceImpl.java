@@ -56,6 +56,7 @@ public class JwtUserDetailsServiceImpl implements UserDetailsService {
             logger.debug("User not found for username={}", username);
             throw new UsernameNotFoundException("User not found: " + username);
         }
+        logger.debug("loadUserByUsername populated user={}", user);
 
         // Explicitly populate roleGroups from mapping service
         List<RoleGroupManagementPojo> roleGroups = mappingService.getMappingsByUserId(user.getId())

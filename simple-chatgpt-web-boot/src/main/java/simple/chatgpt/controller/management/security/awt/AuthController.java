@@ -62,8 +62,13 @@ public class AuthController {
             logger.debug("login auth={}", auth);
 
             var user = (org.springframework.security.core.userdetails.User) auth.getPrincipal();
+            logger.debug("login user={}", user);
+            
             var roles = user.getAuthorities().stream().map(a -> a.getAuthority()).toList();
+            logger.debug("login roles={}", roles);
+            
             var token = jwtTokenProvider.createToken(user.getUsername(), roles);
+            logger.debug("login token={}", token);
 
             Map<String, Object> data = Map.of(
             		KEY_USERNAME, user.getUsername(),

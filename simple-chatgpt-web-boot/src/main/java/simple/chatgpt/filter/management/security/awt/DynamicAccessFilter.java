@@ -57,16 +57,18 @@ public class DynamicAccessFilter extends OncePerRequestFilter {
         logger.debug("doFilterInternal url={}", url);
 
         var auth = SecurityContextHolder.getContext().getAuthentication();
+        logger.debug("doFilterInternal auth={}", auth);
         if (auth != null) {
         	// roles from JwtUserDetailsServiceImpl.loadUserByUsername
             var roles = auth.getAuthorities().stream().map(a -> a.getAuthority()).toList();
+            logger.debug("doFilterInternal roles={}", roles);
+            
             // allowed from pageRoleGroupService.getAllowedRoles
             var allowed = pageRoleGroupService.getAllowedRoles(url);
-
-            logger.debug("doFilterInternal roles={}", roles);
             logger.debug("doFilterInternal allowed={}", allowed);
 
             boolean permitted = roles.stream().anyMatch(allowed::contains);
+            logger.debug("doFilterInternal permitted={}", allowed);
             if (!permitted) {
                 res.setStatus(HttpServletResponse.SC_FORBIDDEN);
                 return;
