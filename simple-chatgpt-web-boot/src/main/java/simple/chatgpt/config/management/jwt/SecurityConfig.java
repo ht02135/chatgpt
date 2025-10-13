@@ -37,7 +37,7 @@ public class SecurityConfig {
     public static final String ALL_CSS_FILE = "/**/*.css";
     
     public static final String INDEX_FILE = "/index.html";
-    public static final String TEST_FILE = "/this_is_test.html";
+    public static final String DASHBOARD_FILE = "/dashboard.jsp";
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final CustomAuthenticationEntryPoint authenticationEntryPoint;
@@ -71,7 +71,7 @@ public class SecurityConfig {
         	.requestMatchers(new AntPathRequestMatcher(ALL_CSS_FILE)).permitAll()
         	.requestMatchers(new AntPathRequestMatcher(PUBLIC_URL)).permitAll()
         	.requestMatchers(new AntPathRequestMatcher(INDEX_FILE)).permitAll()
-        	.requestMatchers(new AntPathRequestMatcher(TEST_FILE)).permitAll()
+        	.requestMatchers(new AntPathRequestMatcher(DASHBOARD_FILE)).permitAll()
         	.requestMatchers(new AntPathRequestMatcher(AUTH_URL)).permitAll()
         	.anyRequest().authenticated()
         );

@@ -56,7 +56,7 @@
 
 <!-- Logout -->
 <div class="section">
-    <p><a href="/public/logout.jsp">Logout</a></p>
+    <p><a href="/auth/logout.jsp">Logout</a></p>
 </div>
 
 </body>

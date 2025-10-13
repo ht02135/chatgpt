@@ -17,7 +17,7 @@
 </form>
 
 <!-- Link to register page -->
-<p>Don't have an account? <a href="register.jsp">Register here</a></p>
+<p>Don't have an account? <a href="./register.jsp">Register here</a></p>
 
 <script>
     // ===== Constants =====

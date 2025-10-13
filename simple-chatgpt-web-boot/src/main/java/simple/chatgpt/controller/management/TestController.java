@@ -22,6 +22,6 @@ public class TestController {
         String contextPath = request.getContextPath(); // dynamically gets /chatgpt-production
         logger.debug("TestController: contextPath={}", contextPath);
 
-        response.sendRedirect(contextPath + "/this_is_test.html"); // no hardcoding
+        response.sendRedirect(contextPath + "/public/this_is_test.html"); // no hardcoding
     }
 }
