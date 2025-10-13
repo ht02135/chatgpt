@@ -4,18 +4,19 @@
 <head>
     <meta charset="UTF-8">
     <title>Logout</title>
-    <!-- Directly reference Knockout.js via relative path -->
-    <script src="../../js/knockout-latest.js"></script>
 </head>
 <body>
 
 <button data-bind="click: logout">Logout</button>
 
 <script>
-	// Detect context path dynamically from browser URL
-	const CONTEXT_PATH = "/" + window.location.pathname.split("/")[1];
-	// Login page to redirect after logout
-	const LOGIN_PAGE = `${CONTEXT_PATH}/management/jsp/auth/login.jsp`;
+    // ===== Detect context path dynamically from browser URL =====
+    const CONTEXT_PATH = window.location.origin + "/" + window.location.pathname.split("/")[1];
+    console.debug("logout.jsp -> CONTEXT_PATH:", CONTEXT_PATH);
+
+    // ===== Login page to redirect after logout =====
+    const LOGIN_PAGE = CONTEXT_PATH + "/management/jsp/auth/login.jsp";
+    console.debug("logout.jsp -> LOGIN_PAGE:", LOGIN_PAGE);
 
     function LogoutViewModel() {
         const self = this;
@@ -24,7 +25,7 @@
             try {
                 // Remove JWT token from localStorage
                 localStorage.removeItem('jwtToken');
-                console.log("logout.jsp -> JWT token removed");
+                console.debug("logout.jsp -> JWT token removed");
 
                 alert('Logged out!');
                 // Redirect to login page
@@ -36,8 +37,9 @@
         };
     }
 
-    // Apply Knockout bindings after page loads
+    // ===== Apply Knockout bindings after page loads =====
     window.addEventListener('DOMContentLoaded', () => {
+        console.debug("logout.jsp -> Applying Knockout bindings");
         ko.applyBindings(new LogoutViewModel());
     });
 </script>
