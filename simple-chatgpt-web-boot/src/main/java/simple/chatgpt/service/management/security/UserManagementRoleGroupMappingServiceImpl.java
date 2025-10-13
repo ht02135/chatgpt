@@ -18,8 +18,10 @@ import simple.chatgpt.mapper.management.security.UserManagementRoleGroupMappingM
 import simple.chatgpt.pojo.management.UserManagementPojo;
 import simple.chatgpt.pojo.management.security.RoleGroupManagementPojo;
 import simple.chatgpt.pojo.management.security.UserManagementRoleGroupMappingPojo;
+import simple.chatgpt.service.management.PropertyManagementService;
 import simple.chatgpt.service.management.UserManagementService;
 import simple.chatgpt.util.PagedResult;
+import simple.chatgpt.util.PropertyKey;
 import simple.chatgpt.util.SafeConverter;
 
 @Service
@@ -31,24 +33,28 @@ public class UserManagementRoleGroupMappingServiceImpl implements UserManagement
     private final UserManagementService userService;                
     private final SecurityConfigLoader securityConfigLoader;       
     private final RoleGroupManagementService roleGroupService;     
+    private final PropertyManagementService propertyService; // <-- new service
 
     @Autowired
     public UserManagementRoleGroupMappingServiceImpl(
             UserManagementRoleGroupMappingMapper mappingMapper,
             UserManagementService userService,
             SecurityConfigLoader securityConfigLoader,
-            RoleGroupManagementService roleGroupService) {
+            RoleGroupManagementService roleGroupService,
+            PropertyManagementService propertyService) {  // <-- inject here
 
         logger.debug("UserManagementRoleGroupMappingServiceImpl constructor START");
         logger.debug("UserManagementRoleGroupMappingServiceImpl mappingMapper={}", mappingMapper);
         logger.debug("UserManagementRoleGroupMappingServiceImpl userService={}", userService);
         logger.debug("UserManagementRoleGroupMappingServiceImpl securityConfigLoader={}", securityConfigLoader);
         logger.debug("UserManagementRoleGroupMappingServiceImpl roleGroupService={}", roleGroupService);
+        logger.debug("UserManagementRoleGroupMappingServiceImpl propertyService={}", propertyService); // log
 
         this.mappingMapper = mappingMapper;
         this.userService = userService;
         this.securityConfigLoader = securityConfigLoader;
         this.roleGroupService = roleGroupService;
+        this.propertyService = propertyService; // assign
 
         logger.debug("UserManagementRoleGroupMappingServiceImpl constructor DONE");
     }
@@ -150,6 +156,30 @@ public class UserManagementRoleGroupMappingServiceImpl implements UserManagement
 	                logger.debug("initializeDB created new userPojo={}", userPojo);
 	            } else {
 	                userPojo = existingUser;
+
+	                // RELOAD_USER_PASSWORD
+	                boolean reloadUserPassword = true;
+	                try {
+	                    reloadUserPassword = propertyService.getBoolean(PropertyKey.RELOAD_USER_PASSWORD);
+	                    logger.debug("After propertyService.getBoolean: {}", reloadUserPassword);
+	                } catch (Exception e) {
+	                    logger.error("Exception fetching property", e);
+	                    throw e;
+	                }
+
+	                if (reloadUserPassword) {
+	                    try {
+	                    	if (!userConfig.getPassword().equals(userPojo.getPassword())) {
+		                        userPojo.setPassword(userConfig.getPassword());
+		                        userService.update(userPojo.getId(), userPojo);
+		                        logger.debug("initializeDB password reloaded from XML for existing user userPojo={}", userPojo);
+	                    	}
+	                    } catch (Exception e) {
+	                        logger.error("initializeDB Failed to update password for user userPojo={}", userPojo, e);
+	                        throw e;
+	                    }
+	                }
+
 	                logger.debug("initializeDB found existing userPojo={}", userPojo);
 	            }
 

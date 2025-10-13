@@ -33,6 +33,7 @@ public enum PropertyKey {
 	LOGOUT_URL_RELATIVE_PATH("logout_url_relative_path", String.class, "/logout"),
 	LOGOUT_REDIRECT_URL_RELATIVE_PATH("logout_redirect_url_relative_path", String.class, "/management/jsp/auth/logout.jsp"),
 	
+	RELOAD_USER_PASSWORD("reload_user_password", Boolean.class, Boolean.TRUE),
 	DISABLE_USER_SAVE("disable_user_save", Boolean.class, Boolean.FALSE),
 	
     SOME_BOOLEAN("some_boolean", Boolean.class, Boolean.FALSE),
