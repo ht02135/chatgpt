@@ -150,11 +150,6 @@ public class ApplicationContextConfig {
     
     @Bean
     public PasswordEncoder passwordEncoder() {
-        String defaultEncoderId = "bcrypt";
-        Map<String, PasswordEncoder> encoders = new HashMap<>();
-        encoders.put("bcrypt", new BCryptPasswordEncoder());
-        // Optional: encoders.put("noop", NoOpPasswordEncoder.getInstance());
-
-        return new DelegatingPasswordEncoder(defaultEncoderId, encoders);
+        return new BCryptPasswordEncoder();
     }
 }
