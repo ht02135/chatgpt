@@ -21,9 +21,12 @@
 </form>
 
 <script>
-    const CONTEXT_PATH = "/" + window.location.pathname.split("/")[1];
-    const API_AUTH_REGISTER = `${CONTEXT_PATH}/api/management/auth/register`;
-    const LOGIN_PAGE = `${CONTEXT_PATH}/management/jsp/auth/login.jsp`;
+	// Detect context path dynamically from browser URL
+	const CONTEXT_PATH = "/" + window.location.pathname.split("/")[1];
+	// API endpoint for registration
+	const API_AUTH_REGISTER = `${CONTEXT_PATH}/api/management/auth/register`;
+	// Login page to redirect after successful registration
+	const LOGIN_PAGE = `${CONTEXT_PATH}/management/jsp/auth/login.jsp`;
 
     function RegisterViewModel() {
         const self = this;

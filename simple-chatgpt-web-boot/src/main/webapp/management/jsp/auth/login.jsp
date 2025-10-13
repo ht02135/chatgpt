@@ -20,9 +20,12 @@
 <p>Don't have an account? <a href="./register.jsp">Register here</a></p>
 
 <script>
-    const CONTEXT_PATH = "/" + window.location.pathname.split("/")[1];
-    const API_AUTH_LOGIN = `${CONTEXT_PATH}/api/management/auth/login`;
-    const DASHBOARD_PAGE = `${CONTEXT_PATH}/dashboard.jsp`;
+	// Detect context path dynamically from browser URL
+	const CONTEXT_PATH = "/" + window.location.pathname.split("/")[1];
+	// API endpoint for login
+	const API_AUTH_LOGIN = `${CONTEXT_PATH}/api/management/auth/login`;
+	// Dashboard page after successful login
+	const DASHBOARD_PAGE = `${CONTEXT_PATH}/dashboard.jsp`;
 
     function LoginViewModel() {
         const self = this;
