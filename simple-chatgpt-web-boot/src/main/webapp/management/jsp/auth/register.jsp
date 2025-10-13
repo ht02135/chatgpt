@@ -4,8 +4,6 @@
 <head>
     <meta charset="UTF-8">
     <title>Register</title>
-    <!-- Directly reference Knockout.js via relative path -->
-    <script src="../../js/knockout-latest.js"></script>
 </head>
 <body>
 
@@ -21,12 +19,17 @@
 </form>
 
 <script>
-	// Detect context path dynamically from browser URL
-	const CONTEXT_PATH = "/" + window.location.pathname.split("/")[1];
-	// API endpoint for registration
-	const API_AUTH_REGISTER = `${CONTEXT_PATH}/api/management/auth/register`;
-	// Login page to redirect after successful registration
-	const LOGIN_PAGE = `${CONTEXT_PATH}/management/jsp/auth/login.jsp`;
+    // ===== Detect context path dynamically from browser URL =====
+    const CONTEXT_PATH = window.location.origin + "/" + window.location.pathname.split("/")[1];
+    console.debug("register.jsp -> CONTEXT_PATH:", CONTEXT_PATH);
+
+    // ===== API endpoint for registration =====
+    const API_AUTH_REGISTER = CONTEXT_PATH + "/api/management/auth/register";
+    console.debug("register.jsp -> API_AUTH_REGISTER:", API_AUTH_REGISTER);
+
+    // ===== Login page to redirect after successful registration =====
+    const LOGIN_PAGE = CONTEXT_PATH + "/management/jsp/auth/login.jsp";
+    console.debug("register.jsp -> LOGIN_PAGE:", LOGIN_PAGE);
 
     function RegisterViewModel() {
         const self = this;
@@ -47,7 +50,7 @@
             };
 
             try {
-                console.log("register.jsp -> submitting register:", API_AUTH_REGISTER);
+                console.debug("register.jsp -> submitting register:", API_AUTH_REGISTER);
 
                 const response = await fetch(API_AUTH_REGISTER, {
                     method: 'POST',
@@ -58,7 +61,7 @@
                 if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 
                 const text = await response.text();
-                console.log("register.jsp -> register response:", text);
+                console.debug("register.jsp -> register response:", text);
                 alert(text);
 
                 // Redirect to login page if registration is successful
@@ -73,8 +76,9 @@
         };
     }
 
-    // Apply Knockout bindings after DOM is ready
+    // ===== Apply Knockout bindings after DOM is ready =====
     window.addEventListener('DOMContentLoaded', () => {
+        console.debug("register.jsp -> Applying Knockout bindings");
         ko.applyBindings(new RegisterViewModel());
     });
 </script>
