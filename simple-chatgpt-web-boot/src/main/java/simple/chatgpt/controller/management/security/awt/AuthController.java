@@ -49,6 +49,12 @@ public class AuthController {
                     .body(Response.error("Username and password are required", null, HttpStatus.BAD_REQUEST.value()));
         }
 
+        /*
+        Spring Security uses AuthenticationManager (here in AuthController) 
+        with DaoAuthenticationProvider.
+		DaoAuthenticationProvider internally calls 
+		PasswordEncoder.matches(rawPassword, encodedPasswordFromDB):
+        */
         try {
             var auth = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(creds.get(KEY_USERNAME), creds.get(KEY_PASSWORD))

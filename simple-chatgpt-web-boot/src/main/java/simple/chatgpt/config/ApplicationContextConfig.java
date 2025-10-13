@@ -1,5 +1,7 @@
 package simple.chatgpt.config;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 import javax.sql.DataSource;
@@ -15,6 +17,9 @@ import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.datasource.DriverManagerDataSource;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.DelegatingPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.validation.beanvalidation.LocalValidatorFactoryBean;
 
@@ -141,5 +146,15 @@ public class ApplicationContextConfig {
         LocalValidatorFactoryBean v = new LocalValidatorFactoryBean();
         logger.debug("validator created");
         return v;
+    }
+    
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        String defaultEncoderId = "bcrypt";
+        Map<String, PasswordEncoder> encoders = new HashMap<>();
+        encoders.put("bcrypt", new BCryptPasswordEncoder());
+        // Optional: encoders.put("noop", NoOpPasswordEncoder.getInstance());
+
+        return new DelegatingPasswordEncoder(defaultEncoderId, encoders);
     }
 }

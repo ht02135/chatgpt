@@ -9,6 +9,7 @@ import javax.annotation.PostConstruct;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import simple.chatgpt.config.management.loader.SecurityConfigLoader;
@@ -24,16 +25,20 @@ public class UserManagementServiceImpl implements UserManagementService {
 
     private final UserManagementMapper userManagementMapper;
     private final SecurityConfigLoader securityConfigLoader;
+    private final PasswordEncoder passwordEncoder; // Inject PasswordEncoder
 
     @Autowired
     public UserManagementServiceImpl(UserManagementMapper userManagementMapper,
-                                     SecurityConfigLoader securityConfigLoader) {
+                                     SecurityConfigLoader securityConfigLoader,
+                                     PasswordEncoder passwordEncoder) {
         logger.debug("UserManagementServiceImpl START");
         logger.debug("UserManagementServiceImpl userManagementMapper={}", userManagementMapper);
         logger.debug("UserManagementServiceImpl securityConfigLoader={}", securityConfigLoader);
+        logger.debug("UserManagementServiceImpl passwordEncoder={}", passwordEncoder);
 
         this.userManagementMapper = userManagementMapper;
         this.securityConfigLoader = securityConfigLoader;
+        this.passwordEncoder = passwordEncoder;
 
         logger.debug("UserManagementServiceImpl DONE");
     }
@@ -50,6 +55,14 @@ public class UserManagementServiceImpl implements UserManagementService {
     public UserManagementPojo create(UserManagementPojo user) {
         logger.debug("create START");
         logger.debug("create user={}", user);
+
+        // Encode password before saving
+        if (user.getPassword() != null) {
+            String encoded = passwordEncoder.encode(user.getPassword());
+            user.setPassword(encoded);
+            logger.debug("create encoded password={}", encoded);
+        }
+
         userManagementMapper.create(user);
         logger.debug("create return={}", user);
         return user;
@@ -60,6 +73,23 @@ public class UserManagementServiceImpl implements UserManagementService {
         logger.debug("update START");
         logger.debug("update id={}", id);
         logger.debug("update user={}", user);
+
+        // Fetch current user from DB
+        UserManagementPojo existingUser = userManagementMapper.get(id);
+        logger.debug("update existingUser={}", existingUser);
+
+        // Compare the new password with the existing one
+        if (!user.getPassword().equals(existingUser.getPassword())) {
+            // Password changed → encode it
+            String encodedPassword = passwordEncoder.encode(user.getPassword());
+            user.setPassword(encodedPassword);
+            logger.debug("update password changed, encoded password={}", encodedPassword);
+        } else {
+            // Password unchanged → keep existing
+            user.setPassword(existingUser.getPassword());
+            logger.debug("update password unchanged, keeping existing");
+        }
+
         userManagementMapper.update(id, user);
         logger.debug("update return={}", user);
         return user;
