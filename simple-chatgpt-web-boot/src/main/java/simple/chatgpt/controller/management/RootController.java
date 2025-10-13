@@ -2,6 +2,7 @@ package simple.chatgpt.controller.management;
 
 import java.io.IOException;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.logging.log4j.LogManager;
@@ -18,9 +19,12 @@ public class RootController {
 	private static final Logger logger = LogManager.getLogger(RootController.class);
     
     @GetMapping("/")
-    public void root(HttpServletResponse response) throws IOException {
-        logger.debug("TestController: /test endpoint called");
-        // let tomcat serve the page
-    	response.sendRedirect("/chatgpt/index.html");
+    public void root(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        logger.debug("RootController: / endpoint called");
+
+        String contextPath = request.getContextPath(); // dynamically gets /chatgpt-production
+        logger.debug("RootController: contextPath={}", contextPath);
+
+        response.sendRedirect(contextPath + "/index.html"); // no hardcoding
     }
 }
