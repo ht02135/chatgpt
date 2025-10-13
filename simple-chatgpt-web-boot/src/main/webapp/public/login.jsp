@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Login</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/knockout/3.5.1/knockout-min.js"></script>
+	<script src="../management/js/knockout-latest.js"></script>
 </head>
 <body>
 

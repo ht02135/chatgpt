@@ -32,6 +32,12 @@ public class SecurityConfig {
     private static final Logger logger = LogManager.getLogger(SecurityConfig.class);
     public static final String AUTH_URL = "/auth/**";
     public static final String PUBLIC_URL = "/public/**";
+    
+    public static final String ALL_JS_FILE = "/**/*.js";
+    public static final String ALL_CSS_FILE = "/**/*.css";
+    
+    public static final String INDEX_FILE = "/index.html";
+    public static final String TEST_FILE = "/this_is_test.html";
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final CustomAuthenticationEntryPoint authenticationEntryPoint;
@@ -56,78 +62,79 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         logger.debug("securityFilterChain called");
 
-        http
-            .csrf(csrf -> csrf.disable())
-            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+        // Disable CSRF and set stateless session
+        http.csrf(csrf -> csrf.disable())
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
-            // Permit /auth/** endpoints without authentication
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers(new AntPathRequestMatcher(AUTH_URL)).permitAll()
-                .requestMatchers(new AntPathRequestMatcher(PUBLIC_URL)).permitAll()
-                .anyRequest().authenticated() // all other requests require authentication
-            )
+        http.authorizeHttpRequests(auth -> auth
+        	.requestMatchers(new AntPathRequestMatcher(ALL_JS_FILE)).permitAll()
+        	.requestMatchers(new AntPathRequestMatcher(ALL_CSS_FILE)).permitAll()
+        	.requestMatchers(new AntPathRequestMatcher(PUBLIC_URL)).permitAll()
+        	.requestMatchers(new AntPathRequestMatcher(INDEX_FILE)).permitAll()
+        	.requestMatchers(new AntPathRequestMatcher(TEST_FILE)).permitAll()
+        	.requestMatchers(new AntPathRequestMatcher(AUTH_URL)).permitAll()
+        	.anyRequest().authenticated()
+        );
 
-            /*
-            When an unauthenticated user tries to access a protected URL 
-            (.anyRequest().authenticated()), Spring Security needs to decide what to do.
-			authenticationEntryPoint(authenticationEntryPoint) tells Spring:
-			“If the user is not logged in, call this CustomAuthenticationEntryPoint.”
-			Your CustomAuthenticationEntryPoint might:
-			Redirect the user to /login.jsp, or
-			Return a JSON error for APIs
-			Essentially, it’s the “unauthorized handler” for requests without valid credentials.
-            */
-            // Use custom entry point for unauthenticated requests
-            .exceptionHandling(ex -> ex
-                .authenticationEntryPoint(authenticationEntryPoint)
-            );
+        /*
+        When an unauthenticated user tries to access a protected URL 
+        (.anyRequest().authenticated()), Spring Security needs to decide what to do.
+    	authenticationEntryPoint(authenticationEntryPoint) tells Spring:
+    	“If the user is not logged in, call this CustomAuthenticationEntryPoint.”
+    	Your CustomAuthenticationEntryPoint might:
+    	Redirect the user to /login.jsp, or
+    	Return a JSON error for APIs
+    	Essentially, it’s the “unauthorized handler” for requests without valid credentials.
+        */
+        http.exceptionHandling(ex -> ex
+            .authenticationEntryPoint(authenticationEntryPoint)
+        );
 
-            /*
-            Enables form-based login (classic web login).
-			loginPage("/login.jsp") → Spring will use your JSP page as the login form.
-			permitAll() → anyone can access /login.jsp without being authenticated.
-			Behind the scenes:
-			Spring registers a UsernamePasswordAuthenticationFilter to handle 
-			POST requests from /login.jsp.
-			On successful login, Spring creates a session and stores the user 
-			authentication in SecurityContextHolder.
-            */
-            // Form login page not needed for jwt
-        	/*
-            .formLogin(form -> form
-                .loginPage("/login.jsp")
-                .permitAll()
-            )
-            */
+        /*
+        Enables form-based login (classic web login).
+    	loginPage("/login.jsp") → Spring will use your JSP page as the login form.
+    	permitAll() → anyone can access /login.jsp without being authenticated.
+    	Behind the scenes:
+    	Spring registers a UsernamePasswordAuthenticationFilter to handle 
+    	POST requests from /login.jsp.
+    	On successful login, Spring creates a session and stores the user 
+    	authentication in SecurityContextHolder.
+        */
+        // Form login page not needed for jwt
+        /*
+        .formLogin(form -> form
+            .loginPage("/login.jsp")
+            .permitAll()
+        )
+        */
 
-            /*
-            Configures logout behavior:
-			logoutUrl("/logout") → This URL triggers logout.
-			logoutSuccessUrl("/logout.jsp") → After logging out, redirect the user here.
-			invalidateHttpSession(true) → Destroy the HTTP session (remove all session attributes).
-			deleteCookies("JSESSIONID") → Remove the session cookie so the user is fully logged out.
-			permitAll() → anyone can access /logout without being logged in.
-            */
-            // Logout handling not needed for jwt
-        	/*
-            .logout(logout -> logout
-                .logoutUrl("/logout")
-                .logoutSuccessUrl("/logout.jsp")
-                .invalidateHttpSession(true)
-                .deleteCookies("JSESSIONID")
-                .permitAll()
-            );
-            */
+        /*
+        Configures logout behavior:
+    	logoutUrl("/logout") → This URL triggers logout.
+    	logoutSuccessUrl("/logout.jsp") → After logging out, redirect the user here.
+    	invalidateHttpSession(true) → Destroy the HTTP session (remove all session attributes).
+    	deleteCookies("JSESSIONID") → Remove the session cookie so the user is fully logged out.
+    	permitAll() → anyone can access /logout without being logged in.
+        */
+        // Logout handling not needed for jwt
+        /*
+        .logout(logout -> logout
+            .logoutUrl("/logout")
+            .logoutSuccessUrl("/logout.jsp")
+            .invalidateHttpSession(true)
+            .deleteCookies("JSESSIONID")
+            .permitAll()
+        );
+        */
 
         /*
         jwtAuthenticationFilter is a custom filter you wrote that:
-		Reads the Authorization: Bearer <token> header from the request
-		Validates the JWT
-		Creates an Authentication object and sets it in SecurityContextHolder
-		addFilterBefore(..., UsernamePasswordAuthenticationFilter.class) means:
-		“Place this JWT filter before Spring’s default username/password login filter in the security filter chain.” 
+    	Reads the Authorization: Bearer <token> header from the request
+    	Validates the JWT
+    	Creates an Authentication object and sets it in SecurityContextHolder
+    	addFilterBefore(..., UsernamePasswordAuthenticationFilter.class) means:
+    	“Place this JWT filter before Spring’s default username/password login filter in the security filter chain.” 
         */
-        // Add JWT authentication filter first
         http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         // Add DynamicAccessFilter after JWT is validated
