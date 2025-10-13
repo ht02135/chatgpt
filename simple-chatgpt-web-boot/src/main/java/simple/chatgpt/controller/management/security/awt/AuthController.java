@@ -18,7 +18,7 @@ import simple.chatgpt.config.management.jwt.JwtTokenProvider;
 import simple.chatgpt.util.Response;
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/management/auth")
 public class AuthController {
 
     // ===== Constants =====

@@ -4,6 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <title>Register</title>
+    <!-- Directly reference Knockout.js via relative path -->
+    <script src="../../js/knockout-latest.js"></script>
 </head>
 <body>
 
@@ -19,26 +21,10 @@
 </form>
 
 <script>
-    // ===== Constants =====
-    const CONTEXT_PATH = window.location.pathname.substring(0, window.location.pathname.indexOf('/', 1));
-    const KO_SCRIPT = `${CONTEXT_PATH}/management/js/knockout-latest.js`;
-    const API_AUTH_REGISTER = `${CONTEXT_PATH}/api/auth/register`;
-    const LOGIN_PAGE = `${CONTEXT_PATH}/public/login.jsp`;
+    const CONTEXT_PATH = "/" + window.location.pathname.split("/")[1];
+    const API_AUTH_REGISTER = `${CONTEXT_PATH}/api/management/auth/register`;
+    const LOGIN_PAGE = `${CONTEXT_PATH}/management/jsp/auth/login.jsp`;
 
-    // ===== Dynamically load Knockout.js =====
-    const script = document.createElement('script');
-    script.src = KO_SCRIPT;
-    script.onload = () => {
-        // Knockout loaded → now apply bindings
-        ko.applyBindings(new RegisterViewModel());
-    };
-    script.onerror = () => {
-        console.error("Failed to load Knockout.js from", KO_SCRIPT);
-        alert("Failed to load required scripts. Please refresh or contact admin.");
-    };
-    document.head.appendChild(script);
-
-    // ===== ViewModel =====
     function RegisterViewModel() {
         const self = this;
 
@@ -83,6 +69,11 @@
             }
         };
     }
+
+    // Apply Knockout bindings after DOM is ready
+    window.addEventListener('DOMContentLoaded', () => {
+        ko.applyBindings(new RegisterViewModel());
+    });
 </script>
 
 </body>

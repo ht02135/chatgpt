@@ -30,8 +30,8 @@ Goals:
 public class SecurityConfig {
 
     private static final Logger logger = LogManager.getLogger(SecurityConfig.class);
-    public static final String AUTH_URL = "/auth/**";
-    public static final String API_AUTH_URL = "/api/auth/**";
+    public static final String AUTH_URL = "/management/jsp/auth/**";
+    public static final String API_AUTH_URL = "/api/management/auth/**";
     public static final String PUBLIC_URL = "/public/**";
     
     public static final String ALL_JS_FILE = "/**/*.js";

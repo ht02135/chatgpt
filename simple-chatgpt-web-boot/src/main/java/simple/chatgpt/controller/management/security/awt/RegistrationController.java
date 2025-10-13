@@ -18,7 +18,7 @@ import simple.chatgpt.service.management.security.RoleGroupManagementService;
 import simple.chatgpt.util.Response;
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/management/auth")
 public class RegistrationController {
 
     private static final Logger logger = LogManager.getLogger(RegistrationController.class);
