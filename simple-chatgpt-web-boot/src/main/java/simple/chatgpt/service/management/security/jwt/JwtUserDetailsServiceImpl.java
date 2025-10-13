@@ -1,7 +1,6 @@
 package simple.chatgpt.service.management.security.jwt;
 
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.apache.logging.log4j.LogManager;
@@ -15,12 +14,12 @@ import org.springframework.stereotype.Service;
 
 import simple.chatgpt.pojo.management.UserManagementPojo;
 import simple.chatgpt.pojo.management.security.RoleGroupManagementPojo;
-import simple.chatgpt.pojo.management.security.RoleGroupRoleMappingPojo;
 import simple.chatgpt.pojo.management.security.RoleManagementPojo;
 import simple.chatgpt.service.management.UserManagementService;
 import simple.chatgpt.service.management.security.RoleGroupManagementService;
 import simple.chatgpt.service.management.security.RoleGroupRoleMappingService;
 import simple.chatgpt.service.management.security.RoleManagementService;
+import simple.chatgpt.service.management.security.UserManagementRoleGroupMappingService;
 
 @Service
 public class JwtUserDetailsServiceImpl implements UserDetailsService {
@@ -28,23 +27,21 @@ public class JwtUserDetailsServiceImpl implements UserDetailsService {
     private static final Logger logger = LogManager.getLogger(JwtUserDetailsServiceImpl.class);
 
     private final UserManagementService userManagementService;
+    private final UserManagementRoleGroupMappingService mappingService;
     private final RoleGroupManagementService roleGroupManagementService;
     private final RoleGroupRoleMappingService roleGroupRoleMappingService;
     private final RoleManagementService roleManagementService;
 
     public JwtUserDetailsServiceImpl(
             UserManagementService userManagementService,
+            UserManagementRoleGroupMappingService mappingService,
             RoleGroupManagementService roleGroupManagementService,
             RoleGroupRoleMappingService roleGroupRoleMappingService,
             RoleManagementService roleManagementService) 
     {
         logger.debug("JwtUserDetailsServiceImpl constructor called");
-        logger.debug("userManagementService={}", userManagementService);
-        logger.debug("roleGroupManagementService={}", roleGroupManagementService);
-        logger.debug("roleGroupRoleMappingService={}", roleGroupRoleMappingService);
-        logger.debug("roleManagementService={}", roleManagementService);
-
         this.userManagementService = userManagementService;
+        this.mappingService = mappingService;
         this.roleGroupManagementService = roleGroupManagementService;
         this.roleGroupRoleMappingService = roleGroupRoleMappingService;
         this.roleManagementService = roleManagementService;
@@ -59,13 +56,19 @@ public class JwtUserDetailsServiceImpl implements UserDetailsService {
             logger.debug("User not found for username={}", username);
             throw new UsernameNotFoundException("User not found: " + username);
         }
-        logger.debug("loadUserByUsername user={}", user);
 
-        List<String> roleNames =  getRolesFromRoleGroups(user.getRoleGroupRefs());
+        // Explicitly populate roleGroups from mapping service
+        List<RoleGroupManagementPojo> roleGroups = mappingService.getMappingsByUserId(user.getId())
+            .stream()
+            .map(m -> roleGroupManagementService.get(m.getRoleGroupId()))
+            .filter(rg -> rg != null)
+            .toList();
+        user.setRoleGroups(roleGroups);
+        logger.debug("loadUserByUsername populated roleGroups={}", roleGroups);
+
+        List<String> roleNames = getRolesFromRoleGroups(user.getRoleGroupRefs());
         logger.debug("loadUserByUsername roleNames={}", roleNames);
-        
-        // Map all role-groups to authorities (can also use roles later)
-        
+
         List<SimpleGrantedAuthority> authorities = roleNames.stream()
                 .map(SimpleGrantedAuthority::new)
                 .toList();    
@@ -80,12 +83,8 @@ public class JwtUserDetailsServiceImpl implements UserDetailsService {
                 .build();
     }
 
-    /**
-     * Helper: Given a list of role-group names, return all roles contained in those role-groups.
-     */
     public List<String> getRolesFromRoleGroups(List<String> roleGroupRefs) {
         logger.debug("getRolesFromRoleGroups called roleGroupRefs={}", roleGroupRefs);
-
         if (roleGroupRefs == null || roleGroupRefs.isEmpty()) {
             return List.of();
         }
@@ -95,10 +94,7 @@ public class JwtUserDetailsServiceImpl implements UserDetailsService {
                 RoleGroupManagementPojo rg = roleGroupManagementService.getRoleGroupByGroupName(rgName);
                 if (rg == null) return Stream.empty();
 
-                List<RoleGroupRoleMappingPojo> mappings = roleGroupRoleMappingService.getMappingsByRoleGroupId(rg.getId());
-                if (mappings == null || mappings.isEmpty()) return Stream.empty();
-
-                return mappings.stream()
+                return roleGroupRoleMappingService.getMappingsByRoleGroupId(rg.getId()).stream()
                         .map(mapping -> {
                             RoleManagementPojo role = roleManagementService.get(mapping.getRoleId());
                             return role != null ? role.getRoleName() : null;
@@ -106,7 +102,7 @@ public class JwtUserDetailsServiceImpl implements UserDetailsService {
                         .filter(r -> r != null);
             })
             .distinct()
-            .collect(Collectors.toList());
+            .toList();
 
         logger.debug("getRolesFromRoleGroups result={}", roles);
         return roles;
