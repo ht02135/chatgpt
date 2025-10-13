@@ -1,4 +1,4 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page contentType="text/html;charset=UTF-8" language="java" import="org.apache.commons.text.StringEscapeUtils" %>
 <%
     // ==============================
     // SERVER-SIDE: Read JWT token from cookies
@@ -73,14 +73,17 @@
 </div>
 
 <!-- ==============================
-     CLIENT-SIDE: JavaScript using JWT token
-     This runs in the browser AFTER the page is loaded
+     CLIENT-SIDE: JWT token for API calls
      ============================== -->
 <script>
-    const jwtToken = "<%= jwtToken %>"; // injected from server-side
-    console.debug("dashboard.jsp -> JWT token available for API calls:", jwtToken);
+    // Inject token from server-side into JS
+    const jwtToken = "<%= StringEscapeUtils.escapeEcmaScript(jwtToken) %>";
+    console.debug("dashboard.jsp -> JWT token injected:", jwtToken);
 
-    // Example: fetch user data from API using token
+    // Save to localStorage for reuse across pages
+    localStorage.setItem('jwtToken', jwtToken);
+
+    // Example: fetch user data using token
     async function fetchUserData() {
         try {
             const response = await fetch('<%= request.getContextPath() %>/api/management/user/data', {
