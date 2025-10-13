@@ -3,7 +3,6 @@ package simple.chatgpt.service.management;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 
@@ -16,10 +15,6 @@ import org.springframework.stereotype.Service;
 import simple.chatgpt.config.management.loader.SecurityConfigLoader;
 import simple.chatgpt.mapper.management.UserManagementMapper;
 import simple.chatgpt.pojo.management.UserManagementPojo;
-import simple.chatgpt.pojo.management.security.RoleGroupManagementPojo;
-import simple.chatgpt.pojo.management.security.UserManagementRoleGroupMappingPojo;
-import simple.chatgpt.service.management.security.RoleGroupManagementService;
-import simple.chatgpt.service.management.security.UserManagementRoleGroupMappingService;
 import simple.chatgpt.util.PagedResult;
 import simple.chatgpt.util.SafeConverter;
 
@@ -30,45 +25,38 @@ public class UserManagementServiceImpl implements UserManagementService {
 
     private final UserManagementMapper userManagementMapper;
     private final SecurityConfigLoader securityConfigLoader;
-    private final PasswordEncoder passwordEncoder;
-    private final UserManagementRoleGroupMappingService mappingService;
-    private final RoleGroupManagementService roleGroupService;
+    private final PasswordEncoder passwordEncoder; // Inject PasswordEncoder
 
     @Autowired
     public UserManagementServiceImpl(UserManagementMapper userManagementMapper,
                                      SecurityConfigLoader securityConfigLoader,
-                                     PasswordEncoder passwordEncoder,
-                                     UserManagementRoleGroupMappingService mappingService,
-                                     RoleGroupManagementService roleGroupService) {
+                                     PasswordEncoder passwordEncoder) {
         logger.debug("UserManagementServiceImpl START");
         logger.debug("UserManagementServiceImpl userManagementMapper={}", userManagementMapper);
         logger.debug("UserManagementServiceImpl securityConfigLoader={}", securityConfigLoader);
         logger.debug("UserManagementServiceImpl passwordEncoder={}", passwordEncoder);
-        logger.debug("UserManagementServiceImpl mappingService={}", mappingService);
-        logger.debug("UserManagementServiceImpl roleGroupService={}", roleGroupService);
 
         this.userManagementMapper = userManagementMapper;
         this.securityConfigLoader = securityConfigLoader;
         this.passwordEncoder = passwordEncoder;
-        this.mappingService = mappingService;
-        this.roleGroupService = roleGroupService;
 
         logger.debug("UserManagementServiceImpl DONE");
     }
 
     @PostConstruct
     public void initializeDB() {
-        logger.debug("initializeDB called");
     }
+    
+    // =========================================================================
+    // 5 CORE METHODS (PRIMARY)
+    // =========================================================================
 
-    // -----------------------------
-    // CREATE
-    // -----------------------------
     @Override
     public UserManagementPojo create(UserManagementPojo user) {
         logger.debug("create START");
         logger.debug("create user={}", user);
 
+        // Encode password before saving
         if (user.getPassword() != null) {
             String encoded = passwordEncoder.encode(user.getPassword());
             user.setPassword(encoded);
@@ -76,72 +64,37 @@ public class UserManagementServiceImpl implements UserManagementService {
         }
 
         userManagementMapper.create(user);
-
-        // Sync role groups if provided
-        if (user.getRoleGroups() != null && !user.getRoleGroups().isEmpty()) {
-            syncUserRoleGroups(user.getId(), user.getRoleGroups());
-        }
-
-        // Populate role groups
-        user.setRoleGroups(getUserRoleGroups(user.getId()));
         logger.debug("create return={}", user);
         return user;
     }
 
-    // -----------------------------
-    // UPDATE
-    // -----------------------------
     @Override
     public UserManagementPojo update(Long id, UserManagementPojo user) {
         logger.debug("update START");
         logger.debug("update id={}", id);
         logger.debug("update user={}", user);
 
+        // Fetch current user from DB
         UserManagementPojo existingUser = userManagementMapper.get(id);
         logger.debug("update existingUser={}", existingUser);
 
+        // Compare the new password with the existing one
         if (!user.getPassword().equals(existingUser.getPassword())) {
-            String encoded = passwordEncoder.encode(user.getPassword());
-            user.setPassword(encoded);
-            logger.debug("update password changed, encoded password={}", encoded);
+            // Password changed → encode it
+            String encodedPassword = passwordEncoder.encode(user.getPassword());
+            user.setPassword(encodedPassword);
+            logger.debug("update password changed, encoded password={}", encodedPassword);
         } else {
+            // Password unchanged → keep existing
             user.setPassword(existingUser.getPassword());
             logger.debug("update password unchanged, keeping existing");
         }
 
         userManagementMapper.update(id, user);
-
-        // Sync role groups if provided
-        if (user.getRoleGroups() != null) {
-            syncUserRoleGroups(id, user.getRoleGroups());
-        }
-
-        // Populate role groups
-        user.setRoleGroups(getUserRoleGroups(id));
         logger.debug("update return={}", user);
         return user;
     }
 
-    // -----------------------------
-    // GET
-    // -----------------------------
-    @Override
-    public UserManagementPojo get(Long id) {
-        logger.debug("get START");
-        logger.debug("get id={}", id);
-
-        UserManagementPojo user = userManagementMapper.get(id);
-        if (user != null) {
-            user.setRoleGroups(getUserRoleGroups(id));
-        }
-
-        logger.debug("get return={}", user);
-        return user;
-    }
-
-    // -----------------------------
-    // SEARCH
-    // -----------------------------
     @Override
     public PagedResult<UserManagementPojo> search(Map<String, String> params) {
         logger.debug("search START");
@@ -161,129 +114,84 @@ public class UserManagementServiceImpl implements UserManagementService {
         if (!params.containsKey("sortDirection")) params.put("sortDirection", "ASC");
         params.put("sortDirection", params.get("sortDirection").toUpperCase());
 
-        Map<String, Object> mapperParams = new HashMap<>(params);
+        // force uppercase for sortDirection
+        params.put("sortDirection", params.get("sortDirection").toUpperCase());
+
+        // Hung : mapper expect Map<String, Object> for offset and limit
+    	Map<String, Object> mapperParams = new HashMap<>(params);
         mapperParams.put("offset", SafeConverter.toIntOrDefault(params.get("offset"), 0));
         mapperParams.put("limit", SafeConverter.toIntOrDefault(params.get("limit"), 10));
-
+        
         List<UserManagementPojo> items = userManagementMapper.search(mapperParams);
-
-        // Populate role groups for all users
-        for (UserManagementPojo user : items) {
-            user.setRoleGroups(getUserRoleGroups(user.getId()));
-        }
-
         long totalCount = items.size(); // replace with count query if available
-        PagedResult<UserManagementPojo> result = new PagedResult<>(items, totalCount, page, size);
 
+        PagedResult<UserManagementPojo> result = new PagedResult<>(items, totalCount, page, size);
         logger.debug("search return={}", result);
         return result;
     }
 
-    // -----------------------------
-    // DELETE
-    // -----------------------------
+    @Override
+    public UserManagementPojo get(Long id) {
+        logger.debug("get START");
+        logger.debug("get id={}", id);
+        UserManagementPojo user = userManagementMapper.get(id);
+        logger.debug("get return={}", user);
+        return user;
+    }
+
     @Override
     public void delete(Long id) {
         logger.debug("delete START");
         logger.debug("delete id={}", id);
-
-        // Optionally remove mappings first
-        List<UserManagementRoleGroupMappingPojo> mappings = mappingService.getMappingsByUserId(id);
-        for (UserManagementRoleGroupMappingPojo m : mappings) {
-            mappingService.delete(m.getId());
-            logger.debug("delete removed mapping={}", m);
-        }
-
         userManagementMapper.delete(id);
         logger.debug("delete DONE");
     }
-
-    // -----------------------------
-    // OTHER HELPER METHODS
-    // -----------------------------
-    public List<UserManagementPojo> getUserByParams(Map<String, Object> params) {
-        logger.debug("getUserByParams called");
-        List<UserManagementPojo> mappings = userManagementMapper.search(params);
-        // populate roleGroups
-        for (UserManagementPojo u : mappings) {
-            u.setRoleGroups(getUserRoleGroups(u.getId()));
-        }
-        return mappings;
-    }
-
-    public List<UserManagementPojo> getAll() {
-        logger.debug("getAll called");
-        Map<String, Object> params = new HashMap<>();
-        List<UserManagementPojo> users = getUserByParams(params);
-        return users;
-    }
-
-    @Override
-    public UserManagementPojo getUserByUserName(String userName) {
-        logger.debug("getUserByUserName called userName={}", userName);
-
-        Map<String, Object> params = new HashMap<>();
-        params.put("userName", userName);
-
-        List<UserManagementPojo> users = getUserByParams(params);
-        if (users == null || users.isEmpty()) {
-            logger.debug("getUserByUserName: no user found for userName={}", userName);
-            return null;
-        }
-
-        UserManagementPojo foundUser = users.get(0);
-        logger.debug("getUserByUserName foundUser={}", foundUser);
-        return foundUser;
-    }
     
-    // -----------------------------
-    // HELPER: Get User Role Groups
-    // -----------------------------
-    private List<RoleGroupManagementPojo> getUserRoleGroups(Long userId) {
-        logger.debug("getUserRoleGroups called userId={}", userId);
+    // =========================================================================
+    // ORIGINAL METHODS (USED BY CORE)
+    // =========================================================================
 
-        List<UserManagementRoleGroupMappingPojo> mappings = mappingService.getMappingsByUserId(userId);
-        List<Long> roleGroupIds = mappings.stream().map(UserManagementRoleGroupMappingPojo::getRoleGroupId).toList();
+	public List<UserManagementPojo> getUserByParams(Map<String, Object> params)
+	{
+        logger.debug("getUserByParams called");
 
-        List<RoleGroupManagementPojo> roleGroups = roleGroupService.getAll().stream()
-                .filter(r -> roleGroupIds.contains(r.getId()))
-                .collect(Collectors.toList());
+        List<UserManagementPojo> mappings = userManagementMapper.search(params);
+        return mappings;
+	}
+	
+	public List<UserManagementPojo> getAll()
+	{
+        logger.debug("getAll called");
 
-        logger.debug("getUserRoleGroups return={}", roleGroups);
-        return roleGroups;
-    }
+        // Reuse search mapper with empty params to get everything
+        Map<String, Object> params = new HashMap<>();
+        // No offset/limit => all rows
+        List<UserManagementPojo> users = getUserByParams(params);
+        
+        return users;
+	}
+	
+	// #{params.userName}
+	@Override
+	public UserManagementPojo getUserByUserName(String userName) {
+	    logger.debug("getUserByUserName called");
+	    logger.debug("getUserByUserName userName={}", userName);
 
-    // -----------------------------
-    // HELPER: Sync Role Groups
-    // -----------------------------
-    private void syncUserRoleGroups(Long userId, List<RoleGroupManagementPojo> newRoleGroups) {
-        logger.debug("syncUserRoleGroups called userId={} newRoleGroups={}", userId, newRoleGroups);
+	    Map<String, Object> params = new HashMap<>();
+	    params.put("userName", userName);
 
-        List<UserManagementRoleGroupMappingPojo> existingMappings = mappingService.getMappingsByUserId(userId);
+	    List<UserManagementPojo> users = getUserByParams(params);
+	    logger.debug("getUserByUserName users={}", users);
 
-        // Determine which mappings to remove
-        List<UserManagementRoleGroupMappingPojo> toRemove = existingMappings.stream()
-                .filter(m -> newRoleGroups.stream().noneMatch(r -> r.getId().equals(m.getRoleGroupId())))
-                .toList();
+	    if (users == null || users.isEmpty()) {
+	        logger.debug("getUserByUserName: no user found for userName={}", userName);
+	        return null;
+	    }
 
-        // Determine which mappings to add
-        List<RoleGroupManagementPojo> toAdd = newRoleGroups.stream()
-                .filter(r -> existingMappings.stream().noneMatch(m -> m.getRoleGroupId().equals(r.getId())))
-                .toList();
+	    UserManagementPojo foundUser = users.get(0);
+	    logger.debug("getUserByUserName foundUser={}", foundUser);
 
-        // Remove outdated mappings
-        for (UserManagementRoleGroupMappingPojo remove : toRemove) {
-            mappingService.delete(remove.getId());
-            logger.debug("syncUserRoleGroups deleted mapping={}", remove);
-        }
-
-        // Add new mappings
-        for (RoleGroupManagementPojo add : toAdd) {
-            UserManagementRoleGroupMappingPojo mapping = new UserManagementRoleGroupMappingPojo();
-            mapping.setUserId(userId);
-            mapping.setRoleGroupId(add.getId());
-            mappingService.create(mapping);
-            logger.debug("syncUserRoleGroups added mapping={}", mapping);
-        }
-    }
+	    return foundUser;
+	}
+	
 }
