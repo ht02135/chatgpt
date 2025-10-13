@@ -31,6 +31,7 @@ public class SecurityConfig {
 
     private static final Logger logger = LogManager.getLogger(SecurityConfig.class);
     public static final String AUTH_URL = "/auth/**";
+    public static final String API_AUTH_URL = "/api/auth/**";
     public static final String PUBLIC_URL = "/public/**";
     
     public static final String ALL_JS_FILE = "/**/*.js";
@@ -65,7 +66,7 @@ public class SecurityConfig {
         // Disable CSRF and set stateless session
         http.csrf(csrf -> csrf.disable())
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-
+        
         http.authorizeHttpRequests(auth -> auth
         	.requestMatchers(new AntPathRequestMatcher(ALL_JS_FILE)).permitAll()
         	.requestMatchers(new AntPathRequestMatcher(ALL_CSS_FILE)).permitAll()
@@ -73,6 +74,7 @@ public class SecurityConfig {
         	.requestMatchers(new AntPathRequestMatcher(INDEX_FILE)).permitAll()
         	.requestMatchers(new AntPathRequestMatcher(DASHBOARD_FILE)).permitAll()
         	.requestMatchers(new AntPathRequestMatcher(AUTH_URL)).permitAll()
+        	.requestMatchers(new AntPathRequestMatcher(API_AUTH_URL)).permitAll()
         	.anyRequest().authenticated()
         );
 
