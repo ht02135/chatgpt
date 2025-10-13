@@ -26,6 +26,6 @@ public class RootController {
         logger.debug("RootController: contextPath={}", contextPath);
         
         logger.debug("RootController: sendRedirect=", contextPath + "/index.html");
-        response.sendRedirect(contextPath + "/index.html"); // no hardcoding
+        response.sendRedirect(contextPath + "/index.jsp"); // no hardcoding
     }
 }

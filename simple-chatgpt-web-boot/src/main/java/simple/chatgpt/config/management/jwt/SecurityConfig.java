@@ -36,7 +36,7 @@ public class SecurityConfig {
     public static final String ALL_JS_FILE = "/**/*.js";
     public static final String ALL_CSS_FILE = "/**/*.css";
     
-    public static final String INDEX_FILE = "/index.html";
+    public static final String INDEX_FILE = "/index.jsp";
     public static final String DASHBOARD_FILE = "/dashboard.jsp";
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
