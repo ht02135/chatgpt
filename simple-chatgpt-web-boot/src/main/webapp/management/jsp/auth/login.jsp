@@ -20,17 +20,19 @@
 <script>
     // ===== Detect context path dynamically =====
     const CONTEXT_PATH = window.location.origin + "/" + window.location.pathname.split("/")[1];
-    console.debug("login.jsp -> CONTEXT_PATH:", CONTEXT_PATH);
-
-    // ===== Knockout.js script URL =====
     const KO_SCRIPT = CONTEXT_PATH + "/management/js/knockout-latest.js";
-    console.debug("login.jsp -> KO_SCRIPT:", KO_SCRIPT);
-
-    // ===== API endpoints and redirects =====
     const API_AUTH_LOGIN = CONTEXT_PATH + "/api/management/auth/login";
     const DASHBOARD_PAGE = CONTEXT_PATH + "/dashboard.jsp";
+
+    console.debug("login.jsp -> CONTEXT_PATH:", CONTEXT_PATH);
     console.debug("login.jsp -> API_AUTH_LOGIN:", API_AUTH_LOGIN);
-    console.debug("login.jsp -> DASHBOARD_PAGE:", DASHBOARD_PAGE);
+
+    // ===== Auto-check token from localStorage only =====
+    const jwtToken = localStorage.getItem('jwtToken');
+    if (jwtToken) {
+        console.debug("login.jsp -> token found in localStorage, redirecting to dashboard");
+        window.location.href = DASHBOARD_PAGE;
+    }
 
     // ===== Load Knockout.js dynamically =====
     const script = document.createElement('script');
@@ -41,7 +43,6 @@
 
         function LoginViewModel() {
             const self = this;
-
             self.username = ko.observable('');
             self.password = ko.observable('');
 
@@ -51,14 +52,8 @@
 
                     const response = await fetch(API_AUTH_LOGIN, {
                         method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            username: self.username(),
-                            password: self.password()
-                        })
+                        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                        body: JSON.stringify({ username: self.username(), password: self.password() })
                     });
 
                     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -66,14 +61,15 @@
                     const responseData = await response.json();
                     console.debug("login.jsp -> login response:", responseData);
 
-                    // Extract nested data
                     const loginData = responseData.data;
 
                     if (loginData && loginData.token) {
+                        // Save token to localStorage
                         localStorage.setItem('jwtToken', loginData.token);
                         localStorage.setItem('username', loginData.username || '');
                         localStorage.setItem('roles', JSON.stringify(loginData.roles || []));
-                        console.debug("login.jsp -> token stored, redirecting to dashboard");
+
+                        console.debug("login.jsp -> token stored in localStorage, redirecting to dashboard");
                         window.location.href = DASHBOARD_PAGE;
                     } else {
                         alert(responseData.message || 'Login failed: no token returned');

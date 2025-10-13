@@ -1,25 +1,4 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%
-    // ==============================
-    // SERVER-SIDE: Read JWT token from cookies
-    // ==============================
-    String token = null;
-    if (request.getCookies() != null) {
-        for (javax.servlet.http.Cookie c : request.getCookies()) {
-            if ("jwtToken".equals(c.getName())) {
-                token = c.getValue();
-                break;
-            }
-        }
-    }
-
-    if (token != null && !token.isEmpty()) {
-        // Token exists, redirect to dashboard
-        response.sendRedirect(request.getContextPath() + "/dashboard.jsp");
-        return; // stop further processing
-    }
-%>
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -33,25 +12,24 @@
     </p>
 
     <!-- ==============================
-         CLIENT-SIDE: Sync JWT from localStorage to cookie
-         Runs AFTER page loads in browser
+         CLIENT-SIDE: Check JWT token in localStorage
+         Redirect to dashboard if present, else to login
          ============================== -->
     <script>
-        // Check if cookie exists
-        const tokenCookie = document.cookie.split('; ').find(row => row.startsWith('jwtToken='));
-        if (!tokenCookie) {
-            // If cookie missing but token in localStorage, set cookie
-            const tokenFromStorage = localStorage.getItem('jwtToken');
-            if (tokenFromStorage) {
-                document.cookie = "jwtToken=" + tokenFromStorage + "; path=/; max-age=" + 24*60*60;
-                console.debug("index.jsp -> JWT token synced from localStorage to cookie, reloading page");
-                // Reload to trigger server-side redirect
-                location.reload();
-            } else {
-                console.debug("index.jsp -> No JWT token found in localStorage");
-            }
+        // ===== Detect context path dynamically =====
+        const CONTEXT_PATH = window.location.origin + "/" + window.location.pathname.split("/")[1];
+        const DASHBOARD_PAGE = CONTEXT_PATH + "/dashboard.jsp";
+        const LOGIN_PAGE = CONTEXT_PATH + "/login.jsp";
+
+        // ===== Check JWT token in localStorage =====
+        const jwtToken = localStorage.getItem('jwtToken');
+
+        if (jwtToken && jwtToken.length > 0) {
+            console.debug("index.jsp -> JWT token found in localStorage, redirecting to dashboard");
+            window.location.href = DASHBOARD_PAGE;
         } else {
-            console.debug("index.jsp -> JWT token cookie already exists");
+            console.debug("index.jsp -> No JWT token in localStorage, redirecting to login");
+            window.location.href = LOGIN_PAGE;
         }
     </script>
 </body>

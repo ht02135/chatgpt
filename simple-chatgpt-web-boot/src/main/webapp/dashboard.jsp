@@ -1,26 +1,4 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" import="org.apache.commons.text.StringEscapeUtils" %>
-<%
-    // ==============================
-    // SERVER-SIDE: Read JWT token from cookies
-    // This runs on the server BEFORE the page is sent to the browser
-    // ==============================
-    String jwtToken = null;
-    javax.servlet.http.Cookie[] cookies = request.getCookies();
-    if (cookies != null) {
-        for (javax.servlet.http.Cookie c : cookies) {
-            if ("jwtToken".equals(c.getName())) {
-                jwtToken = c.getValue();
-                break;
-            }
-        }
-    }
-    // Redirect to login if token is missing
-    if (jwtToken == null || jwtToken.isEmpty()) {
-        response.sendRedirect("login.jsp");
-        return;
-    }
-%>
-
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <!DOCTYPE html>
 <html>
 <head>
@@ -73,34 +51,41 @@
 </div>
 
 <!-- ==============================
-     CLIENT-SIDE: JWT token for API calls
+     CLIENT-SIDE: JWT token from localStorage
      ============================== -->
 <script>
-    // Inject token from server-side into JS
-    const jwtToken = "<%= StringEscapeUtils.escapeEcmaScript(jwtToken) %>";
-    console.debug("dashboard.jsp -> JWT token injected:", jwtToken);
+    // ===== Detect context path dynamically =====
+    const CONTEXT_PATH = window.location.origin + "/" + window.location.pathname.split("/")[1];
+    const LOGIN_PAGE = CONTEXT_PATH + "/login.jsp";
 
-    // Save to localStorage for reuse across pages
-    localStorage.setItem('jwtToken', jwtToken);
+    // ===== Check localStorage for JWT token =====
+    const jwtToken = localStorage.getItem('jwtToken');
 
-    // Example: fetch user data using token
-    async function fetchUserData() {
-        try {
-            const response = await fetch('<%= request.getContextPath() %>/api/management/user/data', {
-                headers: {
-                    'Authorization': 'Bearer ' + jwtToken,
-                    'Content-Type': 'application/json'
-                }
-            });
-            if (!response.ok) throw new Error('HTTP error! status: ' + response.status);
-            const data = await response.json();
-            console.log('User data:', data);
-        } catch (err) {
-            console.error('Error fetching user data:', err);
+    if (!jwtToken) {
+        console.debug("dashboard.jsp -> No token found in localStorage, redirecting to login");
+        window.location.href = LOGIN_PAGE;
+    } else {
+        console.debug("dashboard.jsp -> JWT token found:", jwtToken);
+
+        // Example API call using token
+        async function fetchUserData() {
+            try {
+                const response = await fetch(CONTEXT_PATH + '/api/management/user/data', {
+                    headers: {
+                        'Authorization': 'Bearer ' + jwtToken,
+                        'Content-Type': 'application/json'
+                    }
+                });
+                if (!response.ok) throw new Error('HTTP error! status: ' + response.status);
+                const data = await response.json();
+                console.log('User data:', data);
+            } catch (err) {
+                console.error('Error fetching user data:', err);
+            }
         }
-    }
 
-    fetchUserData();
+        fetchUserData();
+    }
 </script>
 
 </body>
