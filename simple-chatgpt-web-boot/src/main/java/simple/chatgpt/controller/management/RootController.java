@@ -24,7 +24,8 @@ public class RootController {
 
         String contextPath = request.getContextPath(); // dynamically gets /chatgpt-production
         logger.debug("RootController: contextPath={}", contextPath);
-
+        
+        logger.debug("RootController: sendRedirect=", contextPath + "/index.html");
         response.sendRedirect(contextPath + "/index.html"); // no hardcoding
     }
 }
