@@ -3,6 +3,7 @@ package simple.chatgpt.service.management.security;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 
@@ -307,4 +308,67 @@ public class UserManagementRoleGroupMappingServiceImpl implements UserManagement
         
         return mappings;	
 	}
+	
+    // ==============================================================
+    // HELPER METHODS FOR CONTROLLER
+    // ==============================================================
+
+    @Override
+    public void syncUserRoleGroups(Long userId, List<RoleGroupManagementPojo> newRoleGroups) {
+        logger.debug("syncUserRoleGroups called userId={} newRoleGroups={}", userId, newRoleGroups);
+
+        List<UserManagementRoleGroupMappingPojo> existingMappings = getMappingsByUserId(userId);
+
+        // Determine which mappings to remove
+        List<UserManagementRoleGroupMappingPojo> toRemove = existingMappings.stream()
+                .filter(m -> newRoleGroups.stream().noneMatch(r -> r.getId().equals(m.getRoleGroupId())))
+                .toList();
+
+        // Determine which mappings to add
+        List<RoleGroupManagementPojo> toAdd = newRoleGroups.stream()
+                .filter(r -> existingMappings.stream().noneMatch(m -> m.getRoleGroupId().equals(r.getId())))
+                .toList();
+
+        // Remove outdated mappings
+        for (UserManagementRoleGroupMappingPojo remove : toRemove) {
+            delete(remove.getId());
+            logger.debug("syncUserRoleGroups deleted mapping={}", remove);
+        }
+
+        // Add new mappings
+        for (RoleGroupManagementPojo add : toAdd) {
+            UserManagementRoleGroupMappingPojo mapping = new UserManagementRoleGroupMappingPojo();
+            mapping.setUserId(userId);
+            mapping.setRoleGroupId(add.getId());
+            create(mapping);
+            logger.debug("syncUserRoleGroups added mapping={}", mapping);
+        }
+    }
+
+    @Override
+    public List<RoleGroupManagementPojo> getUserRoleGroups(Long userId) {
+        logger.debug("getUserRoleGroups called userId={}", userId);
+
+        List<UserManagementRoleGroupMappingPojo> mappings = getMappingsByUserId(userId);
+        List<Long> roleGroupIds = mappings.stream()
+                .map(UserManagementRoleGroupMappingPojo::getRoleGroupId)
+                .toList();
+
+        List<RoleGroupManagementPojo> roleGroups = roleGroupService.getAll().stream()
+                .filter(r -> roleGroupIds.contains(r.getId()))
+                .collect(Collectors.toList());
+
+        logger.debug("getUserRoleGroups return={}", roleGroups);
+        return roleGroups;
+    }
+
+    @Override
+    public void deleteMappingsByUserId(Long userId) {
+        logger.debug("deleteMappingsByUserId called userId={}", userId);
+        List<UserManagementRoleGroupMappingPojo> mappings = getMappingsByUserId(userId);
+        for (UserManagementRoleGroupMappingPojo mapping : mappings) {
+            delete(mapping.getId());
+            logger.debug("deleteMappingsByUserId deleted mapping={}", mapping);
+        }
+    }
 }
