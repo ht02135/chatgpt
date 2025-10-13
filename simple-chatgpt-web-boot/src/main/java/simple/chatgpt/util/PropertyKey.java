@@ -28,10 +28,10 @@ public enum PropertyKey {
 	SAMPLE_CSV_RELATIVE_PATH("sample_csv_relative_path", String.class, "/management/data/user_lists/test_user_lists_1.csv"),
 	
 	LOGIN_URL_RELATIVE_PATH("login_url_relative_path", String.class, "/login"),
-	LOGIN_REDIRECT_URL_RELATIVE_PATH("login_redirect_url_relative_path", String.class, "/auth/login.jsp"),
+	LOGIN_REDIRECT_URL_RELATIVE_PATH("login_redirect_url_relative_path", String.class, "/management/jsp/auth/login.jsp"),
 	
 	LOGOUT_URL_RELATIVE_PATH("logout_url_relative_path", String.class, "/logout"),
-	LOGOUT_REDIRECT_URL_RELATIVE_PATH("logout_redirect_url_relative_path", String.class, "/auth/logout.jsp"),
+	LOGOUT_REDIRECT_URL_RELATIVE_PATH("logout_redirect_url_relative_path", String.class, "/management/jsp/auth/logout.jsp"),
 	
 	DISABLE_USER_SAVE("disable_user_save", Boolean.class, Boolean.FALSE),
 	
