@@ -18,12 +18,10 @@ import simple.chatgpt.config.management.jwt.JwtTokenProvider;
 import simple.chatgpt.util.Response;
 
 @RestController
-@RequestMapping(AuthController.AUTH_BASE_URL)
+@RequestMapping("/auth")
 public class AuthController {
 
     // ===== Constants =====
-    public static final String AUTH_BASE_URL = "/auth";
-    public static final String LOGIN_URL = "/login";
     public static final String KEY_USERNAME = "username";
     public static final String KEY_PASSWORD = "password";
     public static final String KEY_ROLES = "roles";
@@ -40,7 +38,7 @@ public class AuthController {
         this.jwtTokenProvider = jwtTokenProvider;
     }
 
-    @PostMapping(LOGIN_URL)
+    @PostMapping("/login")
     public ResponseEntity<Response<Map<String, Object>>> login(@RequestBody Map<String, String> creds) {
         logger.debug("login called");
         logger.debug("login creds={}", creds);
