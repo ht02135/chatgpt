@@ -29,7 +29,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     FilterChain filterChain)
             throws ServletException, IOException {
 
-        logger.debug("doFilterInternal called");
+        logger.debug("doFilterInternal START");
+        
         String token = jwtTokenProvider.resolveToken(request);
         logger.debug("doFilterInternal token={}", token);
 
@@ -41,5 +42,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         filterChain.doFilter(request, response);
+        
+        logger.debug("doFilterInternal DONE");
     }
 }

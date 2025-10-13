@@ -38,7 +38,8 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
                          HttpServletResponse response,
                          AuthenticationException authException) throws IOException {
 
-        logger.debug("commence called");
+        logger.debug("commence START");
+        
         logger.debug("commence requestURI={}", request.getRequestURI());
         logger.debug("commence authException={}", authException.getMessage());
 
@@ -53,5 +54,7 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
         
         // Redirect to login page
         response.sendRedirect(request.getContextPath() + loginRedirectURLRelativePath);
+        
+        logger.debug("commence DONE");
     }
 }
