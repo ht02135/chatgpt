@@ -59,11 +59,17 @@ public class JwtUserDetailsServiceImpl implements UserDetailsService {
             logger.debug("User not found for username={}", username);
             throw new UsernameNotFoundException("User not found: " + username);
         }
+        logger.debug("loadUserByUsername user={}", user);
 
+        List<String> roleNames =  getRolesFromRoleGroups(user.getRoleGroupRefs());
+        logger.debug("loadUserByUsername roleNames={}", roleNames);
+        
         // Map all role-groups to authorities (can also use roles later)
-        List<SimpleGrantedAuthority> authorities = getRolesFromRoleGroups(user.getRoleGroupRefs()).stream()
+        
+        List<SimpleGrantedAuthority> authorities = roleNames.stream()
                 .map(SimpleGrantedAuthority::new)
-                .toList();
+                .toList();    
+        logger.debug("loadUserByUsername authorities={}", authorities);
 
         return User.builder()
                 .username(user.getUserName())
