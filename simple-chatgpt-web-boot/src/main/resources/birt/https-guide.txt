@@ -130,6 +130,11 @@ RSI (14) =
 
 /////////////
 
+PEG, peter lynch said at 1 or below is bargain
+but than again, peter lynch value player not growth player...
+because growth never get price at 1 or bloew PEG unless bear
+market which is rare...
+
 GOOGL https://finviz.com/quote.ashx?t=GOOGL&p=d
 | Metric        | Value           |
 | ------------- | --------------- |
@@ -143,6 +148,21 @@ GOOGL https://finviz.com/quote.ashx?t=GOOGL&p=d
 | Profit Margin | 31.13%          |
 | RSI (14)      | 67.65           |
 
+/////////////
+
+AMZN https://finviz.com/quote.ashx?t=AMZN&ty=c&ta=1&p=m
+P/E Ratio (TTM): 32.98
+PEG Ratio: 1.77
+EPS (TTM): $6.69
+EPS Growth (3-Year Avg.): 19.7%
+EPS Growth (5-Year Avg.): 37.1%
+EPS Next Year Estimate: $7.60
+EPS Next 5 Years Estimate: 14.44%
+Dividend Yield (TTM): 0.00%
+Profit Margin: 10.54%
+RSI (14): 40.14
+
+/////////////
 
 WMT https://finviz.com/quote.ashx?t=WMT&p=d
 | Metric        | Value              |
