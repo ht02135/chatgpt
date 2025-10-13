@@ -18,23 +18,24 @@
 <p>Don't have an account? <a href="./register.jsp">Register here</a></p>
 
 <script>
-    // ===== Detect context path dynamically from browser URL =====
+    // ===== Detect context path dynamically =====
     const CONTEXT_PATH = window.location.origin + "/" + window.location.pathname.split("/")[1];
     console.debug("login.jsp -> CONTEXT_PATH:", CONTEXT_PATH);
 
-    // ===== Knockout.js script URL (use concatenation, not template literal) =====
+    // ===== Knockout.js script URL =====
     const KO_SCRIPT = CONTEXT_PATH + "/management/js/knockout-latest.js";
     console.debug("login.jsp -> KO_SCRIPT:", KO_SCRIPT);
 
-    // ===== API endpoint and redirect pages =====
+    // ===== API endpoints and redirects =====
     const API_AUTH_LOGIN = CONTEXT_PATH + "/api/management/auth/login";
     const DASHBOARD_PAGE = CONTEXT_PATH + "/dashboard.jsp";
     console.debug("login.jsp -> API_AUTH_LOGIN:", API_AUTH_LOGIN);
     console.debug("login.jsp -> DASHBOARD_PAGE:", DASHBOARD_PAGE);
 
-    // ===== Dynamically load Knockout.js =====
+    // ===== Load Knockout.js dynamically =====
     const script = document.createElement('script');
     script.src = KO_SCRIPT;
+
     script.onload = () => {
         console.debug("login.jsp -> Knockout.js loaded, applying bindings");
 
@@ -50,42 +51,48 @@
 
                     const response = await fetch(API_AUTH_LOGIN, {
                         method: 'POST',
-                        headers: { 
-                            'Content-Type': 'application/json', 
-                            'Accept': 'application/json' 
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
                         },
-                        body: JSON.stringify({ 
-                            username: self.username(), 
-                            password: self.password() 
+                        body: JSON.stringify({
+                            username: self.username(),
+                            password: self.password()
                         })
                     });
 
                     if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
 
-                    const data = await response.json();
-                    console.debug("login.jsp -> login response:", data);
+                    const responseData = await response.json();
+                    console.debug("login.jsp -> login response:", responseData);
 
-                    if (data.token) {
-                        localStorage.setItem('jwtToken', data.token);
-                        alert('Login successful!');
+                    // Extract nested data
+                    const loginData = responseData.data;
+
+                    if (loginData && loginData.token) {
+                        localStorage.setItem('jwtToken', loginData.token);
+                        localStorage.setItem('username', loginData.username || '');
+                        localStorage.setItem('roles', JSON.stringify(loginData.roles || []));
+                        console.debug("login.jsp -> token stored, redirecting to dashboard");
                         window.location.href = DASHBOARD_PAGE;
                     } else {
-                        alert('Login failed: no token returned');
+                        alert(responseData.message || 'Login failed: no token returned');
                     }
                 } catch (err) {
-                    console.error('Login error:', err);
+                    console.error('login.jsp -> Login error:', err);
                     alert('Login failed: ' + err.message);
                 }
             };
         }
 
-        // Apply Knockout bindings
         ko.applyBindings(new LoginViewModel());
     };
+
     script.onerror = () => {
         console.error("login.jsp -> Failed to load Knockout.js from", KO_SCRIPT);
         alert("Failed to load required scripts. Please refresh or contact admin.");
     };
+
     document.head.appendChild(script);
 </script>
 
