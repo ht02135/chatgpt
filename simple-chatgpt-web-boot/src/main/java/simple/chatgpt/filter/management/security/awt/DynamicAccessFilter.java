@@ -19,7 +19,6 @@ import simple.chatgpt.service.management.security.jwt.JwtPageRoleGroupService;
 hung : dont remove
 DynamicAccessFilter is triggered automatically by Spring Security because it 
 extends OncePerRequestFilter and is registered as a Spring bean with @Component
-
 1>Spring Security filter chain
 When Spring Security is enabled, it builds a filter chain for every HTTP request. 
 Each filter in the chain gets a chance to process the request before it reaches 

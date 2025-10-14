@@ -32,15 +32,15 @@ public class SecurityConfig {
     private static final Logger logger = LogManager.getLogger(SecurityConfig.class);
 
     // ===================== Constants =====================
-    public static final String AUTH_URL = "/management/jsp/auth/**";
-    public static final String API_URL = "/api/**";
-    public static final String API_AUTH_URL = "/api/management/auth/**";
-    public static final String PUBLIC_URL = "/public/**";
+    public static final String JSP_PUBLIC_URL = "/public/**";
+    public static final String JSP_AUTH_URL   = "/management/jsp/auth/**";
+    public static final String API_URL        = "/api/**";
+    public static final String API_AUTH_URL   = "/api/management/auth/**";
 
-    public static final String ALL_JS_FILE = "/**/*.js";
-    public static final String ALL_CSS_FILE = "/**/*.css";
+    public static final String ALL_JS_FILE    = "/**/*.js";
+    public static final String ALL_CSS_FILE   = "/**/*.css";
 
-    public static final String INDEX_FILE = "/index.jsp";
+    public static final String INDEX_FILE     = "/index.jsp";
     public static final String DASHBOARD_FILE = "/dashboard.jsp";
 
     // ===================== Filters & Entry Points =====================
@@ -75,10 +75,10 @@ public class SecurityConfig {
         http.authorizeHttpRequests(auth -> auth
             .requestMatchers(new AntPathRequestMatcher(ALL_JS_FILE)).permitAll()
             .requestMatchers(new AntPathRequestMatcher(ALL_CSS_FILE)).permitAll()
-            .requestMatchers(new AntPathRequestMatcher(PUBLIC_URL)).permitAll()
+            .requestMatchers(new AntPathRequestMatcher(JSP_PUBLIC_URL)).permitAll()
             .requestMatchers(new AntPathRequestMatcher(INDEX_FILE)).permitAll()
             .requestMatchers(new AntPathRequestMatcher(DASHBOARD_FILE)).permitAll()
-            .requestMatchers(new AntPathRequestMatcher(AUTH_URL)).permitAll()
+            .requestMatchers(new AntPathRequestMatcher(JSP_AUTH_URL)).permitAll()
             .requestMatchers(new AntPathRequestMatcher(API_URL)).permitAll()
             .requestMatchers(new AntPathRequestMatcher(API_AUTH_URL)).permitAll()
             .anyRequest().authenticated()

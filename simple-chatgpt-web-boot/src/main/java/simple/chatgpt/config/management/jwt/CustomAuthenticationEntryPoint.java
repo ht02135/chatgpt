@@ -25,6 +25,9 @@ AuthenticationEntryPoint.commence() is called → redirects to /login.jsp
 public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint {
 
     private static final Logger logger = LogManager.getLogger(CustomAuthenticationEntryPoint.class);
+    
+    public static final String LOGIN_REDIRECT_URL_RELATIVE_PATH = "/management/jsp/auth/login.jsp";
+    
     private final PropertyManagementService propertyService;
 
     public CustomAuthenticationEntryPoint(PropertyManagementService propertyService) {
@@ -44,7 +47,8 @@ public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint 
         logger.debug("commence contextPath={}", request.getContextPath());
         logger.debug("commence authException={}", authException.getMessage());
 
-        String loginRedirectURLRelativePath = "/management/jsp/auth/login.jsp";
+        
+        String loginRedirectURLRelativePath = LOGIN_REDIRECT_URL_RELATIVE_PATH;
         try {
             loginRedirectURLRelativePath = propertyService.getString(PropertyKey.LOGIN_REDIRECT_URL_RELATIVE_PATH);
             logger.debug("commence: Loaded property LOGIN_REDIRECT_URL_RELATIVE_PATH={}", loginRedirectURLRelativePath);

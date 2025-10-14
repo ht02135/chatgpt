@@ -17,6 +17,8 @@ hung: forward root / to index.html in /static folder
 public class RootController {
 	
 	private static final Logger logger = LogManager.getLogger(RootController.class);
+	
+	public static final String INDEX_FILE     = "/index.jsp";
     
     @GetMapping("/")
     public void root(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -26,6 +28,6 @@ public class RootController {
         logger.debug("RootController: contextPath={}", contextPath);
         
         logger.debug("RootController: sendRedirect=", contextPath + "/index.html");
-        response.sendRedirect(contextPath + "/index.jsp"); // no hardcoding
+        response.sendRedirect(contextPath + INDEX_FILE); // no hardcoding
     }
 }
