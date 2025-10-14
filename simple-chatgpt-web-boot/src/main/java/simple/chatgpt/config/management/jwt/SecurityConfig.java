@@ -8,6 +8,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -127,5 +128,35 @@ public class SecurityConfig {
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
         logger.debug("authenticationManager called");
         return configuration.getAuthenticationManager();
+    }
+    
+    @Bean
+    public WebSecurityCustomizer webSecurityCustomizer() {
+        logger.debug("webSecurityCustomizer called");
+
+        /*
+         hung: exclude static assets from Spring Security chain
+        */
+        return (web) -> web.ignoring().antMatchers(
+        		"/management/css/**",
+                "/management/component/**",
+        		"/management/fonts/**",
+                "/management/js/**",
+                "/management/images/**",
+                "/management/include/**",
+                "/public/**",
+                "/**/*.js",
+                "/**/*.css",
+                "/**/*.jspf",
+                "/**/*.png",
+                "/**/*.jpg",
+                "/**/*.jpeg",
+                "/**/*.gif",
+                "/**/*.ico",
+                "/**/*.svg",
+                "/**/*.woff",
+                "/**/*.woff2",
+                "/**/*.ttf"
+        );
     }
 }
