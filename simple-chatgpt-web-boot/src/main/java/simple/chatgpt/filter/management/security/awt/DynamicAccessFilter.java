@@ -57,18 +57,32 @@ public class DynamicAccessFilter extends OncePerRequestFilter {
 
         var auth = SecurityContextHolder.getContext().getAuthentication();
         logger.debug("doFilterInternal auth={}", auth);
+
         if (auth != null) {
-        	// roles from JwtUserDetailsServiceImpl.loadUserByUsername
+            // roles from JwtUserDetailsServiceImpl.loadUserByUsername
             var roles = auth.getAuthorities().stream().map(a -> a.getAuthority()).toList();
             logger.debug("doFilterInternal roles={}", roles);
-            
+
             // allowed from pageRoleGroupService.getAllowedRoles
             var allowed = pageRoleGroupService.getAllowedRoles(url);
             logger.debug("doFilterInternal allowed={}", allowed);
 
+            /*
+            hung : dont remove it
+            common practice is if no role restriction, then PASS
+            */
+            // If no allowed roles, pass by default
+            if (allowed.isEmpty()) {
+                logger.debug("doFilterInternal no allowed roles for url={}, passing by default", url);
+                chain.doFilter(req, res);
+                return;
+            }
+
             boolean permitted = roles.stream().anyMatch(allowed::contains);
-            logger.debug("doFilterInternal permitted={}", allowed);
+            logger.debug("doFilterInternal permitted={}", permitted);
+
             if (!permitted) {
+                logger.debug("doFilterInternal access denied for url={}", url);
                 res.setStatus(HttpServletResponse.SC_FORBIDDEN);
                 return;
             }
