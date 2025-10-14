@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 
 import javax.crypto.SecretKey;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.logging.log4j.LogManager;
@@ -65,17 +66,28 @@ public class JwtTokenProvider {
         return new UsernamePasswordAuthenticationToken(
                 userDetails, "", userDetails.getAuthorities());
     }
-
-    public String resolveToken(HttpServletRequest request) {
-        logger.debug("resolveToken called");
-        String bearer = request.getHeader("Authorization");
+    
+    public String resolveToken(HttpServletRequest req) {
+    	logger.debug("resolveToken called");
+    	
+    	String bearer = req.getHeader("Authorization");
         logger.debug("resolveToken bearer={}", bearer);
-
-        if (bearer != null && bearer.startsWith("Bearer ")) {
-            return bearer.substring(7);
+        
+        if (bearer != null) {
+            return bearer.replace("Bearer ", "");
+        }
+        if (req.getCookies() != null) {
+        	logger.debug("resolveToken req.getCookies()={}", req.getCookies());
+            for (Cookie cookie : req.getCookies()) {
+            	logger.debug("resolveToken cookie={}", cookie);
+                if ("jwtToken".equals(cookie.getName())) {
+                    return cookie.getValue();
+                }
+            }
         }
         return null;
     }
+
 
     // resolveToken() is responsible for extracting the JWT token from 
     // the incoming HTTP request — usually from the Authorization header.
