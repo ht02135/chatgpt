@@ -4,10 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <title>Login</title>
-	<!-- Server-side constants -->
-	<%@ include file="/management/include/constants.jspf" %>
-	<!-- Client-side constants -->
-	<script src="<%= request.getContextPath() %>/management/js/constants.js"></script>
+    <%@ include file="/management/include/constants.jspf" %>
+    <script src="<%= request.getContextPath() %>/management/js/constants.js"></script>
 </head>
 <body>
 
@@ -22,26 +20,44 @@
 <p>Don't have an account? <a href="./register.jsp">Register here</a></p>
 
 <script>
-    // ===== Auto-check token from localStorage only =====
-    const jwtToken = localStorage.getItem('jwtToken');
-	console.debug("login.jsp -> jwtToken=", jwtToken);
-    if (jwtToken) {
-		console.debug("login.jsp -> JWT token found jwtToken=", jwtToken);
-		/*
-		hung : dont remove it
-		Set cookie so server sees it
-		path=/ means the cookie is valid for the entire domain, 
-		from the root (/) down. Every page on your site will 
-		receive this cookie.
-		*/
-		console.debug("login.jsp -> JWT token found, syncing to cookie");
-		document.cookie = `jwtToken=${jwtToken}; path=/; max-age=${24*60*60}`; // 1 day expiration
-			
-        console.debug("login.jsp -> token found in localStorage, redirecting to dashboard");
+    // ===== Helper: get cookie value by name =====
+    function getCookie(name) {
+        const matches = document.cookie.match(new RegExp('(?:^|; )' + name + '=([^;]*)'));
+        console.debug("login.jsp -> getCookie called, name=", name, ", value=", matches ? matches[1] : null);
+        return matches ? matches[1] : null;
+    }
+
+    // ===== On page load: check token =====
+    const cookieToken = getCookie('jwtToken');
+    const localToken = localStorage.getItem('jwtToken');
+
+    console.debug("login.jsp -> cookieToken=", cookieToken);
+    console.debug("login.jsp -> localToken=", localToken);
+
+    if (cookieToken || localToken) {
+        const tokenToUse = cookieToken || localToken;
+
+        console.debug("login.jsp -> Token exists, syncing to both storages and redirecting, token=", tokenToUse);
+
+        // sync to localStorage
+        localStorage.setItem('jwtToken', tokenToUse);
+        console.debug("login.jsp -> token synced to localStorage, token=", localStorage.getItem('jwtToken'));
+
+        // sync to cookie
+        /*
+        hung : dont remove it
+        Set cookie so server sees it
+        path=/ means the cookie is valid for the entire domain, 
+        from the root (/) down. Every page on your site will 
+        receive this cookie.
+        */
+        document.cookie = `jwtToken=${tokenToUse}; path=/; max-age=${24*60*60}`;
+        console.debug("login.jsp -> token synced to cookie, token=", getCookie('jwtToken'));
+
         window.location.href = DASHBOARD_PAGE;
     } else {
-		console.debug("login.jsp -> No token found in localStorage");
-	}
+        console.debug("login.jsp -> No token found, showing login form");
+    }
 
     // ===== Load Knockout.js dynamically =====
     const script = document.createElement('script');
@@ -57,7 +73,7 @@
 
             self.submitLogin = async function() {
                 try {
-                    console.debug("login.jsp -> submitting login:", API_AUTH_LOGIN);
+                    console.debug("login.jsp -> submitting login, username=", self.username());
 
                     const response = await fetch(API_AUTH_LOGIN, {
                         method: 'POST',
@@ -73,14 +89,24 @@
                     const loginData = responseData.data;
 
                     if (loginData && loginData.token) {
-                        // Save token to localStorage
-                        localStorage.setItem('jwtToken', loginData.token);
+                        const token = loginData.token;
+
+                        console.debug("login.jsp -> login successful, token=", token);
+
+                        // save to localStorage
+                        localStorage.setItem('jwtToken', token);
                         localStorage.setItem('username', loginData.username || '');
                         localStorage.setItem('roles', JSON.stringify(loginData.roles || []));
+                        console.debug("login.jsp -> token stored in localStorage, token=", localStorage.getItem('jwtToken'));
 
-                        console.debug("login.jsp -> token stored in localStorage, redirecting to dashboard");
+                        // save to cookie
+                        document.cookie = `jwtToken=${token}; path=/; max-age=${24*60*60}`;
+                        console.debug("login.jsp -> token stored in cookie, token=", getCookie('jwtToken'));
+
+                        console.debug("login.jsp -> redirecting to dashboard");
                         window.location.href = DASHBOARD_PAGE;
                     } else {
+                        console.debug("login.jsp -> login failed, no token returned");
                         alert(responseData.message || 'Login failed: no token returned');
                     }
                 } catch (err) {
