@@ -57,6 +57,8 @@
     // ===== Detect context path dynamically =====
     const CONTEXT_PATH = window.location.origin + "/" + window.location.pathname.split("/")[1];
     const LOGIN_PAGE = CONTEXT_PATH + "/login.jsp";
+	console.debug("dashboard.jsp -> CONTEXT_PATH:", CONTEXT_PATH);
+	console.debug("dashboard.jsp -> LOGIN_PAGE:", LOGIN_PAGE);
 
     // ===== Check localStorage for JWT token =====
     const jwtToken = localStorage.getItem('jwtToken');

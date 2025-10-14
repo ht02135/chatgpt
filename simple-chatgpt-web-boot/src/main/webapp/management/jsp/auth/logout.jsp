@@ -10,12 +10,10 @@
 <button data-bind="click: logout">Logout</button>
 
 <script>
-    // ===== Detect context path dynamically from browser URL =====
+	// ===== Detect context path dynamically =====
     const CONTEXT_PATH = window.location.origin + "/" + window.location.pathname.split("/")[1];
-    console.debug("logout.jsp -> CONTEXT_PATH:", CONTEXT_PATH);
-
-    // ===== Login page to redirect after logout =====
     const LOGIN_PAGE = CONTEXT_PATH + "/management/jsp/auth/login.jsp";
+	console.debug("logout.jsp -> CONTEXT_PATH:", CONTEXT_PATH);
     console.debug("logout.jsp -> LOGIN_PAGE:", LOGIN_PAGE);
 
     function LogoutViewModel() {

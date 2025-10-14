@@ -21,14 +21,10 @@
 <script>
     // ===== Detect context path dynamically from browser URL =====
     const CONTEXT_PATH = window.location.origin + "/" + window.location.pathname.split("/")[1];
-    console.debug("register.jsp -> CONTEXT_PATH:", CONTEXT_PATH);
-
-    // ===== API endpoint for registration =====
     const API_AUTH_REGISTER = CONTEXT_PATH + "/api/management/auth/register";
-    console.debug("register.jsp -> API_AUTH_REGISTER:", API_AUTH_REGISTER);
-
-    // ===== Login page to redirect after successful registration =====
     const LOGIN_PAGE = CONTEXT_PATH + "/management/jsp/auth/login.jsp";
+	console.debug("register.jsp -> CONTEXT_PATH:", CONTEXT_PATH);
+	console.debug("register.jsp -> API_AUTH_REGISTER:", API_AUTH_REGISTER);
     console.debug("register.jsp -> LOGIN_PAGE:", LOGIN_PAGE);
 
     function RegisterViewModel() {

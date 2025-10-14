@@ -23,9 +23,9 @@
     const KO_SCRIPT = CONTEXT_PATH + "/management/js/knockout-latest.js";
     const API_AUTH_LOGIN = CONTEXT_PATH + "/api/management/auth/login";
     const DASHBOARD_PAGE = CONTEXT_PATH + "/dashboard.jsp";
-
     console.debug("login.jsp -> CONTEXT_PATH:", CONTEXT_PATH);
     console.debug("login.jsp -> API_AUTH_LOGIN:", API_AUTH_LOGIN);
+	console.debug("login.jsp -> DASHBOARD_PAGE:", DASHBOARD_PAGE);
 
     // ===== Auto-check token from localStorage only =====
     const jwtToken = localStorage.getItem('jwtToken');
