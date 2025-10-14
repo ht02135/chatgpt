@@ -52,8 +52,12 @@ public class DynamicAccessFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
 
         logger.debug("doFilterInternal called");
-        String url = req.getRequestURI();
-        logger.debug("doFilterInternal url={}", url);
+        String rawUrl = req.getRequestURI();
+        logger.debug("doFilterInternal rawUrl={}", rawUrl);
+
+        // Strip context prefix for page-role-group matching
+        String url = normalizeUrl(rawUrl, req.getContextPath());
+        logger.debug("doFilterInternal normalized url={}", url);
 
         var auth = SecurityContextHolder.getContext().getAuthentication();
         logger.debug("doFilterInternal auth={}", auth);
@@ -78,11 +82,11 @@ public class DynamicAccessFilter extends OncePerRequestFilter {
             */
             // If no allowed roles, pass by default
             if (allowed.isEmpty()) {
-            	logger.debug("doFilterInternal passing by default url=", url);
+                logger.debug("doFilterInternal passing by default url={}", url);
                 chain.doFilter(req, res);
                 return;
             } else {
-            	logger.debug("doFilterInternal need to check permitted for allowed=", allowed);
+                logger.debug("doFilterInternal need to check permitted for allowed={}", allowed);
             }
 
             boolean permitted = roles.stream().anyMatch(allowed::contains);
@@ -100,5 +104,28 @@ public class DynamicAccessFilter extends OncePerRequestFilter {
         }
 
         chain.doFilter(req, res);
+    }
+
+    /**
+     * hung : dont remove
+     * Helper to normalize URL for page-role-group matching
+     *  - Strips the context path (e.g., /chatgpt-production)
+     *  - Ensures leading "/" exists
+     */
+    private String normalizeUrl(String url, String contextPath) {
+        logger.debug("normalizeUrl called with url={} contextPath={}", url, contextPath);
+
+        if (contextPath != null && !contextPath.isEmpty() && url.startsWith(contextPath)) {
+            url = url.substring(contextPath.length());
+            logger.debug("normalizeUrl stripped contextPath, url={}", url);
+        }
+
+        if (!url.startsWith("/")) {
+            url = "/" + url;
+            logger.debug("normalizeUrl added leading /, url={}", url);
+        }
+
+        logger.debug("normalizeUrl returning url={}", url);
+        return url;
     }
 }
