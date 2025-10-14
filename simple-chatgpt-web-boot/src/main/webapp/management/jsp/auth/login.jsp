@@ -34,9 +34,12 @@
     console.debug("login.jsp -> cookieToken=", cookieToken);
     console.debug("login.jsp -> localToken=", localToken);
 
-    if (cookieToken || localToken) {
-        const tokenToUse = cookieToken || localToken;
+    // Only use non-empty tokens
+    const tokenToUse = (cookieToken && cookieToken.trim() !== "") ? cookieToken
+                     : (localToken && localToken.trim() !== "") ? localToken
+                     : null;
 
+    if (tokenToUse) {
         console.debug("login.jsp -> Token exists, syncing to both storages and redirecting, token=", tokenToUse);
 
         // sync to localStorage
