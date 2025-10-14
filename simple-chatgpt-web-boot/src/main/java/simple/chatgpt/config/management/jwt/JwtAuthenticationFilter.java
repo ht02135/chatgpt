@@ -10,9 +10,12 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+
+import io.jsonwebtoken.JwtException;
 
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
@@ -52,11 +55,28 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
         
         logger.debug("doFilterInternal before validateToken token={}", token);
-        if (token != null && jwtTokenProvider.validateToken(token)) {
-            var auth = jwtTokenProvider.getAuthentication(token);
-            logger.debug("doFilterInternal auth={}", auth);
-
-            SecurityContextHolder.getContext().setAuthentication(auth);
+        if (token != null && !token.isEmpty()) {
+            try {
+                if (jwtTokenProvider.validateToken(token)) {
+                    Authentication auth = jwtTokenProvider.getAuthentication(token);
+                    logger.debug("doFilterInternal auth={}", auth);
+                    SecurityContextHolder.getContext().setAuthentication(auth);
+                }
+            } catch (JwtException | IllegalArgumentException e) {
+                logger.error("JWT validation failed", e);
+                SecurityContextHolder.clearContext();
+            }
+        } else {
+        	/*
+        	hung : dont remove it
+        	In a JWT-based stateless authentication flow, if the request comes 
+        	without a token, you typically don’t throw an exception immediately. 
+        	Instead, you:
+			1>Log it for debugging/monitoring
+			2>Leave the SecurityContext empty (unauthenticated)
+        	*/
+            logger.debug("No JWT token found, skipping authentication for this request");
+            SecurityContextHolder.clearContext(); // explicit safety
         }
 
         filterChain.doFilter(request, response);
