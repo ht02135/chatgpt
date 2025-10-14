@@ -39,6 +39,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         // ===== Step 2: Fallback to cookie if header is missing =====
         if (token == null) {
             Cookie[] cookies = request.getCookies();
+            logger.debug("doFilterInternal cookies={}", cookies);
             if (cookies != null) {
                 for (Cookie cookie : cookies) {
                     if ("jwtToken".equals(cookie.getName())) {
@@ -50,6 +51,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
         }
         
+        logger.debug("doFilterInternal before validateToken token={}", token);
         if (token != null && jwtTokenProvider.validateToken(token)) {
             var auth = jwtTokenProvider.getAuthentication(token);
             logger.debug("doFilterInternal auth={}", auth);
