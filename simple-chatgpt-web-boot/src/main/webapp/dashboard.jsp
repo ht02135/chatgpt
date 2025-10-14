@@ -51,7 +51,7 @@
 </div>
 
 <!-- ==============================
-     CLIENT-SIDE: JWT token from localStorage
+     CLIENT-SIDE: Check JWT token from localStorage only
      ============================== -->
 <script>
     // ===== Detect context path dynamically =====
@@ -64,27 +64,6 @@
     if (!jwtToken) {
         console.debug("dashboard.jsp -> No token found in localStorage, redirecting to login");
         window.location.href = LOGIN_PAGE;
-    } else {
-        console.debug("dashboard.jsp -> JWT token found:", jwtToken);
-
-        // Example API call using token
-        async function fetchUserData() {
-            try {
-                const response = await fetch(CONTEXT_PATH + '/api/management/user/data', {
-                    headers: {
-                        'Authorization': 'Bearer ' + jwtToken,
-                        'Content-Type': 'application/json'
-                    }
-                });
-                if (!response.ok) throw new Error('HTTP error! status: ' + response.status);
-                const data = await response.json();
-                console.log('User data:', data);
-            } catch (err) {
-                console.error('Error fetching user data:', err);
-            }
-        }
-
-        fetchUserData();
     }
 </script>
 
