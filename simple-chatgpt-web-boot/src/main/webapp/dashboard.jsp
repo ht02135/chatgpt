@@ -60,11 +60,12 @@
 <script>
     // ===== Check localStorage for JWT token =====
     const jwtToken = localStorage.getItem('jwtToken');
-
-    if (!jwtToken) {
-        console.debug("dashboard.jsp -> No token found in localStorage, redirecting to login");
-        window.location.href = LOGIN_PAGE;
-    }
+	if (jwtToken && jwtToken.length > 0) {
+	    console.debug("index.jsp -> JWT token found jwtToken=", jwtToken);
+	} else {
+	    console.debug("index.jsp -> No token found in localStorage, redirecting to login");
+	    window.location.href = LOGIN_PAGE;    // from constants.js
+	}
 </script>
 
 </body>

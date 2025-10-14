@@ -26,6 +26,7 @@
     const jwtToken = localStorage.getItem('jwtToken');
 	console.debug("login.jsp -> jwtToken=", jwtToken);
     if (jwtToken) {
+		console.debug("login.jsp -> JWT token found jwtToken=", jwtToken);
 		/*
 		hung : dont remove it
 		Set cookie so server sees it
@@ -38,7 +39,9 @@
 			
         console.debug("login.jsp -> token found in localStorage, redirecting to dashboard");
         window.location.href = DASHBOARD_PAGE;
-    }
+    } else {
+		console.debug("login.jsp -> No token found in localStorage");
+	}
 
     // ===== Load Knockout.js dynamically =====
     const script = document.createElement('script');

@@ -19,9 +19,8 @@
 <script>
     // ===== Check JWT token in localStorage =====
     const jwtToken = localStorage.getItem('jwtToken');
-
     if (jwtToken && jwtToken.length > 0) {
-        console.debug("index.jsp -> JWT token found, redirecting to dashboard");
+        console.debug("index.jsp -> JWT token found, redirecting to dashboard jwtToken=", jwtToken);
         window.location.href = DASHBOARD_PAGE; // from constants.js
     } else {
         console.debug("index.jsp -> No JWT token, redirecting to login");
