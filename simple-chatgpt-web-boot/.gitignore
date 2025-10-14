@@ -65,6 +65,8 @@ Thumbs.db
 # ============================
 # Ignore specific file anywhere
 **/simple-chatgpt-web.txt
+**/constants.txt
 
 # Ignore the simple-chatgpt-web.txt file
 simple-chatgpt-web.txt
+constants.txt
