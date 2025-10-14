@@ -31,24 +31,32 @@
 	<!-- ========================= -->
 	<!-- Page → Role Group mapping -->
 	<!-- ========================= -->
-	<page-role-groups>
-		<page-role-group url-pattern="/property/**"
-			role-group-ref="ADMIN_ROLE_GROUP" />
-		<page-role-group url-pattern="/role/**"
-			role-group-ref="ADMIN_ROLE_GROUP" />
-		<page-role-group url-pattern="/roleGroup/**"
-			role-group-ref="ADMIN_ROLE_GROUP" />
-		<page-role-group url-pattern="/roleGroupRole/**"
-			role-group-ref="ADMIN_ROLE_GROUP" />
-		<page-role-group url-pattern="/user/**"
-			role-group-ref="USER_ROLE_GROUP" />
-		<page-role-group url-pattern="/userList/**"
-			role-group-ref="USER_ROLE_GROUP" />
-		<page-role-group url-pattern="/userRoleGroup/**"
-			role-group-ref="ADMIN_ROLE_GROUP" />
-		<page-role-group url-pattern="/pageRoleGroup/**"
-			role-group-ref="ADMIN_ROLE_GROUP" />
-	</page-role-groups>
+<page-role-groups>
+    <!-- Property -->
+    <page-role-group url-pattern="/property/**" role-group-ref="ADMIN_ROLE_GROUP" />
+    <page-role-group url-pattern="/management/jsp/property/**" role-group-ref="ADMIN_ROLE_GROUP" />
+    <!-- Role -->
+    <page-role-group url-pattern="/role/**" role-group-ref="ADMIN_ROLE_GROUP" />
+    <page-role-group url-pattern="/management/jsp/role/**" role-group-ref="ADMIN_ROLE_GROUP" />
+    <!-- RoleGroup -->
+    <page-role-group url-pattern="/roleGroup/**" role-group-ref="ADMIN_ROLE_GROUP" />
+    <page-role-group url-pattern="/management/jsp/roleGroup/**" role-group-ref="ADMIN_ROLE_GROUP" />
+    <!-- RoleGroupRole -->
+    <page-role-group url-pattern="/roleGroupRole/**" role-group-ref="ADMIN_ROLE_GROUP" />
+    <page-role-group url-pattern="/management/jsp/roleGroupRole/**" role-group-ref="ADMIN_ROLE_GROUP" />
+    <!-- User -->
+    <page-role-group url-pattern="/user/**" role-group-ref="USER_ROLE_GROUP" />
+    <page-role-group url-pattern="/management/jsp/user/**" role-group-ref="USER_ROLE_GROUP" />
+    <!-- UserList -->
+    <page-role-group url-pattern="/userList/**" role-group-ref="USER_ROLE_GROUP" />
+    <page-role-group url-pattern="/management/jsp/userList/**" role-group-ref="USER_ROLE_GROUP" />
+    <!-- UserRoleGroup -->
+    <page-role-group url-pattern="/userRoleGroup/**" role-group-ref="ADMIN_ROLE_GROUP" />
+    <page-role-group url-pattern="/management/jsp/userRoleGroup/**" role-group-ref="ADMIN_ROLE_GROUP" />
+    <!-- PageRoleGroup -->
+    <page-role-group url-pattern="/pageRoleGroup/**" role-group-ref="ADMIN_ROLE_GROUP" />
+    <page-role-group url-pattern="/management/jsp/pageRoleGroup/**" role-group-ref="ADMIN_ROLE_GROUP" />
+</page-role-groups>
 
 	<!-- ========================= -->
 	<!-- Default Users -->

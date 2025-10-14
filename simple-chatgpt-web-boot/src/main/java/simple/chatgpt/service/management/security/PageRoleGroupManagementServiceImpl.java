@@ -1,5 +1,6 @@
 package simple.chatgpt.service.management.security;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -10,6 +11,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.AntPathMatcher;
 
 import simple.chatgpt.config.management.loader.SecurityConfigLoader;
 import simple.chatgpt.config.management.security.PageRoleGroupConfig;
@@ -209,17 +211,24 @@ public class PageRoleGroupManagementServiceImpl implements PageRoleGroupManageme
 	
 	// mapper uses #{params.urlPattern}
     @Override
-	public List<PageRoleGroupManagementPojo> getMappingsByUrlPattern(String urlPattern)
-	{
-        logger.debug("getMappingsByUrlPattern called");
+    public List<PageRoleGroupManagementPojo> getMappingsByUrlPattern(String urlPattern) {
+        logger.debug("getMappingsByUrlPattern called with urlPattern={}", urlPattern);
 
-        // Reuse search mapper with empty params to get everything
-        Map<String, Object> params = new HashMap<>();
-        params.put("urlPattern", urlPattern); 
-        List<PageRoleGroupManagementPojo> mappings = getMappingsByParams(params);
-        
-        return mappings;
-	}
+        List<PageRoleGroupManagementPojo> allMappings = getAll(); // fetch all
+        List<PageRoleGroupManagementPojo> matched = new ArrayList<>();
+        AntPathMatcher matcher = new AntPathMatcher();
+
+        for (PageRoleGroupManagementPojo mapping : allMappings) {
+            String pattern = mapping.getUrlPattern(); // e.g., "/property/**"
+            if (matcher.match(pattern, urlPattern)) {
+                matched.add(mapping);
+            }
+        }
+
+        logger.debug("getMappingsByUrlPattern matched={}", matched);
+        return matched;
+    }
+
 	
     @Override
     public List<PageRoleGroupManagementPojo> getAll()

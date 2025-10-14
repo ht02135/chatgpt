@@ -1,124 +1,84 @@
 
-if i do
+import org.springframework.util.AntPathMatcher;
 
-On login
-// Check localStorage for JWT
-const jwtToken = localStorage.getItem('jwtToken');
-if (jwtToken) {
-    console.debug("JWT token found, syncing to cookie");
-    // Set cookie so server sees it
-    document.cookie = `jwtToken=${jwtToken}; path=/; max-age=${24*60*60}`; // 1 day expiration
-}
+AntPathMatcher matcher = new AntPathMatcher();
+
+boolean match = matcher.match("/property/**", "/property/properties.jsp");
+System.out.println(match); // true
 
 
-///////
+/////////
 
-Make sure JwtAuthenticationFilter reads from cookie if Authorization header is missing
-String token = resolveToken(request); // existing logic for Authorization header
-if (token == null) {
-    Cookie[] cookies = request.getCookies();
-    if (cookies != null) {
-        for (Cookie cookie : cookies) {
-            if ("jwtToken".equals(cookie.getName())) {
-                token = cookie.getValue();
-                break;
-            }
-        }
-    }
-}
+given i have /chatgpt-production/management/jsp/property/properties.jsp where do i do strip /chatgpt-production/??
 
-//////////////
+3️⃣ Where to strip — best practice
 
-1️⃣ On the client side
-
-Whenever the user logs in, you store the JWT in localStorage.
-
-Immediately after login (or on page load if the JWT is already in localStorage), you sync it to a cookie:
-
-const jwtToken = localStorage.getItem('jwtToken');
-if (jwtToken) {
-    console.debug("JWT token found, syncing to cookie");
-    document.cookie = `jwtToken=${jwtToken}; path=/; max-age=${24*60*60}`;
-}
-
-/////////////////
-
-On the server side
-
-In your JwtAuthenticationFilter, you already check the Authorization header.
-
-Add a fallback to read from the cookie:
-
-String token = resolveToken(request); // existing header check
-if (token == null) {
-    Cookie[] cookies = request.getCookies();
-    if (cookies != null) {
-        for (Cookie cookie : cookies) {
-            if ("jwtToken".equals(cookie.getName())) {
-                token = cookie.getValue();
-                break;
-            }
-        }
-    }
-}
-
-}
-
-✅ This ensures that any protected JSP or endpoint will see the token even if the browser did not send an Authorization header.
-
-///////////////
-
-logout, we need to clear local and cookie? do we need logout controller to clear cookie?
-
-Yes — to fully log a user out, you need to clear both localStorage and the cookie. Otherwise, the browser might still send the cookie and the server could treat the user as authenticated.
-
-If you have a logout button or JS method, you can do:
-
-// Clear JWT from localStorage
-localStorage.removeItem('jwtToken');
-
-// Clear JWT cookie by setting max-age=0
-document.cookie = "jwtToken=; path=/; max-age=0";
-
-// Optionally redirect to login page
-window.location.href = "/chatgpt-production/login.jsp";
+✅ Best place: Inside your DynamicAccessFilter.doFilterInternal(...)
+— before calling your pageRoleGroupService.getAllowedRoles(url).
 
 /////////////
 
-Option 1: logout.jsp (client-side JS)
+then in pageRoleGroupService.getAllowedRoles(url)
+rul /management/jsp/property/properties.jsp
 
-You can create a logout.jsp that just runs JS to clear token + cookie, then redirects:
+what is next?
 
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Logout</title>
-    <script type="text/javascript">
-        // Clear JWT from localStorage
-        localStorage.removeItem('jwtToken');
+🧠 Step 2️⃣ — What you want instead
 
-        // Clear cookie
-        document.cookie = "jwtToken=; path=/; max-age=0";
+You want pattern matching like Spring’s AntPathMatcher,
+which supports:
 
-        // Redirect to login
-        window.location.href = "/chatgpt-production/login.jsp";
-    </script>
-</head>
-<body>
-Logging out...
-</body>
-</html>
+/property/** matching /management/jsp/property/properties.jsp
+
+/user/* matching /user/123
+
+🧩 Step 3️⃣ — Fix getAllowedRoleGroups(url)
+
+Here’s what you can do inside your PageRoleGroupServiceImpl:
+
+@Override
+public List<String> getAllowedRoleGroups(String url) {
+    logger.debug("getAllowedRoleGroups called with url={}", url);
+
+    AntPathMatcher matcher = new AntPathMatcher();
+
+    // load all mappings (you can cache later)
+    List<PageRoleGroupManagementPojo> all = pageRoleGroupManagementService.getAll();
+    logger.debug("getAllowedRoleGroups totalMappings={}", all.size());
+
+    List<String> matchingRoleGroups = new ArrayList<>();
+
+    for (PageRoleGroupManagementPojo p : all) {
+        String pattern = p.getUrlPattern();
+        logger.debug("getAllowedRoleGroups checking pattern={}", pattern);
+
+        // Match ignoring any "/management/jsp/" prefix differences
+        if (matcher.match(pattern, url)) {
+            logger.debug("getAllowedRoleGroups MATCHED pattern={} for url={}", pattern, url);
+            matchingRoleGroups.add(p.getRoleGroupRef());
+        }
+    }
+
+    logger.debug("getAllowedRoleGroups matchingRoleGroups={}", matchingRoleGroups);
+    return matchingRoleGroups;
+}
+
+///////////
+
+url = "/management/jsp/property/properties.jsp"
+pattern = "/property/**"
+
+matcher.match("/property/**", "/management/jsp/property/properties.jsp")
+
+By default will not match because of the /management/jsp/ prefix.
+So you have two options:
+
+<page-role-group url-pattern="/management/jsp/property/**" role-group-ref="ADMIN_ROLE_GROUP" />
+
+
+/////////////
 
 
 
 
-	
-	
-	
-	
-	
-	
-	
-	
+
