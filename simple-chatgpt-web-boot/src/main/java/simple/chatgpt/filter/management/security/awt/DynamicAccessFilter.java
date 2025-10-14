@@ -61,11 +61,15 @@ public class DynamicAccessFilter extends OncePerRequestFilter {
         if (auth != null) {
             // roles from JwtUserDetailsServiceImpl.loadUserByUsername
             var roles = auth.getAuthorities().stream().map(a -> a.getAuthority()).toList();
+            logger.debug("doFilterInternal ##########");
             logger.debug("doFilterInternal roles={}", roles);
+            logger.debug("doFilterInternal ##########");
 
             // allowed from pageRoleGroupService.getAllowedRoles
             var allowed = pageRoleGroupService.getAllowedRoles(url);
+            logger.debug("doFilterInternal ##########");
             logger.debug("doFilterInternal allowed={}", allowed);
+            logger.debug("doFilterInternal ##########");
 
             /*
             hung : dont remove it
@@ -73,13 +77,17 @@ public class DynamicAccessFilter extends OncePerRequestFilter {
             */
             // If no allowed roles, pass by default
             if (allowed.isEmpty()) {
-                logger.debug("doFilterInternal no allowed roles for url={}, passing by default", url);
+            	logger.debug("doFilterInternal passing by default url=", url);
                 chain.doFilter(req, res);
                 return;
+            } else {
+            	logger.debug("doFilterInternal need to check permitted for allowed=", allowed);
             }
 
             boolean permitted = roles.stream().anyMatch(allowed::contains);
+            logger.debug("doFilterInternal ##########");
             logger.debug("doFilterInternal permitted={}", permitted);
+            logger.debug("doFilterInternal ##########");
 
             if (!permitted) {
                 logger.debug("doFilterInternal access denied for url={}", url);
