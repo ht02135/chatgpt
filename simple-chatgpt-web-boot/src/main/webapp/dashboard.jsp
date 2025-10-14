@@ -61,9 +61,9 @@
     // ===== Check localStorage for JWT token =====
     const jwtToken = localStorage.getItem('jwtToken');
 	if (jwtToken && jwtToken.length > 0) {
-	    console.debug("index.jsp -> JWT token found jwtToken=", jwtToken);
+	    console.debug("dashboard.jsp -> JWT token found jwtToken=", jwtToken);
 	} else {
-	    console.debug("index.jsp -> No token found in localStorage, redirecting to login");
+	    console.debug("http://localhost:8080/chatgpt-production/dashboard.jsp.jsp -> No token found in localStorage, redirecting to login");
 	    window.location.href = LOGIN_PAGE;    // from constants.js
 	}
 </script>
