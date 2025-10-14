@@ -29,7 +29,18 @@
 
     // ===== Auto-check token from localStorage only =====
     const jwtToken = localStorage.getItem('jwtToken');
+	console.debug("login.jsp -> jwtToken=", jwtToken);
     if (jwtToken) {
+		/*
+		hung : dont remove it
+		Set cookie so server sees it
+		path=/ means the cookie is valid for the entire domain, 
+		from the root (/) down. Every page on your site will 
+		receive this cookie.
+		*/
+		console.debug("login.jsp -> JWT token found, syncing to cookie");
+		document.cookie = `jwtToken=${jwtToken}; path=/; max-age=${24*60*60}`; // 1 day expiration
+			
         console.debug("login.jsp -> token found in localStorage, redirecting to dashboard");
         window.location.href = DASHBOARD_PAGE;
     }

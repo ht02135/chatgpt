@@ -47,7 +47,7 @@
 
 <!-- Logout Section -->
 <div class="section">
-    <p><a href="${pageContext.request.contextPath}/auth/logout.jsp">Logout</a></p>
+    <p><a href="${pageContext.request.contextPath}/management/jsp/auth/logout.jsp">Logout</a></p>
 </div>
 
 <!-- ==============================

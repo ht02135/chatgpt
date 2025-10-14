@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -31,9 +32,24 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         logger.debug("doFilterInternal START");
         
-        String token = jwtTokenProvider.resolveToken(request);
+        // ===== Step 1: Try to get JWT from Authorization header =====
+        String token = jwtTokenProvider.resolveToken(request); // your existing logic
         logger.debug("doFilterInternal token={}", token);
 
+        // ===== Step 2: Fallback to cookie if header is missing =====
+        if (token == null) {
+            Cookie[] cookies = request.getCookies();
+            if (cookies != null) {
+                for (Cookie cookie : cookies) {
+                    if ("jwtToken".equals(cookie.getName())) {
+                        token = cookie.getValue();
+                        logger.debug("doFilterInternal token={}", token);
+                        break;
+                    }
+                }
+            }
+        }
+        
         if (token != null && jwtTokenProvider.validateToken(token)) {
             var auth = jwtTokenProvider.getAuthentication(token);
             logger.debug("doFilterInternal auth={}", auth);

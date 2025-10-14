@@ -24,6 +24,9 @@
                 // Remove JWT token from localStorage
                 localStorage.removeItem('jwtToken');
                 console.debug("logout.jsp -> JWT token removed");
+				
+				// Clear JWT cookie by setting max-age=0
+				document.cookie = "jwtToken=; path=/; max-age=0";
 
                 alert('Logged out!');
                 // Redirect to login page
