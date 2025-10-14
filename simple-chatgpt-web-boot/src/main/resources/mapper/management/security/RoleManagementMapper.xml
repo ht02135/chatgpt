@@ -24,7 +24,7 @@
 		INSERT INTO role_management
 		(role_name, description, created_at, updated_at)
 		VALUES
-		(#{role.roleName}, #{role.role.description}, NOW(), NOW())
+		(#{role.roleName}, #{role.description}, NOW(), NOW())
 	</insert>
 
 	<!-- void update(@Param("id") Long id, @Param("entity") entityPojo entity) -->
