@@ -49,38 +49,51 @@
     </customize-grid-pagination>
 </div>
 
-<!-- Initialization Script -->
+<!-- ==============================
+     CLIENT-SIDE: Single script block for token + initialization
+     ============================== -->
 <script type="module">
 import { User, UserViewModel } from './user.js';
 import configLoader from "../../js/configLoader.js";
 import Validator from "../../js/validation.js";
 
-(async function () {
-    console.log("Initializing Users page...");
+// ===== Check JWT token from localStorage =====
+const jwtToken = localStorage.getItem('jwtToken');
+const CONTEXT_PATH = window.location.origin + "/" + window.location.pathname.split("/")[1];
 
-    // Load configs
-    const gridConfig     = await configLoader.getGridConfig("users");
-    const searchConfig   = await configLoader.getFormConfig("searchUser");
-    const actionGroupMap = await configLoader.getActionGroupMap();
+if (!jwtToken) {
+    console.debug("users.jsp -> No token found in localStorage, redirecting to login");
+    window.location.href = CONTEXT_PATH + "/login.jsp";
+} else {
+    console.debug("users.jsp -> JWT token found:", jwtToken);
 
-    // Initialize ViewModel
-    window.UserVM = new UserViewModel(
-        { mode: "list" },
+    (async function () {
+        console.log("Initializing Users page...");
+
+        // Load configs
+        const gridConfig     = await configLoader.getGridConfig("users");
+        const searchConfig   = await configLoader.getFormConfig("searchUser");
+        const actionGroupMap = await configLoader.getActionGroupMap();
+
+        // Initialize ViewModel
+        window.UserVM = new UserViewModel(
+            { mode: "list" },
         { grid: gridConfig, search: searchConfig, actionGroups: actionGroupMap }
-    );
+        );
 
-    // Build Validator
-    UserVM.validator = await Validator.build(configLoader);
+        // Build Validator
+        UserVM.validator = await Validator.build(configLoader);
 
-    // Initialize observable for errors
-    UserVM.errors = ko.observable({});
+        // Initialize observable for errors
+        UserVM.errors = ko.observable({});
 
-    // Apply Knockout bindings
-    ko.applyBindings({ UserVM });
+        // Apply Knockout bindings
+        ko.applyBindings({ UserVM });
 
-    // Initial load of users
-    await UserVM.loadUsers();
-})();
+        // Initial load of users
+        await UserVM.loadUsers();
+    })();
+}
 </script>
 
 </body>
