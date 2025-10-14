@@ -23,6 +23,9 @@ console.debug("DASHBOARD_PAGE =", DASHBOARD_PAGE);
 const API_AUTH_LOGIN = JSP_CONTEXT_PATH + "/api/management/auth/login";
 console.debug("API_AUTH_LOGIN =", API_AUTH_LOGIN);
 
+const API_AUTH_LOGOUT = JSP_CONTEXT_PATH + "/api/management/auth/logout";
+console.debug("API_AUTH_LOGOUT =", API_AUTH_LOGOUT);
+
 const API_AUTH_REGISTER = JSP_CONTEXT_PATH + "/api/management/auth/register";
 console.debug("API_AUTH_REGISTER =", API_AUTH_REGISTER);
 

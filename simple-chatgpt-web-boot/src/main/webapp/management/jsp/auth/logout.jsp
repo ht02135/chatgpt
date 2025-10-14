@@ -4,43 +4,52 @@
 <head>
     <meta charset="UTF-8">
     <title>Logout</title>
-	<!-- Server-side constants -->
-	<%@ include file="/management/include/constants.jspf" %>
-	<!-- Client-side constants -->
-	<script src="<%= request.getContextPath() %>/management/js/constants.js"></script>
+    <%@ include file="/management/include/constants.jspf" %>
+    <script src="<%= request.getContextPath() %>/management/js/constants.js"></script>
 </head>
 <body>
-
-<button data-bind="click: logout">Logout</button>
+<h2>Logging out...</h2>
 
 <script>
-    function LogoutViewModel() {
-        const self = this;
-
-        self.logout = function() {
-            try {
-                // Remove JWT token from localStorage
-                localStorage.removeItem('jwtToken');
-                console.debug("logout.jsp -> JWT token removed");
-				
-				// Clear JWT cookie by setting max-age=0
-				document.cookie = "jwtToken=; path=/; max-age=0";
-
-                alert('Logged out!');
-                // Redirect to login page
-                window.location.href = LOGIN_PAGE;
-            } catch (err) {
-                console.error('Logout error:', err);
-                alert('Logout failed: ' + err.message);
-            }
-        };
+    // Helper to clear a cookie
+    function clearCookie(name) {
+        document.cookie = name + "=; path=/; max-age=0";
+        console.debug("logout.jsp -> cleared cookie", name);
     }
 
-    // ===== Apply Knockout bindings after page loads =====
-    window.addEventListener('DOMContentLoaded', () => {
-        console.debug("logout.jsp -> Applying Knockout bindings");
-        ko.applyBindings(new LogoutViewModel());
-    });
+    async function doLogout() {
+        try {
+            console.debug("logout.jsp -> calling logout controller");
+
+            const response = await fetch(API_AUTH_LOGOUT, {
+                method: 'POST',
+                headers: { 'Accept': 'application/json' }
+            });
+
+            const result = await response.json();
+            console.debug("logout.jsp -> logout response:", result);
+
+            // Clear localStorage
+            localStorage.removeItem('jwtToken');
+            localStorage.removeItem('username');
+            localStorage.removeItem('roles');
+            console.debug("logout.jsp -> localStorage cleared");
+
+            // Clear cookie as fallback (server should clear too)
+            clearCookie('jwtToken');
+
+            // Redirect to login page
+            console.debug("logout.jsp -> redirecting to login page");
+            window.location.href = LOGIN_PAGE;
+
+        } catch (err) {
+            console.error("logout.jsp -> Logout failed:", err);
+            alert("Logout failed: " + err.message);
+        }
+    }
+
+    // Trigger logout immediately on page load
+    doLogout();
 </script>
 
 </body>

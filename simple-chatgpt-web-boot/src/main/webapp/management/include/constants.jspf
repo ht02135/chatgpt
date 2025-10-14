@@ -17,6 +17,7 @@
     // API endpoints
     // ==========================
     String API_AUTH_LOGIN = API_CONTEXT_PATH + "/api/management/auth/login";
+	String API_AUTH_OUT = API_CONTEXT_PATH + "/api/management/auth/out";
     String API_AUTH_REGISTER = API_CONTEXT_PATH + "/api/management/auth/register";
     String API_CONFIG = API_CONTEXT_PATH + "/api/management/config";
     String API_PROPERTY = API_CONTEXT_PATH + "/api/management/properties";
