@@ -68,6 +68,7 @@ public class DynamicAccessFilter extends OncePerRequestFilter {
             // allowed from pageRoleGroupService.getAllowedRoles
             var allowed = pageRoleGroupService.getAllowedRoles(url);
             logger.debug("doFilterInternal ##########");
+            logger.debug("doFilterInternal url={}", url);
             logger.debug("doFilterInternal allowed={}", allowed);
             logger.debug("doFilterInternal ##########");
 
@@ -86,6 +87,8 @@ public class DynamicAccessFilter extends OncePerRequestFilter {
 
             boolean permitted = roles.stream().anyMatch(allowed::contains);
             logger.debug("doFilterInternal ##########");
+            logger.debug("doFilterInternal roles={}", roles);
+            logger.debug("doFilterInternal url={}", url);
             logger.debug("doFilterInternal permitted={}", permitted);
             logger.debug("doFilterInternal ##########");
 
