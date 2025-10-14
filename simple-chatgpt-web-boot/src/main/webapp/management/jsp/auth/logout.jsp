@@ -4,18 +4,16 @@
 <head>
     <meta charset="UTF-8">
     <title>Logout</title>
+	<!-- Server-side constants -->
+	<%@ include file="/management/include/constants.jspf" %>
+	<!-- Client-side constants -->
+	<script src="<%= request.getContextPath() %>/management/js/constants.js"></script>
 </head>
 <body>
 
 <button data-bind="click: logout">Logout</button>
 
 <script>
-	// ===== Detect context path dynamically =====
-    const CONTEXT_PATH = window.location.origin + "/" + window.location.pathname.split("/")[1];
-    const LOGIN_PAGE = CONTEXT_PATH + "/management/jsp/auth/login.jsp";
-	console.debug("logout.jsp -> CONTEXT_PATH:", CONTEXT_PATH);
-    console.debug("logout.jsp -> LOGIN_PAGE:", LOGIN_PAGE);
-
     function LogoutViewModel() {
         const self = this;
 

@@ -4,6 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <title>Login</title>
+	<!-- Server-side constants -->
+	<%@ include file="/management/include/constants.jspf" %>
+	<!-- Client-side constants -->
+	<script src="<%= request.getContextPath() %>/management/js/constants.js"></script>
 </head>
 <body>
 
@@ -18,15 +22,6 @@
 <p>Don't have an account? <a href="./register.jsp">Register here</a></p>
 
 <script>
-    // ===== Detect context path dynamically =====
-    const CONTEXT_PATH = window.location.origin + "/" + window.location.pathname.split("/")[1];
-    const KO_SCRIPT = CONTEXT_PATH + "/management/js/knockout-latest.js";
-    const API_AUTH_LOGIN = CONTEXT_PATH + "/api/management/auth/login";
-    const DASHBOARD_PAGE = CONTEXT_PATH + "/dashboard.jsp";
-    console.debug("login.jsp -> CONTEXT_PATH:", CONTEXT_PATH);
-    console.debug("login.jsp -> API_AUTH_LOGIN:", API_AUTH_LOGIN);
-	console.debug("login.jsp -> DASHBOARD_PAGE:", DASHBOARD_PAGE);
-
     // ===== Auto-check token from localStorage only =====
     const jwtToken = localStorage.getItem('jwtToken');
 	console.debug("login.jsp -> jwtToken=", jwtToken);

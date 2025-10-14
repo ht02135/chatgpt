@@ -6,6 +6,10 @@
     <title>User Management</title>
     <script src="../../js/knockout-latest.js"></script>
     <script src="../../component/customize-components-3.0.js"></script>
+	<!-- Server-side constants -->
+	<%@ include file="/management/include/constants.jspf" %>
+	<!-- Client-side constants -->
+	<script src="<%= request.getContextPath() %>/management/js/constants.js"></script>
     <link rel="stylesheet" href="user.css">
 </head>
 <body>
@@ -59,8 +63,6 @@ import Validator from "../../js/validation.js";
 
 // ===== Check JWT token from localStorage =====
 const jwtToken = localStorage.getItem('jwtToken');
-const CONTEXT_PATH = window.location.origin + "/" + window.location.pathname.split("/")[1];
-
 if (!jwtToken) {
     console.debug("users.jsp -> No token found in localStorage, redirecting to login");
     window.location.href = CONTEXT_PATH + "/login.jsp";

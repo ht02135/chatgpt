@@ -4,6 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <title>Register</title>
+	<!-- Server-side constants -->
+	<%@ include file="/management/include/constants.jspf" %>
+	<!-- Client-side constants -->
+	<script src="<%= request.getContextPath() %>/management/js/constants.js"></script>
 </head>
 <body>
 
@@ -19,14 +23,6 @@
 </form>
 
 <script>
-    // ===== Detect context path dynamically from browser URL =====
-    const CONTEXT_PATH = window.location.origin + "/" + window.location.pathname.split("/")[1];
-    const API_AUTH_REGISTER = CONTEXT_PATH + "/api/management/auth/register";
-    const LOGIN_PAGE = CONTEXT_PATH + "/management/jsp/auth/login.jsp";
-	console.debug("register.jsp -> CONTEXT_PATH:", CONTEXT_PATH);
-	console.debug("register.jsp -> API_AUTH_REGISTER:", API_AUTH_REGISTER);
-    console.debug("register.jsp -> LOGIN_PAGE:", LOGIN_PAGE);
-
     function RegisterViewModel() {
         const self = this;
 
