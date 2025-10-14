@@ -2,6 +2,7 @@ package simple.chatgpt.controller.management.security.awt;
 
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.logging.log4j.LogManager;
@@ -43,7 +44,8 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<Response<Map<String, Object>>> login(
             @RequestBody Map<String, String> creds,
-            HttpServletResponse response) {  // add response here
+            HttpServletRequest request,
+            HttpServletResponse response) {
         logger.debug("login called");
         logger.debug("login creds={}", creds);
 
@@ -74,14 +76,15 @@ public class AuthController {
             var token = jwtTokenProvider.createToken(user.getUsername(), roles);
             logger.debug("login token={}", token);
 
-            // ===== Add cookie for JWT =====
+            // ===== Add cookie for JWT with dynamic path =====
             javax.servlet.http.Cookie cookie = new javax.servlet.http.Cookie("jwtToken", token);
-            cookie.setHttpOnly(false);        // true if you want to hide from JS, false if JS should read
-            cookie.setSecure(false);          // true if using HTTPS
-            cookie.setPath("/");              // valid for entire site
-            cookie.setMaxAge(24 * 60 * 60);   // 1 day
+            cookie.setHttpOnly(false);   // true if you want to hide from JS
+            cookie.setSecure(false);     // true if using HTTPS
+            String contextPath = request.getContextPath();
+            cookie.setPath(contextPath.isEmpty() ? "/" : contextPath);
+            cookie.setMaxAge(24 * 60 * 60); // 1 day
             response.addCookie(cookie);
-            logger.debug("login cookie set for jwtToken, value={}", token);
+            logger.debug("login cookie set for jwtToken, value={}, path={}", token, cookie.getPath());
 
             Map<String, Object> data = Map.of(
                     KEY_USERNAME, user.getUsername(),
@@ -97,22 +100,21 @@ public class AuthController {
                     .body(Response.error("Invalid username or password", null, HttpStatus.UNAUTHORIZED.value()));
         }
     }
-    
+
     @PostMapping("/logout")
-    public ResponseEntity<Response<String>> logout(HttpServletResponse response) {
+    public ResponseEntity<Response<String>> logout(HttpServletRequest request, HttpServletResponse response) {
         logger.debug("logout called");
 
-        // Clear JWT cookie
+        // Clear JWT cookie with dynamic path
         javax.servlet.http.Cookie cookie = new javax.servlet.http.Cookie("jwtToken", "");
-        cookie.setHttpOnly(false); // or true if JS shouldn't read it
-        cookie.setSecure(false);   // true if using HTTPS
-        cookie.setPath("/");       // must match login cookie path
-        cookie.setMaxAge(0);       // delete immediately
+        cookie.setHttpOnly(false);
+        cookie.setSecure(false);
+        String contextPath = request.getContextPath();
+        cookie.setPath(contextPath.isEmpty() ? "/" : contextPath);
+        cookie.setMaxAge(0);
         response.addCookie(cookie);
-        logger.debug("logout cookie cleared for jwtToken");
+        logger.debug("logout cookie cleared for jwtToken, path={}", cookie.getPath());
 
-        // Optional: clear any other client-side stuff (localStorage handled by JS)
-        
         return ResponseEntity.ok(Response.success("Logout successful", null, HttpStatus.OK.value()));
     }
 }

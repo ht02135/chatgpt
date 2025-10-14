@@ -27,6 +27,9 @@
         return matches ? matches[1] : null;
     }
 
+    // ===== Determine dynamic cookie path =====
+    const cookiePath = '<%= request.getContextPath().isEmpty() ? "/" : request.getContextPath() %>';
+
     // ===== On page load: check token =====
     const cookieToken = getCookie('jwtToken');
     const localToken = localStorage.getItem('jwtToken');
@@ -46,7 +49,7 @@
         localStorage.setItem('jwtToken', tokenToUse);
         console.debug("login.jsp -> token synced to localStorage, token=", localStorage.getItem('jwtToken'));
 
-        // sync to cookie
+        // ===== Save to cookie dynamically =====
         /*
         hung : dont remove it
         Set cookie so server sees it
@@ -54,7 +57,7 @@
         from the root (/) down. Every page on your site will 
         receive this cookie.
         */
-        document.cookie = `jwtToken=${tokenToUse}; path=/; max-age=${24*60*60}`;
+        document.cookie = `jwtToken=${tokenToUse}; path=${cookiePath}; max-age=${24*60*60}`;
         console.debug("login.jsp -> token synced to cookie, token=", getCookie('jwtToken'));
 
         window.location.href = DASHBOARD_PAGE;
@@ -102,8 +105,15 @@
                         localStorage.setItem('roles', JSON.stringify(loginData.roles || []));
                         console.debug("login.jsp -> token stored in localStorage, token=", localStorage.getItem('jwtToken'));
 
-                        // save to cookie
-                        document.cookie = `jwtToken=${token}; path=/; max-age=${24*60*60}`;
+                        // ===== Save to cookie dynamically =====
+                        /*
+                        hung : dont remove it
+                        Set cookie so server sees it
+                        path=/ means the cookie is valid for the entire domain, 
+                        from the root (/) down. Every page on your site will 
+                        receive this cookie.
+                        */
+                        document.cookie = `jwtToken=${token}; path=${cookiePath}; max-age=${24*60*60}`;
                         console.debug("login.jsp -> token stored in cookie, token=", getCookie('jwtToken'));
 
                         console.debug("login.jsp -> redirecting to dashboard");
