@@ -1,1 +1,124 @@
+
+if i do
+
+On login
+// Check localStorage for JWT
+const jwtToken = localStorage.getItem('jwtToken');
+if (jwtToken) {
+    console.debug("JWT token found, syncing to cookie");
+    // Set cookie so server sees it
+    document.cookie = `jwtToken=${jwtToken}; path=/; max-age=${24*60*60}`; // 1 day expiration
+}
+
+
+///////
+
+Make sure JwtAuthenticationFilter reads from cookie if Authorization header is missing
+String token = resolveToken(request); // existing logic for Authorization header
+if (token == null) {
+    Cookie[] cookies = request.getCookies();
+    if (cookies != null) {
+        for (Cookie cookie : cookies) {
+            if ("jwtToken".equals(cookie.getName())) {
+                token = cookie.getValue();
+                break;
+            }
+        }
+    }
+}
+
+//////////////
+
+1️⃣ On the client side
+
+Whenever the user logs in, you store the JWT in localStorage.
+
+Immediately after login (or on page load if the JWT is already in localStorage), you sync it to a cookie:
+
+const jwtToken = localStorage.getItem('jwtToken');
+if (jwtToken) {
+    console.debug("JWT token found, syncing to cookie");
+    document.cookie = `jwtToken=${jwtToken}; path=/; max-age=${24*60*60}`;
+}
+
+/////////////////
+
+On the server side
+
+In your JwtAuthenticationFilter, you already check the Authorization header.
+
+Add a fallback to read from the cookie:
+
+String token = resolveToken(request); // existing header check
+if (token == null) {
+    Cookie[] cookies = request.getCookies();
+    if (cookies != null) {
+        for (Cookie cookie : cookies) {
+            if ("jwtToken".equals(cookie.getName())) {
+                token = cookie.getValue();
+                break;
+            }
+        }
+    }
+}
+
+}
+
+✅ This ensures that any protected JSP or endpoint will see the token even if the browser did not send an Authorization header.
+
+///////////////
+
+logout, we need to clear local and cookie? do we need logout controller to clear cookie?
+
+Yes — to fully log a user out, you need to clear both localStorage and the cookie. Otherwise, the browser might still send the cookie and the server could treat the user as authenticated.
+
+If you have a logout button or JS method, you can do:
+
+// Clear JWT from localStorage
+localStorage.removeItem('jwtToken');
+
+// Clear JWT cookie by setting max-age=0
+document.cookie = "jwtToken=; path=/; max-age=0";
+
+// Optionally redirect to login page
+window.location.href = "/chatgpt-production/login.jsp";
+
+/////////////
+
+Option 1: logout.jsp (client-side JS)
+
+You can create a logout.jsp that just runs JS to clear token + cookie, then redirects:
+
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Logout</title>
+    <script type="text/javascript">
+        // Clear JWT from localStorage
+        localStorage.removeItem('jwtToken');
+
+        // Clear cookie
+        document.cookie = "jwtToken=; path=/; max-age=0";
+
+        // Redirect to login
+        window.location.href = "/chatgpt-production/login.jsp";
+    </script>
+</head>
+<body>
+Logging out...
+</body>
+</html>
+
+
+
+
+	
+	
+	
+	
+	
+	
+	
 	
