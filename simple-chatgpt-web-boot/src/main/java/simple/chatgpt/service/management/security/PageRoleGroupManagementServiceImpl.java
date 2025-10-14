@@ -225,7 +225,9 @@ public class PageRoleGroupManagementServiceImpl implements PageRoleGroupManageme
             }
         }
 
+        logger.debug("getMappingsByUrlPattern ##########");
         logger.debug("getMappingsByUrlPattern matched={}", matched);
+        logger.debug("getMappingsByUrlPattern ##########");
         return matched;
     }
 

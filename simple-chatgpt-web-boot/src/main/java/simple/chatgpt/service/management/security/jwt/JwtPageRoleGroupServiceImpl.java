@@ -56,7 +56,9 @@ public class JwtPageRoleGroupServiceImpl implements JwtPageRoleGroupService {
                 .map(PageRoleGroupManagementPojo::getRoleGroupRef)
                 .collect(Collectors.toList());
 
-        logger.debug("getAllowedRoleGroups result={}", allowedRoleGroups);
+        logger.debug("getAllowedRoleGroups ##########");
+        logger.debug("getAllowedRoleGroups allowedRoleGroups={}", allowedRoleGroups);
+        logger.debug("getAllowedRoleGroups ##########");
         return allowedRoleGroups;
     }
     
