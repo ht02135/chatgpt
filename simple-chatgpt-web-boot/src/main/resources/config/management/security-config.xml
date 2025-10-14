@@ -1,91 +1,134 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <security-config>
 
-	<!-- ========================= -->
-	<!-- Base Roles -->
-	<!-- ========================= -->
-	<roles>
-	    <role name="ROOT_ROLE" description="ROOT privileges" />
-		<role name="ADMIN_ROLE" description="Admin privileges" />
-		<role name="USER_ROLE" description="Standard user privileges" />
-	</roles>
+    <!-- ========================= -->
+    <!-- Base Roles -->
+    <!-- ========================= -->
+    <roles>
+        <role name="ROOT_ROLE" description="ROOT privileges" />
+        <role name="ADMIN_ROLE" description="Admin privileges" />
+        <role name="USER_ROLE" description="Standard user privileges" />
+    </roles>
 
-	<!-- ========================= -->
-	<!-- Role Groups -->
-	<!-- ========================= -->
-	<role-groups>
-		<role-group name="ROOT_ROLE_GROUP">
-			<role-ref name="ADMIN_ROLE" />
-			<role-ref name="ADMIN_ROLE" />
-			<role-ref name="USER_ROLE" />
-		</role-group>
-		<role-group name="ADMIN_ROLE_GROUP">
-			<role-ref name="ADMIN_ROLE" />
-			<role-ref name="USER_ROLE" />
-		</role-group>
-		<role-group name="USER_ROLE_GROUP">
-			<role-ref name="USER_ROLE" />
-		</role-group>
-	</role-groups>
+    <!-- ========================= -->
+    <!-- Role Groups -->
+    <!-- ========================= -->
+    <role-groups>
+        <!-- User Role Groups -->
+        <role-group name="ROOT_USER_ROLE_GROUP">
+            <role-ref name="ROOT_ROLE" />
+            <role-ref name="ADMIN_ROLE" />
+            <role-ref name="USER_ROLE" />
+        </role-group>
+        <role-group name="ADMIN_USER_ROLE_GROUP">
+            <role-ref name="ADMIN_ROLE" />
+            <role-ref name="USER_ROLE" />
+        </role-group>
+        <role-group name="USER_USER_ROLE_GROUP">
+            <role-ref name="USER_ROLE" />
+        </role-group>
 
-	<!-- ========================= -->
-	<!-- Page → Role Group mapping -->
-	<!-- ========================= -->
-<page-role-groups>
-    <!-- Property -->
-    <page-role-group url-pattern="/property/**" role-group-ref="ADMIN_ROLE_GROUP" />
-    <page-role-group url-pattern="/management/jsp/property/**" role-group-ref="ADMIN_ROLE_GROUP" />
-    <!-- Role -->
-    <page-role-group url-pattern="/role/**" role-group-ref="ADMIN_ROLE_GROUP" />
-    <page-role-group url-pattern="/management/jsp/role/**" role-group-ref="ADMIN_ROLE_GROUP" />
-    <!-- RoleGroup -->
-    <page-role-group url-pattern="/roleGroup/**" role-group-ref="ADMIN_ROLE_GROUP" />
-    <page-role-group url-pattern="/management/jsp/roleGroup/**" role-group-ref="ADMIN_ROLE_GROUP" />
-    <!-- RoleGroupRole -->
-    <page-role-group url-pattern="/roleGroupRole/**" role-group-ref="ADMIN_ROLE_GROUP" />
-    <page-role-group url-pattern="/management/jsp/roleGroupRole/**" role-group-ref="ADMIN_ROLE_GROUP" />
-    <!-- User -->
-    <page-role-group url-pattern="/user/**" role-group-ref="USER_ROLE_GROUP" />
-    <page-role-group url-pattern="/management/jsp/user/**" role-group-ref="USER_ROLE_GROUP" />
-    <!-- UserList -->
-    <page-role-group url-pattern="/userList/**" role-group-ref="USER_ROLE_GROUP" />
-    <page-role-group url-pattern="/management/jsp/userList/**" role-group-ref="USER_ROLE_GROUP" />
-    <!-- UserRoleGroup -->
-    <page-role-group url-pattern="/userRoleGroup/**" role-group-ref="ADMIN_ROLE_GROUP" />
-    <page-role-group url-pattern="/management/jsp/userRoleGroup/**" role-group-ref="ADMIN_ROLE_GROUP" />
-    <!-- PageRoleGroup -->
-    <page-role-group url-pattern="/pageRoleGroup/**" role-group-ref="ADMIN_ROLE_GROUP" />
-    <page-role-group url-pattern="/management/jsp/pageRoleGroup/**" role-group-ref="ADMIN_ROLE_GROUP" />
-</page-role-groups>
+        <!-- Page Role Groups -->
+        <role-group name="ADMIN_PAGE_ROLE_GROUP">
+            <role-ref name="ADMIN_ROLE" />
+        </role-group>
+        <role-group name="USER_PAGE_ROLE_GROUP">
+            <role-ref name="USER_ROLE" />
+        </role-group>
+    </role-groups>
 
-	<!-- ========================= -->
-	<!-- Default Users -->
-	<!-- ========================= -->
-	<users>
-		<user user_name="root" user_key="root" password="ZAQ!zaq1"
-			first_name="System" last_name="Root" email="root@eyahoo.com"
-			address_line_1="1 Admin Way" address_line_2="" city="SystemCity"
-			state="CA" post_code="90001" country="USA" active="true"
-			locked="false" role-group-ref="ROOT_ROLE_GROUP" />
+    <!-- ========================= -->
+    <!-- Page → Role Group mapping -->
+    <!-- ========================= -->
+    <page-role-groups>
+        <!-- Property -->
+        <page-role-group url-pattern="/property/**"
+            role-group-ref="ADMIN_PAGE_ROLE_GROUP" />
+        <page-role-group url-pattern="/management/jsp/property/**"
+            role-group-ref="ADMIN_PAGE_ROLE_GROUP" />
 
-		<user user_name="admin" user_key="admin" password="ZAQ!zaq1"
-			first_name="Admin" last_name="User" email="admin@yahoo.com"
-			address_line_1="2 Admin Way" address_line_2="" city="SystemCity"
-			state="CA" post_code="90002" country="USA" active="true"
-			locked="false" role-group-ref="ADMIN_ROLE_GROUP" />
-		<user user_name="user1" user_key="user1" password="ZAQ!zaq1"
-			first_name="John" last_name="Doe" email="user1@yahoo.com"
-			address_line_1="100 Main Street" address_line_2="Apt 1"
-			city="SystemCity" state="CA" post_code="90003" country="USA"
-			active="true" locked="false" role-group-ref="USER_ROLE_GROUP" />	
-		<user user_name="custom1" user_key="custom1" password="ZAQ!zaq1"
-			first_name="John2" last_name="Doe2" email="user2@yahoo.com"
-			address_line_1="100 Main Street" address_line_2="Apt 1"
-			city="SystemCity" state="CA" post_code="90003" country="USA"
-			active="true" locked="false" role-group-ref="USER_ROLE_GROUP" />
-	</users>
+        <!-- Role -->
+        <page-role-group url-pattern="/role/**"
+            role-group-ref="ADMIN_PAGE_ROLE_GROUP" />
+        <page-role-group url-pattern="/management/jsp/role/**"
+            role-group-ref="ADMIN_PAGE_ROLE_GROUP" />
 
-	<!-- i will use above to load initial role, role-group, page-role-group 
-		into db. later i will add ui to manage more of them... -->
+        <!-- RoleGroup -->
+        <page-role-group url-pattern="/roleGroup/**"
+            role-group-ref="ADMIN_PAGE_ROLE_GROUP" />
+        <page-role-group url-pattern="/management/jsp/roleGroup/**"
+            role-group-ref="ADMIN_PAGE_ROLE_GROUP" />
+
+        <!-- RoleGroupRole -->
+        <page-role-group url-pattern="/roleGroupRole/**"
+            role-group-ref="ADMIN_PAGE_ROLE_GROUP" />
+        <page-role-group url-pattern="/management/jsp/roleGroupRole/**"
+            role-group-ref="ADMIN_PAGE_ROLE_GROUP" />
+
+        <!-- User -->
+        <page-role-group url-pattern="/user/**"
+            role-group-ref="USER_PAGE_ROLE_GROUP" />
+        <page-role-group url-pattern="/management/jsp/user/**"
+            role-group-ref="USER_PAGE_ROLE_GROUP" />
+
+        <!-- UserList -->
+        <page-role-group url-pattern="/userList/**"
+            role-group-ref="USER_PAGE_ROLE_GROUP" />
+        <page-role-group url-pattern="/management/jsp/userList/**"
+            role-group-ref="USER_PAGE_ROLE_GROUP" />
+
+        <!-- UserRoleGroup -->
+        <page-role-group url-pattern="/userRoleGroup/**"
+            role-group-ref="ADMIN_PAGE_ROLE_GROUP" />
+        <page-role-group url-pattern="/management/jsp/userRoleGroup/**"
+            role-group-ref="ADMIN_PAGE_ROLE_GROUP" />
+
+        <!-- PageRoleGroup -->
+        <page-role-group url-pattern="/pageRoleGroup/**"
+            role-group-ref="ADMIN_PAGE_ROLE_GROUP" />
+        <page-role-group url-pattern="/management/jsp/pageRoleGroup/**"
+            role-group-ref="ADMIN_PAGE_ROLE_GROUP" />
+    </page-role-groups>
+
+    <!-- ========================= -->
+    <!-- Default Users -->
+    <!-- ========================= -->
+    <users>
+        <user user_name="root" user_key="root" password="ZAQ!zaq1"
+            first_name="System" last_name="Root" email="root@eyahoo.com"
+            address_line_1="1 Admin Way" address_line_2="" city="SystemCity"
+            state="CA" post_code="90001" country="USA" active="true"
+            locked="false" role-group-ref="ROOT_USER_ROLE_GROUP" />
+
+        <user user_name="admin" user_key="admin" password="ZAQ!zaq1"
+            first_name="Admin" last_name="User" email="admin@yahoo.com"
+            address_line_1="2 Admin Way" address_line_2="" city="SystemCity"
+            state="CA" post_code="90002" country="USA" active="true"
+            locked="false" role-group-ref="ADMIN_USER_ROLE_GROUP" />
+
+        <user user_name="user1" user_key="user1" password="ZAQ!zaq1"
+            first_name="John" last_name="Doe" email="user1@yahoo.com"
+            address_line_1="100 Main Street" address_line_2="Apt 1"
+            city="SystemCity" state="CA" post_code="90003" country="USA"
+            active="true" locked="false" role-group-ref="USER_USER_ROLE_GROUP" />
+            
+        <user user_name="user2" user_key="user2" password="ZAQ!zaq1"
+            first_name="John" last_name="Doe" email="user1@yahoo.com"
+            address_line_1="100 Main Street" address_line_2="Apt 1"
+            city="SystemCity" state="CA" post_code="90003" country="USA"
+            active="true" locked="false" role-group-ref="USER_USER_ROLE_GROUP" />
+            
+        <user user_name="user3" user_key="user3" password="ZAQ!zaq1"
+            first_name="John" last_name="Doe" email="user1@yahoo.com"
+            address_line_1="100 Main Street" address_line_2="Apt 1"
+            city="SystemCity" state="CA" post_code="90003" country="USA"
+            active="true" locked="false" role-group-ref="USER_USER_ROLE_GROUP" />
+
+        <user user_name="custom1" user_key="custom1" password="ZAQ!zaq1"
+            first_name="John2" last_name="Doe2" email="user2@yahoo.com"
+            address_line_1="100 Main Street" address_line_2="Apt 1"
+            city="SystemCity" state="CA" post_code="90003" country="USA"
+            active="true" locked="false" role-group-ref="USER_USER_ROLE_GROUP" />
+    </users>
 
 </security-config>
