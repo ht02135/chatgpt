@@ -56,7 +56,16 @@ public class UserManagementServiceImpl implements UserManagementService {
         logger.debug("create START");
         logger.debug("create user={}", user);
 
-        // Encode password before saving
+        /*
+        hung : dont remove it
+        ///////////////////////
+        Encode password before saving
+        BCryptPasswordEncoder, then this is hashing, not encryption.
+        | Concept        | One-way? | Can you get the original back? | Example Use                        |
+		| -------------- | -------- | ------------------------------ | ---------------------------------- |
+		| **Encryption** | No       | Yes (if you have the key)      | Encrypting messages, tokens, files |
+		| **Hashing**    | Yes      | No (irreversible)              | Storing passwords securely         |
+        */
         if (user.getPassword() != null) {
             String encoded = passwordEncoder.encode(user.getPassword());
             user.setPassword(encoded);
