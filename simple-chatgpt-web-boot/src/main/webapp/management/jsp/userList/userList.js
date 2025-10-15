@@ -2,11 +2,6 @@
 
 import FileUploader from "../../js/fileUploader.js";   // ✅ now works as ES module
 
-// const API_USERLIST = '/chatgpt/api/management/userlists';
-// dynamically figure out the context path from window.location.pathname
-const USERTLIST_CONTEXT_PATH = "/" + window.location.pathname.split("/")[1];
-const API_USERLIST = `${USERTLIST_CONTEXT_PATH}/api/management/userlists`;
-
 function UserList(data, fields) {
     console.log("userList.js -> UserList: constructor called");
     const self = this;

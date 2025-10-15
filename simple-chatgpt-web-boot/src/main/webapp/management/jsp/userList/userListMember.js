@@ -1,11 +1,5 @@
 // userListMember.js
 
-// const API_USERLIST_MEMBER = '/chatgpt/api/management/userlistmembers';
-// detect context path dynamically
-const USERTLISTMEMBER_CONTEXT_PATH = "/" + window.location.pathname.split("/")[1];
-// now build the endpoint correctly
-const API_USERLIST_MEMBER = `${USERTLISTMEMBER_CONTEXT_PATH}/api/management/userlistmembers`;
-
 function UserListMember(data, fields) {
     console.log("userListMember.js -> UserListMember: constructor called");
     const self = this;

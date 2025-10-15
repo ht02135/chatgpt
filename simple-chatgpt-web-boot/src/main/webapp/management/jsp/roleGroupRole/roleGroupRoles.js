@@ -1,9 +1,5 @@
 // roleGroupRole.js
 
-// detect context path dynamically from browser URL
-const ROLE_GROUP_ROLE_CONTEXT_PATH = "/" + window.location.pathname.split("/")[1];
-const API_ROLE_GROUP_ROLE = `${ROLE_GROUP_ROLE_CONTEXT_PATH}/api/management/rolegrouprolemappings`;
-
 function RoleGroupRole(data, fields) {
     console.log("roleGroupRoles.js -> RoleGroupRole: constructor called");
     const self = this;

@@ -6,6 +6,8 @@
     <title>Add Role Group Role</title>
     <script src="../../js/knockout-latest.js"></script>
     <script src="../../component/customize-components-3.0.js"></script>
+	<%@ include file="/management/include/constants.jspf" %>
+	<script src="<%= request.getContextPath() %>/management/js/constants.js"></script>
     <link rel="stylesheet" href="roleGroupRole.css">
 </head>
 <body>

@@ -1,9 +1,5 @@
 // userRoleGroup.js
 
-// detect context path dynamically from browser URL
-const USER_ROLE_GROUP_CONTEXT_PATH = "/" + window.location.pathname.split("/")[1];
-const API_USER_ROLE_GROUP = `${USER_ROLE_GROUP_CONTEXT_PATH}/api/management/userrolegroups`;
-
 function UserRoleGroup(data, fields) {
     console.log("userRoleGroup.js -> UserRoleGroup: constructor called");
     const self = this;

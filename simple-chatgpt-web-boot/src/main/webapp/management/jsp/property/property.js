@@ -1,11 +1,5 @@
 // property.js
 
-// const API_PROPERTY = '/chatgpt/api/management/properties';
-// detect context path from current URL
-const PROPERTY_CONTEXT_PATH = "/" + window.location.pathname.split("/")[1];
-// build endpoint using detected context path
-const API_PROPERTY = `${PROPERTY_CONTEXT_PATH}/api/management/properties`;
-
 // --- Model ---
 function Property(data, fields) {
     console.log("property.js -> Property: called");

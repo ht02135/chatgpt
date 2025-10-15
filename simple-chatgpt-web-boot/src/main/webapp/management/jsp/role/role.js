@@ -1,9 +1,5 @@
 // role.js
 
-// detect context path dynamically from browser URL
-const ROLE_CONTEXT_PATH = "/" + window.location.pathname.split("/")[1];
-const API_ROLE = `${ROLE_CONTEXT_PATH}/api/management/roles`;
-
 function Role(data, fields) {
     console.log("role.js -> Role: constructor called");
     const self = this;

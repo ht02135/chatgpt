@@ -1,9 +1,5 @@
 // pageRoleGroup.js
 
-// detect context path dynamically from browser URL
-const PAGERG_CONTEXT_PATH = "/" + window.location.pathname.split("/")[1];
-const API_PAGE_ROLE_GROUP = `${PAGERG_CONTEXT_PATH}/api/management/pagerolegroups`;
-
 function PageRoleGroup(data, fields) {
     console.log("pageRoleGroup.js -> PageRoleGroup: constructor called");
     const self = this;
