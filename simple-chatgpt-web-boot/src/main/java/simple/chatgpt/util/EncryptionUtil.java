@@ -3,6 +3,7 @@ package simple.chatgpt.util;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jasypt.encryption.pbe.StandardPBEStringEncryptor;
+import org.jasypt.salt.ZeroSaltGenerator;
 
 public class EncryptionUtil {
 
@@ -18,38 +19,57 @@ public class EncryptionUtil {
     static {
         encryptor.setAlgorithm(PBE_ALGORITHM);
         encryptor.setPassword(MASTER_PASSWORD);
+        // use deterministic encryption by adding a ZeroSaltGenerator
+        encryptor.setSaltGenerator(new ZeroSaltGenerator()); // deterministic encryption
         logger.debug("EncryptionUtil initialized with algorithm={} and master password", PBE_ALGORITHM);
     }
 
     // Encrypts and wraps in ENC(...)
     public static String encrypt(String plainText) {
-    	logger.debug("encrypt plainText={}", plainText);
-    	
+        logger.debug("encrypt plainText={}", plainText);
         if (plainText == null) return null;
-        
-        String encrypted = encryptor.encrypt(plainText);
-        logger.debug("encrypt encrypted={}", encrypted);
-        
-        String wrapped = ENC_PREFIX + encrypted + ENC_SUFFIX;
-        logger.debug("encrypt wrapped={}", wrapped);
-        
-        return wrapped;
+
+        try {
+            String encrypted = encryptor.encrypt(plainText);
+            logger.debug("encrypt encrypted={}", encrypted);
+
+            String wrapped = ENC_PREFIX + encrypted + ENC_SUFFIX;
+            logger.debug("encrypt wrapped={}", wrapped);
+            return wrapped;
+        } catch (Exception e) {
+            logger.error("Encryption failed for plainText={}", plainText, e);
+            return null;
+        }
     }
 
-    // Decrypts string, removing ENC(...) if present
+    // Decrypts string, removing ENC(...), quotes, and trimming
     public static String decrypt(String encryptedText) {
-    	logger.debug("decrypt encryptedText={}", encryptedText);
-    	
+        logger.debug("decrypt encryptedText={}", encryptedText);
         if (encryptedText == null) return null;
-        
-        String toDecrypt = encryptedText;
-        if (encryptedText.startsWith(ENC_PREFIX) && encryptedText.endsWith(ENC_SUFFIX)) {
-            toDecrypt = encryptedText.substring(ENC_PREFIX.length(), encryptedText.length() - ENC_SUFFIX.length());
-            logger.debug("decrypt toDecrypt={}", toDecrypt);
+
+        try {
+            String toDecrypt = encryptedText.trim();
+
+            // Remove surrounding quotes if any
+            if ((toDecrypt.startsWith("\"") && toDecrypt.endsWith("\"")) ||
+                (toDecrypt.startsWith("'") && toDecrypt.endsWith("'"))) {
+                toDecrypt = toDecrypt.substring(1, toDecrypt.length() - 1).trim();
+                logger.debug("decrypt removed quotes, toDecrypt={}", toDecrypt);
+            }
+
+            // Remove ENC(...) wrapper if present
+            if (toDecrypt.startsWith(ENC_PREFIX) && toDecrypt.endsWith(ENC_SUFFIX)) {
+                toDecrypt = toDecrypt.substring(ENC_PREFIX.length(), toDecrypt.length() - ENC_SUFFIX.length()).trim();
+                logger.debug("decrypt removed ENC wrapper, toDecrypt={}", toDecrypt);
+            }
+
+            String decrypted = encryptor.decrypt(toDecrypt);
+            logger.debug("decrypt decrypted={}", decrypted);
+            return decrypted;
+        } catch (Exception e) {
+            logger.error("Decryption failed for encryptedText={}", encryptedText, e);
+            return null;
         }
-        String decrypted = encryptor.decrypt(toDecrypt);
-        logger.debug("decrypt decrypted={}", decrypted);
-        return decrypted;
     }
 
     // Convenience method to check if a string is wrapped ENC(...)

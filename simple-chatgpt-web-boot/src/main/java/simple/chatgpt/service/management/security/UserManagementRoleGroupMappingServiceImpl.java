@@ -96,6 +96,7 @@ public class UserManagementRoleGroupMappingServiceImpl implements UserManagement
 	            logger.debug("initializeDB processing userConfig={}", userConfig);
 
 	            String decryptedUserConfigPassword = decryptJasyptEncPassword(userConfig.getPassword());
+	            logger.debug("initializeDB processing userConfig.getPassword()={}", userConfig.getPassword());
 	            logger.debug("initializeDB processing decryptedUserConfigPassword={}", decryptedUserConfigPassword);
 	            
 	            // ==================================================

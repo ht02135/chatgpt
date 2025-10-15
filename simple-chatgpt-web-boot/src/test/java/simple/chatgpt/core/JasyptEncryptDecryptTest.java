@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jasypt.encryption.pbe.StandardPBEStringEncryptor;
+import org.jasypt.salt.ZeroSaltGenerator;
 import org.junit.jupiter.api.Test;
 
 /*
@@ -51,6 +52,8 @@ public class JasyptEncryptDecryptTest {
         StandardPBEStringEncryptor encryptor = new StandardPBEStringEncryptor();
         encryptor.setAlgorithm(PBE_ALGORITHM);
         encryptor.setPassword(MASTER_PASSWORD);
+        // use deterministic encryption by adding a ZeroSaltGenerator
+        encryptor.setSaltGenerator(new ZeroSaltGenerator()); // deterministic encryption
 
         // 2️⃣ Encrypt
         String encrypted = encryptor.encrypt(plainPassword);
