@@ -86,11 +86,21 @@ public class SimpleChatgptWebBootApplication extends SpringBootServletInitialize
         super.onStartup(servletContext);
     }
 
-    // ------------------------------
-    // hung: DONT REMOVE THIS COMMENT
-    // FROM web.xml: <multipart-config>
-    // Multipart Config
-    // ------------------------------
+    /* 
+    ------------------------------
+    hung: DONT REMOVE THIS COMMENT
+    FROM web.xml: <multipart-config>
+    Multipart Config
+    ------------------------------
+    Where the multipart error happens in request chain
+    Spring filter order roughly:
+    1>FilterChainProxy (Spring Security)
+	2>JwtAuthenticationFilter
+	3>DynamicAccessFilter
+	4>DispatcherServlet (Spring MVC)
+	The multipart parsing (StandardMultipartHttpServletRequest) happens 
+	inside the DispatcherServlet, when it tries to parse the request body.
+    */
     @Bean
     public MultipartConfigElement multipartConfigElement() {
         logger.debug("SimpleChatgptWebBootApplication.multipartConfigElement called");
@@ -104,18 +114,33 @@ public class SimpleChatgptWebBootApplication extends SpringBootServletInitialize
         return mce;
     }
 
-    // ------------------------------
-    // hung: DONT REMOVE THIS COMMENT
-    // Optional: register api DispatcherServlet path mapping similar to api-servlet.xml
-    // API DispatcherServlet registration
-    // ------------------------------
+    /*
+    ------------------------------
+    hung: DONT REMOVE THIS COMMENT
+    Optional: register api DispatcherServlet path mapping similar to api-servlet.xml
+    API DispatcherServlet registration
+    ------------------------------
+    You need to explicitly attach your multipart config to the servlet registration.
+    Just modify it to inject and apply the MultipartConfigElement.
+    */
     @Bean
-    public ServletRegistrationBean<DispatcherServlet> apiDispatcherServlet(DispatcherServlet dispatcherServlet) {
+    public ServletRegistrationBean<DispatcherServlet> apiDispatcherServlet(
+    	DispatcherServlet dispatcherServlet,
+        MultipartConfigElement multipartConfigElement) 
+    {
         logger.debug("SimpleChatgptWebBootApplication.apiDispatcherServlet called");
-        ServletRegistrationBean<DispatcherServlet> registration = new ServletRegistrationBean<>(dispatcherServlet, "/api/*");
+        logger.debug("SimpleChatgptWebBootApplication.apiDispatcherServlet dispatcherServlet={}", dispatcherServlet);
+        logger.debug("SimpleChatgptWebBootApplication.apiDispatcherServlet multipartConfigElement={}", multipartConfigElement);
+
+        ServletRegistrationBean<DispatcherServlet> registration =
+                new ServletRegistrationBean<>(dispatcherServlet, "/api/*");
         registration.setName("api");
         registration.setLoadOnStartup(1);
-        logger.debug("DispatcherServlet registration created: {}", registration);
+
+        // ✅ Attach multipart configuration here
+        registration.setMultipartConfig(multipartConfigElement);
+
+        logger.debug("DispatcherServlet registration with multipart config created: {}", registration);
         return registration;
     }
 
