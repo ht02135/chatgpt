@@ -1,9 +1,5 @@
 // user.js
 
-// detect context path dynamically from browser URL
-const USER_CONTEXT_PATH = "/" + window.location.pathname.split("/")[1];
-const API_USER = `${USER_CONTEXT_PATH}/api/management/users`;
-
 function User(data, fields) {
     console.log("user.js -> User: called");
     const self = this;

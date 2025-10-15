@@ -6,6 +6,10 @@
     <title>Edit User</title>
     <script src="../../js/knockout-latest.js"></script>
     <script src="../../component/customize-components-3.0.js"></script>
+	<!-- Server-side constants -->
+	<%@ include file="/management/include/constants.jspf" %>
+	<!-- Client-side constants -->
+	<script src="<%= request.getContextPath() %>/management/js/constants.js"></script>
     <link rel="stylesheet" href="user.css">
 </head>
 <body>
