@@ -20,6 +20,7 @@ import simple.chatgpt.pojo.management.security.RoleGroupManagementPojo;
 import simple.chatgpt.pojo.management.security.UserManagementRoleGroupMappingPojo;
 import simple.chatgpt.service.management.PropertyManagementService;
 import simple.chatgpt.service.management.UserManagementService;
+import simple.chatgpt.util.EncryptionUtil;
 import simple.chatgpt.util.PagedResult;
 import simple.chatgpt.util.PropertyKey;
 import simple.chatgpt.util.SafeConverter;
@@ -94,6 +95,9 @@ public class UserManagementRoleGroupMappingServiceImpl implements UserManagement
 	        for (UserConfig userConfig : xmlUsers) {
 	            logger.debug("initializeDB processing userConfig={}", userConfig);
 
+	            String decryptedUserConfigPassword = decryptJasyptEncPassword(userConfig.getPassword());
+	            logger.debug("initializeDB processing decryptedUserConfigPassword={}", decryptedUserConfigPassword);
+	            
 	            // ==================================================
 	            // STEP 3a: Ensure user exists via UserManagementService
 	            // ==================================================
@@ -116,7 +120,7 @@ public class UserManagementRoleGroupMappingServiceImpl implements UserManagement
 	                userPojo.setUserKey(userConfig.getUserKey());
 	                logger.debug("initializeDB userKey={}", userConfig.getUserKey());
 
-	                userPojo.setPassword(userConfig.getPassword());
+	                userPojo.setPassword(decryptedUserConfigPassword);
 	                logger.debug("initializeDB password=[PROTECTED]");
 
 	                userPojo.setFirstName(userConfig.getFirstName());
@@ -169,8 +173,8 @@ public class UserManagementRoleGroupMappingServiceImpl implements UserManagement
 
 	                if (reloadUserPassword) {
 	                    try {
-	                    	if (!userConfig.getPassword().equals(userPojo.getPassword())) {
-		                        userPojo.setPassword(userConfig.getPassword());
+	                    	if (!decryptedUserConfigPassword.equals(userPojo.getPassword())) {
+		                        userPojo.setPassword(decryptedUserConfigPassword);
 		                        userService.update(userPojo.getId(), userPojo);
 		                        logger.debug("initializeDB password reloaded from XML for existing user userPojo={}", userPojo);
 	                    	}
@@ -400,5 +404,15 @@ public class UserManagementRoleGroupMappingServiceImpl implements UserManagement
             delete(mapping.getId());
             logger.debug("deleteMappingsByUserId deleted mapping={}", mapping);
         }
+    }
+    
+    public String decryptJasyptEncPassword(String encPassword) {
+    	logger.debug("decryptJasyptEncPassword called");
+    	logger.debug("decryptJasyptEncPassword encPassword={}", encPassword);
+    	
+    	String decrypted = EncryptionUtil.decrypt(encPassword);
+    	logger.debug("decryptJasyptEncPassword decrypted={}", decrypted);
+    	
+    	return decrypted;
     }
 }
