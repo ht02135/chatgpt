@@ -29,6 +29,14 @@
 
 <hr>
 
+<!-- Page Management Section -->
+<div class="section">
+    <h2>Page Management</h2>
+	<p><a href="${pageContext.request.contextPath}/management/jsp/page/pages.jsp">Manage Pages</a></p>
+</div>
+
+<hr>
+
 <!-- Property Management Section -->
 <div class="section">
     <h2>Property Management</h2>
@@ -42,9 +50,11 @@
     <h2>Role Management</h2>
     <p><a href="${pageContext.request.contextPath}/management/jsp/role/roles.jsp">Manage Roles</a></p>
     <p><a href="${pageContext.request.contextPath}/management/jsp/roleGroup/roleGroups.jsp">Manage Role Groups</a></p>
+	<!-- obsolete
     <p><a href="${pageContext.request.contextPath}/management/jsp/roleGroupRole/roleGroupRoles.jsp">Manage Role Group Roles</a></p>
     <p><a href="${pageContext.request.contextPath}/management/jsp/pageRoleGroup/pageRoleGroups.jsp">Manage Page Role Groups</a></p>
     <p><a href="${pageContext.request.contextPath}/management/jsp/userRoleGroup/userRoleGroups.jsp">Manage User Role Groups</a></p>
+	-->
 </div>
 
 <hr>
