@@ -91,6 +91,7 @@ public class RoleGroupManagementServiceImpl implements RoleGroupManagementServic
                 groupPojo = new RoleGroupManagementPojo();
                 groupPojo.setGroupName(groupName);
                 groupPojo.setDescription(rgConfig.getDescription());
+                groupPojo.setDelimitRoles(rgConfig.getDelimitRoles()); // <<< Added this line
                 this.create(groupPojo);
                 logger.debug("initializeDB created new role group id={}", groupPojo.getId());
             }
@@ -104,7 +105,7 @@ public class RoleGroupManagementServiceImpl implements RoleGroupManagementServic
                 roleGroupRoleMappingService.deleteByRoleGroupId(roleGroupId);
                 logger.debug("initializeDB cleared existing mappings for roleGroupId={}", roleGroupId);
             } catch (Exception e) {
-            	logger.warn("initializeDB: ####################");
+                logger.warn("initializeDB: ####################");
                 logger.warn("initializeDB failed to clear mappings for roleGroupId={}: {}", roleGroupId, e.getMessage());
                 logger.warn("initializeDB: ####################");
             }
@@ -143,7 +144,7 @@ public class RoleGroupManagementServiceImpl implements RoleGroupManagementServic
                     roleGroupRoleMappingService.create(mapping);
                     logger.debug("initializeDB created mapping={}", mapping);
                 } catch (Exception e) {
-                	logger.warn("initializeDB: ####################");
+                    logger.warn("initializeDB: ####################");
                     logger.warn("initializeDB failed to create mapping for roleRef.name={} and roleGroupId={}: {}",
                                 roleRef.getName(), roleGroupId, e.getMessage());
                     logger.warn("initializeDB: ####################");
