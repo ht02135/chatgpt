@@ -1,5 +1,6 @@
 package simple.chatgpt.service.management;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,6 +16,8 @@ import org.springframework.stereotype.Service;
 import simple.chatgpt.config.management.loader.SecurityConfigLoader;
 import simple.chatgpt.mapper.management.UserManagementMapper;
 import simple.chatgpt.pojo.management.UserManagementPojo;
+import simple.chatgpt.pojo.management.security.RoleGroupManagementPojo;
+import simple.chatgpt.service.management.security.RoleGroupManagementService;
 import simple.chatgpt.util.PagedResult;
 import simple.chatgpt.util.SafeConverter;
 
@@ -25,20 +28,24 @@ public class UserManagementServiceImpl implements UserManagementService {
 
     private final UserManagementMapper userManagementMapper;
     private final SecurityConfigLoader securityConfigLoader;
-    private final PasswordEncoder passwordEncoder; // Inject PasswordEncoder
+    private final PasswordEncoder passwordEncoder;
+    private final RoleGroupManagementService roleGroupService; // <-- injected service
 
     @Autowired
     public UserManagementServiceImpl(UserManagementMapper userManagementMapper,
                                      SecurityConfigLoader securityConfigLoader,
-                                     PasswordEncoder passwordEncoder) {
+                                     PasswordEncoder passwordEncoder,
+                                     RoleGroupManagementService roleGroupService) {
         logger.debug("UserManagementServiceImpl START");
         logger.debug("UserManagementServiceImpl userManagementMapper={}", userManagementMapper);
         logger.debug("UserManagementServiceImpl securityConfigLoader={}", securityConfigLoader);
         logger.debug("UserManagementServiceImpl passwordEncoder={}", passwordEncoder);
+        logger.debug("UserManagementServiceImpl roleGroupService={}", roleGroupService);
 
         this.userManagementMapper = userManagementMapper;
         this.securityConfigLoader = securityConfigLoader;
         this.passwordEncoder = passwordEncoder;
+        this.roleGroupService = roleGroupService;
 
         logger.debug("UserManagementServiceImpl DONE");
     }
@@ -201,6 +208,74 @@ public class UserManagementServiceImpl implements UserManagementService {
 	    logger.debug("getUserByUserName foundUser={}", foundUser);
 
 	    return foundUser;
+	}
+	
+	@Override
+	public List<String> getRoleGroupNamesByUserName(String userName) {
+	    logger.debug("getRoleGroupNamesByUserName called");
+	    logger.debug("getRoleGroupNamesByUserName userName={}", userName);
+
+	    UserManagementPojo user = getUserByUserName(userName);
+	    logger.debug("getRoleGroupNamesByUserName user={}", user);
+	    if (user == null) {
+	        return List.of(); // empty list if user not found
+	    }
+
+	    String delimitRoleGroupNames = user.getDelimitRoleGroups();
+	    logger.debug("getRoleGroupNamesByUserName delimitRoleGroupNames={}", delimitRoleGroupNames);
+	    if (delimitRoleGroupNames == null || delimitRoleGroupNames.isBlank()) {
+	        return List.of(); // empty list if no role groups
+	    }
+
+	    // Split by "|" and filter out empty strings
+	    String[] tokens = delimitRoleGroupNames.split("\\|");
+	    List<String> roleGroupNames = new ArrayList<>();
+	    for (String token : tokens) {
+	        if (!token.isBlank()) {
+	            roleGroupNames.add(token.trim());
+	        }
+	    }
+
+	    logger.debug("getRoleGroupNamesByUserName roleGroupNames={}", roleGroupNames);
+	    return roleGroupNames;
+	}
+
+	@Override
+	public List<String> getRoleNamesByUserName(String userName) {
+	    logger.debug("getRoleNamesByUserName called");
+	    logger.debug("getRoleNamesByUserName userName={}", userName);
+
+	    List<String> roleGroupNames = getRoleGroupNamesByUserName(userName);
+	    logger.debug("getRoleNamesByUserName roleGroupNames={}", roleGroupNames);
+	    if (roleGroupNames.isEmpty()) {
+	        return List.of(); // empty list if no role groups
+	    }
+
+	    List<String> roleNames = new ArrayList<>();
+	    java.util.Set<String> roleNameSet = new java.util.LinkedHashSet<>();
+
+	    for (String groupName : roleGroupNames) {
+	        logger.debug("getRoleNamesByUserName groupName={}", groupName);
+
+	        RoleGroupManagementPojo roleGroup = roleGroupService.getRoleGroupByGroupName(groupName);
+	        logger.debug("getRoleNamesByUserName roleGroup={}", roleGroup);
+	        if (roleGroup == null) continue;
+
+	        String delimitRoles = roleGroup.getDelimitRoles();
+	        logger.debug("getRoleNamesByUserName delimitRoles={}", delimitRoles);
+	        if (delimitRoles == null || delimitRoles.isBlank()) continue;
+
+	        String[] tokens = delimitRoles.split("\\|");
+	        for (String token : tokens) {
+	            if (!token.isBlank()) {
+	                roleNameSet.add(token.trim());
+	            }
+	        }
+	    }
+
+	    roleNames = new ArrayList<>(roleNameSet);
+	    logger.debug("getRoleNamesByUserName roles={}", roleNames);
+	    return roleNames;
 	}
 	
 }

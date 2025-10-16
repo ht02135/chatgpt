@@ -20,5 +20,9 @@ public interface UserManagementService {
 	public List<UserManagementPojo> getUserByParams(Map<String, Object> params);
 	public List<UserManagementPojo> getAll();
 	public UserManagementPojo getUserByUserName(String userName); // #{params.userName}
+
+	// String delimitRoleGroups
+	public List<String> getRoleGroupNamesByUserName(String userName);
+	public List<String> getRoleNamesByUserName(String userName);
 	
 }
