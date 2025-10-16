@@ -231,7 +231,6 @@ public class PageRoleGroupManagementServiceImpl implements PageRoleGroupManageme
         return matched;
     }
 
-	
     @Override
     public List<PageRoleGroupManagementPojo> getAll()
 	{

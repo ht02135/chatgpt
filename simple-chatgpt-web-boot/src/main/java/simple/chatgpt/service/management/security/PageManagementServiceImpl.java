@@ -14,6 +14,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.AntPathMatcher;
 
 import simple.chatgpt.config.management.loader.SecurityConfigLoader;
 import simple.chatgpt.config.management.security.PageConfig;
@@ -208,34 +209,52 @@ public class PageManagementServiceImpl implements PageManagementService {
     }
     
     @Override
-	public List<String> getRoleGroupNamesByUrlPattern(String urlPattern) {
-    	logger.debug("getRoleGroupNamesByUrlPattern called");
-    	logger.debug("getRoleGroupNamesByUrlPattern urlPattern={}", urlPattern);
-    	
-    	PageManagementPojo page = getPageByUrlPattern(urlPattern);
-        logger.debug("getRoleGroupNamesByUrlPattern page={}", page);
-        if (page == null) {
-            return List.of(); // empty list if page not found
-        }
+    public List<String> getRoleGroupNamesByUrlPattern(String urlPattern) {
+        logger.debug("getRoleGroupNamesByUrlPattern called");
+        logger.debug("getRoleGroupNamesByUrlPattern urlPattern={}", urlPattern);
 
-        String delimitRoleGroupNames = page.getDelimitRoleGroups();
-        logger.debug("getRoleGroupNamesByUrlPattern delimitRoleGroupNames={}", delimitRoleGroupNames);
-        if (delimitRoleGroupNames == null || delimitRoleGroupNames.isBlank()) {
-            return List.of(); // empty list if no roles
-        }
+        AntPathMatcher matcher = new AntPathMatcher();
+        logger.debug("getRoleGroupNamesByUrlPattern matcher initialized");
 
-        // Split by "|" and filter out empty strings
-        String[] tokens = delimitRoleGroupNames.split("\\|");
+        List<PageManagementPojo> allPages = getAll();
+        logger.debug("getRoleGroupNamesByUrlPattern allPages={}", allPages);
+
         List<String> roleGroupNames = new ArrayList<>();
-        for (String token : tokens) {
-            if (!token.isBlank()) {
-            	roleGroupNames.add(token.trim());
+        for (PageManagementPojo page : allPages) {
+            logger.debug("getRoleGroupNamesByUrlPattern checking page={}", page);
+
+            String pattern = page.getUrlPattern();
+            logger.debug("getRoleGroupNamesByUrlPattern pattern={}", pattern);
+
+            if (matcher.match(pattern, urlPattern)) {
+                logger.debug("getRoleGroupNamesByUrlPattern pattern matched for urlPattern={}", urlPattern);
+
+                String delimitRoleGroupNames = page.getDelimitRoleGroups();
+                logger.debug("getRoleGroupNamesByUrlPattern delimitRoleGroupNames={}", delimitRoleGroupNames);
+
+                if (delimitRoleGroupNames != null && !delimitRoleGroupNames.isBlank()) {
+                    String[] tokens = delimitRoleGroupNames.split("\\|");
+                    for (String token : tokens) {
+                        logger.debug("getRoleGroupNamesByUrlPattern processing token={}", token);
+                        if (!token.isBlank()) {
+                            roleGroupNames.add(token.trim());
+                            logger.debug("getRoleGroupNamesByUrlPattern added roleGroupName={}", token.trim());
+                        }
+                    }
+                } else {
+                    logger.debug("getRoleGroupNamesByUrlPattern no role groups found for pattern={}", pattern);
+                }
+            } else {
+                logger.debug("getRoleGroupNamesByUrlPattern pattern did NOT match urlPattern={}", urlPattern);
             }
         }
 
-        logger.debug("getRoleGroupNamesByUrlPattern roles={}", roleGroupNames);
+        logger.debug("getRoleGroupNamesByUrlPattern ##########");
+        logger.debug("getRoleGroupNamesByUrlPattern matched roleGroupNames={}", roleGroupNames);
+        logger.debug("getRoleGroupNamesByUrlPattern ##########");
+
         return roleGroupNames;
-	}
+    }
 	
     @Override
 	public List<String> getRoleNamesByUrlPattern(String urlPattern) {
