@@ -1,5 +1,6 @@
 package simple.chatgpt.service.management.security;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,6 +19,7 @@ import simple.chatgpt.config.management.loader.SecurityConfigLoader;
 import simple.chatgpt.config.management.security.PageConfig;
 import simple.chatgpt.mapper.management.security.PageManagementMapper;
 import simple.chatgpt.pojo.management.security.PageManagementPojo;
+import simple.chatgpt.pojo.management.security.RoleGroupManagementPojo;
 import simple.chatgpt.util.PagedResult;
 import simple.chatgpt.util.SafeConverter;
 
@@ -28,17 +30,21 @@ public class PageManagementServiceImpl implements PageManagementService {
 
     private final PageManagementMapper pageMapper;
     private final SecurityConfigLoader securityConfigLoader;
+    private final RoleGroupManagementService roleGroupService; // <-- new service
     private final Validator validator;
 
     @Autowired
     public PageManagementServiceImpl(PageManagementMapper pageMapper,
-                                     SecurityConfigLoader securityConfigLoader) {
+                                     SecurityConfigLoader securityConfigLoader,
+                                     RoleGroupManagementService roleGroupService) {
         logger.debug("PageManagementServiceImpl constructor START");
         logger.debug("pageMapper={}", pageMapper);
         logger.debug("securityConfigLoader={}", securityConfigLoader);
+        logger.debug("roleGroupService={}", roleGroupService);
 
         this.pageMapper = pageMapper;
         this.securityConfigLoader = securityConfigLoader;
+        this.roleGroupService = roleGroupService;
 
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
         this.validator = factory.getValidator();
@@ -200,4 +206,64 @@ public class PageManagementServiceImpl implements PageManagementService {
         logger.debug("getPageByUrlPattern returning page={}", page);
         return page;
     }
+    
+    @Override
+	public List<String> getRoleGroupNames(String urlPattern) {
+    	logger.debug("getRoleGroupNames called");
+    	logger.debug("getRoleGroupNames urlPattern={}", urlPattern);
+    	
+    	PageManagementPojo page = getPageByUrlPattern(urlPattern);
+        logger.debug("getRoleGroupNames page={}", page);
+        if (page == null) {
+            return List.of(); // empty list if page not found
+        }
+
+        String delimitRoleGroupNames = page.getDelimitRoleGroups();
+        if (delimitRoleGroupNames == null || delimitRoleGroupNames.isBlank()) {
+            return List.of(); // empty list if no roles
+        }
+
+        // Split by "|" and filter out empty strings
+        String[] tokens = delimitRoleGroupNames.split("\\|");
+        List<String> roleGroupNames = new ArrayList<>();
+        for (String token : tokens) {
+            if (!token.isBlank()) {
+            	roleGroupNames.add(token.trim());
+            }
+        }
+
+        logger.debug("getRoleGroupNames roles={}", roleGroupNames);
+        return roleGroupNames;
+	}
+	
+    @Override
+	public List<String> getRoleNames(String urlPattern) {
+	    logger.debug("getRoleNames called");
+	    logger.debug("getRoleNames urlPattern={}", urlPattern);
+
+	    List<String> roleGroupNames = getRoleGroupNames(urlPattern);
+	    if (roleGroupNames.isEmpty()) {
+	        return List.of(); // empty list if no role groups
+	    }
+
+	    List<String> roleNames = new ArrayList<>();
+	    for (String groupName : roleGroupNames) {
+	        RoleGroupManagementPojo roleGroup = roleGroupService.getRoleGroupByGroupName(groupName);
+	        if (roleGroup == null) continue;
+
+	        String delimitRoles = roleGroup.getDelimitRoles();
+	        if (delimitRoles == null || delimitRoles.isBlank()) continue;
+
+	        String[] tokens = delimitRoles.split("\\|");
+	        for (String token : tokens) {
+	            if (!token.isBlank()) {
+	                roleNames.add(token.trim());
+	            }
+	        }
+	    }
+
+	    logger.debug("getRoleNames roles={}", roleNames);
+	    return roleNames;
+	}
+
 }

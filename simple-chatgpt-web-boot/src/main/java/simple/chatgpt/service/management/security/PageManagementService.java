@@ -20,4 +20,9 @@ public interface PageManagementService {
 	List<PageManagementPojo> getPageByParams(Map<String, Object> params);
 	List<PageManagementPojo> getAll();
 	PageManagementPojo getPageByUrlPattern(String urlPattern); // #{params.urlPattern}
+	
+	// String delimitRoleGroups
+	public List<String> getRoleGroupNames(String urlPattern);
+	public List<String> getRoleNames(String urlPattern);
+	
 }
