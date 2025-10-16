@@ -15,24 +15,24 @@
 	<!-- ========================= -->
 	<role-groups>
 		<!-- User Role Groups -->
-		<role-group name="ROOT_USER_ROLE_GROUP">
+		<role-group name="ROOT_USER_ROLE_GROUP" delimitRoles="|ROOT_ROLE|ADMIN_ROLE|USER_ROLE|">
 			<role-ref name="ROOT_ROLE" />
 			<role-ref name="ADMIN_ROLE" />
 			<role-ref name="USER_ROLE" />
 		</role-group>
-		<role-group name="ADMIN_USER_ROLE_GROUP">
+		<role-group name="ADMIN_USER_ROLE_GROUP" delimitRoles="|ADMIN_ROLE|USER_ROLE|">
 			<role-ref name="ADMIN_ROLE" />
 			<role-ref name="USER_ROLE" />
 		</role-group>
-		<role-group name="BASIC_USER_ROLE_GROUP">
+		<role-group name="BASIC_USER_ROLE_GROUP" delimitRoles="|USER_ROLE|">
 			<role-ref name="USER_ROLE" />
 		</role-group>
 
 		<!-- Page Role Groups -->
-		<role-group name="ADMIN_PAGE_ROLE_GROUP">
+		<role-group name="ADMIN_PAGE_ROLE_GROUP" delimitRoles="|ADMIN_ROLE|">
 			<role-ref name="ADMIN_ROLE" />
 		</role-group>
-		<role-group name="USER_PAGE_ROLE_GROUP">
+		<role-group name="USER_PAGE_ROLE_GROUP" delimitRoles="|USER_ROLE|">
 			<role-ref name="USER_ROLE" />
 		</role-group>
 	</role-groups>
