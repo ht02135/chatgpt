@@ -10,6 +10,7 @@ public class RoleGroupManagementPojo {
     private Long id;
     private String groupName;
     private String description;
+    private String delimitRoles;
     private String createdAt;
     private String updatedAt;
 
@@ -30,6 +31,9 @@ public class RoleGroupManagementPojo {
     public String getDescription() { return description; }
     public void setDescription(String description) { this.description = description; }
 
+    public String getDelimitRoles() { return delimitRoles; }
+    public void setDelimitRoles(String delimitRoles) { this.delimitRoles = delimitRoles; }
+
     public String getCreatedAt() { return createdAt; }
     public void setCreatedAt(String createdAt) { this.createdAt = createdAt; }
 
@@ -42,6 +46,7 @@ public class RoleGroupManagementPojo {
                 "id=" + id +
                 ", groupName='" + groupName + '\'' +
                 ", description='" + description + '\'' +
+                ", delimitRoles='" + delimitRoles + '\'' +
                 ", createdAt='" + createdAt + '\'' +
                 ", updatedAt='" + updatedAt + '\'' +
                 '}';
