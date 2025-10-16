@@ -306,12 +306,12 @@ public class RoleGroupManagementServiceImpl implements RoleGroupManagementServic
     }
     
     @Override
-    public List<String> getRoleNames(String groupName) {
-    	logger.debug("getRoleNames called");
-    	logger.debug("getRoleNames groupName={}", groupName);
+    public List<String> getRoleNamesByGroupName(String groupName) {
+    	logger.debug("getRoleNamesByGroupName called");
+    	logger.debug("getRoleNamesByGroupName groupName={}", groupName);
     	
         RoleGroupManagementPojo roleGroup = getRoleGroupByGroupName(groupName);
-        logger.debug("getRoleNames roleGroup={}", roleGroup);
+        logger.debug("getRoleNamesByGroupName roleGroup={}", roleGroup);
         if (roleGroup == null) {
             return List.of(); // empty list if group not found
         }
@@ -330,7 +330,7 @@ public class RoleGroupManagementServiceImpl implements RoleGroupManagementServic
             }
         }
 
-        logger.debug("getRoleNames roles={}", roleNames);
+        logger.debug("getRoleNamesByGroupName roles={}", roleNames);
         return roleNames;
     }
     

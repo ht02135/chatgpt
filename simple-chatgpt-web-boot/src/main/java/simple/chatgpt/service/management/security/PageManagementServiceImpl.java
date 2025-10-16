@@ -208,17 +208,18 @@ public class PageManagementServiceImpl implements PageManagementService {
     }
     
     @Override
-	public List<String> getRoleGroupNames(String urlPattern) {
-    	logger.debug("getRoleGroupNames called");
-    	logger.debug("getRoleGroupNames urlPattern={}", urlPattern);
+	public List<String> getRoleGroupNamesByUrlPattern(String urlPattern) {
+    	logger.debug("getRoleGroupNamesByUrlPattern called");
+    	logger.debug("getRoleGroupNamesByUrlPattern urlPattern={}", urlPattern);
     	
     	PageManagementPojo page = getPageByUrlPattern(urlPattern);
-        logger.debug("getRoleGroupNames page={}", page);
+        logger.debug("getRoleGroupNamesByUrlPattern page={}", page);
         if (page == null) {
             return List.of(); // empty list if page not found
         }
 
         String delimitRoleGroupNames = page.getDelimitRoleGroups();
+        logger.debug("getRoleGroupNamesByUrlPattern delimitRoleGroupNames={}", delimitRoleGroupNames);
         if (delimitRoleGroupNames == null || delimitRoleGroupNames.isBlank()) {
             return List.of(); // empty list if no roles
         }
@@ -232,16 +233,17 @@ public class PageManagementServiceImpl implements PageManagementService {
             }
         }
 
-        logger.debug("getRoleGroupNames roles={}", roleGroupNames);
+        logger.debug("getRoleGroupNamesByUrlPattern roles={}", roleGroupNames);
         return roleGroupNames;
 	}
 	
     @Override
-	public List<String> getRoleNames(String urlPattern) {
-	    logger.debug("getRoleNames called");
-	    logger.debug("getRoleNames urlPattern={}", urlPattern);
+	public List<String> getRoleNamesByUrlPattern(String urlPattern) {
+	    logger.debug("getRoleNamesByUrlPattern called");
+	    logger.debug("getRoleNamesByUrlPattern urlPattern={}", urlPattern);
 
-	    List<String> roleGroupNames = getRoleGroupNames(urlPattern);
+	    List<String> roleGroupNames = getRoleGroupNamesByUrlPattern(urlPattern);
+	    logger.debug("getRoleNamesByUrlPattern roleGroupNames={}", roleGroupNames);
 	    if (roleGroupNames.isEmpty()) {
 	        return List.of(); // empty list if no role groups
 	    }
@@ -249,9 +251,11 @@ public class PageManagementServiceImpl implements PageManagementService {
 	    List<String> roleNames = new ArrayList<>();
 	    for (String groupName : roleGroupNames) {
 	        RoleGroupManagementPojo roleGroup = roleGroupService.getRoleGroupByGroupName(groupName);
+	        logger.debug("getRoleNamesByUrlPattern roleGroup={}", roleGroup);
 	        if (roleGroup == null) continue;
 
 	        String delimitRoles = roleGroup.getDelimitRoles();
+	        logger.debug("getRoleNamesByUrlPattern delimitRoles={}", delimitRoles);
 	        if (delimitRoles == null || delimitRoles.isBlank()) continue;
 
 	        String[] tokens = delimitRoles.split("\\|");
@@ -262,7 +266,7 @@ public class PageManagementServiceImpl implements PageManagementService {
 	        }
 	    }
 
-	    logger.debug("getRoleNames roles={}", roleNames);
+	    logger.debug("getRoleNamesByUrlPattern roles={}", roleNames);
 	    return roleNames;
 	}
 

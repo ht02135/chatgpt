@@ -3,7 +3,6 @@ package simple.chatgpt.service.management.security;
 import java.util.List;
 import java.util.Map;
 
-import simple.chatgpt.pojo.management.UserManagementPojo;
 import simple.chatgpt.pojo.management.security.RoleGroupManagementPojo;
 import simple.chatgpt.util.PagedResult;
 
@@ -27,5 +26,5 @@ public interface RoleGroupManagementService {
 	public RoleGroupManagementPojo getRoleGroupByGroupName(String groupName); // #{params.groupName}
 	
 	// String delimitRoles
-	public List<String> getRoleNames(String groupName);
+	public List<String> getRoleNamesByGroupName(String groupName);
 }

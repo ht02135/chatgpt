@@ -22,7 +22,7 @@ public interface PageManagementService {
 	PageManagementPojo getPageByUrlPattern(String urlPattern); // #{params.urlPattern}
 	
 	// String delimitRoleGroups
-	public List<String> getRoleGroupNames(String urlPattern);
-	public List<String> getRoleNames(String urlPattern);
+	public List<String> getRoleGroupNamesByUrlPattern(String urlPattern);
+	public List<String> getRoleNamesByUrlPattern(String urlPattern);
 	
 }
