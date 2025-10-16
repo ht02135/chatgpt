@@ -14,6 +14,8 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import simple.chatgpt.config.management.loader.SecurityConfigLoader;
+import simple.chatgpt.config.management.security.PageConfig;
 import simple.chatgpt.mapper.management.security.PageManagementMapper;
 import simple.chatgpt.pojo.management.security.PageManagementPojo;
 import simple.chatgpt.util.PagedResult;
@@ -25,14 +27,18 @@ public class PageManagementServiceImpl implements PageManagementService {
     private static final Logger logger = LogManager.getLogger(PageManagementServiceImpl.class);
 
     private final PageManagementMapper pageMapper;
+    private final SecurityConfigLoader securityConfigLoader;
     private final Validator validator;
 
     @Autowired
-    public PageManagementServiceImpl(PageManagementMapper pageMapper) {
+    public PageManagementServiceImpl(PageManagementMapper pageMapper,
+                                     SecurityConfigLoader securityConfigLoader) {
         logger.debug("PageManagementServiceImpl constructor START");
         logger.debug("pageMapper={}", pageMapper);
+        logger.debug("securityConfigLoader={}", securityConfigLoader);
 
         this.pageMapper = pageMapper;
+        this.securityConfigLoader = securityConfigLoader;
 
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
         this.validator = factory.getValidator();
@@ -49,9 +55,36 @@ public class PageManagementServiceImpl implements PageManagementService {
 
     public void initializeDB() {
         logger.debug("initializeDB called");
-        /*
-         hung: intentionally empty
-         */
+
+        List<PageConfig> pageConfigs = securityConfigLoader.getPages();
+        for (PageConfig pageConfig : pageConfigs) {
+            String urlPattern = pageConfig.getUrlPattern();
+            String delimitRoleGroups = pageConfig.getDelimitRoleGroups();
+
+            logger.debug("initializeDB processing pageConfig urlPattern={}", urlPattern);
+            logger.debug("initializeDB pageConfig delimitRoleGroups={}", delimitRoleGroups);
+
+            // ===============================
+            // STEP 1: Check if page already exists
+            // ===============================
+            PageManagementPojo existingPage = this.getPageByUrlPattern(urlPattern);
+            if (existingPage != null) {
+                logger.debug("initializeDB found existing page id={}", existingPage.getId());
+                continue; // skip creation
+            }
+
+            // ===============================
+            // STEP 2: Create new page
+            // ===============================
+            PageManagementPojo pagePojo = new PageManagementPojo();
+            pagePojo.setUrlPattern(urlPattern);
+            pagePojo.setDelimitRoleGroups(delimitRoleGroups);
+
+            this.create(pagePojo);
+            logger.debug("initializeDB created new page id={}", pagePojo.getId());
+        }
+
+        logger.debug("initializeDB DONE");
     }
 
     // ==============================================================
