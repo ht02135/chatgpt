@@ -47,6 +47,11 @@ public class JwtUserDetailsServiceImpl implements UserDetailsService {
         this.roleManagementService = roleManagementService;
     }
 
+    /*
+    ///////////////////////
+    hung : dont remove it
+    obsolete it though...
+    ///////////////////////
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         logger.debug("loadUserByUsername called username={}", username);
@@ -68,6 +73,36 @@ public class JwtUserDetailsServiceImpl implements UserDetailsService {
         logger.debug("loadUserByUsername populated roleGroups={}", roleGroups);
 
         List<String> roleNames = getRoleNamesFromRoleGroups(user.getRoleGroupRefs());
+        logger.debug("loadUserByUsername roleNames={}", roleNames);
+
+        List<SimpleGrantedAuthority> authorities = roleNames.stream()
+                .map(SimpleGrantedAuthority::new)
+                .toList();    
+        logger.debug("loadUserByUsername authorities={}", authorities);
+
+        return User.builder()
+                .username(user.getUserName())
+                .password(user.getPassword())
+                .authorities(authorities)
+                .accountLocked(user.getLocked())
+                .disabled(!user.getActive())
+                .build();
+    }
+    */
+    
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        logger.debug("loadUserByUsername called username={}", username);
+
+        UserManagementPojo user = userManagementService.getUserByUserName(username);
+        if (user == null) {
+            logger.debug("User not found for username={}", username);
+            throw new UsernameNotFoundException("User not found: " + username);
+        }
+        logger.debug("loadUserByUsername populated user={}", user);
+
+        // Use existing method to get role names
+        List<String> roleNames = getRoleNamesByUserName(username);
         logger.debug("loadUserByUsername roleNames={}", roleNames);
 
         List<SimpleGrantedAuthority> authorities = roleNames.stream()

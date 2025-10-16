@@ -1,6 +1,7 @@
 package simple.chatgpt.filter.management.security.awt;
 
 import java.io.IOException;
+import java.util.List;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -9,6 +10,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -59,18 +61,28 @@ public class DynamicAccessFilter extends OncePerRequestFilter {
         String url = normalizeUrl(rawUrl, req.getContextPath());
         logger.debug("doFilterInternal normalized url={}", url);
 
-        var auth = SecurityContextHolder.getContext().getAuthentication();
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         logger.debug("doFilterInternal auth={}", auth);
 
         if (auth != null) {
             // roles from JwtUserDetailsServiceImpl.loadUserByUsername
-            var roles = auth.getAuthorities().stream().map(a -> a.getAuthority()).toList();
+            List<String> roles = auth.getAuthorities().stream()
+                    .map(org.springframework.security.core.GrantedAuthority::getAuthority)
+                    .toList();
             logger.debug("doFilterInternal ##########");
             logger.debug("doFilterInternal roles={}", roles);
             logger.debug("doFilterInternal ##########");
 
-            // allowed from pageRoleGroupService.getAllowedRoles
-            var allowed = pageRoleGroupService.getAllowedRoles(url);
+            /*
+            ///////////////////////
+            hung : dont remove it
+            obsolete it though...
+            ///////////////////////
+            ///allowed from pageRoleGroupService.getAllowedRoles
+            List<String> allowed = pageRoleGroupService.getAllowedRoles(url);
+            */
+            // allowed from pageRoleGroupService.getAllowedRoleNames
+            List<String> allowed = pageRoleGroupService.getAllowedRoleNames(url);
             logger.debug("doFilterInternal ##########");
             logger.debug("doFilterInternal url={}", url);
             logger.debug("doFilterInternal allowed={}", allowed);
