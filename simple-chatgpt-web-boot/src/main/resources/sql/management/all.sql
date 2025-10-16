@@ -127,3 +127,25 @@ CREATE TABLE user_management_list_member (
     CONSTRAINT uq_list_member UNIQUE (list_id, email),
     CONSTRAINT uq_list_member_username UNIQUE (list_id, user_name)
 );
+
+-- ///////////////////////////////////////
+-- additional change 20251016
+
+CREATE TABLE page_management (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    url_pattern VARCHAR(255) NOT NULL,
+    delimitRoleGroups VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+-- Add delimitRoles to role_group_management
+ALTER TABLE role_group_management
+ADD COLUMN delimitRoles VARCHAR(255);
+
+-- Add delimitRoleGroups to user_management
+ALTER TABLE user_management
+ADD COLUMN delimitRoleGroups VARCHAR(255);
+
+
+
