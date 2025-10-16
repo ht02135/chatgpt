@@ -42,7 +42,7 @@ CREATE TABLE IF NOT EXISTS user_management (
     last_login_ip VARCHAR(45) NULL,
     last_login_at TIMESTAMP NULL,
     jwt_secret_version VARCHAR(50) NULL,
-    delimit_roles_groups VARCHAR(255)
+    delimit_role_groups VARCHAR(255)
 );
 
 CREATE TABLE IF NOT EXISTS role_management (
@@ -128,7 +128,7 @@ CREATE TABLE IF NOT EXISTS user_management_list_member (
 CREATE TABLE IF NOT EXISTS page_management (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     url_pattern VARCHAR(255) NOT NULL,
-    delimit_roles_groups VARCHAR(255),
+    delimit_role_groups VARCHAR(255),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
@@ -141,6 +141,6 @@ CREATE TABLE IF NOT EXISTS page_management (
 ALTER TABLE role_group_management
 ADD COLUMN IF NOT EXISTS delimit_roles VARCHAR(255);
 
--- Add delimit_roles_groups to user_management
+-- Add delimit_role_groups to user_management
 ALTER TABLE user_management
-ADD COLUMN IF NOT EXISTS delimit_roles_groups VARCHAR(255);
+ADD COLUMN IF NOT EXISTS delimit_role_groups VARCHAR(255);
