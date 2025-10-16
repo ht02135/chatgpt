@@ -14,6 +14,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
+import simple.chatgpt.config.management.security.PageConfig;
 import simple.chatgpt.config.management.security.PageRoleGroupConfig;
 import simple.chatgpt.config.management.security.RoleConfig;
 import simple.chatgpt.config.management.security.RoleGroupConfig;
@@ -29,6 +30,7 @@ public class SecurityConfigLoader {
     private List<RoleGroupConfig> roleGroups = new ArrayList<>();
     private List<PageRoleGroupConfig> pageRoleGroups = new ArrayList<>();
     private List<UserConfig> users = new ArrayList<>();
+    private List<PageConfig> pages = new ArrayList<>(); // <-- added
 
     private static final String DEFAULT_CONFIG_FILE = "/config/management/security-config.xml";
 
@@ -71,10 +73,10 @@ public class SecurityConfigLoader {
             for (int i = 0; i < groupNodes.getLength(); i++) {
                 Element g = (Element) groupNodes.item(i);
                 String groupName = g.getAttribute("name");
-                String delimitRoles = g.getAttribute("delimitRoles");  // <-- added to pull delimitRoles
+                String delimitRoles = g.getAttribute("delimitRoles");
 
                 RoleGroupConfig rg = new RoleGroupConfig(groupName, null);
-                rg.setDelimitRoles(delimitRoles); // <-- set the value
+                rg.setDelimitRoles(delimitRoles);
 
                 NodeList roleRefs = g.getElementsByTagName("role-ref");
                 for (int j = 0; j < roleRefs.getLength(); j++) {
@@ -98,7 +100,7 @@ public class SecurityConfigLoader {
             for (int i = 0; i < pageNodes.getLength(); i++) {
                 Element p = (Element) pageNodes.item(i);
                 String urlPattern = p.getAttribute("url-pattern");
-                String groupRef = p.getAttribute("role-group-ref"); // <-- use -ref
+                String groupRef = p.getAttribute("role-group-ref");
                 PageRoleGroupConfig prg = new PageRoleGroupConfig(urlPattern, groupRef);
                 pageRoleGroups.add(prg);
 
@@ -108,13 +110,31 @@ public class SecurityConfigLoader {
             logger.debug("init Load page-role-groups DONE ##############");
 
             // =========================
+            // Load Pages
+            // =========================
+            logger.debug("init Load pages ##############");
+            NodeList pagesNodes = document.getElementsByTagName("page");
+            for (int i = 0; i < pagesNodes.getLength(); i++) {
+                Element p = (Element) pagesNodes.item(i);
+                String urlPattern = p.getAttribute("url-pattern");
+                String delimitRoleGroups = p.getAttribute("delimit-role-group");
+
+                PageConfig page = new PageConfig(urlPattern, delimitRoleGroups);
+                pages.add(page);
+
+                logger.debug("Loaded page urlPattern={}", urlPattern);
+                logger.debug("Loaded page delimitRoleGroups={}", delimitRoleGroups);
+            }
+            logger.debug("init Load pages DONE ##############");
+
+            // =========================
             // Load Users
             // =========================
             logger.debug("init Load users ##############");
             NodeList userNodes = document.getElementsByTagName("user");
             for (int i = 0; i < userNodes.getLength(); i++) {
                 Element u = (Element) userNodes.item(i);
-                String roleGroupRef = u.getAttribute("role-group-ref"); // <-- use -ref
+                String roleGroupRef = u.getAttribute("role-group-ref");
 
                 UserConfig user = new UserConfig(
                         u.getAttribute("user_name"),
@@ -162,6 +182,11 @@ public class SecurityConfigLoader {
     public List<PageRoleGroupConfig> getPageRoleGroups() {
         logger.debug("getPageRoleGroups called pageRoleGroups={}", pageRoleGroups);
         return pageRoleGroups;
+    }
+
+    public List<PageConfig> getPages() {
+        logger.debug("getPages called pages={}", pages);
+        return pages;
     }
 
     public List<UserConfig> getUsers() {
