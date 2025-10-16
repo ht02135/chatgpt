@@ -29,6 +29,7 @@ public class UserManagementPojo implements JwtUser {
 
     // ---- Security / RoleGroup ----
     private List<RoleGroupManagementPojo> roleGroups;
+    private String delimitRoleGroups;
     private boolean active;
     private boolean locked;
     private String lastLoginIp;
@@ -90,26 +91,31 @@ public class UserManagementPojo implements JwtUser {
 
     public List<RoleGroupManagementPojo> getRoleGroups() { return roleGroups; }
     public void setRoleGroups(List<RoleGroupManagementPojo> roleGroups) { this.roleGroups = roleGroups; }
-	@Override
-	public List<String> getRoleGroupRefs() {
-	    if (roleGroups == null || roleGroups.isEmpty()) {
-	        return List.of(); // empty list
-	    }
-	    return roleGroups.stream()
-	            .map(RoleGroupManagementPojo::getGroupName)
-	            .toList();  // Java 16+, or use Collectors.toList() for older versions
-	}
-	
+
+    @Override
+    public List<String> getRoleGroupRefs() {
+        if (roleGroups == null || roleGroups.isEmpty()) {
+            return List.of(); // empty list
+        }
+        return roleGroups.stream()
+                .map(RoleGroupManagementPojo::getGroupName)
+                .toList();
+    }
+
+    // ---- NEW GETTER/SETTER ----
+    public String getDelimitRoleGroups() { return delimitRoleGroups; }
+    public void setDelimitRoleGroups(String delimitRoleGroups) { this.delimitRoleGroups = delimitRoleGroups; }
+
     public boolean isActive() { return active; }
     public void setActive(boolean active) { this.active = active; }
-	@Override
+    @Override
 	public boolean getActive() {
 		return isActive();
 	}
 
     public boolean isLocked() { return locked; }
     public void setLocked(boolean locked) { this.locked = locked; }
-	@Override
+    @Override
 	public boolean getLocked() {
 		return isLocked();
 	}
@@ -122,6 +128,7 @@ public class UserManagementPojo implements JwtUser {
 
     public String getJwtSecretVersion() { return jwtSecretVersion; }
     public void setJwtSecretVersion(String jwtSecretVersion) { this.jwtSecretVersion = jwtSecretVersion; }
+
 
     @Override
     public String toString() {
@@ -137,7 +144,7 @@ public class UserManagementPojo implements JwtUser {
                 ", lastLoginAt=" + lastLoginAt +
                 ", jwtSecretVersion='" + jwtSecretVersion + '\'' +
                 ", roleGroups=" + roleGroups +
+                ", delimitRoleGroups='" + delimitRoleGroups + '\'' +
                 '}';
     }
-
 }
