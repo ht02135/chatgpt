@@ -11,7 +11,7 @@
 		type="simple.chatgpt.pojo.management.security.PageManagementPojo">
 		<id property="id" column="id" />
 		<result property="urlPattern" column="url_pattern" />
-		<result property="delimitRoleGroups" column="delimitRoleGroups" />
+		<result property="delimitRoleGroups" column="delimit_roles_groups" />
 		<result property="createdAt" column="created_at" />
 		<result property="updatedAt" column="updated_at" />
 	</resultMap>
@@ -22,7 +22,7 @@
 	<!-- ======================= CREATE ======================= -->
 	<insert id="create" parameterType="map" useGeneratedKeys="true" keyProperty="page.id">
 		INSERT INTO page_management
-		(url_pattern, delimitRoleGroups, created_at, updated_at)
+		(url_pattern, delimit_roles_groups, created_at, updated_at)
 		VALUES
 		(#{page.urlPattern}, #{page.delimitRoleGroups}, NOW(), NOW())
 	</insert>
@@ -33,7 +33,7 @@
 		UPDATE page_management
 		<set>
 			<if test="page.urlPattern != null">url_pattern = #{page.urlPattern},</if>
-			<if test="page.delimitRoleGroups != null">delimitRoleGroups = #{page.delimitRoleGroups},</if>
+			<if test="page.delimitRoleGroups != null">delimit_roles_groups = #{page.delimitRoleGroups},</if>
 			updated_at = NOW()
 		</set>
 		WHERE id = #{id}
@@ -60,7 +60,7 @@
 				<if
 					test="(params.page != null and params.page.delimitRoleGroups != null and params.page.delimitRoleGroups != '') 
                           or (params.delimitRoleGroups != null and params.delimitRoleGroups != '')">
-					AND delimitRoleGroups LIKE CONCAT('%',
+					AND delimit_roles_groups LIKE CONCAT('%',
 					<choose>
 						<when
 							test="params.page != null and params.page.delimitRoleGroups != null and params.page.delimitRoleGroups != ''">
@@ -77,7 +77,7 @@
 	<!-- List<PageManagementPojo> search(@Param("params") Map<String, Object> params) -->
 	<!-- ======================= SEARCH / PAGINATION ======================= -->
 	<select id="search" parameterType="map" resultMap="PageManagementResultMap">
-		SELECT id, url_pattern, delimitRoleGroups, created_at, updated_at
+		SELECT id, url_pattern, delimit_roles_groups, created_at, updated_at
 		FROM
 		page_management
 		<include refid="PageManagementFilter" />

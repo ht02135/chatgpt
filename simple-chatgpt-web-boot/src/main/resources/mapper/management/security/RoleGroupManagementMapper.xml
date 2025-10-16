@@ -12,7 +12,7 @@
 		<id property="id" column="id" />
 		<result property="groupName" column="group_name" />
 		<result property="description" column="description" />
-		<result property="delimitRoles" column="delimitRoles" />
+		<result property="delimitRoles" column="delimit_roles" />
 		<result property="createdAt" column="created_at" />
 		<result property="updatedAt" column="updated_at" />
 	</resultMap>
@@ -23,7 +23,7 @@
 	<!-- ======================= CREATE ======================= -->
 	<insert id="create" parameterType="map" useGeneratedKeys="true" keyProperty="roleGroup.id">
         INSERT INTO role_group_management
-        (group_name, description, delimitRoles, created_at, updated_at)
+        (group_name, description, delimit_roles, created_at, updated_at)
         VALUES (#{roleGroup.groupName}, #{roleGroup.description}, #{roleGroup.delimitRoles}, NOW(), NOW())
 	</insert>
 
@@ -34,7 +34,7 @@
 		<set>
 			<if test="roleGroup.groupName != null">group_name = #{roleGroup.groupName},</if>
 			<if test="roleGroup.description != null">description = #{roleGroup.description},</if>
-			<if test="roleGroup.delimitRoles != null">delimitRoles = #{roleGroup.delimitRoles},</if>
+			<if test="roleGroup.delimitRoles != null">delimit_roles = #{roleGroup.delimitRoles},</if>
 		</set>
 		WHERE id = #{id}
 	</update>
@@ -72,7 +72,7 @@
     
     <!-- List<entityPojo> search(@Param("params") Map<String, Object> params) -->
 	<select id="search" parameterType="map" resultMap="RoleGroupManagementResultMap">
-        SELECT id, group_name, description, delimitRoles, created_at, updated_at
+        SELECT id, group_name, description, delimit_roles, created_at, updated_at
         FROM role_group_management
         <include refid="RoleGroupManagementFilter" />
         <if test="params.sortField != null and params.sortDirection != null">

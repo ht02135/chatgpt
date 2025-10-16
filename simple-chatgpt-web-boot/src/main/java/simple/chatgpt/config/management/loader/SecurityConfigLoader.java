@@ -73,7 +73,7 @@ public class SecurityConfigLoader {
             for (int i = 0; i < groupNodes.getLength(); i++) {
                 Element g = (Element) groupNodes.item(i);
                 String groupName = g.getAttribute("name");
-                String delimitRoles = g.getAttribute("delimitRoles");
+                String delimitRoles = g.getAttribute("delimit-roles");
 
                 RoleGroupConfig rg = new RoleGroupConfig(groupName, groupName, delimitRoles);
                 NodeList roleRefs = g.getElementsByTagName("role-ref");
@@ -115,7 +115,7 @@ public class SecurityConfigLoader {
             for (int i = 0; i < pagesNodes.getLength(); i++) {
                 Element p = (Element) pagesNodes.item(i);
                 String urlPattern = p.getAttribute("url-pattern");
-                String delimitRoleGroups = p.getAttribute("delimit-role-group");
+                String delimitRoleGroups = p.getAttribute("delimit-role-groups");
 
                 PageConfig page = new PageConfig(urlPattern, delimitRoleGroups);
                 pages.add(page);
@@ -133,7 +133,7 @@ public class SecurityConfigLoader {
             for (int i = 0; i < userNodes.getLength(); i++) {
                 Element u = (Element) userNodes.item(i);
                 String roleGroupRef = u.getAttribute("role-group-ref");
-                String delimitRoleGroups = u.getAttribute("delimit-role-group");
+                String delimitRoleGroups = u.getAttribute("delimit-role-groups");
 
                 UserConfig user = new UserConfig(
                         u.getAttribute("user_name"),
