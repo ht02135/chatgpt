@@ -109,6 +109,8 @@
 			regex="postalCodeValidation" visible="true" editable="true" />
 		<field name="country" label="Country" visible="true"
 			editable="true" />
+		<field name="delimitRoleGroups" label="Delimit Role Groups"
+			visible="true" editable="true" />
 	</form>
 
 	<form id="editUser">
@@ -137,6 +139,72 @@
 			regex="postalCodeValidation" visible="true" editable="true" />
 		<field name="country" label="Country" visible="true"
 			editable="true" />
+		<field name="delimitRoleGroups" label="Delimit Role Groups"
+			visible="true" editable="true" />
+		<field name="createdAt" label="Created At" visible="true"
+			editable="false" />
+		<field name="updatedAt" label="Updated At" visible="true"
+			editable="false" />
+	</form>
+
+	<!-- ========================= -->
+	<!-- Page Management -->
+	<!-- ========================= -->
+
+	<actions id="search-page-actions">
+		<action name="Create" label="Create" visible="true"
+			jsMethod="addPage" />
+		<action name="Search" label="Search" visible="true"
+			jsMethod="searchPages" />
+		<action name="Reset" label="Reset" visible="true"
+			jsMethod="resetSearch" />
+	</actions>
+
+	<form id="searchPage">
+		<field name="urlPattern" label="URL Pattern" visible="true" />
+	</form>
+
+	<actions id="page-actions">
+		<action name="Edit" label="Edit" visible="true"
+			jsMethod="editPage" />
+		<action name="Delete" label="Delete" visible="true"
+			jsMethod="deletePage" />
+	</actions>
+
+	<grid id="pages">
+		<column name="id" label="ID" visible="true" sortable="true"
+			dbField="id" />
+		<column name="urlPattern" label="URL Pattern" visible="true"
+			sortable="true" dbField="url_pattern" />
+		<column name="createdAt" label="Created At" visible="true"
+			sortable="true" dbField="created_at" />
+		<column name="updatedAt" label="Updated At" visible="true"
+			sortable="true" dbField="updated_at" />
+		<column name="actions" label="Actions" actions="page-actions"
+			visible="true" sortable="false" />
+	</grid>
+
+	<actions id="page-form-actions">
+		<action name="Save" label="Save" visible="true"
+			jsMethod="savePage" />
+		<action name="Cancel" label="Cancel" visible="true"
+			jsMethod="navigateToPages" />
+	</actions>
+
+	<form id="addPage">
+		<field name="urlPattern" label="URL Pattern" visible="true"
+			required="true" editable="true" />
+		<field name="delimitRoleGroups" label="Delimit Role Groups"
+			visible="true" editable="true" />
+	</form>
+
+	<form id="editPage">
+		<field name="id" label="ID" visible="true" required="true"
+			editable="false" />
+		<field name="urlPattern" label="URL Pattern" visible="true"
+			required="true" editable="true" />
+		<field name="delimitRoleGroups" label="Delimit Role Groups"
+			visible="true" editable="true" />
 		<field name="createdAt" label="Created At" visible="true"
 			editable="false" />
 		<field name="updatedAt" label="Updated At" visible="true"
@@ -565,7 +633,7 @@
 			dbField="id" />
 		<column name="urlPattern" label="URL Pattern" visible="true"
 			sortable="true" dbField="url_pattern" />
-		<column name="roleGroupName" label="Role Group" visible="true" 
+		<column name="roleGroupName" label="Role Group" visible="true"
 			sortable="true" dbField="role_group_id" path="roleGroup.groupName" />
 		<column name="createdAt" label="Created At" visible="true"
 			sortable="true" dbField="created_at" />
