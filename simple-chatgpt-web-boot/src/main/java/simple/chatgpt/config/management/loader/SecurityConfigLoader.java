@@ -32,7 +32,45 @@ public class SecurityConfigLoader {
     private List<UserConfig> users = new ArrayList<>();
     private List<PageConfig> pages = new ArrayList<>();
 
+    // =========================
+    // Constants
+    // =========================
     private static final String DEFAULT_CONFIG_FILE = "/config/management/security-config.xml";
+
+    // Role attributes
+    private static final String TAG_ROLE = "role";
+    private static final String ATTR_NAME = "name";
+    private static final String ATTR_DESCRIPTION = "description";
+    
+    private static final String TAG_ROLE_GROUP = "role-group";
+    private static final String TAG_PAGE_ROLE_GROUP = "page-role-group";
+    
+    private static final String TAG_ROLE_REF = "role-ref";
+    private static final String ATTR_ROLE_GROUP_REF = "role-group-ref";
+    
+    private static final String TAG_USER = "user";
+    private static final String TAG_PAGE = "page";
+    private static final String ATTR_URL_PATTERN = "url-pattern";
+
+    // delimit attributes
+    private static final String ATTR_DELIMIT_ROLES = "delimit-roles";
+    private static final String ATTR_DELIMIT_ROLE_GROUPS = "delimit-role-groups";
+
+    // User attributes
+    private static final String ATTR_USER_NAME = "user_name";
+    private static final String ATTR_USER_KEY = "user_key";
+    private static final String ATTR_PASSWORD = "password";
+    private static final String ATTR_FIRST_NAME = "first_name";
+    private static final String ATTR_LAST_NAME = "last_name";
+    private static final String ATTR_EMAIL = "email";
+    private static final String ATTR_ADDRESS_LINE_1 = "address_line_1";
+    private static final String ATTR_ADDRESS_LINE_2 = "address_line_2";
+    private static final String ATTR_CITY = "city";
+    private static final String ATTR_STATE = "state";
+    private static final String ATTR_POST_CODE = "post_code";
+    private static final String ATTR_COUNTRY = "country";
+    private static final String ATTR_ACTIVE = "active";
+    private static final String ATTR_LOCKED = "locked";
 
     @PostConstruct
     private void init() {
@@ -51,11 +89,11 @@ public class SecurityConfigLoader {
             // Load Roles
             // =========================
             logger.debug("init Load roles ##############");
-            NodeList roleNodes = document.getElementsByTagName("role");
+            NodeList roleNodes = document.getElementsByTagName(TAG_ROLE);
             for (int i = 0; i < roleNodes.getLength(); i++) {
                 Element e = (Element) roleNodes.item(i);
-                String name = e.getAttribute("name");
-                String desc = e.getAttribute("description");
+                String name = e.getAttribute(ATTR_NAME);
+                String desc = e.getAttribute(ATTR_DESCRIPTION);
 
                 RoleConfig role = new RoleConfig(name, desc);
                 roles.add(role);
@@ -69,19 +107,19 @@ public class SecurityConfigLoader {
             // Load Role Groups
             // =========================
             logger.debug("init Load role-groups ##############");
-            NodeList groupNodes = document.getElementsByTagName("role-group");
+            NodeList groupNodes = document.getElementsByTagName(TAG_ROLE_GROUP);
             for (int i = 0; i < groupNodes.getLength(); i++) {
                 Element g = (Element) groupNodes.item(i);
-                String groupName = g.getAttribute("name");
-                String delimitRoles = g.getAttribute("delimit-roles");
+                String groupName = g.getAttribute(ATTR_NAME);
+                String delimitRoles = g.getAttribute(ATTR_DELIMIT_ROLES);
 
                 RoleGroupConfig rg = new RoleGroupConfig(groupName, groupName, delimitRoles);
-                NodeList roleRefs = g.getElementsByTagName("role-ref");
+                NodeList roleRefs = g.getElementsByTagName(TAG_ROLE_REF);
                 for (int j = 0; j < roleRefs.getLength(); j++) {
                     Element r = (Element) roleRefs.item(j);
-                    RoleRefConfig ref = new RoleRefConfig(r.getAttribute("name"));
+                    RoleRefConfig ref = new RoleRefConfig(r.getAttribute(ATTR_NAME));
                     rg.addRole(ref);
-                    logger.debug("Added role-ref name={}", r.getAttribute("name"));
+                    logger.debug("Added role-ref name={}", r.getAttribute(ATTR_NAME));
                 }
 
                 roleGroups.add(rg);
@@ -94,11 +132,11 @@ public class SecurityConfigLoader {
             // Load Page Role Groups
             // =========================
             logger.debug("init Load page-role-groups ##############");
-            NodeList pageNodes = document.getElementsByTagName("page-role-group");
+            NodeList pageNodes = document.getElementsByTagName(TAG_PAGE_ROLE_GROUP);
             for (int i = 0; i < pageNodes.getLength(); i++) {
                 Element p = (Element) pageNodes.item(i);
-                String urlPattern = p.getAttribute("url-pattern");
-                String groupRef = p.getAttribute("role-group-ref");
+                String urlPattern = p.getAttribute(ATTR_URL_PATTERN);
+                String groupRef = p.getAttribute(ATTR_ROLE_GROUP_REF);
                 PageRoleGroupConfig prg = new PageRoleGroupConfig(urlPattern, groupRef);
                 pageRoleGroups.add(prg);
 
@@ -111,11 +149,11 @@ public class SecurityConfigLoader {
             // Load Pages
             // =========================
             logger.debug("init Load pages ##############");
-            NodeList pagesNodes = document.getElementsByTagName("page");
+            NodeList pagesNodes = document.getElementsByTagName(TAG_PAGE);
             for (int i = 0; i < pagesNodes.getLength(); i++) {
                 Element p = (Element) pagesNodes.item(i);
-                String urlPattern = p.getAttribute("url-pattern");
-                String delimitRoleGroups = p.getAttribute("delimit-role-groups");
+                String urlPattern = p.getAttribute(ATTR_URL_PATTERN);
+                String delimitRoleGroups = p.getAttribute(ATTR_DELIMIT_ROLE_GROUPS);
 
                 PageConfig page = new PageConfig(urlPattern, delimitRoleGroups);
                 pages.add(page);
@@ -129,27 +167,27 @@ public class SecurityConfigLoader {
             // Load Users
             // =========================
             logger.debug("init Load users ##############");
-            NodeList userNodes = document.getElementsByTagName("user");
+            NodeList userNodes = document.getElementsByTagName(TAG_USER);
             for (int i = 0; i < userNodes.getLength(); i++) {
                 Element u = (Element) userNodes.item(i);
-                String roleGroupRef = u.getAttribute("role-group-ref");
-                String delimitRoleGroups = u.getAttribute("delimit-role-groups");
+                String roleGroupRef = u.getAttribute(ATTR_ROLE_GROUP_REF);
+                String delimitRoleGroups = u.getAttribute(ATTR_DELIMIT_ROLE_GROUPS);
 
                 UserConfig user = new UserConfig(
-                        u.getAttribute("user_name"),
-                        u.getAttribute("user_key"),
-                        u.getAttribute("password"),
-                        u.getAttribute("first_name"),
-                        u.getAttribute("last_name"),
-                        u.getAttribute("email"),
-                        u.getAttribute("address_line_1"),
-                        u.getAttribute("address_line_2"),
-                        u.getAttribute("city"),
-                        u.getAttribute("state"),
-                        u.getAttribute("post_code"),
-                        u.getAttribute("country"),
-                        Boolean.parseBoolean(u.getAttribute("active")),
-                        Boolean.parseBoolean(u.getAttribute("locked")),
+                        u.getAttribute(ATTR_USER_NAME),
+                        u.getAttribute(ATTR_USER_KEY),
+                        u.getAttribute(ATTR_PASSWORD),
+                        u.getAttribute(ATTR_FIRST_NAME),
+                        u.getAttribute(ATTR_LAST_NAME),
+                        u.getAttribute(ATTR_EMAIL),
+                        u.getAttribute(ATTR_ADDRESS_LINE_1),
+                        u.getAttribute(ATTR_ADDRESS_LINE_2),
+                        u.getAttribute(ATTR_CITY),
+                        u.getAttribute(ATTR_STATE),
+                        u.getAttribute(ATTR_POST_CODE),
+                        u.getAttribute(ATTR_COUNTRY),
+                        Boolean.parseBoolean(u.getAttribute(ATTR_ACTIVE)),
+                        Boolean.parseBoolean(u.getAttribute(ATTR_LOCKED)),
                         roleGroupRef,
                         delimitRoleGroups
                 );
