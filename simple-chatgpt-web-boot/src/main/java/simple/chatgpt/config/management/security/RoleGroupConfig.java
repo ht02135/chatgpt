@@ -9,9 +9,11 @@ public class RoleGroupConfig {
     private List<RoleRefConfig> roles = new ArrayList<>();
     private String delimitRoles; // <-- new field
 
-    public RoleGroupConfig(String name, String description) {
+    // Updated constructor to include delimitRoles
+    public RoleGroupConfig(String name, String description, String delimitRoles) {
         this.name = name;
         this.description = description;
+        this.delimitRoles = delimitRoles;
     }
 
     public void addRole(RoleRefConfig roleRef) {

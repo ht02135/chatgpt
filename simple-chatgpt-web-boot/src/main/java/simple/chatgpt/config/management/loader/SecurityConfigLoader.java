@@ -75,9 +75,7 @@ public class SecurityConfigLoader {
                 String groupName = g.getAttribute("name");
                 String delimitRoles = g.getAttribute("delimitRoles");
 
-                RoleGroupConfig rg = new RoleGroupConfig(groupName, null);
-                rg.setDelimitRoles(delimitRoles);
-
+                RoleGroupConfig rg = new RoleGroupConfig(groupName, groupName, delimitRoles);
                 NodeList roleRefs = g.getElementsByTagName("role-ref");
                 for (int j = 0; j < roleRefs.getLength(); j++) {
                     Element r = (Element) roleRefs.item(j);
