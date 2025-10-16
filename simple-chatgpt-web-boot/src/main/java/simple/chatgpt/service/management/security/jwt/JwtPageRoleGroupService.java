@@ -12,4 +12,7 @@ public interface JwtPageRoleGroupService {
      */
     List<String> getAllowedRoleGroups(String url);
     List<String> getAllowedRoles(String url);
+    
+    List<String> getAllowedRoleGroupNames(String url);
+    List<String> getAllowedRoleNames(String url);
 }
