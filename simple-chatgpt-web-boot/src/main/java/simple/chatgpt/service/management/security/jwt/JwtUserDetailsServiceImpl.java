@@ -67,7 +67,7 @@ public class JwtUserDetailsServiceImpl implements UserDetailsService {
         user.setRoleGroups(roleGroups);
         logger.debug("loadUserByUsername populated roleGroups={}", roleGroups);
 
-        List<String> roleNames = getRolesFromRoleGroups(user.getRoleGroupRefs());
+        List<String> roleNames = getRoleNamesFromRoleGroups(user.getRoleGroupRefs());
         logger.debug("loadUserByUsername roleNames={}", roleNames);
 
         List<SimpleGrantedAuthority> authorities = roleNames.stream()
@@ -84,8 +84,8 @@ public class JwtUserDetailsServiceImpl implements UserDetailsService {
                 .build();
     }
 
-    public List<String> getRolesFromRoleGroups(List<String> roleGroupRefs) {
-        logger.debug("getRolesFromRoleGroups called roleGroupRefs={}", roleGroupRefs);
+    public List<String> getRoleNamesFromRoleGroups(List<String> roleGroupRefs) {
+        logger.debug("getRoleNamesFromRoleGroups called roleGroupRefs={}", roleGroupRefs);
         if (roleGroupRefs == null || roleGroupRefs.isEmpty()) {
             return List.of();
         }
@@ -105,7 +105,16 @@ public class JwtUserDetailsServiceImpl implements UserDetailsService {
             .distinct()
             .toList();
 
-        logger.debug("getRolesFromRoleGroups result={}", roles);
+        logger.debug("getRoleNamesFromRoleGroups result={}", roles);
         return roles;
+    }
+    
+    public List<String> getRoleNamesByUserName(String userName) {
+    	logger.debug("getRoleNamesByUserName userName={}", userName);
+    	
+    	List<String> roleNames = userManagementService.getRoleNamesByUserName(userName);
+    	logger.debug("getRoleNamesByUserName roleNames={}", roleNames);
+    	
+    	return roleNames;
     }
 }
