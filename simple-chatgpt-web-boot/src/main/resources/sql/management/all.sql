@@ -9,8 +9,11 @@ DROP TABLE IF EXISTS role_management;
 DROP TABLE IF EXISTS user_management;
 DROP TABLE IF EXISTS property_management;
 
--- Create property management table
-CREATE TABLE property_management (
+-- ///////////////////////////////////////
+-- Create tables if they do not exist
+-- ///////////////////////////////////////
+
+CREATE TABLE IF NOT EXISTS property_management (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     property_name VARCHAR(100) UNIQUE,
     property_key VARCHAR(100) UNIQUE,
@@ -18,8 +21,7 @@ CREATE TABLE property_management (
     value VARCHAR(255)
 );
 
--- Create user management table
-CREATE TABLE user_management (
+CREATE TABLE IF NOT EXISTS user_management (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     user_name VARCHAR(100) UNIQUE,
     user_key VARCHAR(100) UNIQUE,
@@ -39,11 +41,11 @@ CREATE TABLE user_management (
     locked BOOLEAN DEFAULT FALSE,
     last_login_ip VARCHAR(45) NULL,
     last_login_at TIMESTAMP NULL,
-    jwt_secret_version VARCHAR(50) NULL
+    jwt_secret_version VARCHAR(50) NULL,
+    delimitRoleGroups VARCHAR(255)
 );
 
--- Create role management table
-CREATE TABLE role_management (
+CREATE TABLE IF NOT EXISTS role_management (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     role_name VARCHAR(100) UNIQUE NOT NULL,
     description VARCHAR(255),
@@ -51,17 +53,16 @@ CREATE TABLE role_management (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
--- Create role group management table
-CREATE TABLE role_group_management (
+CREATE TABLE IF NOT EXISTS role_group_management (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     group_name VARCHAR(100) UNIQUE NOT NULL,
     description VARCHAR(255),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    delimitRoles VARCHAR(255)
 );
 
--- Create role group role mapping table
-CREATE TABLE role_group_role_mapping (
+CREATE TABLE IF NOT EXISTS role_group_role_mapping (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     role_group_id BIGINT NOT NULL,
     role_id BIGINT NOT NULL,
@@ -72,8 +73,7 @@ CREATE TABLE role_group_role_mapping (
     UNIQUE (role_group_id, role_id)
 );
 
--- Create page role group management table
-CREATE TABLE page_role_group_management (
+CREATE TABLE IF NOT EXISTS page_role_group_management (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     url_pattern VARCHAR(255) NOT NULL,
     role_group_id BIGINT NOT NULL,
@@ -82,8 +82,7 @@ CREATE TABLE page_role_group_management (
     CONSTRAINT fk_page_role_group FOREIGN KEY (role_group_id) REFERENCES role_group_management(id)
 );
 
--- Create user management role group mapping table
-CREATE TABLE user_management_role_group_mapping (
+CREATE TABLE IF NOT EXISTS user_management_role_group_mapping (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     user_id BIGINT NOT NULL,
     role_group_id BIGINT NOT NULL,
@@ -94,10 +93,9 @@ CREATE TABLE user_management_role_group_mapping (
     UNIQUE (user_id, role_group_id)
 );
 
--- Create user management list table
-CREATE TABLE user_management_list (
+CREATE TABLE IF NOT EXISTS user_management_list (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
-    user_list_name VARCHAR(100) NOT NULL,   -- no UNIQUE
+    user_list_name VARCHAR(100) NOT NULL,
     original_file_name VARCHAR(255),
     file_path VARCHAR(512),
     description TEXT,
@@ -105,8 +103,7 @@ CREATE TABLE user_management_list (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
--- Create user management list member table
-CREATE TABLE user_management_list_member (
+CREATE TABLE IF NOT EXISTS user_management_list_member (
     id BIGINT PRIMARY KEY AUTO_INCREMENT,
     list_id BIGINT NOT NULL,
     user_name VARCHAR(100) NOT NULL,
@@ -128,10 +125,7 @@ CREATE TABLE user_management_list_member (
     CONSTRAINT uq_list_member_username UNIQUE (list_id, user_name)
 );
 
--- ///////////////////////////////////////
--- additional change 20251016
-
-CREATE TABLE page_management (
+CREATE TABLE IF NOT EXISTS page_management (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     url_pattern VARCHAR(255) NOT NULL,
     delimitRoleGroups VARCHAR(255),
@@ -139,13 +133,14 @@ CREATE TABLE page_management (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
+-- ///////////////////////////////////////
+-- Add missing columns safely if they do not exist
+-- ///////////////////////////////////////
+
 -- Add delimitRoles to role_group_management
 ALTER TABLE role_group_management
-ADD COLUMN delimitRoles VARCHAR(255);
+ADD COLUMN IF NOT EXISTS delimitRoles VARCHAR(255);
 
 -- Add delimitRoleGroups to user_management
 ALTER TABLE user_management
-ADD COLUMN delimitRoleGroups VARCHAR(255);
-
-
-
+ADD COLUMN IF NOT EXISTS delimitRoleGroups VARCHAR(255);
