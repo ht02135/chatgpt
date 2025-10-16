@@ -1,11 +1,5 @@
 // configLoader.js
 
-// const API_CONFIG = '/chatgpt/api/management/config';
-// detect context path automatically (first part of URL path)
-const CONFIG_CONTEXT_PATH = "/" + window.location.pathname.split("/")[1];
-// build API endpoint using context path
-const API_CONFIG = `${CONFIG_CONTEXT_PATH}/api/management/config`;
-
 let _cache = null;
 let _cacheTimestamp = 0;
 const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
