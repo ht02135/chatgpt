@@ -1,5 +1,6 @@
 package simple.chatgpt.service.management.security;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -302,6 +303,35 @@ public class RoleGroupManagementServiceImpl implements RoleGroupManagementServic
 
         logger.debug("getRoleGroupByGroupName returning roleGroup={}", roleGroup);
         return roleGroup;
+    }
+    
+    @Override
+    public List<String> getRoleNames(String groupName) {
+    	logger.debug("getRoleNames called");
+    	logger.debug("getRoleNames groupName={}", groupName);
+    	
+        RoleGroupManagementPojo roleGroup = getRoleGroupByGroupName(groupName);
+        logger.debug("getRoleNames roleGroup={}", roleGroup);
+        if (roleGroup == null) {
+            return List.of(); // empty list if group not found
+        }
+
+        String delimitRoles = roleGroup.getDelimitRoles();
+        if (delimitRoles == null || delimitRoles.isBlank()) {
+            return List.of(); // empty list if no roles
+        }
+
+        // Split by "|" and filter out empty strings
+        String[] tokens = delimitRoles.split("\\|");
+        List<String> roles = new ArrayList<>();
+        for (String token : tokens) {
+            if (!token.isBlank()) {
+                roles.add(token.trim());
+            }
+        }
+
+        logger.debug("getRoleNames roles={}", roles);
+        return roles;
     }
     
 }

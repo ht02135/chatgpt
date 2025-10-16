@@ -25,4 +25,7 @@ public interface RoleGroupManagementService {
 	public List<RoleGroupManagementPojo> getRoleGroupByParams(Map<String, Object> params);
 	public List<RoleGroupManagementPojo> getAll();
 	public RoleGroupManagementPojo getRoleGroupByGroupName(String groupName); // #{params.groupName}
+	
+	// String delimitRoles
+	public List<String> getRoleNames(String groupName);
 }
