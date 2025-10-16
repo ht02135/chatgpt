@@ -316,22 +316,22 @@ public class RoleGroupManagementServiceImpl implements RoleGroupManagementServic
             return List.of(); // empty list if group not found
         }
 
-        String delimitRoles = roleGroup.getDelimitRoles();
-        if (delimitRoles == null || delimitRoles.isBlank()) {
+        String delimitRoleNames = roleGroup.getDelimitRoles();
+        if (delimitRoleNames == null || delimitRoleNames.isBlank()) {
             return List.of(); // empty list if no roles
         }
 
         // Split by "|" and filter out empty strings
-        String[] tokens = delimitRoles.split("\\|");
-        List<String> roles = new ArrayList<>();
+        String[] tokens = delimitRoleNames.split("\\|");
+        List<String> roleNames = new ArrayList<>();
         for (String token : tokens) {
             if (!token.isBlank()) {
-                roles.add(token.trim());
+                roleNames.add(token.trim());
             }
         }
 
-        logger.debug("getRoleNames roles={}", roles);
-        return roles;
+        logger.debug("getRoleNames roles={}", roleNames);
+        return roleNames;
     }
     
 }
