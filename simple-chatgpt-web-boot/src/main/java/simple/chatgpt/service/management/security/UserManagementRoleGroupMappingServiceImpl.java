@@ -156,6 +156,9 @@ public class UserManagementRoleGroupMappingServiceImpl implements UserManagement
 
 	                userPojo.setLocked(userConfig.isLocked());
 	                logger.debug("initializeDB locked={}", userConfig.isLocked());
+	                
+	                userPojo.setDelimitRoleGroups(userConfig.getDelimitRoleGroups());
+	                logger.debug("initializeDB delimitRoleGroups={}", userConfig.getDelimitRoleGroups());
 
 	                userService.create(userPojo);
 	                logger.debug("initializeDB created new userPojo={}", userPojo);
