@@ -323,13 +323,14 @@ public class RoleGroupManagementServiceImpl implements RoleGroupManagementServic
 
         // Split by "|" and filter out empty strings
         String[] tokens = delimitRoleNames.split("\\|");
-        List<String> roleNames = new ArrayList<>();
+        java.util.Set<String> roleNameSet = new java.util.LinkedHashSet<>();
         for (String token : tokens) {
             if (!token.isBlank()) {
-                roleNames.add(token.trim());
+                roleNameSet.add(token.trim());
             }
         }
 
+        List<String> roleNames = new ArrayList<>(roleNameSet);
         logger.debug("getRoleNamesByGroupName roles={}", roleNames);
         return roleNames;
     }

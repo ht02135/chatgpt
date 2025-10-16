@@ -249,7 +249,10 @@ public class PageManagementServiceImpl implements PageManagementService {
 	    }
 
 	    List<String> roleNames = new ArrayList<>();
+	    java.util.Set<String> roleNameSet = new java.util.LinkedHashSet<>();
 	    for (String groupName : roleGroupNames) {
+	        logger.debug("getRoleNamesByUrlPattern groupName={}", groupName);
+
 	        RoleGroupManagementPojo roleGroup = roleGroupService.getRoleGroupByGroupName(groupName);
 	        logger.debug("getRoleNamesByUrlPattern roleGroup={}", roleGroup);
 	        if (roleGroup == null) continue;
@@ -261,11 +264,12 @@ public class PageManagementServiceImpl implements PageManagementService {
 	        String[] tokens = delimitRoles.split("\\|");
 	        for (String token : tokens) {
 	            if (!token.isBlank()) {
-	                roleNames.add(token.trim());
+	                roleNameSet.add(token.trim());
 	            }
 	        }
 	    }
 
+	    roleNames = new ArrayList<>(roleNameSet);
 	    logger.debug("getRoleNamesByUrlPattern roles={}", roleNames);
 	    return roleNames;
 	}
