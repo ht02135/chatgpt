@@ -42,6 +42,9 @@ console.debug("API_PROPERTY =", API_PROPERTY);
 const API_USER = API_CONTEXT_PATH + "/api/management/users";
 console.debug("API_USER =", API_USER);
 
+const API_PAGE = API_CONTEXT_PATH + "/api/management/pages";
+console.debug("API_PAGE =", API_PAGE);
+
 const API_USERLIST = API_CONTEXT_PATH + "/api/management/userlists";
 console.debug("API_USERLIST =", API_USERLIST);
 

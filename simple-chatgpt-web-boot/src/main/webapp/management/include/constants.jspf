@@ -22,6 +22,7 @@
     String API_CONFIG = API_CONTEXT_PATH + "/api/management/config";
     String API_PROPERTY = API_CONTEXT_PATH + "/api/management/properties";
     String API_USER = API_CONTEXT_PATH + "/api/management/users";
+	String API_PAGE = API_CONTEXT_PATH + "/api/management/pages";
     String API_USERLIST = API_CONTEXT_PATH + "/api/management/userlists";
     String API_USERLIST_MEMBER = API_CONTEXT_PATH + "/api/management/userlistmembers";
     String API_ROLE = API_CONTEXT_PATH + "/api/management/roles";
