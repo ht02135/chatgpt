@@ -17,6 +17,9 @@ public class UserConfig {
     private boolean locked;
     private String roleGroup;
 
+    // 🔹 new field
+    private String delimitRoleGroups;
+
     // 🔹 No-args constructor for XML loader or reflection
     public UserConfig() {}
 
@@ -24,7 +27,8 @@ public class UserConfig {
                       String firstName, String lastName, String email,
                       String addressLine1, String addressLine2,
                       String city, String state, String postCode, String country,
-                      boolean active, boolean locked, String roleGroup) {
+                      boolean active, boolean locked, String roleGroup,
+                      String delimitRoleGroups) { // <-- updated constructor
         this.userName = userName;
         this.userKey = userKey;
         this.password = password;
@@ -40,6 +44,7 @@ public class UserConfig {
         this.active = active;
         this.locked = locked;
         this.roleGroup = roleGroup;
+        this.delimitRoleGroups = delimitRoleGroups;
     }
 
     // 🔹 Getters
@@ -58,15 +63,18 @@ public class UserConfig {
     public boolean isActive() { return active; }
     public boolean isLocked() { return locked; }
     public String getRoleGroup() { return roleGroup; }
+    public String getDelimitRoleGroups() { return delimitRoleGroups; }
 
-    // 🔹 Setter for roleGroup if needed dynamically
+    // 🔹 Setters
     public void setRoleGroup(String roleGroup) { this.roleGroup = roleGroup; }
+    public void setDelimitRoleGroups(String delimitRoleGroups) { this.delimitRoleGroups = delimitRoleGroups; }
 
     @Override
     public String toString() {
         return "UserConfig{" +
                 "userName='" + userName + '\'' +
                 ", roleGroup='" + roleGroup + '\'' +
+                ", delimitRoleGroups='" + delimitRoleGroups + '\'' +
                 ", email='" + email + '\'' +
                 '}';
     }

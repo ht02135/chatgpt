@@ -30,7 +30,7 @@ public class SecurityConfigLoader {
     private List<RoleGroupConfig> roleGroups = new ArrayList<>();
     private List<PageRoleGroupConfig> pageRoleGroups = new ArrayList<>();
     private List<UserConfig> users = new ArrayList<>();
-    private List<PageConfig> pages = new ArrayList<>(); // <-- added
+    private List<PageConfig> pages = new ArrayList<>();
 
     private static final String DEFAULT_CONFIG_FILE = "/config/management/security-config.xml";
 
@@ -135,6 +135,7 @@ public class SecurityConfigLoader {
             for (int i = 0; i < userNodes.getLength(); i++) {
                 Element u = (Element) userNodes.item(i);
                 String roleGroupRef = u.getAttribute("role-group-ref");
+                String delimitRoleGroups = u.getAttribute("delimit-role-group");
 
                 UserConfig user = new UserConfig(
                         u.getAttribute("user_name"),
@@ -151,12 +152,14 @@ public class SecurityConfigLoader {
                         u.getAttribute("country"),
                         Boolean.parseBoolean(u.getAttribute("active")),
                         Boolean.parseBoolean(u.getAttribute("locked")),
-                        roleGroupRef
+                        roleGroupRef,
+                        delimitRoleGroups
                 );
 
                 users.add(user);
                 logger.debug("Loaded user userName={}", user.getUserName());
                 logger.debug("Loaded user roleGroupRef={}", roleGroupRef);
+                logger.debug("Loaded user delimitRoleGroups={}", delimitRoleGroups);
             }
             logger.debug("init Load users DONE ##############");
 
