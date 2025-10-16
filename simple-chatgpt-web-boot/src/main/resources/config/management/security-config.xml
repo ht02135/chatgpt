@@ -67,6 +67,12 @@
 			delimit-role-group="|USER_PAGE_ROLE_GROUP|" />
 		<page url-pattern="/management/jsp/user/**"
 			delimit-role-group="|USER_PAGE_ROLE_GROUP|" />
+			
+		<!-- Page -->
+		<page url-pattern="/page/**"
+			delimit-role-group="|ADMIN_PAGE_ROLE_GROUP|" />
+		<page url-pattern="/management/jsp/page/**"
+			delimit-role-group="|ADMIN_PAGE_ROLE_GROUP|" />
 
 		<!-- UserList -->
 		<page url-pattern="/userList/**"
