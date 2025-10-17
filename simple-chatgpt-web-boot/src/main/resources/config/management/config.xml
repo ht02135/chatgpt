@@ -70,7 +70,7 @@
 			sortable="true" dbField="city" />
 		<column name="country" label="Country" visible="false"
 			sortable="true" dbField="country" />
-		<column name="delimitRoleGroups" label="Role Groups" visible="false"
+		<column name="delimitRoleGroups" label="Role Groups" visible="true"
 			sortable="true" dbField="delimit_role_groups" />
 		<column name="createdAt" label="Created At" visible="false"
 			sortable="true" dbField="created_at" />
