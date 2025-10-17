@@ -19,7 +19,9 @@
 
 <p>Don't have an account? <a href="./register.jsp">Register here</a></p>
 
-<script>
+<script type="module">
+    import configLoader from '<%= request.getContextPath() %>/management/js/configLoader.js';
+
     // ===== Helper: get cookie value by name =====
     function getCookie(name) {
         const matches = document.cookie.match(new RegExp('(?:^|; )' + name + '=([^;]*)'));
@@ -93,35 +95,39 @@
                     console.debug("login.jsp -> login response:", responseData);
 
                     const loginData = responseData.data;
+					if (loginData && loginData.token) {
+					    // invalidate config cache on successful login
+					    if (configLoader && typeof configLoader.invalidateCache === 'function') {
+					        console.debug("login.jsp -> invalidating config cache after login success");
+					        configLoader.invalidateCache();
+					    }
 
-                    if (loginData && loginData.token) {
-                        const token = loginData.token;
+					    const token = loginData.token;
+					    console.debug("login.jsp -> login successful, token=", token);
 
-                        console.debug("login.jsp -> login successful, token=", token);
+					    // save to localStorage
+					    localStorage.setItem('jwtToken', token);
+					    localStorage.setItem('username', loginData.username || '');
+					    localStorage.setItem('roles', JSON.stringify(loginData.roles || []));
+					    console.debug("login.jsp -> token stored in localStorage, token=", localStorage.getItem('jwtToken'));
 
-                        // save to localStorage
-                        localStorage.setItem('jwtToken', token);
-                        localStorage.setItem('username', loginData.username || '');
-                        localStorage.setItem('roles', JSON.stringify(loginData.roles || []));
-                        console.debug("login.jsp -> token stored in localStorage, token=", localStorage.getItem('jwtToken'));
+					    // ===== Save to cookie dynamically =====
+					    /*
+					    hung : dont remove it
+					    Set cookie so server sees it
+					    path=/ means the cookie is valid for the entire domain, 
+					    from the root (/) down. Every page on your site will 
+					    receive this cookie.
+					    */
+					    document.cookie = `jwtToken=${token}; path=${cookiePath}; max-age=${24*60*60}`;
+					    console.debug("login.jsp -> token stored in cookie, token=", getCookie('jwtToken'));
 
-                        // ===== Save to cookie dynamically =====
-                        /*
-                        hung : dont remove it
-                        Set cookie so server sees it
-                        path=/ means the cookie is valid for the entire domain, 
-                        from the root (/) down. Every page on your site will 
-                        receive this cookie.
-                        */
-                        document.cookie = `jwtToken=${token}; path=${cookiePath}; max-age=${24*60*60}`;
-                        console.debug("login.jsp -> token stored in cookie, token=", getCookie('jwtToken'));
-
-                        console.debug("login.jsp -> redirecting to dashboard");
-                        window.location.href = DASHBOARD_PAGE;
-                    } else {
-                        console.debug("login.jsp -> login failed, no token returned");
-                        alert(responseData.message || 'Login failed: no token returned');
-                    }
+					    console.debug("login.jsp -> redirecting to dashboard");
+					    window.location.href = DASHBOARD_PAGE;
+					} else {
+					    console.debug("login.jsp -> login failed, no token returned");
+					    alert(responseData.message || 'Login failed: no token returned');
+					}
                 } catch (err) {
                     console.error('login.jsp -> Login error:', err);
                     alert('Login failed: ' + err.message);
