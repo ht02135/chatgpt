@@ -40,39 +40,16 @@
 	</update>
 
 	<!-- ======================= SQL fragment for filtering ======================= -->
-	<sql id="PageManagementFilter">
-		<where>
-			<if test="params.page != null or params != null">
-				<if
-					test="(params.page != null and params.page.urlPattern != null and params.page.urlPattern != '') 
-                          or (params.urlPattern != null and params.urlPattern != '')">
-					AND url_pattern LIKE CONCAT('%',
-					<choose>
-						<when
-							test="params.page != null and params.page.urlPattern != null and params.page.urlPattern != ''">
-							#{params.page.urlPattern}
-						</when>
-						<otherwise>#{params.urlPattern}</otherwise>
-					</choose>
-					, '%')
-				</if>
-
-				<if
-					test="(params.page != null and params.page.delimitRoleGroups != null and params.page.delimitRoleGroups != '') 
-                          or (params.delimitRoleGroups != null and params.delimitRoleGroups != '')">
-					AND delimit_role_groups LIKE CONCAT('%',
-					<choose>
-						<when
-							test="params.page != null and params.page.delimitRoleGroups != null and params.page.delimitRoleGroups != ''">
-							#{params.page.delimitRoleGroups}
-						</when>
-						<otherwise>#{params.delimitRoleGroups}</otherwise>
-					</choose>
-					, '%')
-				</if>
-			</if>
-		</where>
-	</sql>
+    <sql id="PageManagementFilter">
+        <where>
+            <if test="params.urlPattern != null and params.urlPattern != ''">
+                AND url_pattern LIKE CONCAT('%', #{params.urlPattern}, '%')
+            </if>
+            <if test="params.roleGroupId != null">
+                AND role_group_id = #{params.roleGroupId}
+            </if>
+        </where>
+    </sql>
 
 	<!-- List<PageManagementPojo> search(@Param("params") Map<String, Object> params) -->
 	<!-- ======================= SEARCH / PAGINATION ======================= -->
