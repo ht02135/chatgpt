@@ -90,13 +90,15 @@
 	</actions>
 	
 	<form id="resetUserPassword">
-		<field name="userName" label="Username" visible="false"
+		<field name="id" label="ID" visible="true" required="true"
+			editable="false" />
+		<field name="userName" label="Username" visible="true"
 			required="true" editable="false" />
-		<field name="userKey" label="User Key" visible="false"
+		<field name="userKey" label="User Key" visible="true"
 			required="true" editable="false" />
-		<field name="firstName" label="First Name" visible="false"
+		<field name="firstName" label="First Name" visible="true"
 			required="true" editable="false" />
-		<field name="lastName" label="Last Name" visible="false"
+		<field name="lastName" label="Last Name" visible="true"
 			required="true" editable="false" />
 		<field name="email" label="Email" regex="emailValidation"
 			visible="false" required="true" editable="false" />

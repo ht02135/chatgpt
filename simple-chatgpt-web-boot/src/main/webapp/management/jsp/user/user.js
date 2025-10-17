@@ -186,7 +186,11 @@ function UserViewModel(params, config) {
                 url = `${API_USER}/update?id=${encodeURIComponent(idVal)}`;
                 method = 'PUT';
             }
-            console.log("user.js -> saveUser: url=", url, "method=", method);
+			console.log("user.js -> saveUser: self.mode=", self.mode);
+			console.log("user.js -> saveUser: self.currentUser()=", self.currentUser());
+            console.log("user.js -> saveUser: url=", url);
+			console.log("user.js -> saveUser: method=", method);
+			console.log("user.js -> saveUser: payload=", payload);
             await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
             self.navigateToUsers();
         } catch (err) {
