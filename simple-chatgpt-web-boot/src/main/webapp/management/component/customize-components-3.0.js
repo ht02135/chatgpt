@@ -9,13 +9,15 @@
 //customize-form-fields
 ko.components.register('customize-form-fields', {
   viewModel: function(params) {
-    this.fields = (params.formConfig.fields || []).map(f => Object.assign({ type: "text" }, f));
+    this.fields = (params.formConfig.fields || []).map(f =>
+      Object.assign({ type: "text", visible: true }, f)
+    );
     this.currentObject = params.currentObject;
     this.errors = params.errors || ko.observable({});
   },
   template: `
     <div class="form-vertical" data-bind="foreach: $component.fields">
-      <div class="form-row">
+      <div class="form-row" data-bind="visible: visible">
         <label data-bind="text: label + ':'"></label>
         <input data-bind="
                attr: { type: type },

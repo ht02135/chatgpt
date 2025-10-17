@@ -91,30 +91,30 @@
 	
 	<form id="resetUserPassword">
 		<field name="userName" label="Username" visible="false"
-			required="true" editable="true" />
+			required="true" editable="false" />
 		<field name="userKey" label="User Key" visible="false"
-			required="true" editable="true" />
+			required="true" editable="false" />
 		<field name="firstName" label="First Name" visible="false"
-			required="true" editable="true" />
+			required="true" editable="false" />
 		<field name="lastName" label="Last Name" visible="false"
-			required="true" editable="true" />
+			required="true" editable="false" />
 		<field name="email" label="Email" regex="emailValidation"
-			visible="false" required="true" editable="true" />
+			visible="false" required="true" editable="false" />
 		<field name="password" label="Password"
 			regex="passwordValidation" visible="true" required="true"
 			editable="true" />
 		<field name="addressLine1" label="Address Line 1" visible="false"
-			editable="true" />
+			editable="false" />
 		<field name="addressLine2" label="Address Line 2" visible="false"
-			editable="true" />
-		<field name="city" label="City" visible="false" editable="true" />
-		<field name="state" label="State" visible="false" editable="true" />
+			editable="false" />
+		<field name="city" label="City" visible="false" editable="false" />
+		<field name="state" label="State" visible="false" editable="false" />
 		<field name="postCode" label="Post Code"
-			regex="postalCodeValidation" visible="false" editable="true" />
+			regex="postalCodeValidation" visible="false" editable="false" />
 		<field name="country" label="Country" visible="false"
-			editable="true" />
+			editable="false" />
 		<field name="delimitRoleGroups" label="Delimit Role Groups"
-			visible="true" editable="false" />
+			visible="false" editable="false" />
 	</form>
 
 	<form id="addUser">
