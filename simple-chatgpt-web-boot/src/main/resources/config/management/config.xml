@@ -70,6 +70,8 @@
 			sortable="true" dbField="city" />
 		<column name="country" label="Country" visible="false"
 			sortable="true" dbField="country" />
+		<column name="delimitRoleGroups" label="Role Groups" visible="false"
+			sortable="true" dbField="delimit_role_groups" />
 		<column name="createdAt" label="Created At" visible="false"
 			sortable="true" dbField="created_at" />
 		<column name="updatedAt" label="Updated At" visible="false"
@@ -126,9 +128,9 @@
 			required="true" editable="true" />
 		<field name="email" label="Email" regex="emailValidation"
 			visible="true" required="true" editable="true" />
-		<field name="password" label="Password"
+		<field name="password" label="Password (Encoded)"
 			regex="passwordValidation" visible="true" required="true"
-			editable="true" />
+			editable="false" />
 		<field name="addressLine1" label="Address Line 1" visible="true"
 			editable="true" />
 		<field name="addressLine2" label="Address Line 2" visible="true"
@@ -176,9 +178,11 @@
 			dbField="id" />
 		<column name="urlPattern" label="URL Pattern" visible="true"
 			sortable="true" dbField="url_pattern" />
-		<column name="createdAt" label="Created At" visible="true"
+		<column name="delimitRoleGroups" label="Role Groups" visible="true"
+			sortable="true" dbField="delimit_role_groups" />
+		<column name="createdAt" label="Created At" visible="false"
 			sortable="true" dbField="created_at" />
-		<column name="updatedAt" label="Updated At" visible="true"
+		<column name="updatedAt" label="Updated At" visible="false"
 			sortable="true" dbField="updated_at" />
 		<column name="actions" label="Actions" actions="page-actions"
 			visible="true" sortable="false" />
@@ -498,7 +502,7 @@
 			sortable="true" dbField="role_name" />
 		<column name="description" label="Description" visible="true"
 			sortable="true" dbField="description" />
-		<column name="createdAt" label="Created At" visible="true"
+		<column name="createdAt" label="Created At" visible="false"
 			sortable="true" dbField="created_at" />
 		<column name="updatedAt" label="Updated At" visible="false"
 			sortable="true" dbField="updated_at" />
@@ -564,7 +568,9 @@
 			sortable="true" dbField="group_name" />
 		<column name="description" label="Description" visible="true"
 			sortable="true" dbField="description" />
-		<column name="createdAt" label="Created At" visible="true"
+		<column name="delimitRoles" label="Roles" visible="true"
+			sortable="true" dbField="delimit_roles" />
+		<column name="createdAt" label="Created At" visible="false"
 			sortable="true" dbField="created_at" />
 		<column name="updatedAt" label="Updated At" visible="false"
 			sortable="true" dbField="updated_at" />
