@@ -51,6 +51,8 @@
 			jsMethod="editUser" />
 		<action name="Delete" label="Delete" visible="true"
 			jsMethod="deleteUser" />
+		<action name="ResetPassword" label="Reset Password" visible="true"
+			jsMethod="resetPassword" />
 	</actions>
 
 	<grid id="users">
@@ -86,6 +88,34 @@
 		<action name="Cancel" label="Cancel" visible="true"
 			jsMethod="navigateToUsers" />
 	</actions>
+	
+	<form id="resetUserPassword">
+		<field name="userName" label="Username" visible="false"
+			required="true" editable="true" />
+		<field name="userKey" label="User Key" visible="false"
+			required="true" editable="true" />
+		<field name="firstName" label="First Name" visible="false"
+			required="true" editable="true" />
+		<field name="lastName" label="Last Name" visible="false"
+			required="true" editable="true" />
+		<field name="email" label="Email" regex="emailValidation"
+			visible="false" required="true" editable="true" />
+		<field name="password" label="Password"
+			regex="passwordValidation" visible="true" required="true"
+			editable="true" />
+		<field name="addressLine1" label="Address Line 1" visible="false"
+			editable="true" />
+		<field name="addressLine2" label="Address Line 2" visible="false"
+			editable="true" />
+		<field name="city" label="City" visible="false" editable="true" />
+		<field name="state" label="State" visible="false" editable="true" />
+		<field name="postCode" label="Post Code"
+			regex="postalCodeValidation" visible="false" editable="true" />
+		<field name="country" label="Country" visible="false"
+			editable="true" />
+		<field name="delimitRoleGroups" label="Delimit Role Groups"
+			visible="true" editable="false" />
+	</form>
 
 	<form id="addUser">
 		<field name="userName" label="Username" visible="true"

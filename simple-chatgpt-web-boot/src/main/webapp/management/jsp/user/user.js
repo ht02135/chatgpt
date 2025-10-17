@@ -207,6 +207,13 @@ function UserViewModel(params, config) {
             console.error('Delete user error:', err);
         }
     };
+	
+	self.resetPassword = async function(user) {
+		console.log("user.js -> resetPassword: user=", user);
+		if (!confirm('Are you sure?')) return;
+		localStorage.setItem('editUserId', ko.unwrap(user.id));
+		window.location.href = 'resetPassword.jsp';
+	};
 
     self.loadUserById = async function(id) {
         console.log("user.js -> loadUserById: id=", id);
