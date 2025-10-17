@@ -94,9 +94,19 @@ public class UserManagementServiceImpl implements UserManagementService {
         UserManagementPojo existingUser = userManagementMapper.get(id);
         logger.debug("update existingUser={}", existingUser);
 
-        // Compare the new password with the existing one
-        if (!user.getPassword().equals(existingUser.getPassword())) {
-            // Password changed → encode it
+        /*
+         hung: compare password using passwordEncoder.matches()
+         because existingUser.getPassword() is encoded, but user.getPassword() is plain
+         /////////////
+         boolean matches(CharSequence rawPassword, String encodedPassword)
+         Check whether the raw (plain) password, when encoded, matches the stored 
+         encoded password.
+         */
+        boolean passwordSame = passwordEncoder.matches(user.getPassword(), existingUser.getPassword());
+        logger.debug("update passwordSame={}", passwordSame);
+
+        if (!passwordSame) {
+            // Password changed → encode new one
             String encodedPassword = passwordEncoder.encode(user.getPassword());
             user.setPassword(encodedPassword);
             logger.debug("update password changed, encoded password={}", encodedPassword);
