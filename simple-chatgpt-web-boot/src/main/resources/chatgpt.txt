@@ -1,7 +1,359 @@
 
-Jasypt (Java Simplified Encryption)
+OpenAI has released an official Java SDK (openai-java) for interfacing with their APIs. 
+GitHub
 
-Package: org.jasypt.*
+You can include it via Maven / Gradle:
+
+<dependency>
+  <groupId>com.openai</groupId>
+  <artifactId>openai-java</artifactId>
+  <version>4.3.0</version>
+</dependency>
+
+///////////
+
+We’ll give the model an unstructured text — e.g. a product review —
+and ask it to return structured JSON data with fields like {"sentiment": "...", "product": "...", "summary": "..."}
+
+import com.openai.client.OpenAI;
+import com.openai.models.ChatCompletion;
+import com.openai.models.ChatCompletionChoice;
+import com.openai.models.ChatCompletionMessage;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import java.util.Arrays;
+
+public class ReviewExtractorService {
+
+    private static final Logger logger = LogManager.getLogger(ReviewExtractorService.class);
+
+    public static void main(String[] args) {
+        ReviewExtractorService service = new ReviewExtractorService();
+        service.extractReviewData();
+    }
+
+    private void extractReviewData() {
+        logger.debug("extractReviewData called");
+
+        // Initialize OpenAI client
+        OpenAI client = new OpenAI.Builder()
+                .apiKey(System.getenv("OPENAI_API_KEY"))
+                .build();
+        logger.debug("extractReviewData client initialized");
+
+        // Example input text (like from user)
+        String reviewText = "I bought the iPhone 15 last week and I absolutely love it! " +
+                "The camera is stunning but battery life could be better.";
+        logger.debug("extractReviewData reviewText={}", reviewText);
+
+        // Create messages for ChatGPT
+        ChatCompletion completion = client.chatCompletions().create(c -> c
+                .model("gpt-4-turbo")
+                .messages(Arrays.asList(
+                        ChatCompletionMessage.builder()
+                                .role("system")
+                                .content("You are an AI that extracts structured data in JSON format from text reviews.")
+                                .build(),
+                        ChatCompletionMessage.builder()
+                                .role("user")
+                                .content(
+                                        "Extract the following information as JSON: " +
+                                                "product name, sentiment (positive/negative/neutral), and one-sentence summary.\n\n" +
+                                                "Text: " + reviewText
+                                )
+                                .build()
+                ))
+        );
+        logger.debug("extractReviewData completion request created");
+
+        // Parse and log output
+        for (ChatCompletionChoice choice : completion.choices()) {
+            String result = choice.message().content();
+            logger.debug("extractReviewData result={}", result);
+            System.out.println(result);
+        }
+    }
+}
+
+///////////
+
+What You Learn Here (same as in the course)
+
+System + User roles: used to control tone and behavior.
+
+Structured output prompts: asking explicitly for JSON makes it easier for your app to parse.
+
+Logging for every param and step (as per your rule set).
+
+{
+  "product": "iPhone 15",
+  "sentiment": "positive",
+  "summary": "User loves the iPhone 15’s camera but notes weaker battery life."
+}
+
+///////////
+
+If you want, I can give you a more advanced prompt-engineering pattern next (from the course), like:
+
+Chain-of-thought style reasoning (step-by-step analysis)
+
+Few-shot examples (teach the model by example)
+
+Instruction refinement loops (iterative prompting)
+
+
+///////////
+
+Each example demonstrates a key prompting technique the course teaches — translated from Python to Java, with your logging conventions applied.
+
+import com.openai.client.OpenAI;
+import com.openai.models.ChatCompletion;
+import com.openai.models.ChatCompletionChoice;
+import com.openai.models.ChatCompletionMessage;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import java.util.Arrays;
+
+public class SummarizationService {
+
+    private static final Logger logger = LogManager.getLogger(SummarizationService.class);
+
+    public void summarizeText(String text) {
+        logger.debug("summarizeText called");
+        logger.debug("summarizeText text={}", text);
+
+        OpenAI client = new OpenAI.Builder()
+                .apiKey(System.getenv("OPENAI_API_KEY"))
+                .build();
+        logger.debug("summarizeText client initialized");
+
+        ChatCompletion completion = client.chatCompletions().create(c -> c
+                .model("gpt-4-turbo")
+                .messages(Arrays.asList(
+                        ChatCompletionMessage.builder()
+                                .role("system")
+                                .content("You are a helpful assistant that summarizes text.")
+                                .build(),
+                        ChatCompletionMessage.builder()
+                                .role("user")
+                                .content("Summarize this in one sentence: " + text)
+                                .build()
+                ))
+        );
+        logger.debug("summarizeText completion request created");
+
+        for (ChatCompletionChoice choice : completion.choices()) {
+            logger.debug("summarizeText result={}", choice.message().content());
+            System.out.println(choice.message().content());
+        }
+    }
+
+    public static void main(String[] args) {
+        new SummarizationService().summarizeText(
+                "OpenAI has released a new model that improves efficiency and reduces hallucination rates."
+        );
+    }
+}
+
+
+///////////
+
+Text Transformation Example
+
+(Technique: Instructional prompting for style transformation)
+
+import com.openai.client.OpenAI;
+import com.openai.models.ChatCompletion;
+import com.openai.models.ChatCompletionChoice;
+import com.openai.models.ChatCompletionMessage;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import java.util.Arrays;
+
+public class TransformationService {
+
+    private static final Logger logger = LogManager.getLogger(TransformationService.class);
+
+    public void transformTone(String text, String tone) {
+        logger.debug("transformTone called");
+        logger.debug("transformTone text={}", text);
+        logger.debug("transformTone tone={}", tone);
+
+        OpenAI client = new OpenAI.Builder()
+                .apiKey(System.getenv("OPENAI_API_KEY"))
+                .build();
+        logger.debug("transformTone client initialized");
+
+        ChatCompletion completion = client.chatCompletions().create(c -> c
+                .model("gpt-4-turbo")
+                .messages(Arrays.asList(
+                        ChatCompletionMessage.builder()
+                                .role("system")
+                                .content("You are an assistant that rewrites text in different tones.")
+                                .build(),
+                        ChatCompletionMessage.builder()
+                                .role("user")
+                                .content("Rewrite the following text in a " + tone + " tone:\n\n" + text)
+                                .build()
+                ))
+        );
+        logger.debug("transformTone completion request created");
+
+        for (ChatCompletionChoice choice : completion.choices()) {
+            logger.debug("transformTone result={}", choice.message().content());
+            System.out.println(choice.message().content());
+        }
+    }
+
+    public static void main(String[] args) {
+        new TransformationService().transformTone(
+                "Our product launch was delayed due to supply chain issues.",
+                "enthusiastic"
+        );
+    }
+}
+
+
+///////////
+
+Few-Shot Example (Teach by Example)
+
+(Technique: Few-shot prompting)
+
+This is a core concept in the course: showing the model examples to guide it
+
+import com.openai.client.OpenAI;
+import com.openai.models.ChatCompletion;
+import com.openai.models.ChatCompletionChoice;
+import com.openai.models.ChatCompletionMessage;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import java.util.Arrays;
+
+public class FewShotExampleService {
+
+    private static final Logger logger = LogManager.getLogger(FewShotExampleService.class);
+
+    public void inferSentiment(String text) {
+        logger.debug("inferSentiment called");
+        logger.debug("inferSentiment text={}", text);
+
+        OpenAI client = new OpenAI.Builder()
+                .apiKey(System.getenv("OPENAI_API_KEY"))
+                .build();
+        logger.debug("inferSentiment client initialized");
+
+        ChatCompletion completion = client.chatCompletions().create(c -> c
+                .model("gpt-4-turbo")
+                .messages(Arrays.asList(
+                        ChatCompletionMessage.builder()
+                                .role("system")
+                                .content("You are an assistant that classifies sentiment.")
+                                .build(),
+                        ChatCompletionMessage.builder()
+                                .role("user")
+                                .content("Text: \"I love the new design!\" → Sentiment: Positive")
+                                .build(),
+                        ChatCompletionMessage.builder()
+                                .role("user")
+                                .content("Text: \"The app keeps crashing, it's frustrating.\" → Sentiment: Negative")
+                                .build(),
+                        ChatCompletionMessage.builder()
+                                .role("user")
+                                .content("Text: \"" + text + "\" → Sentiment:")
+                                .build()
+                ))
+        );
+        logger.debug("inferSentiment completion request created");
+
+        for (ChatCompletionChoice choice : completion.choices()) {
+            logger.debug("inferSentiment result={}", choice.message().content());
+            System.out.println(choice.message().content());
+        }
+    }
+
+    public static void main(String[] args) {
+        new FewShotExampleService().inferSentiment(
+                "It's fine, but the updates didn't add much new functionality."
+        );
+    }
+}
+
+
+///////////
+
+Step-by-Step Reasoning Example
+
+(Technique: Chain-of-thought prompting)
+
+import com.openai.client.OpenAI;
+import com.openai.models.ChatCompletion;
+import com.openai.models.ChatCompletionChoice;
+import com.openai.models.ChatCompletionMessage;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import java.util.Arrays;
+
+public class ReasoningService {
+
+    private static final Logger logger = LogManager.getLogger(ReasoningService.class);
+
+    public void solveLogicProblem() {
+        logger.debug("solveLogicProblem called");
+
+        OpenAI client = new OpenAI.Builder()
+                .apiKey(System.getenv("OPENAI_API_KEY"))
+                .build();
+        logger.debug("solveLogicProblem client initialized");
+
+        String problem = "If John is older than Mary and Mary is older than Sam, who is the oldest?";
+        logger.debug("solveLogicProblem problem={}", problem);
+
+        ChatCompletion completion = client.chatCompletions().create(c -> c
+                .model("gpt-4-turbo")
+                .messages(Arrays.asList(
+                        ChatCompletionMessage.builder()
+                                .role("system")
+                                .content("You are a reasoning assistant. Think step by step before answering.")
+                                .build(),
+                        ChatCompletionMessage.builder()
+                                .role("user")
+                                .content(problem + " Let's reason this out step by step.")
+                                .build()
+                ))
+        );
+        logger.debug("solveLogicProblem completion request created");
+
+        for (ChatCompletionChoice choice : completion.choices()) {
+            logger.debug("solveLogicProblem result={}", choice.message().content());
+            System.out.println(choice.message().content());
+        }
+    }
+
+    public static void main(String[] args) {
+        new ReasoningService().solveLogicProblem();
+    }
+}
+
+
+/////////////
+
+| Course Technique   | Example Class            | Description                           |
+| ------------------ | ------------------------ | ------------------------------------- |
+| Role prompting     | `SummarizationService`   | Define assistant persona              |
+| Instruction-based  | `TransformationService`  | Direct instructions for style or tone |
+| Structured output  | `ReviewExtractorService` | Force model to produce JSON           |
+| Few-shot prompting | `FewShotExampleService`  | Teach by examples                     |
+| Chain-of-thought   | `ReasoningService`       | Ask model to “think step by step”     |
+
+
+
+
 
 
 
