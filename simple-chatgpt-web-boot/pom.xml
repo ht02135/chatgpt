@@ -307,6 +307,12 @@
   			<artifactId>jasypt</artifactId>
   			<version>1.9.3</version>
 		</dependency>
+		
+		<dependency>
+  			<groupId>com.openai</groupId>
+  			<artifactId>openai-java</artifactId>
+  			<version>4.3.0</version>
+		</dependency>
 
 	</dependencies>
 
