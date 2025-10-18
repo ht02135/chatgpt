@@ -4,5 +4,6 @@ public interface SummarizationService {
 
 	// ======= CORE METHODS (on top) =======
 	void summarizeText();
-
+	void summarizeText(String text);
+	
 }

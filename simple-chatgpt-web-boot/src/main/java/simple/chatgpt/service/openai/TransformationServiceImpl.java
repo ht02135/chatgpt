@@ -13,9 +13,9 @@ import com.openai.models.chat.completions.ChatCompletionCreateParams;
 import com.openai.models.chat.completions.ChatCompletionMessage;
 
 @Service
-public class SummarizationServiceImpl implements SummarizationService {
+public class TransformationServiceImpl implements TransformationService {
 
-    private static final Logger logger = LogManager.getLogger(SummarizationServiceImpl.class);
+    private static final Logger logger = LogManager.getLogger(TransformationServiceImpl.class);
 
     private final OpenAIClient client;
 
@@ -23,49 +23,53 @@ public class SummarizationServiceImpl implements SummarizationService {
      * hung: constructor-based dependency injection
      */
     @Autowired
-    public SummarizationServiceImpl(OpenAIClient client) {
-        logger.debug("SummarizationServiceImpl constructor called");
-        logger.debug("SummarizationServiceImpl client param={}", client);
+    public TransformationServiceImpl(OpenAIClient client) {
+        logger.debug("TransformationServiceImpl constructor called");
+        logger.debug("TransformationServiceImpl client param={}", client);
         this.client = client;
     }
-    
+
+    /*
+     * hung: default transformation using example text
+     */
     @Override
-    public void summarizeText() {
-    	summarizeText(
-    			"OpenAI has released a new model that improves efficiency and reduces hallucination rates."
+    public void transformTone() {
+        transformTone(
+                "Our product launch was delayed due to supply chain issues.",
+                "enthusiastic"
         );
     }
 
     @Override
-    public void summarizeText(String text) {
-        logger.debug("summarizeText called");
-        logger.debug("summarizeText text={}", text);
+    public void transformTone(String text, String tone) {
+        logger.debug("transformTone called");
+        logger.debug("transformTone text={}", text);
+        logger.debug("transformTone tone={}", tone);
 
         // Build chat completion parameters
         ChatCompletionCreateParams params = ChatCompletionCreateParams.builder()
                 .model(ChatModel.GPT_4_TURBO)
                 .addMessage(ChatCompletionMessage.builder()
                         .role(JsonValue.from("system"))
-                        .content("You are a helpful assistant that summarizes text.")
+                        .content("You are an assistant that rewrites text in different tones.")
                         .build())
                 .addMessage(ChatCompletionMessage.builder()
                         .role(JsonValue.from("user"))
-                        .content("Summarize this in one sentence: " + text)
+                        .content("Rewrite the following text in a " + tone + " tone:\n\n" + text)
                         .build())
                 .build();
-        logger.debug("summarizeText params built");
+        logger.debug("transformTone params built");
 
         // Send request
         ChatCompletion completion = client.chat().completions().create(params);
-        logger.debug("summarizeText completion response received");
+        logger.debug("transformTone completion response received");
 
         // Parse and log output
         completion.choices().forEach(choice -> {
-            logger.debug("summarizeText choice={}", choice);
+            logger.debug("transformTone choice={}", choice);
 
-            // Handle Optional<String> safely
             String result = choice.message().content().orElse("");
-            logger.debug("summarizeText result={}", result);
+            logger.debug("transformTone result={}", result);
 
             System.out.println(result);
         });

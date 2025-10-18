@@ -30,15 +30,6 @@ public class ReviewExtractorServiceImpl implements ReviewExtractorService {
         this.client = client;
     }
 
-    /*
-     * hung: fallback default constructor if Spring is not managing this bean (e.g. standalone testing)
-     */
-    public ReviewExtractorServiceImpl() {
-        logger.debug("ReviewExtractorServiceImpl default constructor called");
-        this.client = OpenAIOkHttpClient.fromEnv();
-        logger.debug("ReviewExtractorServiceImpl default client initialized via fromEnv()");
-    }
-
     @Override
     public void extractReviewData() {
         logger.debug("extractReviewData called");
