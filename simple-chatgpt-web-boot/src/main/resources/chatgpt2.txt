@@ -152,6 +152,13 @@ It’s reasoning + planning + tool usage → agentic loop.
 
 ////////////////
 
+iterative
+summarize
+inferring
+transforming
+expanding
+chatbot
+
 
 
 
