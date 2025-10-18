@@ -351,9 +351,264 @@ public class ReasoningService {
 | Few-shot prompting | `FewShotExampleService`  | Teach by examples                     |
 | Chain-of-thought   | `ReasoningService`       | Ask model to “think step by step”     |
 
+//////////////////
 
+https://www.javacodegeeks.com/using-the-openai-api-with-java.html
 
+2.2 Code Example
 
+Below is a comprehensive Java program that demonstrates how to integrate and interact with various capabilities of the OpenAI API using the official Java client. The example covers three main use cases: simple text completion, chat-based conversational completion, and assistant-driven threaded conversation using GPT-4.
+
+	
+import com.openai.OpenAI;
+import com.openai.OpenAIClient;
+import com.openai.api.completion.*;
+import com.openai.api.chat.*;
+import com.openai.api.assistants.*;
+import com.openai.api.threads.*;
+ 
+import java.util.List;
+ 
+/**
+ * Demonstrates usage of the Java OpenAI API Client.
+ * 
+ * This class showcases how to perform three types of interactions with OpenAI's services:
+ * 1. Simple text completion using the Completion API.
+ * 2. Conversational interaction using Chat Completion.
+ * 3. Stateful assistant interaction using Threads and the Assistants API.
+ */
+public class Main {
+ 
+    /**
+     * The entry point of the Java program.
+     *
+     * @param args command-line arguments (not used)
+     * @throws InterruptedException if the thread waiting on assistant completion is interrupted
+     */
+    public static void main(String[] args) throws InterruptedException {
+        // Replace with your actual OpenAI API key
+        String apiKey = "your-api-key-here";
+ 
+        // Initialize the OpenAI client with the API key
+        OpenAIClient client = OpenAI.builder()
+                .apiKey(apiKey)
+                .build();
+ 
+        try {
+            // -------------------- 1. Simple Completion --------------------
+            // Create a completion request with a static prompt using the "text-davinci-003" model
+            CompletionRequest simpleRequest = CompletionRequest.builder()
+                    .model("text-davinci-003")
+                    .prompt("What is the capital of France?")
+                    .maxTokens(10) // Limit the number of tokens in the response
+                    .build();
+ 
+            // Send the request and get the response
+            CompletionResponse simpleResponse = client.createCompletion(simpleRequest);
+            System.out.println("Simple Completion Output:");
+            System.out.println(simpleResponse.getChoices().get(0).getText().trim());
+ 
+            // -------------------- 2. Conversational Chat Completion --------------------
+            // Create a user message for chat-based conversation
+            ChatMessage userMsg = ChatMessage.userMessage("Who won the FIFA World Cup in 2018?");
+            ChatCompletionRequest chatRequest = ChatCompletionRequest.builder()
+                    .model("gpt-3.5-turbo")
+                    .messages(List.of(userMsg)) // Pass the message as a list
+                    .build();
+ 
+            // Send the chat request and retrieve the response
+            ChatCompletionResponse chatResponse = client.createChatCompletion(chatRequest);
+            System.out.println("\nChat Completion Output:");
+            System.out.println(chatResponse.getChoices().get(0).getMessage().getContent());
+ 
+            // -------------------- 3. Assistant-Based Interaction --------------------
+            // Create an Assistant using the GPT-4 model with tutoring instructions
+            Assistant assistant = client.createAssistant(
+                    AssistantRequest.builder()
+                            .model("gpt-4")
+                            .name("TutorBot")
+                            .instructions("You are a math tutor. Explain answers in simple terms.")
+                            .build()
+            );
+ 
+            // Create a new thread for the assistant interaction
+            Thread thread = client.createThread(CreateThreadRequest.builder().build());
+ 
+            // Add a user message to the thread asking a math question
+            client.addMessage(thread.getId(), MessageRequest.builder()
+                    .role("user")
+                    .content("What is 7 multiplied by 8?")
+                    .build()
+            );
+ 
+            // Create a run that connects the thread with the assistant
+            Run run = client.createRun(thread.getId(), RunRequest.builder()
+                    .assistantId(assistant.getId())
+                    .build()
+            );
+ 
+            // Wait until the assistant completes its response generation
+            System.out.println("\nWaiting for assistant response...");
+            Run finalRun = client.waitForRunCompletion(thread.getId(), run.getId());
+ 
+            // Retrieve all messages from the conversation thread
+            List<Message> messages = client.listMessages(thread.getId());
+ 
+            // Display the full assistant conversation
+            System.out.println("\nAssistant Conversation:");
+            for (Message msg : messages) {
+                System.out.println(msg.getRole() + ": " + msg.getContent());
+            }
+ 
+        } catch (Exception e) {
+            // Handle any runtime errors (e.g., network issues, bad requests)
+            e.printStackTrace();
+        }
+    }
+}
+
+2.2.1 Code Explanation
+
+This Java program demonstrates how to work with the OpenAI API through the official Java OpenAI API client. It is structured into three distinct sections, each showcasing a different interaction type. The program begins by importing necessary classes and initializing an OpenAIClient using an API key.
+
+In the first section, a basic text completion is executed using the text-davinci-003 model. The prompt “What is the capital of France?” is sent, and a short response is generated with a maximum of 10 tokens. This demonstrates the simplest usage of the completion API, ideal for short factual answers.
+
+In the second section, the code performs a chat-based interaction using the gpt-3.5-turbo model. Here, the user sends a natural language message about the 2018 FIFA World Cup, and the model responds in a conversational tone. This demonstrates how the chat API handles multi-turn conversations.
+
+The third section showcases an advanced use case with the Assistants API. It creates an assistant called “TutorBot” using the gpt-4 model and instructs it to explain math problems in simple terms. A new thread is created to manage the conversation, a message is added from the user, and a run is initiated to let the assistant respond contextually. The assistant processes the input asynchronously, and once completed, all messages in the conversation thread are retrieved and printed. This pattern is useful for scenarios where multi-step interactions or persistent context are needed.
+
+Exception handling is included to catch and print any runtime errors, ensuring the application fails gracefully if any issues arise with the API or network.
+2.2.2 Code Output
+
+Upon successful execution, the program will output responses from each interaction, giving a clear understanding of how each part of the API behaves.
+
+	
+Simple Completion Output:
+Paris
+ 
+Chat Completion Output:
+France won the FIFA World Cup in 2018.
+ 
+Waiting for assistant response...
+ 
+Assistant Conversation:
+user: What is 7 multiplied by 8?
+assistant: 7 multiplied by 8 is 56. This is because 7 added to itself 8 times equals 56.
+
+///////////////
+
+https://platform.openai.com/docs/quickstart
+
+The OpenAI API provides a simple interface to state-of-the-art AI models for text generation, natural language processing, computer vision, and more. This example generates text output from a prompt, as you might using ChatGPT.
+
+import OpenAI from "openai";
+const client = new OpenAI();
+
+const response = await client.responses.create({
+    model: "gpt-5",
+    input: "Write a one-sentence bedtime story about a unicorn."
+});
+
+console.log(response.output_text);
+
+////////////////////
+
+Analyze images and files
+Send image URLs, uploaded files, or PDF documents directly to the model to extract text, classify content, or detect visual elements.
+
+import OpenAI from "openai";
+const client = new OpenAI();
+
+const response = await client.responses.create({
+    model: "gpt-5",
+    input: [
+        {
+            role: "user",
+            content: [
+                {
+                    type: "input_text",
+                    text: "What is in this image?",
+                },
+                {
+                    type: "input_image",
+                    image_url: "https://openai-documentation.vercel.app/images/cat_and_otter.png",
+                },
+            ],
+        },
+    ],
+});
+
+console.log(response.output_text);
+
+//////////////
+
+Extend the model with tools
+Give the model access to external data and functions by attaching tools. Use built-in tools like web search or file search, or define your own for calling APIs, running code, or integrating with third-party systems.
+
+import OpenAI from "openai";
+const client = new OpenAI();
+
+const response = await client.responses.create({
+    model: "gpt-5",
+    tools: [
+        { type: "web_search" },
+    ],
+    input: "What was a positive news story from today?",
+});
+
+console.log(response.output_text);
+
+///////////////
+
+Stream responses and build realtime apps
+Use server‑sent streaming events to show results as they’re generated, or the Realtime API for interactive voice and multimodal apps.
+
+import { OpenAI } from "openai";
+const client = new OpenAI();
+
+const stream = await client.responses.create({
+    model: "gpt-5",
+    input: [
+        {
+            role: "user",
+            content: "Say 'double bubble bath' ten times fast.",
+        },
+    ],
+    stream: true,
+});
+
+for await (const event of stream) {
+    console.log(event);
+}
+
+/////////////////
+
+Build agents
+Use the OpenAI platform to build agents capable of taking action—like controlling computers—on behalf of your users. Use the Agents SDK for Python or TypeScript to create orchestration logic on the backend.
+
+import { Agent, run } from '@openai/agents';
+
+const spanishAgent = new Agent({
+    name: 'Spanish agent',
+    instructions: 'You only speak Spanish.',
+});
+
+const englishAgent = new Agent({
+    name: 'English agent',
+    instructions: 'You only speak English',
+});
+
+const triageAgent = new Agent({
+    name: 'Triage agent',
+    instructions:
+        'Handoff to the appropriate agent based on the language of the request.',
+    handoffs: [spanishAgent, englishAgent],
+});
+
+const result = await run(triageAgent, 'Hola, ¿cómo estás?');
+console.log(result.finalOutput);
+
+////////////////
 
 
 
