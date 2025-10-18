@@ -7,3 +7,9 @@ public interface SummarizationService {
 	void summarizeText(String text);
 	
 }
+
+/*
+| Course Technique   | Example Class            | Description                           |
+| ------------------ | ------------------------ | ------------------------------------- |
+| Role prompting     | `SummarizationService`   | Define assistant persona              |
+*/

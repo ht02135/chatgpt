@@ -6,3 +6,9 @@ public interface ReviewExtractorService {
 	void extractReviewData();
 
 }
+
+/*
+| Course Technique   | Example Class            | Description                           |
+| ------------------ | ------------------------ | ------------------------------------- |
+| Structured output  | `ReviewExtractorService` | Force model to produce JSON           |
+*/

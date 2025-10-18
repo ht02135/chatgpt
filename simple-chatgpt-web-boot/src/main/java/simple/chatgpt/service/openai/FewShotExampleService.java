@@ -6,3 +6,9 @@ public interface FewShotExampleService {
     void inferSentiment();
     void inferSentiment(String text);
 }
+
+/*
+| Course Technique   | Example Class            | Description                           |
+| ------------------ | ------------------------ | ------------------------------------- |
+| Few-shot prompting | `FewShotExampleService`  | Teach by examples                     |
+*/

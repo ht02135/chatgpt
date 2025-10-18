@@ -343,6 +343,7 @@ public class ReasoningService {
 
 /////////////
 
+/*
 | Course Technique   | Example Class            | Description                           |
 | ------------------ | ------------------------ | ------------------------------------- |
 | Role prompting     | `SummarizationService`   | Define assistant persona              |
@@ -350,6 +351,7 @@ public class ReasoningService {
 | Structured output  | `ReviewExtractorService` | Force model to produce JSON           |
 | Few-shot prompting | `FewShotExampleService`  | Teach by examples                     |
 | Chain-of-thought   | `ReasoningService`       | Ask model to “think step by step”     |
+*/
 
 //////////////////
 
