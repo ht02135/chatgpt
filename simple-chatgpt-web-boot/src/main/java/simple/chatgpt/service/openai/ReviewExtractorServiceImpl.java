@@ -39,6 +39,7 @@ public class ReviewExtractorServiceImpl implements ReviewExtractorService {
         logger.debug("ReviewExtractorServiceImpl default client initialized via fromEnv()");
     }
 
+    @Override
     public void extractReviewData() {
         logger.debug("extractReviewData called");
 
