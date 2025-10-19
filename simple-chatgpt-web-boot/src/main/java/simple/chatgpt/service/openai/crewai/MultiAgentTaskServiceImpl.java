@@ -7,6 +7,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 
+import com.openai.client.OpenAIClient;
+
 import simple.chatgpt.pojo.openai.crewai.Agent;
 import simple.chatgpt.pojo.openai.crewai.AgentRegistry;
 import simple.chatgpt.pojo.openai.crewai.MultiAgentController;
@@ -18,6 +20,17 @@ public class MultiAgentTaskServiceImpl implements MultiAgentTaskService {
 
     private static final Logger logger = LogManager.getLogger(MultiAgentTaskServiceImpl.class);
 
+    private final OpenAIClient client;
+
+    /*
+     * hung: constructor-based dependency injection
+     */
+    public MultiAgentTaskServiceImpl(OpenAIClient client) {
+        logger.debug("MultiAgentTaskServiceImpl constructor called");
+        logger.debug("MultiAgentTaskServiceImpl client param={}", client);
+        this.client = client;
+    }
+    
     /*
      * hung: default workflow execution (previously main)
      */
@@ -32,10 +45,10 @@ public class MultiAgentTaskServiceImpl implements MultiAgentTaskService {
         logger.debug("executeMultiAgentWorkflow agentRegistry={}", agentRegistry);
 
         // register agents first
-        Agent agent1 = new Agent("Agent-Alpha");
+        Agent agent1 = new Agent("Agent-Alpha", client);
         logger.debug("executeMultiAgentWorkflow agent1={}", agent1);
         
-        Agent agent2 = new Agent("Agent-Beta");
+        Agent agent2 = new Agent("Agent-Beta", client);
         logger.debug("executeMultiAgentWorkflow agent2={}", agent2);
 
         // create tasks

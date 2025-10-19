@@ -7,6 +7,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Service;
 
+import com.openai.client.OpenAIClient;
+
 import simple.chatgpt.pojo.openai.crewai.Agent;
 import simple.chatgpt.pojo.openai.crewai.CrewController;
 import simple.chatgpt.pojo.openai.crewai.Task;
@@ -16,6 +18,17 @@ public class AgentCrewServiceImpl implements AgentCrewService {
 
     private static final Logger logger = LogManager.getLogger(AgentCrewServiceImpl.class);
 
+    private final OpenAIClient client;
+
+    /*
+     * hung: constructor-based dependency injection
+     */
+    public AgentCrewServiceImpl(OpenAIClient client) {
+        logger.debug("AgentCrewServiceImpl constructor called");
+        logger.debug("AgentCrewServiceImpl client param={}", client);
+        this.client = client;
+    }
+    
     /*
      * hung: execute the content creation workflow (previously main)
      */
@@ -28,21 +41,24 @@ public class AgentCrewServiceImpl implements AgentCrewService {
         Agent planner = new Agent(
                 "Content Planner",
                 "Plan engaging and factually accurate content on " + topic,
-                "You're working on planning a blog article about the topic: " + topic + "."
+                "You're working on planning a blog article about the topic: " + topic + ".",
+                client
         );
         logger.debug("executeCrewWorkflow planner={}", planner);
 
         Agent writer = new Agent(
                 "Content Writer",
                 "Write insightful and factually accurate opinion piece about the topic: " + topic,
-                "You're working on writing a new opinion piece about the topic: " + topic + "."
+                "You're working on writing a new opinion piece about the topic: " + topic + ".",
+                client
         );
         logger.debug("executeCrewWorkflow writer={}", writer);
 
         Agent editor = new Agent(
                 "Editor",
                 "Edit a given blog post to align with the writing style of the organization.",
-                "You are an editor who receives a blog post from the Content Writer."
+                "You are an editor who receives a blog post from the Content Writer.",
+                client
         );
         logger.debug("executeCrewWorkflow editor={}", editor);
 
