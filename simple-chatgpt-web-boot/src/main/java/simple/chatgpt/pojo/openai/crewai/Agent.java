@@ -109,3 +109,21 @@ public class Agent {
         return role != null ? "Agent{role='" + role + "'}" : "Agent{name='" + name + "'}";
     }
 }
+
+/*
+Here’s the reasoning and flow:
+1>Agent responsibility:
+Each Agent knows its role, goal, and backstory.
+Each Agent is the entity that “performs” a task.
+When performing a task, it constructs the prompt/messages and calls OpenAI.
+
+2>Other components (Service, Controller, Crew, TaskQueue, etc.):
+They orchestrate tasks and agents.
+They do not call OpenAI directly.
+Their job is to enqueue tasks, assign them to agents, and collect results.
+
+3>Advantages:
+Centralizes all OpenAI calls in one place (Agent.perform) — easy to maintain.
+Keeps workflow logic separate from LLM logic.
+Makes it easy to swap LLM backend later if needed. 
+*/
