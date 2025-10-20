@@ -7,6 +7,17 @@ import simple.chatgpt.gateway.openai.crewai2.CrewAiGateway;
 import simple.chatgpt.service.openai.crewai2.CrewAiService;
 import simple.chatgpt.service.openai.crewai2.CrewAiServiceImpl;
 
+/*
+hung: HTTP gateway to CrewAI AMP endpoints (kickoff / status)
+///////////////////////
+crewai is mostly python stuff
+i force chatgpt to give me a java version using CrewAI AMP endpoints
+///////////////////////
+https://docs.crewai.com/en/api-reference/introduction
+Each deployed crew has its own unique API endpoint:
+https://your-crew-name.crewai.com
+*/
+
 @Configuration
 public class CrewAiConfig {
 
