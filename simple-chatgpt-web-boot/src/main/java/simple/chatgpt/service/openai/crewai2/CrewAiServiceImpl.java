@@ -4,11 +4,13 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import simple.chatgpt.gateway.openai.crewai2.CrewAiGateway;
+import simple.chatgpt.pojo.openai.crewai2.Agent;
 import simple.chatgpt.pojo.openai.crewai2.QAReviewRequest;
 import simple.chatgpt.pojo.openai.crewai2.SupportInquiry;
+import simple.chatgpt.pojo.openai.crewai2.Task;
 
 /*
- hung: service implementation that delegates to CrewAiGateway
+ hung: service implementation that converts inquiries/reviews into Tasks and delegates to Agents
  */
 public class CrewAiServiceImpl implements CrewAiService {
     private static final Logger logger = LogManager.getLogger(CrewAiServiceImpl.class);
@@ -23,53 +25,29 @@ public class CrewAiServiceImpl implements CrewAiService {
 
     @Override
     public String kickoffInquiryResolution(SupportInquiry inquiry) throws Exception {
-        logger.debug("CrewAiServiceImpl kickoffInquiryResolution called");
-        logger.debug("CrewAiServiceImpl inquiry={}", inquiry);
-
-        // build minimal JSON inputs object
-        String jsonInputs = String.format(
-                "{ \"customer_id\": \"%s\", \"customer_message\": \"%s\" }",
-                escapeJson(inquiry.getCustomerId()),
-                escapeJson(inquiry.getMessage())
-        );
-        logger.debug("CrewAiServiceImpl jsonInputs={}", jsonInputs);
-
-        String kickoffId = gateway.kickoff("inquiry_resolution", "support_agent", jsonInputs);
-        logger.debug("CrewAiServiceImpl kickoffId={}", kickoffId);
-        return kickoffId;
+        Agent agent = new Agent("support_agent", gateway);
+        Task task = new Task(agent, "inquiry_resolution", inquiry.getMessage());
+        // explicitly use the version returning a result
+        String result = agent.perform(task, "");
+        return result;
     }
 
     @Override
     public String kickoffQualityAssuranceReview(String originalKickoffId, QAReviewRequest reviewRequest) throws Exception {
-        logger.debug("CrewAiServiceImpl kickoffQualityAssuranceReview called");
-        logger.debug("CrewAiServiceImpl originalKickoffId={}", originalKickoffId);
-        logger.debug("CrewAiServiceImpl reviewRequest={}", reviewRequest);
-
-        String jsonInputs = String.format(
-                "{ \"original_kickoff_id\": \"%s\", \"criteria\": \"%s\" }",
-                escapeJson(originalKickoffId),
-                escapeJson(reviewRequest.getCriteria())
-        );
-        logger.debug("CrewAiServiceImpl jsonInputs={}", jsonInputs);
-
-        String kickoffId = gateway.kickoff("quality_assurance_review", "support_quality_assurance_agent", jsonInputs);
-        logger.debug("CrewAiServiceImpl kickoffId={}", kickoffId);
-        return kickoffId;
+        Agent agent = new Agent("support_quality_assurance_agent", gateway);
+        Task task = new Task(agent, "quality_assurance_review", reviewRequest.getCriteria());
+        String result = agent.perform(task, originalKickoffId); // pass kickoffId as input
+        return result;
     }
 
     @Override
     public String getStatus(String kickoffId) throws Exception {
-        logger.debug("CrewAiServiceImpl getStatus called");
-        logger.debug("CrewAiServiceImpl kickoffId={}", kickoffId);
+        logger.debug("getStatus called");
+        logger.debug("getStatus kickoffId={}", kickoffId);
 
         String status = gateway.getStatus(kickoffId);
-        logger.debug("CrewAiServiceImpl status={}", status);
-        return status;
-    }
+        logger.debug("getStatus status={}", status);
 
-    // small helper
-    private static String escapeJson(String s) {
-        if (s == null) return "";
-        return s.replace("\"", "\\\"");
+        return status;
     }
 }
