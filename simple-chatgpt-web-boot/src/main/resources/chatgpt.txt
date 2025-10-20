@@ -2,34 +2,6 @@
 https://www.deeplearning.ai/short-courses/multi-ai-agent-systems-with-crewai/
 Multi AI Agent Systems with crewAI
 
-1>example
-senior customer support agent
-QA support agen
-
-2>crewai tools
-assigning tool as agent vs task level
-
-3>
-agent
-support_agent
-support_quality_assurance_agent
-
-tasks
-  inquery resolutiion
-  quality_assurance_review
-
-verbose
-memory=true
-
-manager
-1>goal
-2>process
-3>hire what agents
-
-customer outreach campaign
-
-cross-agent caching
-
 tools
 search internet
 scrap web site
@@ -37,46 +9,7 @@ connect to db
 call api
 send notification
 
-task
-what you expect agent do
-description
-expect what agent need to do
-set context
-set callback
-set tool for agent
-
 example
 automate event planning
 SerperDevTool
 ScraoeWebsiteTool
-
-venue_coordinator
--role
--goal
--tool
--backstory
-
-logistic_manager
--role
--goal
--tool
--backstory
-
-marketing_communication_agent
--role
--goal
--tool
--backstory
-
-venue_detail
-
-venue_task
-logistic_task
-marketting_taks
-
-
-
-
-
-
-
