@@ -2,6 +2,8 @@ package simple.chatgpt.service.openai.crewai2;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import simple.chatgpt.gateway.openai.crewai2.CrewAiGateway;
 import simple.chatgpt.pojo.openai.crewai2.Agent;
@@ -12,11 +14,13 @@ import simple.chatgpt.pojo.openai.crewai2.Task;
 /*
  hung: service implementation that converts inquiries/reviews into Tasks and delegates to Agents
  */
+@Service
 public class CrewAiServiceImpl implements CrewAiService {
     private static final Logger logger = LogManager.getLogger(CrewAiServiceImpl.class);
 
     private final CrewAiGateway gateway;
 
+    @Autowired
     public CrewAiServiceImpl(CrewAiGateway gateway) {
         logger.debug("CrewAiServiceImpl constructor called");
         logger.debug("CrewAiServiceImpl gateway={}", gateway);
