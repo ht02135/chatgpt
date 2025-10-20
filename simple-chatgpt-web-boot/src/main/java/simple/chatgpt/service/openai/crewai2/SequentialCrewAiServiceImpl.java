@@ -16,7 +16,7 @@ import simple.chatgpt.pojo.openai.crewai2.SupportInquiry;
 import simple.chatgpt.pojo.openai.crewai2.Task;
 
 /*
- hung: sequential service using SequentialCrewExecutor
+ hung: sequential CrewAiService implementation using SequentialCrewExecutor
  */
 @Service
 public class SequentialCrewAiServiceImpl implements CrewAiService {
@@ -34,6 +34,7 @@ public class SequentialCrewAiServiceImpl implements CrewAiService {
     @Override
     public String kickoffInquiryResolution(SupportInquiry inquiry) throws Exception {
         logger.debug("kickoffInquiryResolution called");
+
         Agent agent = new Agent("support_agent", gateway);
         Task task = new Task(agent, "inquiry_resolution", inquiry.getMessage());
 
@@ -50,6 +51,7 @@ public class SequentialCrewAiServiceImpl implements CrewAiService {
     public String kickoffQualityAssuranceReview(String originalKickoffId, QAReviewRequest reviewRequest)
             throws Exception {
         logger.debug("kickoffQualityAssuranceReview called");
+
         Agent agent = new Agent("support_quality_assurance_agent", gateway);
         Task task = new Task(agent, "quality_assurance_review", reviewRequest.getCriteria());
 

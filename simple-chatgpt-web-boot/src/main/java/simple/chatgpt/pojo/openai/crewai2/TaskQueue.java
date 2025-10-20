@@ -1,46 +1,38 @@
 package simple.chatgpt.pojo.openai.crewai2;
 
 import java.util.List;
-import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-/*
- hung: lightweight task queue used by parallel executor
- */
 public class TaskQueue {
     private static final Logger logger = LogManager.getLogger(TaskQueue.class);
 
-    private final Queue<Task> queue = new ConcurrentLinkedQueue<>();
+    private final java.util.Queue<Task> queue = new java.util.LinkedList<>();
 
-    public TaskQueue() {
-        logger.debug("TaskQueue constructor called");
-        logger.debug("TaskQueue this={}", this);
+    // existing single-task enqueue
+    public void enqueue(Task task) {
+        logger.debug("enqueue called (single)");
+        logger.debug("enqueue task={}", task);
+        queue.add(task);
+        logger.debug("enqueue completed remaining={}", queue.size());
     }
 
+    // new batch enqueue
     public void enqueue(List<Task> tasks) {
-        logger.debug("enqueue called");
+        logger.debug("enqueue called (batch)");
         logger.debug("enqueue tasks={}", tasks);
         queue.addAll(tasks);
         logger.debug("enqueue completed remaining={}", queue.size());
     }
 
     public Task dequeue() {
-        logger.debug("dequeue called");
-        Task t = queue.poll();
-        logger.debug("dequeue returned={}", t);
-        return t;
+        Task task = queue.poll();
+        logger.debug("dequeue called, returning={}", task);
+        return task;
     }
 
     public int size() {
-        logger.debug("size called");
         return queue.size();
-    }
-
-    @Override
-    public String toString() {
-        return "TaskQueue{" + "remaining=" + queue.size() + '}';
     }
 }
