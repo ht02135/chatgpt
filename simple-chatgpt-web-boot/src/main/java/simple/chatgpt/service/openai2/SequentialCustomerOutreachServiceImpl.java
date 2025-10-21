@@ -19,7 +19,7 @@ import simple.chatgpt.pojo.openai.Task;
 /*
  * hung: Spring-managed service that orchestrates sequential multi-agent customer outreach workflows
  */
-@Service
+@Service("openaiSequentialCustomerOutreachService")
 public class SequentialCustomerOutreachServiceImpl implements CustomerOutreachService {
 
     private static final Logger logger = LogManager.getLogger(SequentialCustomerOutreachServiceImpl.class);

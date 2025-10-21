@@ -14,7 +14,7 @@ import simple.chatgpt.pojo.crewai.Task;
 /*
  hung: service implementation that converts inquiries/reviews into Tasks and delegates to Agents
  */
-@Service
+@Service("crewaiCrewAiService")
 public class CrewAiServiceImpl implements CrewAiService {
     private static final Logger logger = LogManager.getLogger(CrewAiServiceImpl.class);
 

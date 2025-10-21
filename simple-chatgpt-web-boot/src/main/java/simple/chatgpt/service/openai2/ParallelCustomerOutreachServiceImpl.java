@@ -21,7 +21,7 @@ import simple.chatgpt.pojo.openai.TaskQueue;
  * hung: parallel multi-agent customer outreach service
  * Fixed: captures executor outputs instead of redundant agent.perform() calls
  */
-@Service
+@Service("openaiParallelCustomerOutreachService")
 public class ParallelCustomerOutreachServiceImpl implements CustomerOutreachService {
 
     private static final Logger logger = LogManager.getLogger(ParallelCustomerOutreachServiceImpl.class);

@@ -15,7 +15,7 @@ import simple.chatgpt.pojo.crewai.TaskQueue;
 /*
  hung: parallel customer outreach service using ParallelCrewExecutor
  */
-@Service
+@Service("crewaiCustomerOutreachService")
 public class CustomerOutreachServiceImpl implements CustomerOutreachService {
     private static final Logger logger = LogManager.getLogger(CustomerOutreachServiceImpl.class);
 

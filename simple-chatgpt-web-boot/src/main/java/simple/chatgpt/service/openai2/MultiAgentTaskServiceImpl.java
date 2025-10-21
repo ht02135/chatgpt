@@ -21,7 +21,7 @@ import simple.chatgpt.pojo.openai.TaskQueue;
  * hung: parallel multi-agent service implementation
  * Fixed: captures executor outputs instead of redundant agent.perform() calls
  */
-@Service
+@Service("openaiMultiAgentTaskService")
 public class MultiAgentTaskServiceImpl implements MultiAgentTaskService {
 
     private static final Logger logger = LogManager.getLogger(MultiAgentTaskServiceImpl.class);

@@ -21,7 +21,7 @@ import simple.chatgpt.pojo.openai.TaskQueue;
  * hung: Spring-managed service that orchestrates multi-agent customer outreach workflows
  * Fixed: executor outputs captured properly
  */
-@Service
+@Service("openaiCustomerOutreachService")
 public class CustomerOutreachServiceImpl implements CustomerOutreachService {
 
     private static final Logger logger = LogManager.getLogger(CustomerOutreachServiceImpl.class);

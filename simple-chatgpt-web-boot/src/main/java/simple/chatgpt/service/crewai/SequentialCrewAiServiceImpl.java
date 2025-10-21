@@ -18,7 +18,7 @@ import simple.chatgpt.pojo.crewai.Task;
 /*
  hung: sequential CrewAiService implementation using SequentialCrewExecutor
  */
-@Service
+@Service("crewaiSequentialCrewAiService")
 public class SequentialCrewAiServiceImpl implements CrewAiService {
     private static final Logger logger = LogManager.getLogger(SequentialCrewAiServiceImpl.class);
 

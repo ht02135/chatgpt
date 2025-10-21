@@ -16,7 +16,7 @@ import simple.chatgpt.pojo.crewai.TaskQueue;
 /*
  hung: parallel service using ParallelCrewExecutor
  */
-@Service
+@Service("crewaiParallelCrewAiService")
 public class ParallelCrewAiServiceImpl implements CrewAiService {
     private static final Logger logger = LogManager.getLogger(ParallelCrewAiServiceImpl.class);
 

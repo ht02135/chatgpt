@@ -20,7 +20,7 @@ import simple.chatgpt.service.crewai.SequentialCrewAiServiceImpl;
 /*
  * hung: sequential crew AI workflow orchestrator for content creation
  */
-@Service
+@Service("openaiAgentCrewService")
 public class AgentCrewServiceImpl implements AgentCrewService {
 
     private static final Logger logger = LogManager.getLogger(SequentialCrewAiServiceImpl.class);

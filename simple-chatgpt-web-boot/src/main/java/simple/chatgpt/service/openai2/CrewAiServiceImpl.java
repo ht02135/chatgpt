@@ -23,7 +23,7 @@ import simple.chatgpt.pojo.openai.TaskQueue;
  * hung: Spring-managed implementation of CrewAiService
  * Agents now produce meaningful outputs captured in executor
  */
-@Service
+@Service("openaiCrewAiService")
 public class CrewAiServiceImpl implements CrewAiService {
 
     private static final Logger logger = LogManager.getLogger(CrewAiServiceImpl.class);
