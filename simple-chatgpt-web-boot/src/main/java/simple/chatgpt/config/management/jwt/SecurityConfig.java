@@ -35,6 +35,7 @@ public class SecurityConfig {
     // ===================== Constants =====================
     public static final String PUBLIC_FOLDER = "/public/**";
     public static final String JS_FOLDER    = "/management/js/**";
+    public static final String OPENAI_FOLDER  = "/management/jsp/openai/**";
     
     public static final String JSP_AUTH_URL   = "/management/jsp/auth/**";
     public static final String API_URL        = "/api/**";
@@ -79,6 +80,7 @@ public class SecurityConfig {
         http.authorizeHttpRequests(auth -> auth
         	.requestMatchers(new AntPathRequestMatcher(PUBLIC_FOLDER)).permitAll()
         	.requestMatchers(new AntPathRequestMatcher(JS_FOLDER)).permitAll()
+        	.requestMatchers(new AntPathRequestMatcher(OPENAI_FOLDER)).permitAll()
             .requestMatchers(new AntPathRequestMatcher(ALL_JS_FILE)).permitAll()
             .requestMatchers(new AntPathRequestMatcher(ALL_CSS_FILE)).permitAll()
             .requestMatchers(new AntPathRequestMatcher(ALL_JSPF_FILE)).permitAll()
