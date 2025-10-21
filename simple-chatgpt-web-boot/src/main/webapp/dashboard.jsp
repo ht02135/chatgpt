@@ -59,6 +59,14 @@
 
 <hr>
 
+<!-- Role Management Section -->
+<div class="section">
+    <h2>Open AI Management</h2>
+    <p><a href="${pageContext.request.contextPath}/management/jsp/openai/agentcrew/agentCrewProofRead.jsp">Agent Crew Proof Read</a></p>
+</div>
+
+<hr>
+
 <!-- Logout Section -->
 <div class="section">
     <p><a href="${pageContext.request.contextPath}/management/jsp/auth/logout.jsp">Logout</a></p>
