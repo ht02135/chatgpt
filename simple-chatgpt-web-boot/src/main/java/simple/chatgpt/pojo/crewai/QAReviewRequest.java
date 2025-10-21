@@ -3,11 +3,13 @@ package simple.chatgpt.pojo.crewai;
 import org.apache.ibatis.type.Alias;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.stereotype.Component;
 
 /*
  hung: POJO representing a quality assurance review request
  */
-@Alias("crewaiQAReviewRequest")
+@Alias("crewaiQAReviewRequest")		// for MyBatis    
+@Component("crewaiQAReviewRequest")	// for Spring DI/autowire
 public class QAReviewRequest {
     private static final Logger logger = LogManager.getLogger(QAReviewRequest.class);
 

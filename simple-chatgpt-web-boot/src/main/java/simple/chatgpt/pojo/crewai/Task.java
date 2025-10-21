@@ -3,11 +3,13 @@ package simple.chatgpt.pojo.crewai;
 import org.apache.ibatis.type.Alias;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.stereotype.Component;
 
 /*
  hung: represents a single assignment for an Agent
  */
-@Alias("crewaiTask")
+@Alias("crewaiTask")		// for MyBatis    
+@Component("crewaiTask")	// for Spring DI/autowire
 public class Task {
     private static final Logger logger = LogManager.getLogger(Task.class);
 

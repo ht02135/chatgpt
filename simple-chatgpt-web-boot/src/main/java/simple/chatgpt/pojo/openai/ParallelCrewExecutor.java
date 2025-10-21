@@ -9,11 +9,13 @@ import java.util.concurrent.TimeUnit;
 import org.apache.ibatis.type.Alias;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.stereotype.Component;
 
 /*
  hung: parallel executor - agents pick up tasks from a shared queue, returns outputs
  */
-@Alias("openaiParallelCrewExecutor")
+@Alias("openaiParallelCrewExecutor")		// for MyBatis    
+@Component("openaiParallelCrewExecutor")	// for Spring DI/autowire
 public class ParallelCrewExecutor {
     private static final Logger logger = LogManager.getLogger(ParallelCrewExecutor.class);
 

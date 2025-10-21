@@ -3,6 +3,7 @@ package simple.chatgpt.pojo.openai;
 import org.apache.ibatis.type.Alias;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.stereotype.Component;
 
 import com.openai.client.OpenAIClient;
 import com.openai.core.JsonValue;
@@ -11,7 +12,8 @@ import com.openai.models.chat.completions.ChatCompletion;
 import com.openai.models.chat.completions.ChatCompletionCreateParams;
 import com.openai.models.chat.completions.ChatCompletionMessage;
 
-@Alias("openaiAgent")
+@Alias("openaiAgent")		// for MyBatis    
+@Component("openaiAgent")	// for Spring DI/autowire
 public class Agent {
     private static final Logger logger = LogManager.getLogger(Agent.class);
 

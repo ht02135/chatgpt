@@ -3,11 +3,13 @@ package simple.chatgpt.pojo.openai;
 import org.apache.ibatis.type.Alias;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.stereotype.Component;
 
 /*
  hung: POJO representing a customer support inquiry
  */
-@Alias("openaiSupportInquiry")
+@Alias("openaiSupportInquiry")		// for MyBatis    
+@Component("openaiSupportInquiry")	// for Spring DI/autowire
 public class SupportInquiry {
     private static final Logger logger = LogManager.getLogger(SupportInquiry.class);
 
