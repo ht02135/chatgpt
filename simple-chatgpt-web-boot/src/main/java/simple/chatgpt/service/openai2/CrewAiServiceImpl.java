@@ -7,6 +7,7 @@ import java.util.UUID;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.openai.client.OpenAIClient;
@@ -34,6 +35,7 @@ public class CrewAiServiceImpl implements CrewAiService {
     private final ParallelCrewExecutor executor;
     private final Map<String, String> taskResults = new HashMap<>();
 
+    @Autowired
     public CrewAiServiceImpl(OpenAIClient client) {
         logger.debug("CrewAiServiceImpl constructor called");
         logger.debug("CrewAiServiceImpl client param={}", client);

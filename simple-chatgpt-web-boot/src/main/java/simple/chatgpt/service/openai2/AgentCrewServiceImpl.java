@@ -7,6 +7,7 @@ import java.util.UUID;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.openai.client.OpenAIClient;
@@ -32,6 +33,7 @@ public class AgentCrewServiceImpl implements AgentCrewService {
     /*
      * hung: constructor with dependency injection
      */
+    @Autowired
     public AgentCrewServiceImpl(OpenAIClient client) {
         logger.debug("AgentCrewServiceImpl constructor called");
         logger.debug("AgentCrewServiceImpl client={}", client);

@@ -3,6 +3,7 @@ package simple.chatgpt.service.crewai;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import simple.chatgpt.gateway.crewai.CrewAiGateway;
@@ -25,7 +26,11 @@ public class ParallelCrewAiServiceImpl implements CrewAiService {
     private final TaskQueue taskQueue;
 
     @Autowired
-    public ParallelCrewAiServiceImpl(CrewAiGateway gateway, AgentRegistry agentRegistry, TaskQueue taskQueue) {
+    public ParallelCrewAiServiceImpl(
+    	CrewAiGateway gateway, 
+    	@Qualifier("crewaiAgentRegistry") AgentRegistry agentRegistry, 
+    	@Qualifier("crewaiTaskQueue") TaskQueue taskQueue) 
+    {
         logger.debug("ParallelCrewAiServiceImpl constructor called");
         logger.debug("ParallelCrewAiServiceImpl gateway={}", gateway);
         logger.debug("ParallelCrewAiServiceImpl agentRegistry={}", agentRegistry);

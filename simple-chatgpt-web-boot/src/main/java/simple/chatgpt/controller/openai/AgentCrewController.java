@@ -2,6 +2,7 @@ package simple.chatgpt.controller.openai;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,6 +24,7 @@ public class AgentCrewController {
     /*
      * hung: constructor injection using openaiAgentCrewService
      */
+    @Autowired
     public AgentCrewController(@Qualifier("openaiAgentCrewService") AgentCrewService agentCrewService) {
         logger.debug("AgentCrewController constructor called");
         logger.debug("AgentCrewController agentCrewService={}", agentCrewService);

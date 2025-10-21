@@ -7,6 +7,7 @@ import java.util.UUID;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.openai.client.OpenAIClient;
@@ -32,6 +33,7 @@ public class CustomerOutreachServiceImpl implements CustomerOutreachService {
     private final ParallelCrewExecutor executor;
     private final Map<String, String> taskResults = new HashMap<>();
 
+    @Autowired
     public CustomerOutreachServiceImpl(OpenAIClient client) {
         logger.debug("CustomerOutreachServiceImpl constructor called");
         logger.debug("CustomerOutreachServiceImpl client param={}", client);

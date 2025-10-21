@@ -3,6 +3,7 @@ package simple.chatgpt.service.crewai;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import simple.chatgpt.gateway.crewai.CrewAiGateway;
@@ -24,7 +25,11 @@ public class CustomerOutreachServiceImpl implements CustomerOutreachService {
     private final TaskQueue taskQueue;
 
     @Autowired
-    public CustomerOutreachServiceImpl(CrewAiGateway gateway, AgentRegistry agentRegistry, TaskQueue taskQueue) {
+    public CustomerOutreachServiceImpl(
+    	CrewAiGateway gateway, 
+    	@Qualifier("crewaiAgentRegistry") AgentRegistry agentRegistry, 
+    	@Qualifier("crewaiTaskQueue") TaskQueue taskQueue) 
+    {
         logger.debug("CustomerOutreachServiceImpl constructor called");
         logger.debug("CustomerOutreachServiceImpl gateway={}", gateway);
         logger.debug("CustomerOutreachServiceImpl agentRegistry={}", agentRegistry);

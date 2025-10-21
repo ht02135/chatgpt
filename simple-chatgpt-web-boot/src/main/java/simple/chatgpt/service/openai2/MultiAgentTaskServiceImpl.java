@@ -7,6 +7,7 @@ import java.util.UUID;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.openai.client.OpenAIClient;
@@ -32,6 +33,7 @@ public class MultiAgentTaskServiceImpl implements MultiAgentTaskService {
     private final ParallelCrewExecutor executor;
     private final Map<String, String> taskResults = new HashMap<>();
 
+    @Autowired
     public MultiAgentTaskServiceImpl(OpenAIClient client) {
         logger.debug("MultiAgentTaskServiceImpl constructor called");
         logger.debug("MultiAgentTaskServiceImpl client={}", client);

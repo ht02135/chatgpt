@@ -7,6 +7,7 @@ import java.util.UUID;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.openai.client.OpenAIClient;
@@ -32,6 +33,7 @@ public class SequentialCustomerOutreachServiceImpl implements CustomerOutreachSe
     /*
      * hung: constructor-based dependency injection
      */
+    @Autowired
     public SequentialCustomerOutreachServiceImpl(OpenAIClient client) {
         logger.debug("SequentialCustomerOutreachServiceImpl constructor called");
         logger.debug("SequentialCustomerOutreachServiceImpl client param={}", client);
