@@ -9,7 +9,6 @@ import org.springframework.stereotype.Component;
  hung: represents a single assignment for an Agent
  */
 @Alias("crewaiTask")		// for MyBatis    
-//@Component("crewaiTask")	// for Spring DI/autowire
 public class Task {
     private static final Logger logger = LogManager.getLogger(Task.class);
 

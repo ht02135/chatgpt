@@ -13,7 +13,6 @@ import com.openai.models.chat.completions.ChatCompletionCreateParams;
 import com.openai.models.chat.completions.ChatCompletionMessage;
 
 @Alias("openaiAgent")		// for MyBatis    
-//@Component("openaiAgent")	// for Spring DI/autowire
 public class Agent {
     private static final Logger logger = LogManager.getLogger(Agent.class);
 

@@ -11,7 +11,6 @@ import simple.chatgpt.gateway.crewai.CrewAiGateway;
  hung: simple agent that delegates work to CrewAiGateway
  */
 @Alias("crewaiAgent")		// for MyBatis    
-//@Component("crewaiAgent")	// for Spring DI/autowire
 public class Agent {
     private static final Logger logger = LogManager.getLogger(Agent.class);
 

@@ -9,7 +9,6 @@ import org.springframework.stereotype.Component;
  hung: POJO representing a customer support inquiry
  */
 @Alias("crewaiSupportInquiry")		// for MyBatis    
-//@Component("crewaiSupportInquiry")	// for Spring DI/autowire
 public class SupportInquiry {
     private static final Logger logger = LogManager.getLogger(SupportInquiry.class);
 
