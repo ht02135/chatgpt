@@ -3,7 +3,6 @@ package simple.chatgpt.pojo.openai;
 import org.apache.ibatis.type.Alias;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.stereotype.Component;
 
 import com.openai.client.OpenAIClient;
 import com.openai.core.JsonValue;
@@ -71,6 +70,9 @@ public class Agent {
     /*
      * hung: advanced perform using OpenAI API (returns generated result)
      */
+    /*
+     * hung: advanced perform using OpenAI API (returns generated result)
+     */
     public String perform(Task task, String input) {
         logger.debug("perform called (advanced) agent={}, task={}, input={}", this, task, input);
 
@@ -83,10 +85,12 @@ public class Agent {
                     .addMessage(ChatCompletionMessage.builder()
                             .role(JsonValue.from("system"))
                             .content(backstory != null ? backstory : "You are an AI agent performing tasks.")
+                            .refusal(JsonValue.from(null)) // ✅ NEW: required since OpenAI SDK 4.5.0
                             .build())
                     .addMessage(ChatCompletionMessage.builder()
-                            .role(JsonValue.from(role != null ? role : "user")) // use agent's role if defined
+                            .role(JsonValue.from(role != null ? role : "user"))
                             .content("Task: " + task.getDescription() + "\nInput: " + input)
+                            .refusal(JsonValue.from(null)) // ✅ NEW: also required
                             .build())
                     .build();
             logger.debug("perform OpenAI params built");
