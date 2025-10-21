@@ -1,11 +1,13 @@
 package simple.chatgpt.pojo.crewai;
 
+import org.apache.ibatis.type.Alias;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /*
  hung: represents a single assignment for an Agent
  */
+@Alias("crewaiTask")
 public class Task {
     private static final Logger logger = LogManager.getLogger(Task.class);
 

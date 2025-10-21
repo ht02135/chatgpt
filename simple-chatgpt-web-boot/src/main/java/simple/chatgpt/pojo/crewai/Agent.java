@@ -1,5 +1,6 @@
 package simple.chatgpt.pojo.crewai;
 
+import org.apache.ibatis.type.Alias;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -8,6 +9,7 @@ import simple.chatgpt.gateway.crewai.CrewAiGateway;
 /*
  hung: simple agent that delegates work to CrewAiGateway
  */
+@Alias("crewaiAgent")
 public class Agent {
     private static final Logger logger = LogManager.getLogger(Agent.class);
 

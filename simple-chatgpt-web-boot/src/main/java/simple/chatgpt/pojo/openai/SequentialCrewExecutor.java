@@ -2,12 +2,14 @@ package simple.chatgpt.pojo.openai;
 
 import java.util.List;
 
+import org.apache.ibatis.type.Alias;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /*
  hung: sequential executor - runs tasks in order
  */
+@Alias("openaiSequentialCrewExecutor")
 public class SequentialCrewExecutor {
     private static final Logger logger = LogManager.getLogger(SequentialCrewExecutor.class);
 

@@ -1,8 +1,10 @@
 package simple.chatgpt.pojo.openai;
 
+import org.apache.ibatis.type.Alias;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+@Alias("openaiTask")
 public class Task {
     private static final Logger logger = LogManager.getLogger(Task.class);
 

@@ -1,11 +1,13 @@
 package simple.chatgpt.pojo.crewai;
 
+import org.apache.ibatis.type.Alias;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /*
  hung: POJO representing a customer support inquiry
  */
+@Alias("crewaiSupportInquiry")
 public class SupportInquiry {
     private static final Logger logger = LogManager.getLogger(SupportInquiry.class);
 

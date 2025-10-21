@@ -1,5 +1,6 @@
 package simple.chatgpt.pojo.openai;
 
+import org.apache.ibatis.type.Alias;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -10,6 +11,7 @@ import com.openai.models.chat.completions.ChatCompletion;
 import com.openai.models.chat.completions.ChatCompletionCreateParams;
 import com.openai.models.chat.completions.ChatCompletionMessage;
 
+@Alias("openaiAgent")
 public class Agent {
     private static final Logger logger = LogManager.getLogger(Agent.class);
 

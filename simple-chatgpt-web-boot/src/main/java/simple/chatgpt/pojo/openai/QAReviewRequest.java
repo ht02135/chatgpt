@@ -1,11 +1,13 @@
 package simple.chatgpt.pojo.openai;
 
+import org.apache.ibatis.type.Alias;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /*
  hung: POJO representing a quality assurance review request
  */
+@Alias("openaiQAReviewRequest")
 public class QAReviewRequest {
     private static final Logger logger = LogManager.getLogger(QAReviewRequest.class);
 

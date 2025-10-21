@@ -4,9 +4,11 @@ import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import org.apache.ibatis.type.Alias;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-	
+
+@Alias("openaiTaskQueue")
 public class TaskQueue {
     private static final Logger logger = LogManager.getLogger(TaskQueue.class);
 

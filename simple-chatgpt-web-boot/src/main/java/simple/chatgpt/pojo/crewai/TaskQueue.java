@@ -2,9 +2,11 @@ package simple.chatgpt.pojo.crewai;
 
 import java.util.List;
 
+import org.apache.ibatis.type.Alias;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+@Alias("crewaiTaskQueue")
 public class TaskQueue {
     private static final Logger logger = LogManager.getLogger(TaskQueue.class);
 

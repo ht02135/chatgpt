@@ -4,12 +4,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.ibatis.type.Alias;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /*
  hung: simple registry for agents
  */
+@Alias("crewaiAgentRegistry")
 public class AgentRegistry {
     private static final Logger logger = LogManager.getLogger(AgentRegistry.class);
 
