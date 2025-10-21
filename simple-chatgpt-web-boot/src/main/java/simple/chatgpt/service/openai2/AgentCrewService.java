@@ -5,6 +5,11 @@ public interface AgentCrewService {
     /*
      * hung: execute the content creation crew workflow
      */
-    void executeCrewWorkflow(String topic);
+	String executeCrewWorkflow(String topic);
 
+    /**
+     * hung: get status of a task by taskId/kickoffId
+     */
+    String getStatus(String taskId) throws Exception;
 }
+
