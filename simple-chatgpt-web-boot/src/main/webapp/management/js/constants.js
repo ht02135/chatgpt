@@ -65,3 +65,6 @@ console.debug("API_PAGE_ROLE_GROUP =", API_PAGE_ROLE_GROUP);
 
 const API_USER_ROLE_GROUP = API_CONTEXT_PATH + "/api/management/userrolegroups";
 console.debug("API_USER_ROLE_GROUP =", API_USER_ROLE_GROUP);
+
+const API_OPENAI_AGENT_CREW = API_CONTEXT_PATH + "/api/openai/agentcrew";
+console.debug("API_OPENAI_AGENT_CREW =", API_OPENAI_AGENT_CREW);
