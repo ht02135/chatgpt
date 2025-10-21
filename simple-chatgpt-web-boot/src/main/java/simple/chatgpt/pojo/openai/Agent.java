@@ -58,10 +58,11 @@ public class Agent {
      * hung: perform task using OpenAI (void version)
      * simply delegates to the advanced method with empty input
      */
-    public void perform(Task task) {
+    public String perform(Task task) {
         logger.debug("perform called (simple) task={} by agent={}", task, name != null ? name : role);
         String result = perform(task, "");  // delegate to OpenAI-enabled method
         logger.debug("perform (simple) completed with result={}", result);
+        return result;
     }
 
     /*

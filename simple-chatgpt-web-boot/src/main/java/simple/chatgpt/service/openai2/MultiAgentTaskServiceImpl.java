@@ -19,6 +19,7 @@ import simple.chatgpt.pojo.openai.TaskQueue;
 
 /*
  * hung: parallel multi-agent service implementation
+ * Fixed: captures executor outputs instead of redundant agent.perform() calls
  */
 @Service
 public class MultiAgentTaskServiceImpl implements MultiAgentTaskService {
@@ -31,9 +32,6 @@ public class MultiAgentTaskServiceImpl implements MultiAgentTaskService {
     private final ParallelCrewExecutor executor;
     private final Map<String, String> taskResults = new HashMap<>();
 
-    /*
-     * hung: constructor-based dependency injection
-     */
     public MultiAgentTaskServiceImpl(OpenAIClient client) {
         logger.debug("MultiAgentTaskServiceImpl constructor called");
         logger.debug("MultiAgentTaskServiceImpl client={}", client);
@@ -50,9 +48,6 @@ public class MultiAgentTaskServiceImpl implements MultiAgentTaskService {
         initAgents();
     }
 
-    /*
-     * hung: register agents for parallel workflow
-     */
     private void initAgents() {
         logger.debug("initAgents called");
 
@@ -67,9 +62,6 @@ public class MultiAgentTaskServiceImpl implements MultiAgentTaskService {
         logger.debug("initAgents agents registered={}", agentRegistry.getAgents());
     }
 
-    /*
-     * hung: execute multi-agent workflow
-     */
     @Override
     public String executeMultiAgentWorkflow() {
         logger.debug("executeMultiAgentWorkflow called");
@@ -86,30 +78,26 @@ public class MultiAgentTaskServiceImpl implements MultiAgentTaskService {
                 .orElse(agentRegistry.getAgents().get(0));
         logger.debug("executeMultiAgentWorkflow agent2={}", agent2);
 
-        /*
-         * hung: DO NOT alter task descriptions
-         */
         Task task1 = new Task(agent1, "Process data segment A", "Output A");
-        logger.debug("executeMultiAgentWorkflow task1={}", task1);
-
         Task task2 = new Task(agent2, "Analyze image set B", "Output B");
-        logger.debug("executeMultiAgentWorkflow task2={}", task2);
-
         Task task3 = new Task(agent1, "Generate summary report C", "Output C");
+
+        logger.debug("executeMultiAgentWorkflow task1={}", task1);
+        logger.debug("executeMultiAgentWorkflow task2={}", task2);
         logger.debug("executeMultiAgentWorkflow task3={}", task3);
 
         taskQueue.enqueue(Arrays.asList(task1, task2, task3));
         logger.debug("executeMultiAgentWorkflow taskQueue after enqueue={}", taskQueue);
 
-        executor.executeAll();
-        logger.debug("executeMultiAgentWorkflow executor execution complete");
+        // FIXED: capture outputs from executor
+        Map<Task, String> results = executor.executeAllWithResults();
+        logger.debug("executeMultiAgentWorkflow executor results={}", results);
 
-        // Example final result aggregation (simulate final outcome)
         String result = String.join(", ",
-                agent1.perform(task1, "Task A input"),
-                agent2.perform(task2, "Task B input"),
-                agent1.perform(task3, "Task C input"));
-        logger.debug("executeMultiAgentWorkflow result={}", result);
+                results.get(task1),
+                results.get(task2),
+                results.get(task3));
+        logger.debug("executeMultiAgentWorkflow aggregated result={}", result);
 
         String taskId = UUID.randomUUID().toString();
         taskResults.put(taskId, result);
@@ -118,9 +106,6 @@ public class MultiAgentTaskServiceImpl implements MultiAgentTaskService {
         return taskId;
     }
 
-    /*
-     * hung: retrieve task result
-     */
     @Override
     public String getStatus(String taskId) throws Exception {
         logger.debug("getStatus called");
@@ -135,7 +120,6 @@ public class MultiAgentTaskServiceImpl implements MultiAgentTaskService {
         logger.debug("getStatus result={}", result);
 
         if (result == null) {
-            logger.debug("getStatus no result found for taskId={}", taskId);
             return "NOT_FOUND";
         }
 

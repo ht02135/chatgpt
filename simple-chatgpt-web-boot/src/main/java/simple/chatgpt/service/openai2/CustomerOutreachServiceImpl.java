@@ -19,6 +19,7 @@ import simple.chatgpt.pojo.openai.TaskQueue;
 
 /*
  * hung: Spring-managed service that orchestrates multi-agent customer outreach workflows
+ * Fixed: executor outputs captured properly
  */
 @Service
 public class CustomerOutreachServiceImpl implements CustomerOutreachService {
@@ -31,9 +32,6 @@ public class CustomerOutreachServiceImpl implements CustomerOutreachService {
     private final ParallelCrewExecutor executor;
     private final Map<String, String> taskResults = new HashMap<>();
 
-    /*
-     * hung: constructor-based dependency injection
-     */
     public CustomerOutreachServiceImpl(OpenAIClient client) {
         logger.debug("CustomerOutreachServiceImpl constructor called");
         logger.debug("CustomerOutreachServiceImpl client param={}", client);
@@ -50,9 +48,6 @@ public class CustomerOutreachServiceImpl implements CustomerOutreachService {
         initAgents();
     }
 
-    /*
-     * hung: register outreach-related agents
-     */
     private void initAgents() {
         logger.debug("initAgents called");
 
@@ -79,16 +74,15 @@ public class CustomerOutreachServiceImpl implements CustomerOutreachService {
                 .orElse(agentRegistry.getAgents().get(0));
         logger.debug("kickoffVenueTasks agent={}", agent);
 
-        String description = "Coordinate venue booking, setup, and layout.";
-        String expectedOutput = "List of confirmed venues with setup instructions.";
-
-        Task task = new Task(agent, description, expectedOutput);
+        Task task = new Task(agent,
+                "Coordinate venue booking, setup, and layout.",
+                "List of confirmed venues with setup instructions.");
         logger.debug("kickoffVenueTasks task={}", task);
 
         taskQueue.enqueue(Collections.singletonList(task));
-        executor.executeAll();
 
-        String result = agent.perform(task, "Venue coordination kickoff");
+        Map<Task, String> results = executor.executeAllWithResults();
+        String result = results.get(task);
         logger.debug("kickoffVenueTasks result={}", result);
 
         String taskId = UUID.randomUUID().toString();
@@ -108,16 +102,15 @@ public class CustomerOutreachServiceImpl implements CustomerOutreachService {
                 .orElse(agentRegistry.getAgents().get(0));
         logger.debug("kickoffLogisticsTasks agent={}", agent);
 
-        String description = "Plan transportation, catering, and materials.";
-        String expectedOutput = "Detailed logistics plan and supplier confirmations.";
-
-        Task task = new Task(agent, description, expectedOutput);
+        Task task = new Task(agent,
+                "Plan transportation, catering, and materials.",
+                "Detailed logistics plan and supplier confirmations.");
         logger.debug("kickoffLogisticsTasks task={}", task);
 
         taskQueue.enqueue(Collections.singletonList(task));
-        executor.executeAll();
 
-        String result = agent.perform(task, "Logistics coordination kickoff");
+        Map<Task, String> results = executor.executeAllWithResults();
+        String result = results.get(task);
         logger.debug("kickoffLogisticsTasks result={}", result);
 
         String taskId = UUID.randomUUID().toString();
@@ -137,16 +130,15 @@ public class CustomerOutreachServiceImpl implements CustomerOutreachService {
                 .orElse(agentRegistry.getAgents().get(0));
         logger.debug("kickoffMarketingTasks agent={}", agent);
 
-        String description = "Prepare marketing content, emails, and outreach materials.";
-        String expectedOutput = "Marketing campaign assets ready for launch.";
-
-        Task task = new Task(agent, description, expectedOutput);
+        Task task = new Task(agent,
+                "Prepare marketing content, emails, and outreach materials.",
+                "Marketing campaign assets ready for launch.");
         logger.debug("kickoffMarketingTasks task={}", task);
 
         taskQueue.enqueue(Collections.singletonList(task));
-        executor.executeAll();
 
-        String result = agent.perform(task, "Marketing kickoff input");
+        Map<Task, String> results = executor.executeAllWithResults();
+        String result = results.get(task);
         logger.debug("kickoffMarketingTasks result={}", result);
 
         String taskId = UUID.randomUUID().toString();
@@ -170,7 +162,6 @@ public class CustomerOutreachServiceImpl implements CustomerOutreachService {
         logger.debug("getStatus result={}", result);
 
         if (result == null) {
-            logger.debug("getStatus no result found for taskId={}", taskId);
             return "NOT_FOUND";
         }
 

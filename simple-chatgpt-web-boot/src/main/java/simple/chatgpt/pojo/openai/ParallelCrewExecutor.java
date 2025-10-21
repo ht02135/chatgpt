@@ -1,5 +1,7 @@
 package simple.chatgpt.pojo.openai;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -8,7 +10,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 /*
- hung: parallel executor - agents pick up tasks from a shared queue
+ hung: parallel executor - agents pick up tasks from a shared queue, returns outputs
  */
 public class ParallelCrewExecutor {
     private static final Logger logger = LogManager.getLogger(ParallelCrewExecutor.class);
@@ -29,42 +31,32 @@ public class ParallelCrewExecutor {
         logger.debug("ParallelCrewExecutor this={}", this);
     }
 
-    private static void init() {
-        logger.debug("init called");
-    }
-
-    public void setAgentRegistry(AgentRegistry agentRegistry) {
-        logger.debug("setAgentRegistry called");
-        logger.debug("setAgentRegistry agentRegistry={}", agentRegistry);
-
-        if (agentRegistry != null) {
-            this.executor = Executors.newFixedThreadPool(Math.max(1, agentRegistry.getAgents().size()));
-            logger.debug("Executor reinitialized due to new agentRegistry");
-        }
-    }
-
     /**
-     * Execute all tasks in parallel. Agents pull tasks from shared queue.
+     * hung: execute all tasks in parallel and return a map of Task -> output
      */
-    public void executeAll() {
-        logger.debug("executeAll called");
+    public Map<Task, String> executeAllWithResults() {
+        logger.debug("executeAllWithResults called");
+
+        Map<Task, String> results = new ConcurrentHashMap<>();
 
         if (agentRegistry == null || agentRegistry.getAgents().isEmpty()) {
-            logger.warn("executeAll no agents registered");
-            return;
+            logger.warn("executeAllWithResults no agents registered");
+            return results;
         }
         if (taskQueue == null) {
-            logger.warn("executeAll taskQueue is null");
-            return;
+            logger.warn("executeAllWithResults taskQueue is null");
+            return results;
         }
 
         for (Agent agent : agentRegistry.getAgents()) {
-            logger.debug("executeAll submitting agent={}", agent);
+            logger.debug("executeAllWithResults submitting agent={}", agent);
             executor.submit(() -> {
                 Task task;
                 while ((task = taskQueue.dequeue()) != null) {
                     logger.debug("Agent {} picked up task={}", agent.getName(), task);
-                    agent.perform(task);
+                    String output = agent.perform(task);
+                    logger.debug("Agent {} produced output={}", agent.getName(), output);
+                    results.put(task, output);
                 }
                 logger.debug("Agent {} found no more tasks", agent.getName());
             });
@@ -73,11 +65,13 @@ public class ParallelCrewExecutor {
         executor.shutdown();
         try {
             boolean finished = executor.awaitTermination(10, TimeUnit.MINUTES);
-            logger.debug("executeAll awaitTermination finished={}", finished);
+            logger.debug("executeAllWithResults awaitTermination finished={}", finished);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            logger.error("executeAll interrupted", e);
+            logger.error("executeAllWithResults interrupted", e);
         }
-        logger.debug("executeAll completed");
+
+        logger.debug("executeAllWithResults completed, results={}", results);
+        return results;
     }
 }
