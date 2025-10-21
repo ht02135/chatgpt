@@ -128,9 +128,8 @@ public class AgentCrewServiceImpl implements AgentCrewService {
         String initialInput = topic;
         logger.debug("executeCrewWorkflow initialInput={}", initialInput);
 
-        executor.execute(initialInput);
-
-        String result = editor.perform(editTask, "Final review stage");
+        // run thru tasks and do final editTask review
+        String result = editor.perform(editTask, executor.execute(initialInput));
         logger.debug("executeCrewWorkflow result={}", result);
 
         String taskId = UUID.randomUUID().toString();

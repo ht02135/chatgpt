@@ -155,9 +155,8 @@ public class SequentialCustomerOutreachServiceImpl implements CustomerOutreachSe
         String initialInput = "Kickoff marketing coordination sequence";
         logger.debug("kickoffMarketingTasks initialInput={}", initialInput);
 
-        seqExecutor.execute(initialInput);
-
-        String result = agent.perform(task, "Marketing kickoff input");
+        // run thru tasks and do final editTask review
+        String result = agent.perform(task, seqExecutor.execute(initialInput));
         logger.debug("kickoffMarketingTasks result={}", result);
 
         String taskId = UUID.randomUUID().toString();

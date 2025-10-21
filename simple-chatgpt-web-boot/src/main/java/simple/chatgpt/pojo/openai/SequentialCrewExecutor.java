@@ -23,20 +23,14 @@ public class SequentialCrewExecutor {
     private static void init() {
         logger.debug("init called");
     }
-
-    public void setTasks(List<Task> tasks) {
-        logger.debug("setTasks called");
-        logger.debug("setTasks tasks={}", tasks);
-        this.tasks = tasks;
-    }
-
-    public void execute(String initialInput) {
+    
+    public String execute(String initialInput) {
         logger.debug("execute called");
         logger.debug("execute initialInput={}", initialInput);
 
         if (tasks == null || tasks.isEmpty()) {
             logger.warn("execute no tasks configured");
-            return;
+            return "";
         }
 
         String currentInput = initialInput;
@@ -48,8 +42,16 @@ public class SequentialCrewExecutor {
             String output = agent.perform(task, currentInput);
             logger.debug("execute output={}", output);
 
+            /*
+             * hung: Pass the previous agent’s output to the next agent — 
+             * but if it’s null, use an empty string instead.
+             */
             currentInput = output != null ? output : "";
         }
+
         logger.debug("execute completed");
+        logger.debug("execute returning currentInput={}", currentInput);
+        return currentInput;
     }
+
 }
