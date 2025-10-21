@@ -30,9 +30,4 @@ public class CrewAiConfig {
     public CrewAiGateway crewAiGateway() {
         return new CrewAiGateway("https://api.crewai.example.com", "YOUR_BEARER_TOKEN");
     }
-
-    @Bean
-    public CrewAiService crewAiService(CrewAiGateway gateway) {
-        return new CrewAiServiceImpl(gateway);
-    }
 }
