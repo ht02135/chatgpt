@@ -16,6 +16,11 @@ public class TaskQueue {
 
     private final Queue<Task> queue = new ConcurrentLinkedQueue<>();
 
+    public TaskQueue() {
+        logger.debug("TaskQueue constructor called");
+        logger.debug("TaskQueue this={}", this);
+    }
+    
     public void enqueue(List<Task> tasks) {
         logger.debug("enqueue tasks={}", tasks);
         queue.addAll(tasks);

@@ -6,7 +6,7 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
 
 @Alias("openaiTask")		// for MyBatis    
-@Component("openaiTask")	// for Spring DI/autowire
+//@Component("openaiTask")	// for Spring DI/autowire
 public class Task {
     private static final Logger logger = LogManager.getLogger(Task.class);
 

@@ -14,6 +14,11 @@ public class TaskQueue {
 
     private final java.util.Queue<Task> queue = new java.util.LinkedList<>();
 
+    public TaskQueue() {
+        logger.debug("TaskQueue constructor called");
+        logger.debug("TaskQueue this={}", this);
+    }
+    
     // existing single-task enqueue
     public void enqueue(Task task) {
         logger.debug("enqueue called (single)");

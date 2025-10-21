@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
  hung: sequential executor - runs tasks in order
  */
 @Alias("openaiSequentialCrewExecutor")		// for MyBatis    
-@Component("openaiSequentialCrewExecutor")	// for Spring DI/autowire
+//@Component("openaiSequentialCrewExecutor")	// for Spring DI/autowire
 public class SequentialCrewExecutor {
     private static final Logger logger = LogManager.getLogger(SequentialCrewExecutor.class);
 

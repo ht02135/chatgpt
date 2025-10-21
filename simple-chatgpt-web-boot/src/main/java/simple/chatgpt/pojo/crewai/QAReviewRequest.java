@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
  hung: POJO representing a quality assurance review request
  */
 @Alias("crewaiQAReviewRequest")		// for MyBatis    
-@Component("crewaiQAReviewRequest")	// for Spring DI/autowire
+//@Component("crewaiQAReviewRequest")	// for Spring DI/autowire
 public class QAReviewRequest {
     private static final Logger logger = LogManager.getLogger(QAReviewRequest.class);
 
