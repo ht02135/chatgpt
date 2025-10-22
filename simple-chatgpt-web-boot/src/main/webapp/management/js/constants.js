@@ -30,7 +30,7 @@ const API_AUTH_REGISTER = JSP_CONTEXT_PATH + "/api/management/auth/register";
 console.debug("API_AUTH_REGISTER =", API_AUTH_REGISTER);
 
 const API_AUTH_VALIDATE = JSP_CONTEXT_PATH + "/api/management/auth/validate";
-console.debug("API_AUTH_REGISTER =", API_AUTH_VALIDATE);
+console.debug("API_AUTH_VALIDATE =", API_AUTH_VALIDATE);
 
 // API
 const API_CONTEXT_PATH = "/" + window.location.pathname.split("/")[1];
