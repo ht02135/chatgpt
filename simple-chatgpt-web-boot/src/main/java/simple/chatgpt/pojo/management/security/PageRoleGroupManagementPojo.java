@@ -5,7 +5,7 @@ import java.sql.Timestamp;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import simple.chatgpt.pojo.management.security.jwt.JwtRoleGroup;
+import simple.chatgpt.pojo.management.jwt.JwtRoleGroup;
 
 public class PageRoleGroupManagementPojo implements JwtRoleGroup {
 

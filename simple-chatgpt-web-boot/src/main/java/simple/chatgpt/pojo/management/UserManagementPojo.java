@@ -2,8 +2,8 @@ package simple.chatgpt.pojo.management;
 
 import java.util.List;
 
+import simple.chatgpt.pojo.management.jwt.JwtUser;
 import simple.chatgpt.pojo.management.security.RoleGroupManagementPojo;
-import simple.chatgpt.pojo.management.security.jwt.JwtUser;
 import simple.chatgpt.validator.management.user.ValidManagementUser;
 
 @ValidManagementUser

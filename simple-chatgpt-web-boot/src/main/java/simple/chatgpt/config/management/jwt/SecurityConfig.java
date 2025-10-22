@@ -14,7 +14,9 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
-import simple.chatgpt.filter.management.security.awt.DynamicAccessFilter;
+import simple.chatgpt.filter.management.awt.CustomAuthenticationEntryPoint;
+import simple.chatgpt.filter.management.awt.DynamicAccessFilter;
+import simple.chatgpt.filter.management.awt.JwtAuthenticationFilter;
 
 /*
 Goals:

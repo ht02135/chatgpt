@@ -1,4 +1,4 @@
-package simple.chatgpt.service.management.security.jwt;
+package simple.chatgpt.service.management.jwt;
 
 import java.util.List;
 import java.util.stream.Stream;

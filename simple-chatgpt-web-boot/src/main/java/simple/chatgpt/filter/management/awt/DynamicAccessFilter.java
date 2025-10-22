@@ -1,4 +1,4 @@
-package simple.chatgpt.filter.management.security.awt;
+package simple.chatgpt.filter.management.awt;
 
 import java.io.IOException;
 import java.util.List;
@@ -15,7 +15,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import simple.chatgpt.service.management.security.jwt.JwtPageRoleGroupService;
+import simple.chatgpt.service.management.jwt.JwtPageRoleGroupService;
 
 /*
 hung : dont remove

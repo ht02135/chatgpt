@@ -1,4 +1,4 @@
-package simple.chatgpt.config.management.jwt;
+package simple.chatgpt.filter.management.awt;
 
 import java.io.IOException;
 

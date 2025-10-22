@@ -1,4 +1,4 @@
-package simple.chatgpt.controller.management.security.awt;
+package simple.chatgpt.controller.management.awt;
 
 public class UserRegistrationRequest {
 

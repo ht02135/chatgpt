@@ -1,4 +1,4 @@
-package simple.chatgpt.controller.management.security.awt;
+package simple.chatgpt.controller.management.awt;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.jsonwebtoken.JwtException;
-import simple.chatgpt.config.management.jwt.JwtTokenProvider;
+import simple.chatgpt.filter.management.awt.JwtTokenProvider;
 import simple.chatgpt.util.Response;
 
 @RestController

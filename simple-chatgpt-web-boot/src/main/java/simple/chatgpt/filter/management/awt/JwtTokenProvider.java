@@ -1,4 +1,4 @@
-package simple.chatgpt.config.management.jwt;
+package simple.chatgpt.filter.management.awt;
 
 import java.util.Date;
 import java.util.List;
@@ -18,7 +18,7 @@ import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
-import simple.chatgpt.service.management.security.jwt.JwtUserDetailsServiceImpl;
+import simple.chatgpt.service.management.jwt.JwtUserDetailsServiceImpl;
 
 @Component
 public class JwtTokenProvider {

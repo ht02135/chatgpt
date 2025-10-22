@@ -1,4 +1,4 @@
-package simple.chatgpt.pojo.management.security.jwt;
+package simple.chatgpt.pojo.management.jwt;
 
 public interface JwtRoleGroup {
 
