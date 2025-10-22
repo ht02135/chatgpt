@@ -1,5 +1,6 @@
 package simple.chatgpt.controller.management.security.awt;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -12,11 +13,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import io.jsonwebtoken.JwtException;
 import simple.chatgpt.config.management.jwt.JwtTokenProvider;
 import simple.chatgpt.util.Response;
 
@@ -116,5 +119,61 @@ public class AuthController {
         logger.debug("logout cookie cleared for jwtToken, path={}", cookie.getPath());
 
         return ResponseEntity.ok(Response.success("Logout successful", null, HttpStatus.OK.value()));
+    }
+    
+    @GetMapping("/validate")
+    public ResponseEntity<Map<String, Object>> validateToken(HttpServletRequest request, HttpServletResponse response) {
+        logger.debug("validateToken called");
+        logger.debug("validateToken request={}", request);
+        logger.debug("validateToken response={}", response);
+
+        Map<String, Object> result = new HashMap<>();
+        Map<String, Object> data = new HashMap<>();
+
+        try {
+            String token = jwtTokenProvider.resolveToken(request);
+            logger.debug("validateToken token={}", token);
+
+            if (token != null && !token.isEmpty() && jwtTokenProvider.validateToken(token)) {
+                String username = jwtTokenProvider.getUsername(token);
+                logger.debug("validateToken username={}", username);
+
+                data.put("valid", true);
+                data.put("username", username);
+                data.put("message", "Token is valid");
+
+                result.put("success", true);
+                result.put("data", data);
+
+                return ResponseEntity.ok(result);
+            } else {
+                logger.debug("validateToken invalid or empty token");
+                data.put("valid", false);
+                data.put("message", "Token invalid or missing");
+
+                result.put("success", false);
+                result.put("data", data);
+
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(result);
+            }
+        } catch (JwtException e) {
+            logger.error("validateToken JwtException", e);
+            data.put("valid", false);
+            data.put("message", "Invalid or expired JWT: " + e.getMessage());
+
+            result.put("success", false);
+            result.put("data", data);
+
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(result);
+        } catch (Exception e) {
+            logger.error("validateToken unexpected error", e);
+            data.put("valid", false);
+            data.put("message", "Unexpected error: " + e.getMessage());
+
+            result.put("success", false);
+            result.put("data", data);
+
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(result);
+        }
     }
 }
