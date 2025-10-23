@@ -1,0 +1,41 @@
+
+///////////////////
+
+https://www.guru99.com/use-case-testing.html
+
+What is Use Case Testing?
+
+Use Case Testing is a software testing technique that helps to identify test cases that cover entire system on a transaction by transaction basis from start to end. Test cases are the interactions between users and software application. Use case testing helps to identify gaps in software application that might not be found by testing individual software components.
+
+How to do Use Case Testing: Example
+
+In a use-case, an actor is represented by “A” and system by “S”. We create Use for a login functionality of a Web Application as shown below
+
+Main Success Scenario 	Step 	Description
+A:Actor
+S:System 	1 	A: Enter Agent Name & Password
+2 	S: Validate Password
+3 	S: Allow Account Access
+Extensions 	2a 	Password not valid
+S: Display Message and ask for re-try 4 times
+2b 	Password not valid 4 times
+S: Close Application
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
