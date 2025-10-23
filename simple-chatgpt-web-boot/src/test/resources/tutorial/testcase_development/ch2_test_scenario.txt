@@ -1,0 +1,78 @@
+///////////////
+
+https://www.guru99.com/test-scenario.html
+
+What is Test Scenario in Software Testing (Examples)
+
+What is a Test Scenario?
+A Test Scenario is defined as any functionality that can be tested. It is also called Test Condition or Test Possibility. As a tester, you should put yourself in the end user’s shoes and figure out the real-world scenarios and use cases of the Application Under Test.
+
+Scenario Testing in software testing is a method in which actual scenarios are used for testing the software application instead of test cases. The purpose of scenario testing is to test end to end scenarios for a specific complex problem of the software. Scenarios help in an easier way to test and evaluate end to end complicated problems.
+
+Why create Test Scenarios?
+
+Test Scenarios are created for the following reasons,
+
+    Creating Test Scenarios ensures complete Test Coverage
+    Test Scenarios can be approved by various stakeholders like Business Analyst, Developers, Customers to ensure the Application Under Test is thoroughly tested. It ensures that the software is working for the most common use cases.
+    They serve as a quick tool to determine the testing work effort and accordingly create a proposal for the client or organize the workforce.
+    They help determine the most important end-to-end transactions or the real use of the software applications.
+    For studying the end-to-end functioning of the program, Test Scenario is critical.
+
+How to Write Test Scenarios
+	As a tester, you can follow these five steps to create Test Scenarios-
+
+How to Write Test Scenarios
+
+As a tester, you can follow these five steps to create Test Scenarios-
+
+///////////////
+
+Example 1: Test Scenario for eCommerce Application
+
+For an eCommerce Application, a few test scenarios would be
+
+Test Scenario 1: Check the Login Functionality
+n order to help you understand the difference Test Scenario and Test Cases, specific test cases for this Test Scenario would be
+
+    Check system behavior when valid email id and password is entered.
+    Check system behavior when invalid email id and valid password is entered.
+    Check system behavior when valid email id and invalid password is entered.
+    Check system behavior when invalid email id and invalid password is entered.
+    Check system behavior when email id and password are left blank and Sign in entered.
+    Check Forgot your password is working as expected
+    Check system behavior when valid/invalid phone number and password is entered.
+    Check system behavior when “Keep me signed” is checked
+
+
+////////////////
+
+Test Scenario 2: Check the Search Functionality
+
+Test Scenario 3: Check the Product Description Page
+
+Test Scenario 4: Check the Payments Functionality
+
+Test Scenario 5: Check the Order History
+
+Apart from these 5 scenarios here is the list of all other scenarios
+
+    Check Home Page behavior for returning customers
+    Check Category/Product Pages
+    Check Customer Service/Contact Pages
+    Check Daily Deals pages
+
+//////////////////
+
+Example 2: Test Scenarios for a Banking Site
+
+Test Scenario 1: Check the Login and Authentication Functionality
+
+Test Scenario 2: Check Money Transfer can be done
+
+Test Scenario 3: Check Account Statement can be viewed
+
+Test Scenario 4: Check Fixed Deposit/Recurring Deposit can be created
+
+////////////////////
+

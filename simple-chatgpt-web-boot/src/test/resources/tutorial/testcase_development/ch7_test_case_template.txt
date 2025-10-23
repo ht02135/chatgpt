@@ -1,0 +1,81 @@
+
+https://www.guru99.com/download-sample-test-case-template-with-explanation-of-important-fields.html
+
+////////////////
+
+https://www.guru99.com/download-sample-test-case-template-with-explanation-of-important-fields.html
+
+Irrespective of the test case documentation method chosen, any good test case template must have the following fields
+Test Case Field 	Description
+Test case ID: 	Each test case should be represented by a unique ID. To indicate test types follow some convention like “TC_UI_1” indicating “User Interface Test Case#1.”
+Test Priority: 	It is useful while executing the test.
+
+    Low
+    Medium
+    High
+
+Name of the Module: 	Determine the name of the main module or sub-module being tested
+Test Designed by: 	Tester’s Name
+Date of test designed: 	Date when test was designed
+Test Executed by: 	Who executed the test- tester
+Date of the Test Execution: 	Date when test needs to be executed
+Name or Test Title: 	Title of the test case
+Description/Summary of Test: 	Determine the summary or test purpose in brief
+Pre-condition: 	Any requirement that needs to be done before execution of this test case. To execute this test case list all pre-conditions
+Dependencies: 	Determine any dependencies on test requirements or other test cases
+Test Steps: 	Mention all the test steps in detail and write in the order in which it requires to be executed. While writing test steps ensure that you provide as much detail as you can
+Test Data: 	Use of Test Data as an input for the test case. Deliver different data sets with precise values to be used as an input
+Expected Results: 	Mention the expected result including error or message that should appear on screen
+Post-Condition: 	What would be the state of the system after running the test case?
+Actual Result: 	After test execution, actual test result should be filled
+Status (Fail/Pass): 	Mark this field as failed, if actual result is not as per the estimated result
+Notes: 	If there are some special condition which is left in above field
+
+Optionally you can have the following fields depending on the project requirements
+
+    Link / Defect ID: Include the link for Defect or determine the defect number if test status is fail
+    Keywords / Test Type: To determine tests based on test types this field can be used. Eg: Usability, functional, business rules, etc.
+    Requirements: Requirements for which this test case is being written
+    References / Attachments: It is useful for complicated test scenarios, give the actual path of the document or diagram
+    Automation ( Yes/No): To track automation status when test cases are automated
+    Custom Fields: Fields particular your project being tested due to client/project requirements.
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

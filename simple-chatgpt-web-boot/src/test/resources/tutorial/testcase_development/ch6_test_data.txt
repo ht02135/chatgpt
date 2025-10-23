@@ -1,0 +1,93 @@
+
+//////////////
+
+https://www.guru99.com/software-testing-test-data.html
+
+What is Test Data in Software Testing?
+
+Test Data in Software Testing is the input given to a software program during test execution. It represents data that affects or affected by software execution while testing. Test data is used for both positive testing to verify that functions produce expected results for given inputs and for negative testing to test software ability to handle unusual, exceptional or unexpected inputs.
+
+Depending on your testing environment you may need to CREATE Test Data (Most of the times) or at least identify a suitable test data for your test cases (is the test data is already created).
+
+Typically test data is created in-sync with the test case it is intended to be used for.
+
+Test Data can be Generated –
+
+    Manually
+    Mass copy of data from production to testing environment
+    Mass copy of test data from legacy client systems
+    Automated Test Data Generation Tools
+
+Typically sample data should be generated before you begin test execution because it is difficult to handle test data management otherwise. Since in many testing environments creating test data takes multiple pre-steps or very time-consuming test environment configurations. . Also If test data generation is done while you are in test execution phase you may exceed your testing deadline.
+
+///////////////
+
+Test Data for White Box Testing
+
+In White Box Testing, test data Management is derived from direct examination of the code to be tested. Test data may be selected by taking into account the following things:
+
+    It is desirable to cover as many branches as possible; testing data can be generated such that all branches in the program source code are tested at least once
+    Path testing: all paths in the program source code are tested at least once – test data preparation can done to cover as many cases as possible
+    Negative API Testing:
+        Testing data may contain invalid parameter types used to call different methods
+        Testing data may consist in invalid combinations of arguments which are used to call the program’s methods
+
+
+/////////////////
+
+Test Data for Performance Testing
+
+Performance Testing is the type of testing which is performed in order to determine how fast system responds under a particular workload. The goal of this type of testing is not to find bugs, but to eliminate bottlenecks. An important aspect of Performance Testing is that the set of sample data used must be very close to ‘real’ or ‘live’ data which is used on production. The following question arises: ‘Ok, it’s good to test with real data, but how do I obtain this data?’ The answer is pretty straightforward: from the people who know the best – the customers. 
+
+/////////////////////
+
+est Data for Security Testing
+
+Security Testing is the process that determines if an information system protects data from malicious intent. The set of data that need to be designed in order to fully test a software security must cover the following topics:
+
+    Confidentiality: All the information provided by clients is held in the strictest confidence and is not shared with any outside parties. As a short example, if an application uses SSL, you can design a set of test data which verifies that the encryption is done correctly.
+    Integrity: Determine that the information provided by the system is correct. To design suitable test data you can start by taking an in-depth look at the design, code, databases and file structures.
+    Authentication: Represents the process of establishing the identity of a user. Testing data can be designed as a different combination of usernames and passwords and its purpose is to check that only the authorized people are able to access the software system.
+    Authorization: Tells what are the rights of a specific user. Testing data may contain a different combination of users, roles and operations in order to check only users with sufficient privileges are able to perform a particular operation.
+
+
+/////////////////
+
+Test Data for Black Box Testing
+
+In Black Box Testing the code is not visible to the tester. Your functional test cases can have test data meeting following criteria –
+
+    No data: Check system response when no data is submitted
+    Valid data: Check system response when Valid test data is submitted
+    Invalid data: Check system response when InValid test data is submitted
+    Illegal data format: Check system response when test data is in an invalid format
+    Boundary Condition Dataset: Test data meeting boundary value conditions
+    Equivalence Partition Data Set: Test data qualifying your equivalence partitions.
+    Decision Table Data Set: Test data qualifying your decision table testing strategy
+    State Transition Test Data Set: Test data meeting your state transition testing strategy
+    Use Case Test Data: Test Data in-sync with your use cases.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

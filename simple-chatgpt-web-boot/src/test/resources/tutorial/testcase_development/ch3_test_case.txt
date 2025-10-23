@@ -1,0 +1,47 @@
+
+/////////////////
+
+https://www.guru99.com/test-case.html
+
+Steps to Create Test Cases in Manual Testing
+
+Let’s create a Test Case for the scenario: Check Login Functionality
+
+Step 1) A simple test case to explain the scenario would be
+Test Case # 	Test Case Description
+1 	Check response when valid email and password is entered
+
+Step 2) Test the Data.
+In order to execute the test case, you would need Test Data. Adding it below
+Test Case # 	Test Case Description 	Test Data
+1 	Check response when valid email and password is entered 	Email: guru99@email.com Password: lNf9^Oti7^2h
+
+Step 3) Perform actions.
+In order to execute a test case, a tester needs to perform a specific set of actions on the AUT. This is documented as below:
+Test Case # 	Test Case Description 	Test Steps 	Test Data
+1 	Check response when valid email and password is entered 	1) Enter Email Address
+
+2) Enter Password
+
+3) Click Sign in
+	Email: guru99@email.com
+
+Password: lNf9^Oti7^2h
+
+Step 4) Check behavior of the AUT.
+The goal of test cases in software testing is to check behavior of the AUT for an expected result. This needs to be documented as below
+Test Case # 	Test Case Description 	Test Data 	Expected Result
+1 	Check response when valid email and password is entered 	Email: guru99@email.com
+Password: lNf9^Oti7^2h 	Login should be successful
+
+During test execution time, the tester will check expected results against actual results and assign a pass or fail status
+Test Case # 	Test Case Description 	Test Data 	Expected Result 	Actual Result 	Pass/Fail
+1 	Check response when valid email and password is entered 	Email: guru99@email.com Password: lNf9^Oti7^2h 	Login should be successful 	Login was successful 	Pass
+
+
+
+
+
+
+
+
