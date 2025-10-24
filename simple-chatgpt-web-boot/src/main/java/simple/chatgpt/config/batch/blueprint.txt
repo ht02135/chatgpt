@@ -21,85 +21,34 @@
 
 ////////////////////
 
-Overall Design — English View
-You want to run a batch job that:
-Tracks a batch process header
-Loads user_management records
-Populates related tables (user_management_list, user_management_list_member)
-Generates .csv output
-Encrypts and transfers files (FTP)
-Updates statuses accordingly
-
-//////////////////
-
-Folder Structure
-
-You can keep everything under your existing web project, in a dedicated batch package:
-
+O/*
 src/main/java/com/example/batch
 ├── config
-│   ├── BatchConfig.java            # Spring Batch job/step config
-│   ├── DataSourceConfig.java       # DB datasource config
-│   └── QuartzSchedulerConfig.java  # Scheduler config
+│   ├── BatchConfig.java                  # Spring Batch job & step configuration
+│   ├── QuartzSchedulerConfig.java        # Quartz job scheduling
+│   └── UserListJobQuartzLauncher.java    # Quartz Job adapter to launch Spring Batch job
 ├── job
-│   ├── JobLauncherQuartzAdapter.java  # Quartz adapter to launch jobs
 │   ├── userListJob
-│   │   ├── UserListJobConfig.java         # Job definition, wires all steps
-│   │   ├── Step1CreateBatchHeader.java    # Tasklet + StepExecutionListener
-│   │   ├── Step2LoadUsers.java            # Tasklet + StepExecutionListener
-│   │   ├── Step3PopulateUserList.java     # Tasklet + StepExecutionListener
+│   │   ├── UserListJobConfig.java          # Job definition, wires all steps
+│   │   ├── Step1CreateBatchHeader.java     # Tasklet + StepExecutionListener
+│   │   ├── Step2LoadUsers.java            # Chunk/Tasklet + StepExecutionListener
+│   │   ├── Step3PopulateUserList.java     # Chunk/Tasklet + StepExecutionListener
 │   │   ├── Step4GenerateCsv.java          # Tasklet + StepExecutionListener
 │   │   ├── Step5EncryptAndTransfer.java   # Tasklet + StepExecutionListener
-└── service
-    └── BatchService.java                  # Shared services for steps
-
-| Step                    | Type    | Reason                             |
-| ----------------------- | ------- | ---------------------------------- |
-| Step1CreateBatchHeader  | Tasklet | Single DB insert, one-off          |
-| Step2LoadUsers          | Chunk   | Multiple records, DB read/write    |
-| Step3PopulateUserList   | Chunk   | Multiple records, DB insert        |
-| Step4GenerateCsv        | Tasklet | One-off file creation              |
-| Step5EncryptAndTransfer | Tasklet | One-off file encryption & transfer |
-
-//////////
-
-In Spring Batch, there are basically three ways for steps to share data:
-
-a) JobExecutionContext
-
-Stores data for the whole job.
-
-Accessible in all steps.
-
-Example: Step2 loads users and stores them in jobExecution.getExecutionContext(). Step3 retrieves from the same context.
-
-// Step2
-jobExecution.getExecutionContext().put("LOADED_USERS", userList);
-
-// Step3
-List<UserManagementPojo> users =
-   (List<UserManagementPojo>) jobExecution.getExecutionContext().get("LOADED_USERS");
-
+├── service
+│   ├── BatchService.java                   # Shared service methods for steps
+│   ├── management
+│   │   ├── UserManagementService.java
+│   │   ├── UserManagementListService.java
+│   │   └── UserManagementListMemberService.java
+└── pojo
+    └── management
+        ├── UserManagementPojo.java
+        ├── UserManagementListPojo.java
+        └── UserManagementListMemberPojo.java
+*/
 
 ///////////
-
-Your “continuity” across steps
-
-From your flow:
-
-Step1CreateBatchHeader → creates batch ID
-
-Step2LoadUsers → loads users for that batch
-
-Step3PopulateUserList → inserts users into user_management_list_member table
-
-Step4GenerateCsv → creates CSV from the list members
-
-Step5EncryptAndTransfer → encrypts and sends CSV
-
-
-
-
 
 
 

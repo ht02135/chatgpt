@@ -328,8 +328,12 @@
     		<groupId>org.springframework.batch</groupId>
     		<artifactId>spring-batch-core</artifactId>
     		<version>4.3.10</version>
+		</dependency>	
+		<dependency>
+    		<groupId>org.springframework.boot</groupId>
+    		<artifactId>spring-boot-starter-quartz</artifactId>
 		</dependency>
-		
+	
 	</dependencies>
 
 	<build>
