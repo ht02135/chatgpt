@@ -1,8 +1,8 @@
 package simple.chatgpt.config.batch;
 
+import org.quartz.CronScheduleBuilder;
 import org.quartz.JobBuilder;
 import org.quartz.JobDetail;
-import org.quartz.SimpleScheduleBuilder;
 import org.quartz.Trigger;
 import org.quartz.TriggerBuilder;
 import org.springframework.context.annotation.Bean;
@@ -52,9 +52,13 @@ public class QuartzSchedulerConfig {
     }
 
     /**
-     * Define a Quartz Trigger to schedule the job execution.
-     * In this example, it runs every 24 hours.
-     */
+    Define a Quartz Trigger to schedule the job execution.
+    In this example, it runs every 24 hours.
+    /////////////////////
+    your QuartzSchedulerConfig is using a simple schedule,
+    not a cron schedule:
+    */
+    /*
     @Bean
     public Trigger userListJobTrigger(JobDetail userListJobDetail) {
         return TriggerBuilder.newTrigger()
@@ -65,4 +69,17 @@ public class QuartzSchedulerConfig {
                         .repeatForever())
                 .build();
     }
+    */
+
+    // Option 1: Automatic kickoff via Quartz scheduler
+    // You can replace the SimpleScheduleBuilder with a CronScheduleBuilder:
+    @Bean
+    public Trigger userListJobTrigger(JobDetail userListJobDetail) {
+        return TriggerBuilder.newTrigger()
+                .forJob(userListJobDetail)
+                .withIdentity("userListJobTrigger")
+                .withSchedule(CronScheduleBuilder.cronSchedule("0 0 10 * * ?")) // 2 AM every day
+                .build();
+    }
+
 }

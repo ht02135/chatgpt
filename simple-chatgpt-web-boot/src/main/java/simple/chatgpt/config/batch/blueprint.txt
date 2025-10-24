@@ -50,9 +50,50 @@ src/main/java/com/example/batch
 
 ///////////
 
+next how do we kickoff job?
 
+Option 1: Automatic kickoff via Quartz scheduler
 
+This is the approach you’ve been wiring up.
 
+1>QuartzSchedulerConfig defines:
+JobDetail → the Quartz job (UserListJobQuartzLauncher)
+Trigger → schedule (e.g., every 24 hours)
 
+2>UserListJobQuartzLauncher implements org.quartz.Job:
+Uses JobLauncher to run the Spring Batch job:
+jobLauncher.run(userListJob, new JobParametersBuilder()
+    .addLong("timestamp", System.currentTimeMillis()) // ensures unique params
+    .toJobParameters());
 
+3>Spring Boot context automatically starts Quartz and the trigger will fire according to schedule.
+
+/////////////
+
+Option 2: Manual kickoff via a REST endpoint
+
+You can also launch the job manually from code, e.g., a Spring REST controller:
+
+@RestController
+@RequestMapping("/batch")
+public class BatchJobController {
+
+    @Autowired
+    private JobLauncher jobLauncher;
+
+    @Autowired
+    private Job userListJob;
+
+    @GetMapping("/runUserListJob")
+    public String runJob() {
+        try {
+            jobLauncher.run(userListJob, new JobParametersBuilder()
+                .addLong("timestamp", System.currentTimeMillis())
+                .toJobParameters());
+            return "Job started!";
+        } catch (Exception e) {
+            return "Job failed: " + e.getMessage();
+        }
+    }
+}
 
