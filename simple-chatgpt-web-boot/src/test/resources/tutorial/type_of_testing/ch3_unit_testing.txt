@@ -1,0 +1,123 @@
+
+/////////////////////
+
+https://www.guru99.com/unit-testing-guide.html
+
+Unit testing is a software testing method where individual units or components of code—such as functions, methods, or classes—are tested in isolation to verify they work correctly. The goal is to validate that the smallest pieces of an application behave as expected without dependencies on external systems.
+
+chain
+
+1>acceptance test (aka alpha/beta test)
+2>system test
+3>integration test
+4>unit test
+
+Here are the key reasons to perform unit testing in software engineering:
+
+    Early bug detection – Problems surface close to where they’re introduced, making fixes faster and cheaper.
+    Improved code quality – Clean, testable code often leads to better architecture and fewer hidden dependencies.
+    Regression protection – Unit tests act as a safety net during refactoring, ensuring old features keep working.
+    Faster development cycles – Automated tests shorten QA feedback loops and reduce manual testing overhead.
+    Higher team confidence – With robust unit test coverage, developers deploy updates knowing they won’t break existing features.
+
+///////////////
+
+How to Execute Unit Testing?
+
+Step 1) Analyze the Unit & Define Cases
+
+Identify the smallest testable behavior. List happy paths, edge cases, and error conditions. Clarify inputs/outputs and pre/postconditions.
+Step 2) Set Up the Test Environment
+
+Pick the framework, load minimal fixtures, and isolate dependencies (mocks/stubs/fakes). Keep setup lightweight to avoid slow, brittle tests.
+Step 3) Write the Test (AAA Pattern)
+
+Arrange the inputs and context → Act by calling the unit → Assert the expected outcome. Prefer behavior assertions over internal implementation details.
+
+# Arrange
+cart = Cart(tax_rate=0.1)
+# Act
+total = cart.total([Item("book", 100)])
+# Assert
+assert total == 110
+
+Step 4) Run Locally & in CI
+
+Execute tests on your machine first; then run in CI for a clean environment check. Fail fast; keep logs concise and actionable.
+Step 5) Diagnose Failures, Fix, and Refactor
+
+When a test fails, fix the code or the test, not both at once. After green, refactor with confidence—tests guard behavior.
+Step 6) Rerun, Review, and Maintain
+
+Re-run the full suite. Remove flaky tests, deduplicate fixtures, and enforce coverage thresholds without gaming them. Tag slow tests to run less frequently.
+
+////////////////
+
+What is the Role of Mocking and Stubbing in Unit Testing
+
+Unit tests should focus only on the code under test — not its dependencies. That’s where mocks and stubs come in. These “test doubles” replace real objects so you can isolate behavior, control inputs, and avoid slow or flaky tests.
+
+Stubs
+
+A stub is a simplified replacement that returns a fixed response. It doesn’t record interactions — it just provides canned data.
+
+Mocks
+
+A mock is more powerful: it can verify interactions (e.g., “was this method called with X?”).
+
+Rules of Thumb
+
+    Stub when you just need data.
+    Mock when you need to verify interactions.
+    Prefer fakes over heavy mocks when you can (e.g., in-memory DB instead of mocking every query).
+
+
+/////////////////////
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

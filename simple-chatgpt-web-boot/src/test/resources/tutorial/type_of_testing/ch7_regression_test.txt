@@ -1,0 +1,171 @@
+
+///////////////////////
+
+https://www.guru99.com/regression-testing.html
+
+What is Regression Testing?
+
+Regression Testing is defined as a type of software testing to confirm that a recent program or code change has not adversely affected existing features. We can also say it is nothing but a full or partial selection of already executed test cases that are re-executed to ensure existing functionalities work fine.
+
+Why Regression Testing?
+
+Regression testing process is essential in the testing scope. As it can identify if code changes or enhancements are introducing new defects or disrupting existing functional tests.
+
+/////////////////
+
+When can we perform Regression Testing?
+
+Here are the scenarios when you can apply the regression testing process.
+
+New functionality is added to the application: This happens when new features or modules are created in an app or a website. The regression is performed to see if the existing features are working as usual with the introduction of the new feature.
+
+In case of change requirement: When any significant change occurs in the system, regression testing is used. This test is done to check if these shifts have affected features that were there.
+
+After a defect is fixed: The developers perform regression testing after fixing a bug in any functionality. This is done to determine if the changes made while fixing the bug have affected other related existing features.
+
+Once the performance issue is fixed: After fixing any performance issues, the regression testing process is triggered to see if it has affected other existing functional tests.
+
+While integrating with a new external system: End-to-end regression testing process is required whenever the product integrates with a new external system.
+
+/////////////
+
+Whenever such work happens, the QA team performs the following activities given below. These tasks are performed before they kick off the regression test execution cycle.
+
+    Discuss with the development team about the specific modules and libraries that were touched on during the change
+    Discuss with the product owner about the change to the new feature and learn how it flows across or impacts other functionality.
+    Identify the tests from the existing test suite that the testers need to execute to regress the existing features.
+
+Various regression testing techniques can be carried out for effective software quality assurance:
+
+////////////////
+
+Retest All
+
+This is one of the methods for Regression Testing, specifically employing a regression testing suite. In this case, all the tests in the existing test bucket or suite should be re-executed. This is an expensive method as it requires a lot of time and resources.
+
+/////////////////////
+
+Selecting test cases for regression testing
+
+It was found from industry data that a good number of the defects reported by customers were due to last-minute bug fixes. This resulted in side effects, hence, selecting the Test Cases for regression testing is not an easy task.
+
+An effective regression test suite can be built by selecting the following types of test cases –
+
+    Test cases from functionalities/modules that have frequent defects.
+    Functionalities that are more visible to the users
+    Test cases which verify core features of the product
+    Test cases of functionalities that have undergone more recent changes.
+    All Integration restrases
+    All complex test cases
+    Boundary value test cases
+    Selected happy path and negative test cases
+
+
+/////////////////
+
+Types of Regression Testing
+
+1) Unit Regression Testing (URT)
+
+This is a very focused approach where only the modified section goes under the regression test instead of the impact region. In this way, the other portions of the module remain unaffected.
+
+Example
+
+As an example, in Build 1, an issue was found and reported to the developer.
+
+Let’s say it was a bug in the login functionality. So the developer fixes it, adds the bug fix in Build 2, and submits it. The testing team checks only if the login feature is working as expected instead of checking other features.
+
+///////////////
+
+2) Regional Regression Testing (RRT)
+
+In regional regression testing, the modification and impact areas are tested. This area is examined to find out if any dependable modules might be affected by the changes.
+
+Example: In this example, in the first build, the modules A, B, C, and D are sent for testing by the developer. The tester finds bugs in module B, so the application is returned to the developer to fix the bugs.
+
+Once the developer fixes the bugs in the second build in module B, it is sent to the test engineer again. The test engineer learns that fixing module B has affected A and C.
+
+Hence, the tester checks module B’s modifications in the second release. Then, tests the impact regions in A and C as well to identify how they have been affected.
+
+////////////////
+
+3) Full Regression Testing (FRT):
+
+This testing covers all the functionalities of an application. Full regression testing is usually performed in later releases. Thus, you can use FRT after the first few releases and as the final test before launching.
+
+5) Retest All Regression Testing:
+
+In this form of testing, all the minor to major changes made in the application from the origin or build 1 is retested.
+
+This testing is done when all other regression tests fail to identify the root cause of the issues.
+
+6) Selective Regression Testing:
+
+This is conducted to check how the code reacts when a fresh code is added to the program. In order to conduct this test, a sub-set from existing cases is used to make it efficient and cost-effective. Criteria for selecting a subset are based on the modified code modules, dependencies, criticality of the affected functionality, and historical defect data.
+
+////////////////////
+
+Here is how automated regression testing is done:
+
+Step 1) The manual testing team checks all requirements and identifies the impact region. After this process, they forward the requirement test bundle to the automation team or automation engineer.
+
+Step 2) The manual testing team begins testing the new modules while the automation test team writes the script and automates the test case.
+
+Step 3) Before using this method of a regression test, the automation team identifies which cases will support automation.
+
+Step 4) They convert those regression tests into scripts depending on which cases can be automated.
+
+Step 5) During the scripting process, the automation team refers to the regression test cases. They do so as they may not possess the product nor the tool and app knowledge.
+
+Step 6) When the test scripts are completed, the automation team will execute them on the new app.
+
+Step 7) After the execution, the result informs if the test was a Pass or Fail.
+
+Step 8) If the test fails, it is re-checked using the manual testing method, and if the issue exists, it is reported to the respective developer.
+
+Note: After the bug is fixed, the issue and the impact area are sent to the manual tester for retesting, and the automation team re-executes the script.
+
+Step 9) This process continues until all the newly added regression features get a Pass status.
+
+///////////////
+
+How to choose test cases for the regression testing?
+
+Here is how you can select the right case for regression testing.
+
+    Understand the scope of the changes and determine the parts of the application that have been modified, added, or fixed. You can then focus on these areas for regression testing.
+    Have a suite that covers the critical functionality and maintains this as the baseline for regression testing. As discussed earlier, it is highly recommended to have these tests automated.
+    Prioritize tests based on the criticality of the functionality, impact on the end user, and historical defect data.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

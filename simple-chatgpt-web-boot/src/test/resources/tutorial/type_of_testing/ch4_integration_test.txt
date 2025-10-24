@@ -1,0 +1,179 @@
+
+//////////////////
+
+https://www.guru99.com/integration-testing.html
+
+Integration Testing is defined as a type of testing where software modules are integrated logically and tested as a group. A typical software project consists of multiple software modules, coded by different programmers. The purpose of this level of testing is to expose defects in the interaction between these software modules when they are integrated
+
+It is most useful when verifying data flow, shared APIs, and interdependent modules across different environments. By running integration tests early, teams can uncover interface mismatches, missing data contracts, and dependency failures that unit tests often miss.
+
+You should use integration testing when multiple modules or services must exchange data, when third-party integrations are involved, and whenever changes in one module could affect others. It reduces defect leakage, improves overall quality, and provides confidence that the system can function reliably before progressing to larger-scale testing or release.
+
+Although each software module is unit tested, defects still exist for various reasons, like
+
+    A Module, in general, is designed by an individual software developer whose understanding and programming logic may differ from those of other programmers. Integration Testing becomes necessary to verify that the software modules work in unity
+    At the time of module development, there are wide chances of changes in requirements by the clients. These new requirements may not be unit tested, and hence system integration Testing becomes necessary.
+    Interfaces of the software modules with the database could be erroneous
+    External Hardware interfaces, if any, could be erroneous
+    Inadequate exception handling could cause issues.
+
+////////////
+
+Integration Test Case differs from other test cases in the sense that it focuses mainly on the interfaces & flow of data/information between the modules
+
+Sample Integration Test Cases for the following scenario: Application has 3 modules, say ‘Login Page’, ‘Mailbox’, and ‘Delete emails’, and each of them is integrated logically.
+Here, do not concentrate much on the Login Page testing as it’s already been done in Unit Testing. But check how it’s linked to the Mail Box Page.
+
+Similarly, Mail Box: Check its integration with the Delete Mails Module.
+Test Case ID 	Test Case Objective 	Test Case Description 	Expected Result
+1 	Check the interface link between the Login and Mailbox module 	Enter login credentials and click on the Login button 	To be directed to the Mail Box
+2 	Check the interface link between the Mailbox and the Delete Mails Module 	From Mailbox, select the email and click the delete button 	Selected email should appear in the Deleted/Trash folder
+
+////////////////
+
+Types of Integration Testing
+
+Big Bang Testing
+
+Big Bang Testing is an Integration testing approach in which all the components or modules are integrated together at once and then tested as a unit. This combined set of components is considered as an entity while testing. If all of the components in the unit are not completed, the integration process will not execute.
+
+ Advantages:
+
+    Faster setup – All modules integrated in one go.
+    Full system view – Observe overall behavior immediately.
+    No stubs/drivers – Reduces extra development effort.
+    Good for small projects – Simpler systems fit well.
+    User-oriented – Matches end-user experience closely.
+
+Disadvantages:
+
+    Hard to debug – Failures harder to isolate.
+    Late defect detection – Bugs found only after full integration.
+    High risk – Major issues may block entire testing.
+    Not scalable – Complex systems become unmanageable.
+    Poor test coverage – Some modules tested insufficiently.
+
+
+/////////////////
+
+Incremental Testing
+
+
+    Bottom Up
+    Top Down
+    Sandwich Approach
+
+/////////////////////
+
+Bottom-up Integration Testing
+
+Bottom-up Integration Testing is a strategy in which the lower-level modules are tested first. These tested modules are then further used to facilitate the testing of higher-level modules. The process continues until all modules at the top level are tested. Once the lower-level modules are tested and integrated, the next level of modules is formed.
+
+ Advantages:
+
+    Early module testing – Lower-level modules tested first.
+    Easier debugging – Defects isolated at module level.
+    No stubs needed – Drivers are simpler to create.
+    Reliable foundation – Core modules tested before higher levels.
+    Progressive integration – System grows steadily with confidence.
+
+Disadvantages:
+
+    Late user view – Full system visible only at end.
+    Needs drivers – Extra effort to build drivers.
+    UI delayed – Top-level interfaces tested very late.
+    Time-consuming – Progressive integration takes longer.
+    Test gaps – High-level interactions may miss issues.
+
+
+///////////////
+
+What are Stubs and Drivers in Integration Testing?
+
+Stubs and drivers are essential dummy programs that enable integration testing when not all modules are available simultaneously. These test doubles simulate missing components, allowing testing to proceed without waiting for complete system development.
+
+//////////////////
+
+What are Stubs?
+
+Stubs are dummy modules that replace lower-level components not yet developed or integrated. They’re called by the module under test and return predefined responses
+
+Characteristics of Stubs:
+
+    Simulate lower-level module behavior
+    Return hard-coded or simple calculated values
+    Used in top-down integration testing
+    Minimal functionality implementation
+
+//////////////////////
+
+What are Drivers?
+
+Drivers are dummy programs that call the module being tested, simulating higher-level components. They pass test data to lower-level modules and collect results.
+
+Characteristics of Drivers:
+
+    Invoke modules under test with test data
+    Capture and validate responses
+    Used in bottom-up integration testing
+    Control test execution flow
+
+//////////////////
+
+Practical Implementation Example
+
+Payment Module Testing:
+- Stub: Simulates tax calculation service returning 10% tax
+- Driver: Simulates checkout process calling payment module
+- Result: Payment module tested independently of unavailable components
+
+///////////////////////
+
+When to Use Each?
+Component 	Use Stub 	Use Driver
+Testing Approach 	Top-down testing 	Bottom-up testing
+Replaces 	Lower-level modules 	Higher-level modules
+Function 	Returns dummy data 	Sends test data
+Complexity 	Simple responses 	Test orchestration
+
+/////////////////////////
+
+How would you Design Integration Test Cases? 
+
+Step 	Input 	Expected Outcome
+1 	User enters valid credentials on the login screen 	Credentials sent securely to the authentication API
+2 	API validates credentials against the database 	Database confirms match for username/password
+3 	API returns an authentication token 	Token generated and sent back to the application
+4 	UI redirects the user to the dashboard 	User session established successfully
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
