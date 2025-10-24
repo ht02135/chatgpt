@@ -1,20 +1,4 @@
 
-com.example.batch
-├── config
-│   ├── BatchConfig.java
-│   ├── QuartzSchedulerConfig.java
-│   └── DataSourceConfig.java
-├── job
-│   ├── JobLauncherQuartzAdapter.java
-│   ├── job1
-│   │   ├── Job1Config.java
-│   │   └── Job1Tasklet.java
-│   └── job2
-│       ├── Job2Config.java
-│       └── Job2Tasklet.java
-└── service
-    └── BatchService.java
-
 ////////////
 
 | Old XML Feature                       | New Java Config Equivalent                                      |
@@ -37,54 +21,236 @@ com.example.batch
 
 ////////////////////
 
-src/
-└── main/
-    ├── java/
-    │   └── com/
-    │       └── company/
-    │           └── batch/
-    │               ├── BatchApplication.java
-    │
-    │               ├── config/
-    │               │   ├── BatchConfig.java
-    │               │   ├── DataSourceConfig.java
-    │               │   ├── SchedulerConfig.java
-    │               │   └── LoggingConfig.java
-    │
-    │               ├── job/
-    │               │   ├── ChatGptExtract/
-    │               │   │   ├── ChatGptExtractJobConfig.java
-    │               │   │   ├── tasklet/
-    │               │   │   │   ├── ExtractTasklet.java
-    │               │   │   │   ├── EncryptTasklet.java
-    │               │   │   │   └── FileTransferTasklet.java
-    │               │   │   ├── listener/
-    │               │   │   │   ├── ChatGptExtractJobExecutionListener.java
-    │               │   │   │   ├── ChatGptExtractStepListener.java
-    │               │   │   │   └── FileTransferListener.java
-    │               │   │   └── model/
-    │               │   │       └── ExtractDataModel.java
-    │               │   └── JobLauncherScheduler.java
-    │
-    │               ├── dao/
-    │               │   ├── ProcessHeaderDao.java
-    │               │   └── mapper/
-    │               │       └── ExtractMapper.xml
-    │
-    │               ├── service/
-    │               │   ├── FileNotificationService.java
-    │               │   ├── EncryptionService.java
-    │               │   └── BatchExecutionService.java
-    │
-    │               └── util/
-    │                   ├── DateUtils.java
-    │                   ├── FileUtils.java
-    │                   └── Constants.java
-    │
-    └── resources/
-        ├── application.properties
-        ├── log4j2.xml
-        └── db/
-            └── schema-mysql.sql
+Overall Design — English View
+You want to run a batch job that:
+Tracks a batch process header
+Loads user_management records
+Populates related tables (user_management_list, user_management_list_member)
+Generates .csv output
+Encrypts and transfers files (FTP)
+Updates statuses accordingly
 
-            
+//////////////////
+
+Folder Structure
+
+You can keep everything under your existing web project, in a dedicated batch package:
+
+src/main/java/com/example/batch
+├── config
+│   ├── BatchConfig.java
+│   ├── DataSourceConfig.java
+│   └── QuartzSchedulerConfig.java
+├── job
+│   ├── JobLauncherQuartzAdapter.java
+│   ├── userListJob
+│   │   ├── UserListJobConfig.java
+│   │   ├── Step1CreateBatchHeaderTasklet.java
+│   │   ├── Step2LoadUsersTasklet.java
+│   │   ├── Step3PopulateUserListTasklet.java
+│   │   ├── Step4GenerateCsvTasklet.java
+│   │   ├── Step5EncryptAndTransferTasklet.java
+│   │   └── UserListJobListener.java
+└── service
+    └── BatchService.java
+
+| Step  | Name                        | Type     | Implementation Class             | Description                                                                                            |
+| ----- | --------------------------- | -------- | -------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| **1** | Create Batch Process Header | Tasklet  | `Step1CreateBatchHeaderTasklet`  | Inserts a record into `batch_process` (custom table you define) and puts header ID in ExecutionContext |
+| **2** | Load Users                  | Tasklet  | `Step2LoadUsersTasklet`          | Loads active users from `user_management`, filters/validates them                                      |
+| **3** | Populate User List          | Tasklet  | `Step3PopulateUserListTasklet`   | Inserts records into `user_management_list` and `user_management_list_member`                          |
+| **4** | Generate CSV                | Tasklet  | `Step4GenerateCsvTasklet`        | Creates `.csv` file in `/output/` directory                                                            |
+| **5** | Encrypt and Transfer        | Tasklet  | `Step5EncryptAndTransferTasklet` | Uses PGP encryption and transfers to FTP server                                                        |
+| **6** | Job Listener                | Listener | `UserListJobListener`            | Logs start/end, updates `batch_process` status                                                         |
+
+| Category   | Class                           | Description                               |
+| ---------- | ------------------------------- | ----------------------------------------- |
+| Config     | `BatchConfig.java`              | Enables Batch                             |
+| Config     | `DataSourceConfig.java`         | Defines 2 datasources (main + batch meta) |
+| Job Config | `UserListJobConfig.java`        | Wires steps together                      |
+| Steps      | `Tasklet` classes               | Each step logic                           |
+| Listener   | `UserListJobListener.java`      | For start/end logs                        |
+| Launcher   | `JobLauncherQuartzAdapter.java` | For scheduling or manual launch           |
+| Service    | `BatchService.java`             | To trigger jobs programmatically          |
+
+
+///////////////////
+
+BatchConfig.java
+
+package com.example.batch.config;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+@EnableBatchProcessing
+public class BatchConfig {
+    private static final Logger logger = LogManager.getLogger(BatchConfig.class);
+
+    public BatchConfig() {
+        logger.debug("BatchConfig initialized");
+    }
+}
+
+///////////////////
+
+UserListJobConfig.java
+
+package com.example.batch.job.userListJob;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.batch.core.Job;
+import org.springframework.batch.core.Step;
+import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
+import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
+import org.springframework.batch.core.listener.JobExecutionListenerSupport;
+import org.springframework.batch.core.step.tasklet.Tasklet;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+public class UserListJobConfig {
+    private static final Logger logger = LogManager.getLogger(UserListJobConfig.class);
+
+    private final JobBuilderFactory jobBuilderFactory;
+    private final StepBuilderFactory stepBuilderFactory;
+
+    public UserListJobConfig(JobBuilderFactory jobBuilderFactory, StepBuilderFactory stepBuilderFactory) {
+        logger.debug("UserListJobConfig initialized");
+        this.jobBuilderFactory = jobBuilderFactory;
+        this.stepBuilderFactory = stepBuilderFactory;
+    }
+
+    @Bean
+    public Job userListJob(Step step1CreateBatchHeader,
+                           Step step2LoadUsers,
+                           Step step3PopulateUserList,
+                           Step step4GenerateCsv,
+                           Step step5EncryptAndTransfer,
+                           UserListJobListener listener) {
+
+        logger.debug("userListJob creation started");
+
+        return jobBuilderFactory.get("userListJob")
+                .listener(listener)
+                .start(step1CreateBatchHeader)
+                .next(step2LoadUsers)
+                .next(step3PopulateUserList)
+                .next(step4GenerateCsv)
+                .next(step5EncryptAndTransfer)
+                .build();
+    }
+
+    @Bean
+    public Step step1CreateBatchHeader(Tasklet tasklet) {
+        logger.debug("step1CreateBatchHeader initialized");
+        return stepBuilderFactory.get("step1CreateBatchHeader")
+                .tasklet(tasklet)
+                .build();
+    }
+
+    @Bean
+    public Step step2LoadUsers(Tasklet tasklet) {
+        logger.debug("step2LoadUsers initialized");
+        return stepBuilderFactory.get("step2LoadUsers")
+                .tasklet(tasklet)
+                .build();
+    }
+
+    @Bean
+    public Step step3PopulateUserList(Tasklet tasklet) {
+        logger.debug("step3PopulateUserList initialized");
+        return stepBuilderFactory.get("step3PopulateUserList")
+                .tasklet(tasklet)
+                .build();
+    }
+
+    @Bean
+    public Step step4GenerateCsv(Tasklet tasklet) {
+        logger.debug("step4GenerateCsv initialized");
+        return stepBuilderFactory.get("step4GenerateCsv")
+                .tasklet(tasklet)
+                .build();
+    }
+
+    @Bean
+    public Step step5EncryptAndTransfer(Tasklet tasklet) {
+        logger.debug("step5EncryptAndTransfer initialized");
+        return stepBuilderFactory.get("step5EncryptAndTransfer")
+                .tasklet(tasklet)
+                .build();
+    }
+}
+
+///////////////////
+
+package com.example.batch.job.userListJob;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.batch.core.StepContribution;
+import org.springframework.batch.core.scope.context.ChunkContext;
+import org.springframework.batch.core.step.tasklet.Tasklet;
+import org.springframework.batch.repeat.RepeatStatus;
+import org.springframework.stereotype.Component;
+
+@Component
+public class Step1CreateBatchHeaderTasklet implements Tasklet {
+    private static final Logger logger = LogManager.getLogger(Step1CreateBatchHeaderTasklet.class);
+
+    @Override
+    public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
+        logger.debug("Step1CreateBatchHeaderTasklet started");
+
+        // Example logic
+        Long batchId = System.currentTimeMillis(); // pretend insert and get ID
+        chunkContext.getStepContext().getStepExecution().getExecutionContext().put("BATCH_ID", batchId);
+
+        logger.debug("Created batch header ID={}", batchId);
+        return RepeatStatus.FINISHED;
+    }
+}
+
+///////////////////
+
+package com.example.batch.job.userListJob;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.batch.core.JobExecution;
+import org.springframework.batch.core.listener.JobExecutionListenerSupport;
+import org.springframework.stereotype.Component;
+
+@Component
+public class UserListJobListener extends JobExecutionListenerSupport {
+    private static final Logger logger = LogManager.getLogger(UserListJobListener.class);
+
+    @Override
+    public void beforeJob(JobExecution jobExecution) {
+        logger.debug("Job {} starting", jobExecution.getJobInstance().getJobName());
+    }
+
+    @Override
+    public void afterJob(JobExecution jobExecution) {
+        logger.debug("Job {} finished with status {}", jobExecution.getJobInstance().getJobName(), jobExecution.getStatus());
+    }
+}
+
+///////////////////
+
+///////////////////
+
+///////////////////
+
+///////////////////
+
+
+
+
+
+
+         
