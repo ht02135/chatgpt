@@ -38,21 +38,21 @@ You can keep everything under your existing web project, in a dedicated batch pa
 
 src/main/java/com/example/batch
 ├── config
-│   ├── BatchConfig.java
-│   ├── DataSourceConfig.java
-│   └── QuartzSchedulerConfig.java
+│   ├── BatchConfig.java            # Spring Batch job/step config
+│   ├── DataSourceConfig.java       # DB datasource config
+│   └── QuartzSchedulerConfig.java  # Scheduler config
 ├── job
-│   ├── JobLauncherQuartzAdapter.java
+│   ├── JobLauncherQuartzAdapter.java  # Quartz adapter to launch jobs
 │   ├── userListJob
-│   │   ├── UserListJobConfig.java
-│   │   ├── Step1CreateBatchHeaderTasklet.java
-│   │   ├── Step2LoadUsersTasklet.java
-│   │   ├── Step3PopulateUserListTasklet.java
-│   │   ├── Step4GenerateCsvTasklet.java
-│   │   ├── Step5EncryptAndTransferTasklet.java
-│   │   └── UserListJobListener.java
+│   │   ├── UserListJobConfig.java         # Job definition, wires all steps
+│   │   ├── Step1CreateBatchHeader.java    # Tasklet + StepExecutionListener
+│   │   ├── Step2LoadUsers.java            # Tasklet + StepExecutionListener
+│   │   ├── Step3PopulateUserList.java     # Tasklet + StepExecutionListener
+│   │   ├── Step4GenerateCsv.java          # Tasklet + StepExecutionListener
+│   │   ├── Step5EncryptAndTransfer.java   # Tasklet + StepExecutionListener
 └── service
-    └── BatchService.java
+    └── BatchService.java                  # Shared services for steps
+
 
 | Step  | Name                        | Type     | Implementation Class             | Description                                                                                            |
 | ----- | --------------------------- | -------- | -------------------------------- | ------------------------------------------------------------------------------------------------------ |
@@ -75,4 +75,81 @@ src/main/java/com/example/batch
 
 
 ///////////////////
+
+| File                                     | Purpose                                                                                                                         | How it’s connected                                                                                      |
+| ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| **`BatchConfig.java`**                   | Enables Spring Batch (`@EnableBatchProcessing`) and registers all batch infrastructure beans (JobRepository, JobLauncher, etc.) | Makes Spring aware of batch context; allows `JobBuilderFactory` and `StepBuilderFactory` to be injected |
+| **`UserListJobConfig.java`**             | Declares the **Job** and all **Steps**                                                                                          | Spring automatically detects it (`@Configuration`) and registers the `userListJob` bean                 |
+| **`Step1CreateBatchHeaderTasklet.java`** | Implements logic for Step 1                                                                                                     | Detected automatically (`@Component`) and injected into the correct Step via parameter matching         |
+| **`UserListJobListener.java`**           | Listens to job lifecycle events                                                                                                 | Detected automatically (`@Component`) and injected into the Job as a listener                           |
+| **`JobLauncherQuartzAdapter.java`**      | (To be added soon) — launches the job manually or on a schedule                                                                 | It gets a `JobLauncher` and the `userListJob` injected                                                  |
+| **`BatchService.java`**                  | (Optional helper) to trigger jobs programmatically from web layer                                                               | Gets `JobLauncher` and `Job` injected and calls `run()`                                                 |
+
++--------------------------------------------------------------+
+| @EnableBatchProcessing (BatchConfig)                         |
+|   → provides JobBuilderFactory, StepBuilderFactory            |
++--------------------------------------------------------------+
+                 │
+                 ▼
++--------------------------------------------------------------+
+| UserListJobConfig                                            |
+|   - defines Job (userListJob)                                |
+|   - defines Steps (step1..step5)                             |
+|   - expects Tasklet beans for each Step                      |
++--------------------------------------------------------------+
+                 │
+                 ▼
++--------------------------------------------------------------+
+| Step1CreateBatchHeaderTasklet                                |
+|   - @Component so Spring registers it                        |
+|   - injected into step1CreateBatchHeader() automatically     |
++--------------------------------------------------------------+
+                 │
+                 ▼
++--------------------------------------------------------------+
+| UserListJobListener                                          |
+|   - @Component auto-detected                                 |
+|   - injected as Job listener automatically                   |
++--------------------------------------------------------------+
+
+
+////////////////
+
+In Spring Batch, each Step can indeed have:
+
+A Tasklet (or a reader/processor/writer if it’s a chunk step)
+Optionally, Step Listeners
+
+Tasklet / Task — the “worker bee”
+
+Think of the tasklet as the piece of code that actually does the work.
+| Step  | Tasklet Action                                                       |
+| ----- | -------------------------------------------------------------------- |
+| Step1 | Create a batch header in the DB and store its ID                     |
+| Step2 | Load users from `user_management` table into memory or staging table |
+| Step3 | Populate the user list table with those users                        |
+| Step4 | Generate a CSV file from the user list                               |
+| Step5 | Encrypt the CSV and send it to FTP                                   |
+
+Listener — the “observer / watchdog”
+
+A listener is not doing the main work. It’s watching and reacting to lifecycle events.
+
+It can run before the step/job or after the step/job.
+
+///////////
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
