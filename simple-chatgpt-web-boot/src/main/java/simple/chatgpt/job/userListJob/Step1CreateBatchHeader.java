@@ -59,7 +59,7 @@ public class Step1CreateBatchHeader extends StepExecutionListenerSupport impleme
                     .getStepExecution()
                     .getJobExecution()
                     .getExecutionContext()
-                    .putLong("BATCH_ID", listId);
+                    .putLong("LIST_ID", listId);
 
         return RepeatStatus.FINISHED;
     }
