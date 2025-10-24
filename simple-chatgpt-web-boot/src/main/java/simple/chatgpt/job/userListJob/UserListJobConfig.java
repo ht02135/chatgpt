@@ -9,37 +9,45 @@ import org.springframework.batch.core.configuration.annotation.StepBuilderFactor
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+/*
+| Step                    | Type    | Reason                             |
+| ----------------------- | ------- | ---------------------------------- |
+| Step1CreateBatchHeader  | Tasklet | Single DB insert, one-off          |
+| Step2LoadUsers          | Chunk   | Multiple records, DB read/write    |
+| Step3PopulateUserList   | Chunk   | Multiple records, DB insert        |
+| Step4GenerateCsv        | Tasklet | One-off file creation              |
+| Step5EncryptAndTransfer | Tasklet | One-off file encryption & transfer |
+*/
+
 @Configuration
 public class UserListJobConfig {
+
     private static final Logger logger = LogManager.getLogger(UserListJobConfig.class);
 
     private final JobBuilderFactory jobBuilderFactory;
     private final StepBuilderFactory stepBuilderFactory;
 
-    private final Step1CreateBatchHeader step1CreateBatchHeaderTasklet;
-    private final Step2LoadUsers step2LoadUsersTasklet;
-    private final Step3PopulateUserList step3PopulateUserListTasklet;
-    private final Step4GenerateCsv step4GenerateCsvTasklet;
-    private final Step5EncryptAndTransfer step5EncryptAndTransferTasklet;
-    private final UserListJobListener jobListener;
+    private final Step1CreateBatchHeader step1CreateBatchHeader;
+    private final Step2LoadUsersChunk step2LoadUsersChunk;
+    private final Step3PopulateUserListChunk step3PopulateUserListChunk;
+    private final Step4GenerateCsv step4GenerateCsv;
+    private final Step5EncryptAndTransfer step5EncryptAndTransfer;
 
     public UserListJobConfig(JobBuilderFactory jobBuilderFactory,
                              StepBuilderFactory stepBuilderFactory,
-                             Step1CreateBatchHeader step1CreateBatchHeaderTasklet,
-                             Step2LoadUsers step2LoadUsersTasklet,
-                             Step3PopulateUserList step3PopulateUserListTasklet,
-                             Step4GenerateCsv step4GenerateCsvTasklet,
-                             Step5EncryptAndTransfer step5EncryptAndTransferTasklet,
-                             UserListJobListener jobListener) {
+                             Step1CreateBatchHeader step1CreateBatchHeader,
+                             Step2LoadUsersChunk step2LoadUsersChunk,
+                             Step3PopulateUserListChunk step3PopulateUserListChunk,
+                             Step4GenerateCsv step4GenerateCsv,
+                             Step5EncryptAndTransfer step5EncryptAndTransfer) {
         logger.debug("UserListJobConfig initialized");
         this.jobBuilderFactory = jobBuilderFactory;
         this.stepBuilderFactory = stepBuilderFactory;
-        this.step1CreateBatchHeaderTasklet = step1CreateBatchHeaderTasklet;
-        this.step2LoadUsersTasklet = step2LoadUsersTasklet;
-        this.step3PopulateUserListTasklet = step3PopulateUserListTasklet;
-        this.step4GenerateCsvTasklet = step4GenerateCsvTasklet;
-        this.step5EncryptAndTransferTasklet = step5EncryptAndTransferTasklet;
-        this.jobListener = jobListener;
+        this.step1CreateBatchHeader = step1CreateBatchHeader;
+        this.step2LoadUsersChunk = step2LoadUsersChunk;
+        this.step3PopulateUserListChunk = step3PopulateUserListChunk;
+        this.step4GenerateCsv = step4GenerateCsv;
+        this.step5EncryptAndTransfer = step5EncryptAndTransfer;
     }
 
     @Bean
@@ -47,52 +55,52 @@ public class UserListJobConfig {
         logger.debug("userListJob creation started");
 
         return jobBuilderFactory.get("userListJob")
-                .listener(jobListener)
-                .start(step1CreateBatchHeader())
-                .next(step2LoadUsers())
-                .next(step3PopulateUserList())
-                .next(step4GenerateCsv())
-                .next(step5EncryptAndTransfer())
+                .start(step1CreateBatchHeaderStep())
+                .next(step2LoadUsersStep())
+                .next(step3PopulateUserListStep())
+                .next(step4GenerateCsvStep())
+                .next(step5EncryptAndTransferStep())
                 .build();
     }
 
+    // Tasklet Step
     @Bean
-    public Step step1CreateBatchHeader() {
-        logger.debug("step1CreateBatchHeader initialized");
+    public Step step1CreateBatchHeaderStep() {
+        logger.debug("step1CreateBatchHeaderStep initialized");
         return stepBuilderFactory.get("step1CreateBatchHeader")
-                .tasklet(step1CreateBatchHeaderTasklet)
+                .tasklet(step1CreateBatchHeader)
                 .build();
     }
 
+    // Chunk Step
     @Bean
-    public Step step2LoadUsers() {
-        logger.debug("step2LoadUsers initialized");
-        return stepBuilderFactory.get("step2LoadUsers")
-                .tasklet(step2LoadUsersTasklet)
-                .build();
+    public Step step2LoadUsersStep() {
+        logger.debug("step2LoadUsersStep initialized");
+        return step2LoadUsersChunk.step2LoadUsers(stepBuilderFactory);
     }
 
+    // Chunk Step
     @Bean
-    public Step step3PopulateUserList() {
-        logger.debug("step3PopulateUserList initialized");
-        return stepBuilderFactory.get("step3PopulateUserList")
-                .tasklet(step3PopulateUserListTasklet)
-                .build();
+    public Step step3PopulateUserListStep() {
+        logger.debug("step3PopulateUserListStep initialized");
+        return step3PopulateUserListChunk.step3PopulateUserList(stepBuilderFactory);
     }
 
+    // Tasklet Step
     @Bean
-    public Step step4GenerateCsv() {
-        logger.debug("step4GenerateCsv initialized");
+    public Step step4GenerateCsvStep() {
+        logger.debug("step4GenerateCsvStep initialized");
         return stepBuilderFactory.get("step4GenerateCsv")
-                .tasklet(step4GenerateCsvTasklet)
+                .tasklet(step4GenerateCsv)
                 .build();
     }
 
+    // Tasklet Step
     @Bean
-    public Step step5EncryptAndTransfer() {
-        logger.debug("step5EncryptAndTransfer initialized");
+    public Step step5EncryptAndTransferStep() {
+        logger.debug("step5EncryptAndTransferStep initialized");
         return stepBuilderFactory.get("step5EncryptAndTransfer")
-                .tasklet(step5EncryptAndTransferTasklet)
+                .tasklet(step5EncryptAndTransfer)
                 .build();
     }
 }

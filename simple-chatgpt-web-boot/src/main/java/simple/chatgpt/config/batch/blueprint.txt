@@ -53,95 +53,49 @@ src/main/java/com/example/batch
 └── service
     └── BatchService.java                  # Shared services for steps
 
+| Step                    | Type    | Reason                             |
+| ----------------------- | ------- | ---------------------------------- |
+| Step1CreateBatchHeader  | Tasklet | Single DB insert, one-off          |
+| Step2LoadUsers          | Chunk   | Multiple records, DB read/write    |
+| Step3PopulateUserList   | Chunk   | Multiple records, DB insert        |
+| Step4GenerateCsv        | Tasklet | One-off file creation              |
+| Step5EncryptAndTransfer | Tasklet | One-off file encryption & transfer |
 
-| Step  | Name                        | Type     | Implementation Class             | Description                                                                                            |
-| ----- | --------------------------- | -------- | -------------------------------- | ------------------------------------------------------------------------------------------------------ |
-| **1** | Create Batch Process Header | Tasklet  | `Step1CreateBatchHeaderTasklet`  | Inserts a record into `batch_process` (custom table you define) and puts header ID in ExecutionContext |
-| **2** | Load Users                  | Tasklet  | `Step2LoadUsersTasklet`          | Loads active users from `user_management`, filters/validates them                                      |
-| **3** | Populate User List          | Tasklet  | `Step3PopulateUserListTasklet`   | Inserts records into `user_management_list` and `user_management_list_member`                          |
-| **4** | Generate CSV                | Tasklet  | `Step4GenerateCsvTasklet`        | Creates `.csv` file in `/output/` directory                                                            |
-| **5** | Encrypt and Transfer        | Tasklet  | `Step5EncryptAndTransferTasklet` | Uses PGP encryption and transfers to FTP server                                                        |
-| **6** | Job Listener                | Listener | `UserListJobListener`            | Logs start/end, updates `batch_process` status                                                         |
+//////////
 
-| Category   | Class                           | Description                               |
-| ---------- | ------------------------------- | ----------------------------------------- |
-| Config     | `BatchConfig.java`              | Enables Batch                             |
-| Config     | `DataSourceConfig.java`         | Defines 2 datasources (main + batch meta) |
-| Job Config | `UserListJobConfig.java`        | Wires steps together                      |
-| Steps      | `Tasklet` classes               | Each step logic                           |
-| Listener   | `UserListJobListener.java`      | For start/end logs                        |
-| Launcher   | `JobLauncherQuartzAdapter.java` | For scheduling or manual launch           |
-| Service    | `BatchService.java`             | To trigger jobs programmatically          |
+In Spring Batch, there are basically three ways for steps to share data:
 
+a) JobExecutionContext
 
-///////////////////
+Stores data for the whole job.
 
-| File                                     | Purpose                                                                                                                         | How it’s connected                                                                                      |
-| ---------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
-| **`BatchConfig.java`**                   | Enables Spring Batch (`@EnableBatchProcessing`) and registers all batch infrastructure beans (JobRepository, JobLauncher, etc.) | Makes Spring aware of batch context; allows `JobBuilderFactory` and `StepBuilderFactory` to be injected |
-| **`UserListJobConfig.java`**             | Declares the **Job** and all **Steps**                                                                                          | Spring automatically detects it (`@Configuration`) and registers the `userListJob` bean                 |
-| **`Step1CreateBatchHeaderTasklet.java`** | Implements logic for Step 1                                                                                                     | Detected automatically (`@Component`) and injected into the correct Step via parameter matching         |
-| **`UserListJobListener.java`**           | Listens to job lifecycle events                                                                                                 | Detected automatically (`@Component`) and injected into the Job as a listener                           |
-| **`JobLauncherQuartzAdapter.java`**      | (To be added soon) — launches the job manually or on a schedule                                                                 | It gets a `JobLauncher` and the `userListJob` injected                                                  |
-| **`BatchService.java`**                  | (Optional helper) to trigger jobs programmatically from web layer                                                               | Gets `JobLauncher` and `Job` injected and calls `run()`                                                 |
+Accessible in all steps.
 
-+--------------------------------------------------------------+
-| @EnableBatchProcessing (BatchConfig)                         |
-|   → provides JobBuilderFactory, StepBuilderFactory            |
-+--------------------------------------------------------------+
-                 │
-                 ▼
-+--------------------------------------------------------------+
-| UserListJobConfig                                            |
-|   - defines Job (userListJob)                                |
-|   - defines Steps (step1..step5)                             |
-|   - expects Tasklet beans for each Step                      |
-+--------------------------------------------------------------+
-                 │
-                 ▼
-+--------------------------------------------------------------+
-| Step1CreateBatchHeaderTasklet                                |
-|   - @Component so Spring registers it                        |
-|   - injected into step1CreateBatchHeader() automatically     |
-+--------------------------------------------------------------+
-                 │
-                 ▼
-+--------------------------------------------------------------+
-| UserListJobListener                                          |
-|   - @Component auto-detected                                 |
-|   - injected as Job listener automatically                   |
-+--------------------------------------------------------------+
+Example: Step2 loads users and stores them in jobExecution.getExecutionContext(). Step3 retrieves from the same context.
 
+// Step2
+jobExecution.getExecutionContext().put("LOADED_USERS", userList);
 
-////////////////
+// Step3
+List<UserManagementPojo> users =
+   (List<UserManagementPojo>) jobExecution.getExecutionContext().get("LOADED_USERS");
 
-In Spring Batch, each Step can indeed have:
-
-A Tasklet (or a reader/processor/writer if it’s a chunk step)
-Optionally, Step Listeners
-
-Tasklet / Task — the “worker bee”
-
-Think of the tasklet as the piece of code that actually does the work.
-| Step  | Tasklet Action                                                       |
-| ----- | -------------------------------------------------------------------- |
-| Step1 | Create a batch header in the DB and store its ID                     |
-| Step2 | Load users from `user_management` table into memory or staging table |
-| Step3 | Populate the user list table with those users                        |
-| Step4 | Generate a CSV file from the user list                               |
-| Step5 | Encrypt the CSV and send it to FTP                                   |
-
-Listener — the “observer / watchdog”
-
-A listener is not doing the main work. It’s watching and reacting to lifecycle events.
-
-It can run before the step/job or after the step/job.
 
 ///////////
 
+Your “continuity” across steps
 
+From your flow:
 
+Step1CreateBatchHeader → creates batch ID
 
+Step2LoadUsers → loads users for that batch
+
+Step3PopulateUserList → inserts users into user_management_list_member table
+
+Step4GenerateCsv → creates CSV from the list members
+
+Step5EncryptAndTransfer → encrypts and sends CSV
 
 
 

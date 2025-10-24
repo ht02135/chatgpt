@@ -11,6 +11,16 @@ import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.stereotype.Component;
 
+/*
+| Step                    | Type    | Reason                             |
+| ----------------------- | ------- | ---------------------------------- |
+| Step1CreateBatchHeader  | Tasklet | Single DB insert, one-off          |
+| Step2LoadUsers          | Chunk   | Multiple records, DB read/write    |
+| Step3PopulateUserList   | Chunk   | Multiple records, DB insert        |
+| Step4GenerateCsv        | Tasklet | One-off file creation              |
+| Step5EncryptAndTransfer | Tasklet | One-off file encryption & transfer |
+*/
+
 @Component
 public class Step5EncryptAndTransfer extends StepExecutionListenerSupport implements Tasklet {
     private static final Logger logger = LogManager.getLogger(Step5EncryptAndTransfer.class);
