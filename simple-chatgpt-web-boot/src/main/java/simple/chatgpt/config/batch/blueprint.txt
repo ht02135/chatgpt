@@ -1,0 +1,90 @@
+
+com.example.batch
+├── config
+│   ├── BatchConfig.java
+│   ├── QuartzSchedulerConfig.java
+│   └── DataSourceConfig.java
+├── job
+│   ├── JobLauncherQuartzAdapter.java
+│   ├── job1
+│   │   ├── Job1Config.java
+│   │   └── Job1Tasklet.java
+│   └── job2
+│       ├── Job2Config.java
+│       └── Job2Tasklet.java
+└── service
+    └── BatchService.java
+
+////////////
+
+| Old XML Feature                       | New Java Config Equivalent                                      |
+| ------------------------------------- | --------------------------------------------------------------- |
+| `<job>` with steps & decision         | `@Configuration` class defining a `Job` bean with `StepBuilder` |
+| `<CronTriggerBean>` + `<JobDetail>`   | `QuartzSchedulerConfig` with `JobDetail` and `Trigger`          |
+| `<tasklet>`, `<chunk>`                | Modern `Tasklet` or `ChunkOrientedTasklet` beans                |
+| `<property>`/`<ref>` wiring           | Spring Boot / `@Bean` dependency injection                      |
+| MyBatis readers/writers               | Still usable — just injected via beans                          |
+| XML imports (ftp.xml, fileNaming.xml) | Centralized config classes (`@Configuration`)                   |
+| `PropertyPlaceholderConfigurer`       | Use `application.yml` / Spring `@Value` injection               |
+
+| Old (XML)                  | New (Spring Batch 5.2.3)                                           |
+| -------------------------- | ------------------------------------------------------------------ |
+| `<job>` / `<step>` XML     | Java DSL via `JobBuilder`, `StepBuilder`                           |
+| `CronTriggerBean` (Quartz) | `@Scheduled(cron = "...")`                                         |
+| `jobDetail` beans          | Replaced with `JobLauncher` call                                   |
+| XML listeners              | Implement `JobExecutionListener` / `StepExecutionListener` classes |
+| `scope="step"` beans       | Annotate with `@StepScope` in Java config                          |
+
+////////////////////
+
+src/
+└── main/
+    ├── java/
+    │   └── com/
+    │       └── company/
+    │           └── batch/
+    │               ├── BatchApplication.java
+    │
+    │               ├── config/
+    │               │   ├── BatchConfig.java
+    │               │   ├── DataSourceConfig.java
+    │               │   ├── SchedulerConfig.java
+    │               │   └── LoggingConfig.java
+    │
+    │               ├── job/
+    │               │   ├── ChatGptExtract/
+    │               │   │   ├── ChatGptExtractJobConfig.java
+    │               │   │   ├── tasklet/
+    │               │   │   │   ├── ExtractTasklet.java
+    │               │   │   │   ├── EncryptTasklet.java
+    │               │   │   │   └── FileTransferTasklet.java
+    │               │   │   ├── listener/
+    │               │   │   │   ├── ChatGptExtractJobExecutionListener.java
+    │               │   │   │   ├── ChatGptExtractStepListener.java
+    │               │   │   │   └── FileTransferListener.java
+    │               │   │   └── model/
+    │               │   │       └── ExtractDataModel.java
+    │               │   └── JobLauncherScheduler.java
+    │
+    │               ├── dao/
+    │               │   ├── ProcessHeaderDao.java
+    │               │   └── mapper/
+    │               │       └── ExtractMapper.xml
+    │
+    │               ├── service/
+    │               │   ├── FileNotificationService.java
+    │               │   ├── EncryptionService.java
+    │               │   └── BatchExecutionService.java
+    │
+    │               └── util/
+    │                   ├── DateUtils.java
+    │                   ├── FileUtils.java
+    │                   └── Constants.java
+    │
+    └── resources/
+        ├── application.properties
+        ├── log4j2.xml
+        └── db/
+            └── schema-mysql.sql
+
+            

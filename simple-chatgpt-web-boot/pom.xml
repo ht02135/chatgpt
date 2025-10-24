@@ -324,6 +324,12 @@
     		<version>1.2</version>
 		</dependency>
 
+		<dependency>
+    		<groupId>org.springframework.batch</groupId>
+    		<artifactId>spring-batch-core</artifactId>
+    		<version>4.3.10</version>
+		</dependency>
+		
 	</dependencies>
 
 	<build>
