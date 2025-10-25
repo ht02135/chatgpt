@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
@@ -39,7 +40,6 @@ public class Step4GenerateCsv extends StepExecutionListenerSupport implements Ta
     private final UserManagementListService listService;
     private final JobRequestService jobRequestService;
 
-    // Default directory where CSV files will be created
     private static final String CSV_OUTPUT_DIR = "/tmp/user_lists";
 
     private JobRequest jobRequest;
@@ -59,12 +59,12 @@ public class Step4GenerateCsv extends StepExecutionListenerSupport implements Ta
                 "UserListJobConfig", 400, 1, JobRequest.STATUS_SUBMITTED);
         logger.debug("Fetched JobRequest for CSV generation: {}", jobRequest);
 
-        if (jobRequest == null) {
-            logger.warn("No JobRequest found with stage=400 status=1 SUBMITTED. CSV generation will be skipped.");
-        } else {
+        if (jobRequest != null) {
             // save JobRequest in context
             stepExecution.getJobExecution().getExecutionContext().put("JOB_REQUEST", jobRequest);
             logger.debug("JobRequest saved to JobExecutionContext");
+        } else {
+            logger.warn("No JobRequest found with stage=400 status=1 SUBMITTED. CSV generation will be skipped.");
         }
     }
 
@@ -104,9 +104,22 @@ public class Step4GenerateCsv extends StepExecutionListenerSupport implements Ta
             listService.exportListToCsv(params);
             logger.debug("CSV successfully generated at {}", csvFile.getAbsolutePath());
 
+            // Save filename in JobRequest.stepData
+            Map<String, Object> stepData = jobRequest.getStepData() != null
+                    ? new HashMap<>(jobRequest.getStepData())
+                    : new HashMap<>();
+            stepData.put("CSV_FILE_NAME", fileName);
+            jobRequest.setStepData(stepData);
+            logger.debug("Saved CSV fileName={} into JobRequest.stepData", fileName);
+
+            // Advance stage to next step
             jobRequest.setProcessingStage(500); // next stage
             jobRequest.setProcessingStatus(1);
             jobRequestService.update(jobRequest.getId(), jobRequest);
+
+            // Update context
+            stepExecution.getJobExecution().getExecutionContext().put("JOB_REQUEST", jobRequest);
+            logger.debug("Updated JobRequest in JobExecutionContext");
 
         } catch (Exception e) {
             logger.error("Error generating CSV for listId={}", listId, e);
