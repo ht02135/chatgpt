@@ -82,7 +82,7 @@ public class Step2LoadUsersChunk extends StepExecutionListenerSupport {
 
                     // fetch JobRequest 200/1/SUBMITTED
                     jobRequest = jobRequestService.getOneRecentJobRequestByParams(
-                            "UserListJobConfig", 200, 1, JobRequest.STATUS_SUBMITTED);
+                    	UserListJobConfig.JOB_NAME, 200, 1, JobRequest.STATUS_SUBMITTED);
                     logger.debug("itemReader fetched jobRequest={}", jobRequest);
 
                     if (jobRequest == null) {
@@ -141,7 +141,7 @@ public class Step2LoadUsersChunk extends StepExecutionListenerSupport {
                         ? new HashMap<>(jobRequest.getStepData())
                         : new HashMap<>();
 
-                List<Long> existingIds = (List<Long>) stepData.getOrDefault("USER_IDS", new ArrayList<>());
+                List<Long> existingIds = (List<Long>) stepData.getOrDefault(UserListJobConfig.CONTEXT_USER_IDS, new ArrayList<>());
                 existingIds.addAll(userIds);
                 stepData.put("USER_IDS", existingIds);
                 jobRequest.setStepData(stepData);
@@ -154,7 +154,7 @@ public class Step2LoadUsersChunk extends StepExecutionListenerSupport {
                 logger.debug("itemWriter updated jobRequest stage=300 status=1, stepData user count={}", existingIds.size());
 
                 // update ExecutionContext once
-                stepExecution.getJobExecution().getExecutionContext().put("JOB_REQUEST", jobRequest);
+                stepExecution.getJobExecution().getExecutionContext().put(UserListJobConfig.CONTEXT_JOB_REQUEST, jobRequest);
 
             } catch (Exception e) {
                 logger.error("itemWriter encountered error, marking jobRequest FAILED", e);

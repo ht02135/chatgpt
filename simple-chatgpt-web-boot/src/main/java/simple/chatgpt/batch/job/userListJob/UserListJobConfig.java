@@ -24,6 +24,18 @@ public class UserListJobConfig {
 
     private static final Logger logger = LogManager.getLogger(UserListJobConfig.class);
 
+    /** 
+     * hung: public constant for JobRequest jobName
+     */
+    public static final String JOB_NAME = "UserListJobConfig";
+    
+    // hung: ExecutionContext keys
+    public static final String CONTEXT_JOB_REQUEST = "JOB_REQUEST";
+    public static final String CONTEXT_LIST_ID = "LIST_ID";
+    public static final String CONTEXT_USER_IDS = "USER_IDS";
+    public static final String CONTEXT_MEMBER_IDS = "MEMBER_IDS";
+    public static final String CONTEXT_BATCH_ID = "BATCH_ID";
+    
     private final JobBuilderFactory jobBuilderFactory;
     private final StepBuilderFactory stepBuilderFactory;
 

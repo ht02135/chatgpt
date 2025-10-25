@@ -56,12 +56,12 @@ public class Step4GenerateCsv extends StepExecutionListenerSupport implements Ta
 
         // Fetch JobRequest 400/1/SUBMITTED
         jobRequest = jobRequestService.getOneRecentJobRequestByParams(
-                "UserListJobConfig", 400, 1, JobRequest.STATUS_SUBMITTED);
+        	UserListJobConfig.JOB_NAME, 400, 1, JobRequest.STATUS_SUBMITTED);
         logger.debug("Fetched JobRequest for CSV generation: {}", jobRequest);
 
         if (jobRequest != null) {
             // save JobRequest in context
-            stepExecution.getJobExecution().getExecutionContext().put("JOB_REQUEST", jobRequest);
+            stepExecution.getJobExecution().getExecutionContext().put(UserListJobConfig.CONTEXT_JOB_REQUEST, jobRequest);
             logger.debug("JobRequest saved to JobExecutionContext");
         } else {
             logger.warn("No JobRequest found with stage=400 status=1 SUBMITTED. CSV generation will be skipped.");
@@ -77,7 +77,7 @@ public class Step4GenerateCsv extends StepExecutionListenerSupport implements Ta
             return RepeatStatus.FINISHED;
         }
 
-        Long listId = jobRequest.getStepData() != null ? (Long) jobRequest.getStepData().get("LIST_ID") : null;
+        Long listId = jobRequest.getStepData() != null ? (Long) jobRequest.getStepData().get(UserListJobConfig.CONTEXT_LIST_ID) : null;
         if (listId == null) {
             logger.warn("No LIST_ID found in JobRequest.stepData, skipping CSV generation");
             return RepeatStatus.FINISHED;
@@ -118,7 +118,7 @@ public class Step4GenerateCsv extends StepExecutionListenerSupport implements Ta
             jobRequestService.update(jobRequest.getId(), jobRequest);
 
             // Update context
-            stepExecution.getJobExecution().getExecutionContext().put("JOB_REQUEST", jobRequest);
+            stepExecution.getJobExecution().getExecutionContext().put(UserListJobConfig.CONTEXT_JOB_REQUEST, jobRequest);
             logger.debug("Updated JobRequest in JobExecutionContext");
 
         } catch (Exception e) {

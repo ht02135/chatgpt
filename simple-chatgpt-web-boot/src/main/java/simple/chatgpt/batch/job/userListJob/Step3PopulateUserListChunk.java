@@ -91,7 +91,7 @@ public class Step3PopulateUserListChunk extends StepExecutionListenerSupport {
 
                     // fetch JobRequest from context
                     jobRequest = (JobRequest) stepExecution.getJobExecution()
-                            .getExecutionContext().get("JOB_REQUEST");
+                            .getExecutionContext().get(UserListJobConfig.CONTEXT_JOB_REQUEST);
                     logger.debug("itemReader fetched jobRequest={}", jobRequest);
 
                     if (jobRequest == null) {
@@ -102,13 +102,13 @@ public class Step3PopulateUserListChunk extends StepExecutionListenerSupport {
 
                     // get USER_IDS from stepData
                     Map<String, Object> stepData = jobRequest.getStepData();
-                    if (stepData == null || !stepData.containsKey("USER_IDS")) {
+                    if (stepData == null || !stepData.containsKey(UserListJobConfig.CONTEXT_USER_IDS)) {
                         logger.debug("No USER_IDS found in JobRequest.stepData, ending step");
                         initialized = true;
                         return null;
                     }
 
-                    userIds = (List<Long>) stepData.get("USER_IDS");
+                    userIds = (List<Long>) stepData.get(UserListJobConfig.CONTEXT_USER_IDS);
                     logger.debug("itemReader loaded {} userIds from JobRequest", userIds.size());
                     initialized = true;
                 }
@@ -132,7 +132,7 @@ public class Step3PopulateUserListChunk extends StepExecutionListenerSupport {
     @Bean
     public ItemProcessor<UserManagementPojo, UserManagementListMemberPojo> itemProcessor() {
         return user -> {
-            Long listId = (Long) stepExecution.getJobExecution().getExecutionContext().get("LIST_ID");
+            Long listId = (Long) stepExecution.getJobExecution().getExecutionContext().get(UserListJobConfig.CONTEXT_LIST_ID);
             UserManagementListMemberPojo member = new UserManagementListMemberPojo();
             member.setListId(listId);
             member.setUserName(user.getUserName());
@@ -178,9 +178,9 @@ public class Step3PopulateUserListChunk extends StepExecutionListenerSupport {
                 Map<String, Object> stepData = jobRequest.getStepData() != null
                         ? new HashMap<>(jobRequest.getStepData())
                         : new HashMap<>();
-                List<Long> existingMemberIds = (List<Long>) stepData.getOrDefault("MEMBER_IDS", new ArrayList<>());
+                List<Long> existingMemberIds = (List<Long>) stepData.getOrDefault(UserListJobConfig.CONTEXT_MEMBER_IDS, new ArrayList<>());
                 existingMemberIds.addAll(memberIds);
-                stepData.put("MEMBER_IDS", existingMemberIds);
+                stepData.put(UserListJobConfig.CONTEXT_MEMBER_IDS, existingMemberIds);
                 jobRequest.setStepData(stepData);
 
                 // flip stage/status to 400/1
@@ -190,7 +190,7 @@ public class Step3PopulateUserListChunk extends StepExecutionListenerSupport {
                 logger.debug("itemWriter updated jobRequest stage=400 status=1, total member count={}", existingMemberIds.size());
 
                 // save updated JobRequest in context
-                stepExecution.getJobExecution().getExecutionContext().put("JOB_REQUEST", jobRequest);
+                stepExecution.getJobExecution().getExecutionContext().put(UserListJobConfig.CONTEXT_JOB_REQUEST, jobRequest);
 
             } catch (Exception e) {
                 logger.error("itemWriter encountered error, marking jobRequest FAILED", e);

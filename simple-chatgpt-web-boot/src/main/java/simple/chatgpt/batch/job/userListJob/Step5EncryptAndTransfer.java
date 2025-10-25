@@ -11,6 +11,9 @@ import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.stereotype.Component;
 
+import simple.chatgpt.pojo.batch.JobRequest;
+import simple.chatgpt.service.batch.JobRequestService;
+
 /*
 | Step                    | Type    | Reason                             |
 | ----------------------- | ------- | ---------------------------------- |
@@ -23,22 +26,78 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class Step5EncryptAndTransfer extends StepExecutionListenerSupport implements Tasklet {
+
     private static final Logger logger = LogManager.getLogger(Step5EncryptAndTransfer.class);
+
+    private final JobRequestService jobRequestService;
+
+    private JobRequest jobRequest;
+
+    public Step5EncryptAndTransfer(JobRequestService jobRequestService) {
+        this.jobRequestService = jobRequestService;
+    }
 
     @Override
     public void beforeStep(StepExecution stepExecution) {
-        logger.debug("Step5EncryptAndTransfer starting");
+        logger.debug("Step5EncryptAndTransfer beforeStep called");
+
+        // Fetch JobRequest 500/1/SUBMITTED
+        jobRequest = jobRequestService.getOneRecentJobRequestByParams(
+        	UserListJobConfig.JOB_NAME, 500, 1, JobRequest.STATUS_SUBMITTED);
+        logger.debug("Fetched JobRequest for encryption/transfer: {}", jobRequest);
+
+        if (jobRequest != null) {
+            stepExecution.getJobExecution().getExecutionContext().put(UserListJobConfig.CONTEXT_JOB_REQUEST, jobRequest);
+            logger.debug("JobRequest saved to JobExecutionContext");
+        } else {
+            logger.warn("No JobRequest found with stage=500 status=1 SUBMITTED. Task will be skipped.");
+        }
     }
 
     @Override
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
-        Long batchId = chunkContext.getStepContext().getStepExecution()
-                                    .getJobExecution()
-                                    .getExecutionContext()
-                                    .getLong("BATCH_ID");
-        logger.debug("Encrypting and transferring files for batchId={}", batchId);
+        if (jobRequest == null) {
+            logger.warn("No JobRequest to process. Skipping encryption/transfer.");
+            return RepeatStatus.FINISHED;
+        }
 
-        // TODO: implement PGP encryption + FTP transfer logic
+        try {
+            // Example: fetch filename from stepData
+            String fileName = jobRequest.getStepData() != null
+                    ? (String) jobRequest.getStepData().get("CSV_FILE_NAME")
+                    : null;
+
+            if (fileName == null) {
+                logger.warn("No CSV file found in JobRequest.stepData. Skipping transfer.");
+                return RepeatStatus.FINISHED;
+            }
+
+            logger.debug("Encrypting and transferring file={}", fileName);
+
+            // TODO: implement actual PGP encryption + FTP transfer logic
+
+            // ==================================================
+            // Flip JobRequest to stage=1000, status=1 (completed)
+            // ==================================================
+            jobRequest.setProcessingStage(1000);
+            jobRequest.setProcessingStatus(1);
+            jobRequestService.update(jobRequest.getId(), jobRequest);
+            logger.debug("JobRequest updated to stage=1000 status=1 (completed) jobRequest={}", jobRequest);
+
+        } catch (Exception e) {
+            logger.error("Error during encryption/transfer for jobRequest={}", jobRequest, e);
+            // flip JobRequest to FAILED
+            jobRequest.setStatus(JobRequest.STATUS_FAILED);
+            jobRequest.setErrorMessage(e.getMessage());
+            try {
+                jobRequestService.update(jobRequest.getId(), jobRequest);
+                logger.debug("JobRequest updated to FAILED due to exception");
+            } catch (Exception ex) {
+                logger.error("Failed to update JobRequest to FAILED", ex);
+            }
+            throw e; // fail the step
+        }
+
         return RepeatStatus.FINISHED;
     }
 

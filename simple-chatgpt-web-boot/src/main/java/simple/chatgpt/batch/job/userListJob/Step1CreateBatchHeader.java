@@ -53,7 +53,7 @@ public class Step1CreateBatchHeader extends StepExecutionListenerSupport impleme
         // ==========================================
         // STEP 1: Fetch live JobRequest (stage=100, status=SUBMITTED)
         // ==========================================
-        JobRequest jobRequest = jobRequestService.getLiveJobRequestByJobName("UserListJobConfig");
+        JobRequest jobRequest = jobRequestService.getLiveJobRequestByJobName(UserListJobConfig.JOB_NAME);
         logger.debug("execute jobRequest={}", jobRequest);
 
         if (jobRequest == null) {
@@ -104,7 +104,7 @@ public class Step1CreateBatchHeader extends StepExecutionListenerSupport impleme
                     .getStepExecution()
                     .getJobExecution()
                     .getExecutionContext()
-                    .put("JOB_REQUEST", jobRequest);
+                    .put(UserListJobConfig.CONTEXT_JOB_REQUEST, jobRequest);
         logger.debug("execute saved jobRequest to JobExecutionContext jobRequest={}", jobRequest);
 
         // ==================================================
