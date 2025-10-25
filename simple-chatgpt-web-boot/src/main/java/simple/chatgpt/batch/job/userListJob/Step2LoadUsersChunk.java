@@ -143,7 +143,7 @@ public class Step2LoadUsersChunk extends StepExecutionListenerSupport {
 
                 List<Long> existingIds = (List<Long>) stepData.getOrDefault(UserListJobConfig.CONTEXT_USER_IDS, new ArrayList<>());
                 existingIds.addAll(userIds);
-                stepData.put("USER_IDS", existingIds);
+                stepData.put(UserListJobConfig.CONTEXT_USER_IDS, existingIds);
                 jobRequest.setStepData(stepData);
 
                 // flip stage/status
