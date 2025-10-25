@@ -18,10 +18,9 @@ and what data it passed to the step.  so we can track issue?
 i want to keep that pojo in database too..
 so i might create a serveice to view it...
 
-lets name it ProcessExtract for table process_extract??
+///////////////
 
-//////////////
-
+Updated POJO — JobRequest.java
 package com.example.batch.pojo;
 
 import org.apache.logging.log4j.LogManager;
@@ -32,10 +31,10 @@ import java.time.LocalDateTime;
 import java.util.Map;
 
 @Entity
-@Table(name = "process_extract")
-public class ProcessExtract {
+@Table(name = "job_request")
+public class JobRequest {
 
-    private static final Logger logger = LogManager.getLogger(ProcessExtract.class);
+    private static final Logger logger = LogManager.getLogger(JobRequest.class);
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -64,14 +63,14 @@ public class ProcessExtract {
     private LocalDateTime updatedDate;
 
     /*
-     * hung: step_data can be stored as JSON in DB, so we can track data snapshot between steps
+     * hung: step_data stored as JSON, tracking job’s stage snapshots
      */
     @Convert(converter = JsonDataConverter.class)
     @Column(name = "step_data", columnDefinition = "TEXT")
     private Map<String, Object> stepData;
 
-    public ProcessExtract() {
-        logger.debug("ProcessExtract() constructor called");
+    public JobRequest() {
+        logger.debug("JobRequest() constructor called");
     }
 
     // ---------- GETTERS / SETTERS WITH LOGGING ----------
@@ -194,7 +193,7 @@ public class ProcessExtract {
 
     @Override
     public String toString() {
-        return "ProcessExtract{" +
+        return "JobRequest{" +
                 "id=" + id +
                 ", processingStage=" + processingStage +
                 ", processingStatus=" + processingStatus +
@@ -209,63 +208,14 @@ public class ProcessExtract {
 }
 
 
-///////////////////
+/////////////////////
 
-JSON Converter (for stepData)
-
-You’ll need a converter so Map<String, Object> can persist as JSON in your DB
-
-package com.example.batch.pojo;
-
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.persistence.AttributeConverter;
-import jakarta.persistence.Converter;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-
-import java.util.HashMap;
-import java.util.Map;
-
-@Converter
-public class JsonDataConverter implements AttributeConverter<Map<String, Object>, String> {
-
-    private static final Logger logger = LogManager.getLogger(JsonDataConverter.class);
-    private static final ObjectMapper objectMapper = new ObjectMapper();
-
-    @Override
-    public String convertToDatabaseColumn(Map<String, Object> attribute) {
-        logger.debug("convertToDatabaseColumn called");
-        logger.debug("convertToDatabaseColumn attribute={}", attribute);
-        try {
-            return objectMapper.writeValueAsString(attribute);
-        } catch (Exception e) {
-            logger.error("Error converting Map to JSON", e);
-            return "{}";
-        }
-    }
-
-    @Override
-    public Map<String, Object> convertToEntityAttribute(String dbData) {
-        logger.debug("convertToEntityAttribute called");
-        logger.debug("convertToEntityAttribute dbData={}", dbData);
-        try {
-            return objectMapper.readValue(dbData, new TypeReference<Map<String, Object>>() {});
-        } catch (Exception e) {
-            logger.error("Error converting JSON to Map", e);
-            return new HashMap<>();
-        }
-    }
-}
-
-
-///////////////
-
+SQL Table for job_request
 /*
- hung: process_extract table to track all job stages and step data snapshots
+ hung: job_request table tracks submitted jobs and their stage transitions
 */
 
-CREATE TABLE process_extract (
+CREATE TABLE job_request (
     id BIGINT AUTO_INCREMENT PRIMARY KEY,
     processing_stage INT NOT NULL,
     processing_status INT NOT NULL,
@@ -277,4 +227,17 @@ CREATE TABLE process_extract (
     step_data JSON
 );
 
+INSERT INTO job_request (
+    processing_stage,
+    processing_status,
+    status,
+    job_name
+)
+VALUES (
+    100,   -- stage
+    1,     -- processing_status
+    'SUBMITTED',
+    'UserListJobConfig'
+);
 
+Would you like me to include a small service class (e.g., JobRequestServiceImpl) that logs everything per your rules — like when submitting or updating job state (e.g., FAILED, COMPLETED)?
