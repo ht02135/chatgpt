@@ -17,6 +17,8 @@ import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.stereotype.Component;
 
+import simple.chatgpt.pojo.batch.JobRequest;
+import simple.chatgpt.service.batch.JobRequestService;
 import simple.chatgpt.service.management.UserManagementListService;
 
 /*
@@ -35,26 +37,49 @@ public class Step4GenerateCsv extends StepExecutionListenerSupport implements Ta
     private static final Logger logger = LogManager.getLogger(Step4GenerateCsv.class);
 
     private final UserManagementListService listService;
+    private final JobRequestService jobRequestService;
 
     // Default directory where CSV files will be created
     private static final String CSV_OUTPUT_DIR = "/tmp/user_lists";
 
-    public Step4GenerateCsv(UserManagementListService listService) {
+    private JobRequest jobRequest;
+
+    public Step4GenerateCsv(UserManagementListService listService,
+                            JobRequestService jobRequestService) {
         this.listService = listService;
+        this.jobRequestService = jobRequestService;
     }
 
     @Override
     public void beforeStep(StepExecution stepExecution) {
-        logger.debug("Step4GenerateCsv starting");
+        logger.debug("Step4GenerateCsv beforeStep called");
+
+        // Fetch JobRequest 400/1/SUBMITTED
+        jobRequest = jobRequestService.getOneRecentJobRequestByParams(
+                "UserListJobConfig", 400, 1, JobRequest.STATUS_SUBMITTED);
+        logger.debug("Fetched JobRequest for CSV generation: {}", jobRequest);
+
+        if (jobRequest == null) {
+            logger.warn("No JobRequest found with stage=400 status=1 SUBMITTED. CSV generation will be skipped.");
+        } else {
+            // save JobRequest in context
+            stepExecution.getJobExecution().getExecutionContext().put("JOB_REQUEST", jobRequest);
+            logger.debug("JobRequest saved to JobExecutionContext");
+        }
     }
 
     @Override
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
         StepExecution stepExecution = chunkContext.getStepContext().getStepExecution();
 
-        Long listId = stepExecution.getJobExecution().getExecutionContext().getLong("LIST_ID");
+        if (jobRequest == null) {
+            logger.warn("No JobRequest to process. Skipping CSV generation.");
+            return RepeatStatus.FINISHED;
+        }
+
+        Long listId = jobRequest.getStepData() != null ? (Long) jobRequest.getStepData().get("LIST_ID") : null;
         if (listId == null) {
-            logger.warn("No LIST_ID found in JobExecutionContext, skipping CSV generation");
+            logger.warn("No LIST_ID found in JobRequest.stepData, skipping CSV generation");
             return RepeatStatus.FINISHED;
         }
 
@@ -67,7 +92,6 @@ public class Step4GenerateCsv extends StepExecutionListenerSupport implements Ta
             logger.debug("CSV output directory created: {}", created ? dir.getAbsolutePath() : "FAILED");
         }
 
-        // Create CSV file
         String fileName = "user_list_" + listId + ".csv";
         File csvFile = Paths.get(CSV_OUTPUT_DIR, fileName).toFile();
 
@@ -79,9 +103,23 @@ public class Step4GenerateCsv extends StepExecutionListenerSupport implements Ta
 
             listService.exportListToCsv(params);
             logger.debug("CSV successfully generated at {}", csvFile.getAbsolutePath());
+
+            jobRequest.setProcessingStage(500); // next stage
+            jobRequest.setProcessingStatus(1);
+            jobRequestService.update(jobRequest.getId(), jobRequest);
+
         } catch (Exception e) {
             logger.error("Error generating CSV for listId={}", listId, e);
-            throw e; // fail the step so the job can handle it
+            // flip JobRequest to FAILED
+            jobRequest.setStatus(JobRequest.STATUS_FAILED);
+            jobRequest.setErrorMessage(e.getMessage());
+            try {
+                jobRequestService.update(jobRequest.getId(), jobRequest);
+                logger.debug("JobRequest updated to FAILED due to exception");
+            } catch (Exception ex) {
+                logger.error("Failed to update JobRequest to FAILED", ex);
+            }
+            throw e; // fail step
         }
 
         return RepeatStatus.FINISHED;
