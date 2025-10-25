@@ -1,23 +1,30 @@
 package simple.chatgpt.batch.job.userListJob;
 
-import javax.sql.DataSource;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.StepExecution;
+import org.springframework.batch.core.annotation.AfterStep;
+import org.springframework.batch.core.annotation.BeforeStep;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.listener.StepExecutionListenerSupport;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
-import org.springframework.batch.item.database.builder.JdbcCursorItemReaderBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import simple.chatgpt.pojo.batch.JobRequest;
 import simple.chatgpt.pojo.management.UserManagementPojo;
+import simple.chatgpt.service.batch.JobRequestService;
+import simple.chatgpt.service.management.UserManagementService;
 
 /*
 | Step                    | Type    | Reason                             |
@@ -35,82 +42,146 @@ public class Step2LoadUsersChunk extends StepExecutionListenerSupport {
     private static final Logger logger = LogManager.getLogger(Step2LoadUsersChunk.class);
 
     @Autowired
-    private DataSource dataSource;
+    private JobRequestService jobRequestService;
+
+    @Autowired
+    private UserManagementService userManagementService;
+
+    private StepExecution stepExecution;
+    private JobRequest jobRequest; // keep JobRequest in step scope
+    private List<UserManagementPojo> allUsers;
 
     @Bean
     public Step step2LoadUsers(StepBuilderFactory stepBuilderFactory) {
+        logger.debug("step2LoadUsers called");
+
         return stepBuilderFactory.get("step2LoadUsers")
                 .<UserManagementPojo, UserManagementPojo>chunk(50)
-                .reader(userReader())
-                .processor(userProcessor())
-                .writer(userWriter())
+                .reader(itemReader())
+                .processor(itemProcessor())
+                .writer(itemWriter())
                 .listener(this)
                 .build();
     }
 
+    // ==================================================
+    // READER
+    // ==================================================
     @Bean
-    public ItemReader<UserManagementPojo> userReader() {
-        return new JdbcCursorItemReaderBuilder<UserManagementPojo>()
-                .name("userReader")
-                .dataSource(dataSource)
-                .sql("SELECT * FROM user_management WHERE active = true")
-                .rowMapper((rs, rowNum) -> {
-                    UserManagementPojo user = new UserManagementPojo();
-                    user.setId(rs.getLong("id"));
-                    user.setUserName(rs.getString("user_name"));
-                    user.setUserKey(rs.getString("user_key"));
-                    user.setEmail(rs.getString("email"));
-                    user.setFirstName(rs.getString("first_name"));
-                    user.setLastName(rs.getString("last_name"));
-                    user.setActive(rs.getBoolean("active"));
-                    user.setLocked(rs.getBoolean("locked"));
-                    user.setAddressLine1(rs.getString("address_line_1"));
-                    user.setAddressLine2(rs.getString("address_line_2"));
-                    user.setCity(rs.getString("city"));
-                    user.setState(rs.getString("state"));
-                    user.setPostCode(rs.getString("post_code"));
-                    user.setCountry(rs.getString("country"));
-                    user.setCreatedAt(rs.getTimestamp("created_at"));
-                    user.setUpdatedAt(rs.getTimestamp("updated_at"));
-                    return user;
-                })
-                .build();
+    public ItemReader<UserManagementPojo> itemReader() {
+        logger.debug("itemReader called");
+
+        return new ItemReader<>() {
+            private int index = 0;
+            private boolean initialized = false;
+
+            @Override
+            public UserManagementPojo read() {
+                if (!initialized) {
+                    logger.debug("itemReader initializing");
+
+                    // fetch JobRequest 200/1/SUBMITTED
+                    jobRequest = jobRequestService.getOneRecentJobRequestByParams(
+                            "UserListJobConfig", 200, 1, JobRequest.STATUS_SUBMITTED);
+                    logger.debug("itemReader fetched jobRequest={}", jobRequest);
+
+                    if (jobRequest == null) {
+                        logger.debug("itemReader found no JobRequest, returning null");
+                        initialized = true;
+                        return null;
+                    }
+
+                    // load all users once
+                    allUsers = userManagementService.getAll();
+                    logger.debug("itemReader loaded users size={}", allUsers.size());
+
+                    initialized = true;
+                }
+
+                if (allUsers == null || index >= allUsers.size()) {
+                    logger.debug("itemReader no more users, returning null");
+                    return null;
+                }
+
+                UserManagementPojo user = allUsers.get(index++);
+                logger.debug("itemReader returning user={}", user);
+                return user;
+            }
+        };
     }
 
+    // ==================================================
+    // PROCESSOR
+    // ==================================================
     @Bean
-    public ItemProcessor<UserManagementPojo, UserManagementPojo> userProcessor() {
+    public ItemProcessor<UserManagementPojo, UserManagementPojo> itemProcessor() {
         return user -> {
-            logger.debug("Loaded user={}", user.getUserName());
-            return user; // no transformation
+            logger.debug("itemProcessor processing user={}", user);
+            return user; // no context update here
         };
     }
 
+    // ==================================================
+    // WRITER
+    // ==================================================
     @Bean
-    public ItemWriter<UserManagementPojo> userWriter() {
+    public ItemWriter<UserManagementPojo> itemWriter() {
         return users -> {
-            // Save loaded users into JobExecutionContext for the next step
-            StepExecution stepExecution = this.getStepExecution(); 
-            stepExecution.getJobExecution().getExecutionContext().put("LOADED_USERS", users);
-            logger.debug("Stored {} users in JobExecutionContext", users.size());
+            if (jobRequest == null) {
+                logger.debug("itemWriter found no JobRequest, skipping update");
+                return;
+            }
+
+            try {
+                // collect IDs from this chunk
+                List<Long> userIds = users.stream().map(UserManagementPojo::getId).toList();
+
+                // merge with existing stepData
+                Map<String, Object> stepData = jobRequest.getStepData() != null
+                        ? new HashMap<>(jobRequest.getStepData())
+                        : new HashMap<>();
+
+                List<Long> existingIds = (List<Long>) stepData.getOrDefault("USER_IDS", new ArrayList<>());
+                existingIds.addAll(userIds);
+                stepData.put("USER_IDS", existingIds);
+                jobRequest.setStepData(stepData);
+
+                // flip stage/status
+                jobRequest.setProcessingStage(300);
+                jobRequest.setProcessingStatus(1);
+
+                jobRequestService.update(jobRequest.getId(), jobRequest);
+                logger.debug("itemWriter updated jobRequest stage=300 status=1, stepData user count={}", existingIds.size());
+
+                // update ExecutionContext once
+                stepExecution.getJobExecution().getExecutionContext().put("JOB_REQUEST", jobRequest);
+
+            } catch (Exception e) {
+                logger.error("itemWriter encountered error, marking jobRequest FAILED", e);
+                jobRequest.setStatus(JobRequest.STATUS_FAILED);
+                jobRequest.setErrorMessage(e.getMessage());
+                try {
+                    jobRequestService.update(jobRequest.getId(), jobRequest);
+                } catch (Exception ex) {
+                    logger.error("Failed to update JobRequest to FAILED", ex);
+                }
+                throw e; // rethrow to fail the step
+            }
         };
     }
 
-    // Use beforeStep/afterStep hooks to set StepExecution for writer
-    private StepExecution stepExecution;
-
-    @Override
+    // ==================================================
+    // STEP LISTENER METHODS
+    // ==================================================
+    @BeforeStep
     public void beforeStep(StepExecution stepExecution) {
+        logger.debug("beforeStep called");
         this.stepExecution = stepExecution;
-        logger.debug("Step2LoadUsers starting");
     }
 
-    private StepExecution getStepExecution() {
-        return stepExecution;
-    }
-
-    @Override
+    @AfterStep
     public ExitStatus afterStep(StepExecution stepExecution) {
-        logger.debug("Step2LoadUsers finished with status {}", stepExecution.getStatus());
+        logger.debug("afterStep called");
         this.stepExecution = null;
         return stepExecution.getExitStatus();
     }

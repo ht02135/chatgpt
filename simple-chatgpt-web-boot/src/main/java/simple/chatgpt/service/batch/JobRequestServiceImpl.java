@@ -1,7 +1,10 @@
 package simple.chatgpt.service.batch;
 
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -70,5 +73,43 @@ public class JobRequestServiceImpl implements JobRequestService {
         JobRequest result = jobRequestMapper.getLiveJobRequestByJobName(jobName);
         logger.debug("getLiveJobRequestByJobName result={}", result);
         return result;
+    }
+    
+    @Override
+    public JobRequest getOneRecentJobRequestByParams(String jobName, Integer processingStage,
+                                                     Integer processingStatus, String status) {
+        logger.debug("getOneRecentJobRequestByParams called");
+        logger.debug("getOneRecentJobRequestByParams jobName={}", jobName);
+        logger.debug("getOneRecentJobRequestByParams processingStage={}", processingStage);
+        logger.debug("getOneRecentJobRequestByParams processingStatus={}", processingStatus);
+        logger.debug("getOneRecentJobRequestByParams status={}", status);
+
+        // Build search params map
+        Map<String, Object> params = new HashMap<>();
+        params.put("jobName", jobName);
+        params.put("processingStage", processingStage);
+        params.put("processingStatus", processingStatus);
+        params.put("status", status);
+
+        logger.debug("getOneRecentJobRequestByParams params={}", params);
+
+        // Use existing search method
+        List<JobRequest> results = search(params);
+        logger.debug("getOneRecentJobRequestByParams results={}", results);
+
+        if (results == null || results.isEmpty()) {
+            logger.debug("getOneRecentJobRequestByParams no JobRequest found");
+            return null;
+        }
+
+        // Find the most recently updated JobRequest
+        JobRequest mostRecent = results.stream()
+                .filter(Objects::nonNull)
+                .sorted(Comparator.comparing(JobRequest::getUpdatedDate, Comparator.nullsLast(Comparator.reverseOrder())))
+                .findFirst()
+                .orElse(null);
+
+        logger.debug("getOneRecentJobRequestByParams mostRecent={}", mostRecent);
+        return mostRecent;
     }
 }

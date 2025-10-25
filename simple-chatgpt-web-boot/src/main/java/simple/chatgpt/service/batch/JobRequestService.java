@@ -24,5 +24,7 @@ public interface JobRequestService {
     
 	// live jobRequest is processing_stage=100 processing_status=1 status=SUBMITTED
     public JobRequest getLiveJobRequestByJobName(String jobName);
+    public JobRequest getOneRecentJobRequestByParams(String jobName, Integer processingStage,
+    	Integer processingStatus, String status);
     
 }
