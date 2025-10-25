@@ -1,4 +1,4 @@
-package simple.chatgpt.job.userListJob;
+package simple.chatgpt.batch.job.userListJob;
 
 import java.io.File;
 import java.io.FileOutputStream;

@@ -1,4 +1,4 @@
-package simple.chatgpt.job.userListJob;
+package simple.chatgpt.batch.job.userListJob;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

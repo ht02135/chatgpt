@@ -24,6 +24,11 @@ public class JobRequest {
 
     private static final Logger logger = LogManager.getLogger(JobRequest.class);
 
+    // ---------- STATUS CONSTANTS ----------
+    public static final String STATUS_SUBMITTED = "SUBMITTED";
+    public static final String STATUS_COMPLETED = "COMPLETED";
+    public static final String STATUS_FAILED = "FAILED";
+    
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")

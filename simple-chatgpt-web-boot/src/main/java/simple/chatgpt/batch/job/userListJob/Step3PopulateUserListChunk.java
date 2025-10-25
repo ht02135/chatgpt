@@ -1,4 +1,4 @@
-package simple.chatgpt.job.userListJob;
+package simple.chatgpt.batch.job.userListJob;
 
 import java.sql.Timestamp;
 import java.util.List;
