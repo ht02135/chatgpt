@@ -1,26 +1,34 @@
 package simple.chatgpt.batch.job.userListJob;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.StepExecution;
+import org.springframework.batch.core.annotation.AfterStep;
+import org.springframework.batch.core.annotation.BeforeStep;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.listener.StepExecutionListenerSupport;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import simple.chatgpt.pojo.batch.JobRequest;
 import simple.chatgpt.pojo.management.UserManagementListMemberPojo;
-import simple.chatgpt.pojo.management.UserManagementListPojo;
 import simple.chatgpt.pojo.management.UserManagementPojo;
+import simple.chatgpt.service.batch.JobRequestService;
 import simple.chatgpt.service.management.UserManagementListMemberService;
 import simple.chatgpt.service.management.UserManagementListService;
+import simple.chatgpt.service.management.UserManagementService;
 
 /*
 | Step                    | Type    | Reason                             |
@@ -37,63 +45,94 @@ public class Step3PopulateUserListChunk extends StepExecutionListenerSupport {
 
     private static final Logger logger = LogManager.getLogger(Step3PopulateUserListChunk.class);
 
-    private StepExecution stepExecution;
+    @Autowired
+    private JobRequestService jobRequestService;
 
     private final UserManagementListService listService;
     private final UserManagementListMemberService memberService;
+    private final UserManagementService userManagementService;
+
+    private StepExecution stepExecution;
+    private JobRequest jobRequest;
+    private List<Long> userIds;
+    private int index = 0;
 
     public Step3PopulateUserListChunk(UserManagementListService listService,
-                                      UserManagementListMemberService memberService) {
+                                      UserManagementListMemberService memberService,
+                                      UserManagementService userManagementService) {
         this.listService = listService;
         this.memberService = memberService;
+        this.userManagementService = userManagementService;
     }
 
     @Bean
     public Step step3PopulateUserList(StepBuilderFactory stepBuilderFactory) {
         return stepBuilderFactory.get("step3PopulateUserList")
                 .<UserManagementPojo, UserManagementListMemberPojo>chunk(50)
-                .reader(userReader())
-                .processor(userProcessor())
-                .writer(userWriter())
+                .reader(itemReader())
+                .processor(itemProcessor())
+                .writer(itemWriter())
                 .listener(this)
                 .build();
     }
 
-    /** 
-     * Reader: load users from JobExecutionContext (from previous step)
-     */
+    // ==================================================
+    // READER: read one user at a time by ID from JobRequest
+    // ==================================================
     @Bean
-    public ItemReader<UserManagementPojo> userReader() {
-        return new ItemReader<UserManagementPojo>() {
-            private List<UserManagementPojo> users;
-            private int index = 0;
+    public ItemReader<UserManagementPojo> itemReader() {
+        return new ItemReader<>() {
+            private boolean initialized = false;
 
             @Override
             public UserManagementPojo read() {
-                if (users == null) {
-                    users = (List<UserManagementPojo>) stepExecution.getJobExecution()
-                            .getExecutionContext().get("LOADED_USERS");
-                    if (users == null) {
-                        logger.debug("No users found in JobExecutionContext");
+                if (!initialized) {
+                    logger.debug("itemReader initializing Step3");
+
+                    // fetch JobRequest from context
+                    jobRequest = (JobRequest) stepExecution.getJobExecution()
+                            .getExecutionContext().get("JOB_REQUEST");
+                    logger.debug("itemReader fetched jobRequest={}", jobRequest);
+
+                    if (jobRequest == null) {
+                        logger.debug("No JobRequest found in context, ending step");
+                        initialized = true;
                         return null;
                     }
-                    logger.debug("Step3: {} users loaded from JobExecutionContext", users.size());
+
+                    // get USER_IDS from stepData
+                    Map<String, Object> stepData = jobRequest.getStepData();
+                    if (stepData == null || !stepData.containsKey("USER_IDS")) {
+                        logger.debug("No USER_IDS found in JobRequest.stepData, ending step");
+                        initialized = true;
+                        return null;
+                    }
+
+                    userIds = (List<Long>) stepData.get("USER_IDS");
+                    logger.debug("itemReader loaded {} userIds from JobRequest", userIds.size());
+                    initialized = true;
                 }
-                if (index < users.size()) {
-                    return users.get(index++);
+
+                if (userIds == null || index >= userIds.size()) {
+                    return null;
                 }
-                return null; // all items read
+
+                // fetch user by ID
+                Long userId = userIds.get(index++);
+                UserManagementPojo user = userManagementService.get(userId);
+                logger.debug("itemReader returning user id={}, userName={}", user.getId(), user.getUserName());
+                return user;
             }
         };
     }
 
-    /**
-     * Processor: transform UserManagementPojo -> UserManagementListMemberPojo
-     */
+    // ==================================================
+    // PROCESSOR: convert user -> list member
+    // ==================================================
     @Bean
-    public ItemProcessor<UserManagementPojo, UserManagementListMemberPojo> userProcessor() {
+    public ItemProcessor<UserManagementPojo, UserManagementListMemberPojo> itemProcessor() {
         return user -> {
-            Long listId = stepExecution.getJobExecution().getExecutionContext().getLong("LIST_ID");
+            Long listId = (Long) stepExecution.getJobExecution().getExecutionContext().get("LIST_ID");
             UserManagementListMemberPojo member = new UserManagementListMemberPojo();
             member.setListId(listId);
             member.setUserName(user.getUserName());
@@ -111,46 +150,75 @@ public class Step3PopulateUserListChunk extends StepExecutionListenerSupport {
             member.setCreatedAt(new Timestamp(System.currentTimeMillis()));
             member.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
 
-            logger.debug("Transformed user {} to list member", user.getUserName());
+            logger.debug("Processed user {} -> list member", user.getUserName());
             return member;
         };
     }
 
-    /**
-     * Writer: save members to DB
-     */
+    // ==================================================
+    // WRITER: save members, update JobRequest
+    // ==================================================
     @Bean
-    public ItemWriter<UserManagementListMemberPojo> userWriter() {
+    public ItemWriter<UserManagementListMemberPojo> itemWriter() {
         return members -> {
-            for (UserManagementListMemberPojo member : members) {
-                logger.debug("Writing list member user={}", member.getUserName());
-                memberService.create(member);
+            if (jobRequest == null) {
+                logger.debug("itemWriter found no JobRequest, skipping update");
+                return;
+            }
+
+            try {
+                List<Long> memberIds = new ArrayList<>();
+                for (UserManagementListMemberPojo member : members) {
+                    memberService.create(member);
+                    memberIds.add(member.getId());
+                    logger.debug("Saved list member user={}", member.getUserName());
+                }
+
+                // update JobRequest.stepData with MEMBER_IDS
+                Map<String, Object> stepData = jobRequest.getStepData() != null
+                        ? new HashMap<>(jobRequest.getStepData())
+                        : new HashMap<>();
+                List<Long> existingMemberIds = (List<Long>) stepData.getOrDefault("MEMBER_IDS", new ArrayList<>());
+                existingMemberIds.addAll(memberIds);
+                stepData.put("MEMBER_IDS", existingMemberIds);
+                jobRequest.setStepData(stepData);
+
+                // flip stage/status to 400/1
+                jobRequest.setProcessingStage(400);
+                jobRequest.setProcessingStatus(1);
+                jobRequestService.update(jobRequest.getId(), jobRequest);
+                logger.debug("itemWriter updated jobRequest stage=400 status=1, total member count={}", existingMemberIds.size());
+
+                // save updated JobRequest in context
+                stepExecution.getJobExecution().getExecutionContext().put("JOB_REQUEST", jobRequest);
+
+            } catch (Exception e) {
+                logger.error("itemWriter encountered error, marking jobRequest FAILED", e);
+                jobRequest.setStatus(JobRequest.STATUS_FAILED);
+                jobRequest.setErrorMessage(e.getMessage());
+                try {
+                    jobRequestService.update(jobRequest.getId(), jobRequest);
+                } catch (Exception ex) {
+                    logger.error("Failed to update JobRequest to FAILED", ex);
+                }
+                throw e;
             }
         };
     }
 
-    @Override
+    // ==================================================
+    // STEP LISTENER METHODS
+    // ==================================================
+    @BeforeStep
     public void beforeStep(StepExecution stepExecution) {
         this.stepExecution = stepExecution;
-        logger.debug("Step3PopulateUserList starting");
-
-        // Automatically create a new user_management_list
-        UserManagementListPojo listPojo = new UserManagementListPojo();
-        listPojo.setUserListName("User List " + System.currentTimeMillis());
-        listPojo.setDescription("Automatically created by batch job");
-        listPojo.setCreatedAt(new Timestamp(System.currentTimeMillis()));
-        listPojo.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
-
-        UserManagementListPojo savedList = listService.create(listPojo);
-        logger.debug("Created user_management_list with id={}", savedList.getId());
-
-        // Store listId in JobExecutionContext for processor
-        stepExecution.getJobExecution().getExecutionContext().put("LIST_ID", savedList.getId());
+        logger.debug("beforeStep called for Step3PopulateUserList");
     }
 
-    @Override
+    @AfterStep
     public ExitStatus afterStep(StepExecution stepExecution) {
-        logger.debug("Step3PopulateUserList finished with status {}", stepExecution.getStatus());
+        logger.debug("afterStep called for Step3PopulateUserList, status={}", stepExecution.getStatus());
+        this.stepExecution = null;
         return stepExecution.getExitStatus();
     }
 }
