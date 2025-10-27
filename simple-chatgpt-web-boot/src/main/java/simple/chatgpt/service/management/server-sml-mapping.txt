@@ -1,0 +1,92 @@
+
+/////////////////
+
+UserManagementServiceImpl
+|mapper method-name|param-type				|mapper java			|mapper xml|
+findByUserName	String u.getUserName()		@Param("userName")		#{userName}
+insertUser	UserManagementPojo user			@Param("user")			#{user.userName}
+insertUser	UserManagementPojo user
+findById	Long id							@Param("id")			#{id}
+findByUserName	String userName
+findByUserKey	String userKey
+insertUser	UserManagementPojo user			@Param("user")			#{user.locked}
+updateUser	UserManagementPojo user			@Param("user") 			#{user.city}
+updateUserByUserName	UserManagementPojo user
+updateUserByUserKey	UserManagementPojo user
+deleteById	Long id
+deleteByUserName	String userName
+deleteByUserKey	String userKey
+findUsers	Map<String, Object> sqlParams	@Param("params")		#{params.userName}
+countUsers	Map<String, Object> sqlParams
+
+/////////////////
+
+UserManagementListServiceImpl
+| mapper method-name                   | param-type                 | mapper java       | mapper xml                  |
+| ------------------------------------ | -------------------------- | ----------------- | --------------------------- |
+| insertList                           | Map<String, Object> params | @Param("params")  | #{params.list.userListName} |
+| createList                           | Map<String, Object> params | @Param("params")  | #{params.list.userListName} |
+| updateList                           | Map<String, Object> params | @Param("params")  | #{params.list.userListName} |
+| updateListById                       | Map<String, Object> params | @Param("params")  | #{params.list.userListName} |
+| deleteList                           | Map<String, Object> params | @Param("params")  | #{params.listId}            |
+| deleteListById                       | Map<String, Object> params | @Param("params")  | #{params.listId}            |
+| findListById                         | Map<String, Object> params | @Param("params")  | #{params.listId}            |
+| getListById                          | Map<String, Object> params | @Param("params")  | #{params.listId}            |
+| findAllLists                         | —                          | —                 | —                           |
+| getAllLists                          | —                          | —                 | —                           |
+| findLists                            | Map<String, Object> params | @Param("params")  | #{params.list.userListName} |
+| searchLists                          | Map<String, Object> params | @Param("params")  | #{params.list.userListName} |
+| countLists                           | Map<String, Object> params | @Param("params")  | #{params.list.userListName} |
+| searchUserLists                      | Map<String, Object> params | @Param("params")  | #{params.list.userListName} |
+| batchInsertMembers (memberMapper)    | Map<String, Object> params | @Param("members") | #{members}                  |
+| deleteMembersByListId (memberMapper) | Map<String, Object> params | @Param("params")  | #{params.listId}            |
+| findMembersByListId (memberMapper)   | Map<String, Object> params | @Param("params")  | #{params.listId}            |
+| findMembers (memberMapper)           | Map<String, Object> params | @Param("params")  | #{params.listId}            |
+| countMembers (memberMapper)          | Map<String, Object> params | @Param("params")  | #{params.listId}            |
+
+/////////////////
+
+UserManagementListMemberServiceImpl
+| Mapper Method-Name     | Param-Type                 | Mapper Java      | Mapper XML                                          |
+| ---------------------- | -------------------------- | ---------------- | --------------------------------------------------- |
+| insertMember           | Map<String, Object> params | @Param("params") | #{params.member.userName} (and other fields)        |
+| createMember           | Map<String, Object> params | @Param("params") | #{params.member.userName} (and other fields)        |
+| batchInsertMembers     | Map<String, Object> params | @Param("params") | #{member.userName} (foreach loop)                   |
+| getMemberById          | Map<String, Object> params | @Param("params") | #{params.memberId}                                  |
+| getMemberByUserName    | Map<String, Object> params | @Param("params") | #{params.member.userName}                           |
+| updateMemberById       | Map<String, Object> params | @Param("params") | #{params.member.userName}, #{params.member.city}, … |
+| updateMemberByUserName | Map<String, Object> params | @Param("params") | #{params.member.userName}, #{params.member.city}, … |
+| deleteMemberById       | Map<String, Object> params | @Param("params") | #{params.memberId}                                  |
+| deleteMemberByUserName | Map<String, Object> params | @Param("params") | #{params.member.userName}                           |
+| deleteMembersByListId  | Map<String, Object> params | @Param("params") | #{params.listId}                                    |
+| findMembers            | Map<String, Object> params | @Param("params") | #{params.userName}, #{params.city}, …               |
+| searchMembers          | Map<String, Object> params | @Param("params") | #{params.userName}, #{params.city}, …               |
+| findMembersByListId    | Map<String, Object> params | @Param("params") | #{params.listId}                                    |
+| countMembers           | Map<String, Object> params | @Param("params") | #{params.userName}, #{params.city}, …               |
+
+/////////////////
+
+RoleManagementServiceImpl
+
+| Mapper Method-Name | Param-Type                | Mapper Java      | Mapper XML                                          |
+| ------------------ | ------------------------- | ---------------- | --------------------------------------------------- |
+| insertRole         | RoleManagementPojo role   | @Param("params") | #{params.role.roleName}, #{params.role.description} |
+| updateRole         | RoleManagementPojo role   | @Param("params") | #{params.role.roleName}, #{params.role.description} |
+| deleteRoleById     | Long roleId               | @Param("params") | #{params.roleId}                                    |
+| findRoleById       | Long roleId               | @Param("params") | #{params.roleId}                                    |
+| findAllRoles       | —                         | —                | —                                                   |
+| getAllRoles        | —                         | —                | —                                                   |
+| findRoles          | Map<String,Object> params | @Param("params") | #{params.role.roleName}, #{params.role.description} |
+| searchRoles        | Map<String,Object> params | @Param("params") | #{params.role.roleName}, #{params.role.description} |
+| countRoles         | Map<String,Object> params | @Param("params") | #{params.role.roleName}, #{params.role.description} |
+
+/////////////////
+
+       // hung: DONT REMOVE THIS CODE
+        int page = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "page", 0), 0);
+        int size = SafeConverter.toIntOrDefault(ParamWrapper.unwrap(params, "size", 20), 20);
+        int offset = page * size;
+        params.put("offset", offset);
+        params.put("limit", size);
+        
+/////////////////////

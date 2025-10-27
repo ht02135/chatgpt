@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper
+	namespace="simple.chatgpt.mapper.management.security.RoleGroupRoleMappingMapper">
+
+	<!-- ======================= RESULT MAP for POJO ======================= -->
+	<resultMap id="RoleGroupRoleMappingResultMap"
+		type="simple.chatgpt.pojo.management.security.RoleGroupRoleMappingPojo">
+		<id property="id" column="id" />
+		<result property="roleGroupId" column="role_group_id" />
+		<result property="roleGroupName" column="role_group_name" />
+		<result property="roleId" column="role_id" />
+		<result property="roleName" column="role_name" />
+		<result property="createdAt" column="created_at" />
+		<result property="updatedAt" column="updated_at" />
+	</resultMap>
+
+	<!-- ======= 5 CORE METHODS (on top) ======= -->
+
+	<!-- void create(@Param("entity") entityPojo entity) -->
+	<!-- ======================= CREATE ======================= -->
+	<insert id="create" parameterType="map" useGeneratedKeys="true" keyProperty="mapping.id">
+		INSERT INTO
+		role_group_role_mapping (role_group_id, role_id, created_at, updated_at)
+		VALUES (#{mapping.roleGroupId},#{mapping.roleId}, NOW(),
+		NOW())
+	</insert>
+
+	<!-- void update(@Param("id") Long id, @Param("entity") entityPojo entity) -->
+	<!-- ======================= UPDATE ======================= -->
+	<update id="update" parameterType="map">
+		UPDATE role_group_role_mapping
+		<set>
+			<if test="mapping.roleGroupId != null">role_group_id = #{mapping.roleGroupId},</if>
+			<if test="mapping.roleId != null">role_id = #{mapping.roleId},</if>
+		</set>
+		WHERE id = #{id}
+	</update>
+
+	<!-- ======================= SQL FILTER FRAGMENT ======================= -->
+	<sql id="RoleGroupRoleMappingFilter">
+		<where>
+			<if test="params.roleGroupId != null">
+				AND m.role_group_id = #{params.roleGroupId}
+			</if>
+			<if test="params.roleId != null">
+				AND m.role_id = #{params.roleId}
+			</if>
+		</where>
+	</sql>
+
+	<!-- ======================= SEARCH / PAGINATION ======================= -->
+	<!-- List<entityPojo> search(@Param("params") Map<String, Object> params) -->
+	<select id="search" parameterType="map" resultMap="RoleGroupRoleMappingResultMap">
+		SELECT
+		m.id,
+		m.role_group_id,
+		rg.group_name AS role_group_name,
+		m.role_id,
+		r.role_name AS role_name,
+		m.created_at,
+		m.updated_at
+		FROM
+		role_group_role_mapping m
+		LEFT JOIN role_group_management rg ON
+		m.role_group_id = rg.id
+		LEFT JOIN role_management r ON m.role_id = r.id
+		<include refid="RoleGroupRoleMappingFilter" />
+		<if
+			test="params.sortField != null and params.sortDirection != null">
+			ORDER BY ${params.sortField} ${params.sortDirection}
+		</if>
+		<if test="params.offset != null and params.limit != null">
+			LIMIT #{params.offset}, #{params.limit}
+		</if>
+	</select>
+
+    <!-- entityPojo get(@Param("id") Long id) -->
+	<!-- ======================= READ ======================= -->
+	<select id="get" parameterType="long" resultMap="RoleGroupRoleMappingResultMap">
+		SELECT
+		m.id,
+		m.role_group_id,
+		rg.group_name AS role_group_name,
+		m.role_id,
+		r.role_name AS role_name,
+		m.created_at,
+		m.updated_at
+		FROM
+		role_group_role_mapping m
+		LEFT JOIN
+		role_group_management rg ON
+		m.role_group_id = rg.id
+		LEFT JOIN
+		role_management r ON m.role_id = r.id
+		WHERE m.id = #{id}
+	</select>
+
+	<!-- ======================= DELETE ======================= -->
+	<delete id="delete" parameterType="long">
+		DELETE FROM role_group_role_mapping WHERE id = #{id}
+	</delete>
+
+	<!-- ======= OTHER METHODS ======= -->
+
+</mapper>

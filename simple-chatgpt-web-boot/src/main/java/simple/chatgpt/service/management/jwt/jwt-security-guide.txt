@@ -1,0 +1,882 @@
+
+i need to setup spring security filter chain for spring boot
+
+1>i need to authenticate user via jwt toketn. what do i need to create
+2>i have following. now i need authorization mechanic that decide user can
+  access page based on role-groups
+  
+can you provide steps to do 1> and 2>
+
+	<roles>
+		<role name="USER_ROLE" description="Standard user privileges" />
+	</roles>
+	<role-groups>
+
+		<role-group name="USER_ROLE_GROUP">
+			<role-ref name="USER_ROLE" />
+		</role-group>
+	</role-groups>
+	<page-role-groups>
+		<page-role-group url-pattern="/user/**"
+			role-group-ref="USER_ROLE_GROUP" />
+	</page-role-groups>
+	<users>
+		<user user_name="user1" user_key="user1" password="ZAQ!zaq1"
+			first_name="John" last_name="Doe" email="user1@yahoo.com"
+			address_line_1="100 Main Street" address_line_2="Apt 1"
+			city="SystemCity" state="CA" post_code="90003" country="USA"
+			active="true" locked="false" role-group-ref="USER_ROLE_GROUP" />	
+	</users>
+	
+////////////
+
+Step	Component	Purpose
+1	SecurityConfig	Define filter chain
+2	JwtAuthenticationFilter	Extract JWT from header
+3	JwtTokenProvider	Validate and issue tokens
+4	CustomUserDetailsService	Load user + roles
+5	AuthController	Handle /auth/login
+6	PageRoleGroupService	Map pages → role groups
+7	DynamicAccessFilter	Authorize per URL using role group mapping
+
+////////////
+
+Step 1 — JWT Authentication Setup
+You’ll need 5 core classes + filter chain.
+
+1>SecurityConfig.java
+Create the Spring Security filter chain setup.
+
+package com.example.security;
+
+import com.example.security.jwt.JwtAuthenticationFilter;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+@Configuration
+@EnableWebSecurity
+public class SecurityConfig {
+
+    private static final Logger logger = LogManager.getLogger(SecurityConfig.class);
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+
+    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
+        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+    }
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        logger.debug("securityFilterChain called");
+        logger.debug("securityFilterChain jwtAuthenticationFilter={}", jwtAuthenticationFilter);
+
+        http
+            .csrf(csrf -> csrf.disable())
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/auth/**").permitAll() // login/register
+                .anyRequest().authenticated()
+            )
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+
+        return http.build();
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
+        logger.debug("authenticationManager called");
+        return configuration.getAuthenticationManager();
+    }
+}
+
+-----------
+
+2>JwtAuthenticationFilter.java
+Filter that extracts and validates JWT token from header.
+
+package com.example.security.jwt;
+
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
+import org.springframework.web.filter.OncePerRequestFilter;
+import java.io.IOException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+public class JwtAuthenticationFilter extends OncePerRequestFilter {
+
+    private static final Logger logger = LogManager.getLogger(JwtAuthenticationFilter.class);
+    private final JwtTokenProvider jwtTokenProvider;
+
+    public JwtAuthenticationFilter(JwtTokenProvider jwtTokenProvider) {
+        this.jwtTokenProvider = jwtTokenProvider;
+    }
+
+    @Override
+    protected void doFilterInternal(HttpServletRequest request,
+                                    HttpServletResponse response,
+                                    FilterChain filterChain)
+            throws ServletException, IOException {
+
+        logger.debug("doFilterInternal called");
+        String token = jwtTokenProvider.resolveToken(request);
+        logger.debug("doFilterInternal token={}", token);
+
+        if (token != null && jwtTokenProvider.validateToken(token)) {
+            var auth = jwtTokenProvider.getAuthentication(token);
+            logger.debug("doFilterInternal auth={}", auth);
+
+            SecurityContextHolder.getContext().setAuthentication(auth);
+        }
+
+        filterChain.doFilter(request, response);
+    }
+}
+
+-----------
+
+3>JwtTokenProvider.java
+Handles token creation/validation.
+
+package com.example.security.jwt;
+
+import io.jsonwebtoken.*;
+import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Component;
+import java.util.Date;
+import java.util.List;
+import javax.crypto.SecretKey;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+@Component
+public class JwtTokenProvider {
+
+    private static final Logger logger = LogManager.getLogger(JwtTokenProvider.class);
+    private final SecretKey secretKey = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+    private final CustomUserDetailsService userDetailsService;
+
+    public JwtTokenProvider(CustomUserDetailsService userDetailsService) {
+        this.userDetailsService = userDetailsService;
+    }
+
+    public String createToken(String username, List<String> roles) {
+        logger.debug("createToken called");
+        logger.debug("createToken username={}", username);
+        logger.debug("createToken roles={}", roles);
+
+        Date now = new Date();
+        Date validity = new Date(now.getTime() + 3600000); // 1 hour
+        return Jwts.builder()
+                .setSubject(username)
+                .claim("roles", roles)
+                .setIssuedAt(now)
+                .setExpiration(validity)
+                .signWith(secretKey)
+                .compact();
+    }
+
+    public Authentication getAuthentication(String token) {
+        logger.debug("getAuthentication called");
+        logger.debug("getAuthentication token={}", token);
+
+        String username = getUsername(token);
+        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+        return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
+    }
+
+    public String resolveToken(HttpServletRequest request) {
+        logger.debug("resolveToken called");
+        String bearer = request.getHeader("Authorization");
+        logger.debug("resolveToken bearer={}", bearer);
+
+        if (bearer != null && bearer.startsWith("Bearer ")) {
+            return bearer.substring(7);
+        }
+        return null;
+    }
+
+    public boolean validateToken(String token) {
+        logger.debug("validateToken called");
+        logger.debug("validateToken token={}", token);
+
+        try {
+            Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token);
+            return true;
+        } catch (JwtException | IllegalArgumentException e) {
+            logger.error("JWT validation failed", e);
+            return false;
+        }
+    }
+
+    public String getUsername(String token) {
+        logger.debug("getUsername called");
+        logger.debug("getUsername token={}", token);
+
+        return Jwts.parserBuilder().setSigningKey(secretKey).build()
+                .parseClaimsJws(token).getBody().getSubject();
+    }
+}
+
+-----------
+
+4>CustomUserDetailsService.java
+Loads user from DB or XML.
+
+package com.example.security.jwt;
+
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Service;
+import java.util.List;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+@Service
+public class CustomUserDetailsService implements UserDetailsService {
+
+    private static final Logger logger = LogManager.getLogger(CustomUserDetailsService.class);
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        logger.debug("loadUserByUsername called");
+        logger.debug("loadUserByUsername username={}", username);
+
+        // Replace with DB/XML lookup
+        if (username.equals("admin")) {
+            return User.builder()
+                    .username("admin")
+                    .password("{noop}ZAQ!zaq1")
+                    .roles("ADMIN_ROLE", "USER_ROLE")
+                    .build();
+        } else if (username.equals("user1")) {
+            return User.builder()
+                    .username("user1")
+                    .password("{noop}ZAQ!zaq1")
+                    .roles("USER_ROLE")
+                    .build();
+        } else {
+            throw new UsernameNotFoundException("User not found");
+        }
+    }
+}
+
+-----------
+
+5>AuthController.java
+Login endpoint to issue token.
+
+package com.example.security.controller;
+
+import com.example.security.jwt.JwtTokenProvider;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.web.bind.annotation.*;
+import java.util.List;
+import java.util.Map;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+@RestController
+@RequestMapping("/auth")
+public class AuthController {
+
+    private static final Logger logger = LogManager.getLogger(AuthController.class);
+    private final AuthenticationManager authenticationManager;
+    private final JwtTokenProvider jwtTokenProvider;
+
+    public AuthController(AuthenticationManager authenticationManager,
+                          JwtTokenProvider jwtTokenProvider) {
+        this.authenticationManager = authenticationManager;
+        this.jwtTokenProvider = jwtTokenProvider;
+    }
+
+    @PostMapping("/login")
+    public Map<String, String> login(@RequestBody Map<String, String> creds) {
+        logger.debug("login called");
+        logger.debug("login creds={}", creds);
+
+        var auth = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(creds.get("username"), creds.get("password")));
+        logger.debug("login auth={}", auth);
+
+        var user = (org.springframework.security.core.userdetails.User) auth.getPrincipal();
+        var roles = user.getAuthorities().stream().map(a -> a.getAuthority()).toList();
+        var token = jwtTokenProvider.createToken(user.getUsername(), roles);
+        return Map.of("token", token);
+    }
+}
+
+-----------
+
+////////////
+	
+Step 2 — Role-Group Based Authorization
+
+1>1️ Represent PageRoleGroup Mapping
+
+package com.example.security.service;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import org.springframework.stereotype.Service;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+@Service
+public class PageRoleGroupService {
+
+    private static final Logger logger = LogManager.getLogger(PageRoleGroupService.class);
+
+    private static final Map<String, List<String>> PAGE_ROLE_GROUPS = new HashMap<>();
+
+    static {
+        PAGE_ROLE_GROUPS.put("/property/**", List.of("ADMIN_ROLE_GROUP"));
+        PAGE_ROLE_GROUPS.put("/user/**", List.of("USER_ROLE_GROUP"));
+    }
+
+    public List<String> getAllowedRoleGroups(String url) {
+        logger.debug("getAllowedRoleGroups called");
+        logger.debug("getAllowedRoleGroups url={}", url);
+        return PAGE_ROLE_GROUPS.entrySet().stream()
+                .filter(entry -> url.matches(entry.getKey().replace("**", ".*")))
+                .flatMap(e -> e.getValue().stream())
+                .toList();
+    }
+}
+
+---------------
+
+2>Map Role Groups to Roles
+
+You already defined that:
+
+ADMIN_ROLE_GROUP → ADMIN_ROLE + USER_ROLE
+
+USER_ROLE_GROUP → USER_ROLE
+
+Use that logic to check access dynamically.
+	
+---------------
+
+3>Apply Custom Access Decision
+
+You can create a CustomAccessFilter or use Spring’s expression-based access.
+
+dynamic filter like:
+@Component
+public class DynamicAccessFilter extends OncePerRequestFilter {
+    private static final Logger logger = LogManager.getLogger(DynamicAccessFilter.class);
+    private final PageRoleGroupService pageRoleGroupService;
+
+    public DynamicAccessFilter(PageRoleGroupService pageRoleGroupService) {
+        this.pageRoleGroupService = pageRoleGroupService;
+    }
+
+    @Override
+    protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain chain)
+            throws ServletException, IOException {
+
+        logger.debug("doFilterInternal called");
+        String url = req.getRequestURI();
+        logger.debug("doFilterInternal url={}", url);
+
+        var auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null) {
+            var roles = auth.getAuthorities().stream().map(a -> a.getAuthority()).toList();
+            var allowed = pageRoleGroupService.getAllowedRoleGroups(url);
+
+            logger.debug("doFilterInternal roles={}", roles);
+            logger.debug("doFilterInternal allowed={}", allowed);
+
+            boolean permitted = roles.stream().anyMatch(allowed::contains);
+            if (!permitted) {
+                res.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                return;
+            }
+        }
+
+        chain.doFilter(req, res);
+    }
+}
+
+////////////////
+
+Step	Component	Purpose
+1	SecurityConfig	Define filter chain
+2	JwtAuthenticationFilter	Extract JWT from header
+3	JwtTokenProvider	Validate and issue tokens
+4	CustomUserDetailsService	Load user + roles
+5	AuthController	Handle /auth/login
+6	PageRoleGroupService	Map pages → role groups
+7	DynamicAccessFilter	Authorize per URL using role group mapping
+
+////////////////
+////////////////
+
+1>CustomUserDetailsService (Authentication side)
+
+Spring Security requires a bean that implements
+org.springframework.security.core.userdetails.UserDetailsService.
+That’s how it loads a user (and their roles/authorities) during authentication.
+
+Your existing UserManagementService and UserManagementRoleGroupMappingService already contain the data needed for this.
+So instead of writing raw SQL or XML lookup, you just wrap those services inside CustomUserDetailsService.
+
+public interface UserDetailsService {
+    UserDetails loadUserByUsername(String username) throws UsernameNotFoundException;
+}
+
+@Service
+public class CustomUserDetailsService implements UserDetailsService {
+
+    private static final Logger logger = LogManager.getLogger(CustomUserDetailsService.class);
+
+    private final UserManagementService userService;
+    private final UserManagementRoleGroupMappingService userRoleGroupMappingService;
+    private final RoleGroupRoleMappingService roleGroupRoleMappingService;
+    private final RoleManagementService roleService;
+
+    public CustomUserDetailsService(UserManagementService userService,
+                                    UserManagementRoleGroupMappingService userRoleGroupMappingService,
+                                    RoleGroupRoleMappingService roleGroupRoleMappingService,
+                                    RoleManagementService roleService) {
+        this.userService = userService;
+        this.userRoleGroupMappingService = userRoleGroupMappingService;
+        this.roleGroupRoleMappingService = roleGroupRoleMappingService;
+        this.roleService = roleService;
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        logger.debug("loadUserByUsername called");
+        logger.debug("loadUserByUsername username={}", username);
+
+        List<UserManagementPojo> users = userService.getUserdByUserName(username);
+        if (users == null || users.isEmpty()) {
+            throw new UsernameNotFoundException("User not found: " + username);
+        }
+
+        UserManagementPojo user = users.get(0);
+        logger.debug("loadUserByUsername user={}", user);
+
+        // fetch role groups for the user
+        List<UserManagementRoleGroupMappingPojo> roleGroupMappings =
+                userRoleGroupMappingService.getMappingsByUserId(user.getId());
+        logger.debug("loadUserByUsername roleGroupMappings={}", roleGroupMappings);
+
+        // collect all roles from those groups
+        Set<String> roleNames = new HashSet<>();
+        for (UserManagementRoleGroupMappingPojo rg : roleGroupMappings) {
+            List<RoleGroupRoleMappingPojo> groupRoles =
+                    roleGroupRoleMappingService.getMappingsByRoleGroupId(rg.getRoleGroupId());
+            for (RoleGroupRoleMappingPojo gr : groupRoles) {
+                RoleManagementPojo role = roleService.get(gr.getRoleId());
+                if (role != null) roleNames.add(role.getRoleName());
+            }
+        }
+
+        logger.debug("loadUserByUsername roleNames={}", roleNames);
+
+        return org.springframework.security.core.userdetails.User.builder()
+                .username(user.getUserName())
+                .password(user.getPassword()) // must be encoded or use {noop}
+                .roles(roleNames.toArray(new String[0]))
+                .build();
+    }
+}
+
+////////////////////
+
+2>PageRoleGroupService (Authorization side)
+
+You need to decide which URLs are accessible by which role groups.
+Your PageRoleGroupManagementService already models this relationship, so you don’t need a new database or XML.
+
+Instead of a standalone static map, create a small service that reads those mappings dynamically.
+
+You can make a small interface like:
+public interface PageRoleGroupService {
+    List<String> getAllowedRoleGroups(String url);
+}
+
+Implementation using your DB service
+@Service
+public class PageRoleGroupServiceImpl implements PageRoleGroupService {
+
+    private static final Logger logger = LogManager.getLogger(PageRoleGroupServiceImpl.class);
+
+    private final PageRoleGroupManagementService pageRoleGroupManagementService;
+
+    public PageRoleGroupServiceImpl(PageRoleGroupManagementService pageRoleGroupManagementService) {
+        this.pageRoleGroupManagementService = pageRoleGroupManagementService;
+    }
+
+    @Override
+    public List<String> getAllowedRoleGroups(String url) {
+        logger.debug("getAllowedRoleGroups called");
+        logger.debug("getAllowedRoleGroups url={}", url);
+
+        List<PageRoleGroupManagementPojo> mappings =
+                pageRoleGroupManagementService.getAll();
+
+        List<String> result = new ArrayList<>();
+        for (PageRoleGroupManagementPojo mapping : mappings) {
+            if (url.matches(mapping.getUrlPattern().replace("**", ".*"))) {
+                result.add(mapping.getRoleGroupRef());
+            }
+        }
+
+        logger.debug("getAllowedRoleGroups result={}", result);
+        return result;
+    }
+}
+
+This lets your DynamicAccessFilter (authorization filter) query what role-groups can access a given URL dynamically.
+
+//////////////////
+
+| Component                    | Need It? | Interface                                       | Implementation Source                                                                                                         |
+| ---------------------------- | -------- | ----------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- |
+| **CustomUserDetailsService** | ✅ Yes    | `UserDetailsService` (Spring built-in)          | Uses `UserManagementService`, `UserManagementRoleGroupMappingService`, `RoleGroupRoleMappingService`, `RoleManagementService` |
+| **PageRoleGroupService**     | ✅ Yes    | `PageRoleGroupService` (custom small interface) | Uses `PageRoleGroupManagementService`                                                                                         |
+
+///////////////////
+
+my setup will probably be
+
+JWT Auth:
+   └─ JwtAuthenticationFilter
+       └─ JwtTokenProvider
+           └─ CustomUserDetailsService
+               └─ JwtUserDetailsService
+               └─ UserManagementRoleGroupMappingService
+               └─ RoleGroupRoleMappingService
+               └─ RoleManagementService
+
+Authorization (per page):
+   └─ DynamicAccessFilter
+       └─ JwtPageRoleGroupService
+           └─ PageRoleGroupManagementService
+
+1>JwtUserDetailsService
+UserDetails loadUserByUsername(String username) throws UsernameNotFoundException;
+
+2>JwtPageRoleGroupService
+public List<String> getAllowedRoleGroups(String url)
+
+///////////////////
+
+JWT Authentication Layer
+
+JwtAuthenticationFilter
+   └─ JwtTokenProvider
+       └─ CustomUserDetailsService
+           └─ JwtUserDetailsService         <-- your interface
+           └─ UserManagementRoleGroupMappingService
+           └─ RoleGroupRoleMappingService
+           └─ RoleManagementService
+
+1️>JwtAuthenticationFilter
+What it is: A Spring Security filter that intercepts HTTP requests and checks for a JWT token (usually in the Authorization header).
+Analogy: The gatekeeper at the door of your API, checking the user’s “passport” (JWT).
+
+2>JwtTokenProvider
+What it is: A helper/service class that handles JWT generation, parsing, and validation.
+Analogy: The official that inspects the passport (JWT) and tells the gatekeeper if it’s real.
+
+3>CustomUserDetailsServic
+What it is: A Spring Security UserDetailsService implementation that can load user info by username.
+Analogy: HR database that confirms who the person is and what access they have.
+
+4>JwtUserDetailsService (interface)
+What it is: Your interface for fetching UserDetails from your database or service layer.
+Analogy: A “user loader” API that tells the HR system what the user’s roles are.
+
+5>UserManagementRoleGroupMappingService
+What it is: Service that maps users → role-groups.
+Analogy: HR file that says: “This user is part of Admin group, User group, etc.”
+
+6>RoleGroupRoleMappingService
+What it is: Service that maps role-groups → roles.
+Analogy: HR says: “Admin group has ADMIN_ROLE and USER_ROLE”.
+
+RoleManagementService
+What it is: Service that manages roles themselves.7>
+
+/////////////////////
+
+Authorization Layer (per-page access)
+
+DynamicAccessFilter
+   └─ JwtPageRoleGroupService           <-- your interface
+       └─ PageRoleGroupManagementService
+
+Purpose: Authorize access to URLs based on role-groups.
+
+Flow: Filter checks request.getRequestURI() → calls JwtPageRoleGroupService.getAllowedRoleGroups(url) → compares allowed groups to user’s role-groups → grants or denies access.
+
+JwtPageRoleGroupService interface:
+
+public List<String> getAllowedRoleGroups(String url);
+
+//////////////////
+
+public class UserRegistrationRequest {
+    private String username;
+    private String password;
+    private String email; // optional
+    // Add other fields if needed
+
+    // Getters and setters
+}
+
+@RestController
+@RequestMapping("/api/auth")
+public class RegistrationController {
+
+    private static final Logger logger = LogManager.getLogger(RegistrationController.class);
+
+    private final UserManagementService userManagementService;
+
+    public RegistrationController(UserManagementService userManagementService) {
+        logger.debug("RegistrationController constructor called");
+        logger.debug("RegistrationController userManagementService={}", userManagementService);
+        this.userManagementService = userManagementService;
+    }
+
+    @PostMapping("/register")
+    public ResponseEntity<String> registerUser(@RequestBody UserRegistrationRequest request) {
+        logger.debug("registerUser called");
+        logger.debug("registerUser request={}", request);
+
+        // Optional: validate input
+        if (request.getUsername() == null || request.getPassword() == null) {
+            logger.debug("registerUser invalid request");
+            return ResponseEntity.badRequest().body("Username and password are required");
+        }
+
+        // Check if user exists
+        if (!userManagementService.getUserdByUserName(request.getUsername()).isEmpty()) {
+            logger.debug("registerUser username already exists={}", request.getUsername());
+            return ResponseEntity.status(HttpStatus.CONFLICT).body("Username already exists");
+        }
+
+        // Create a new user POJO
+        UserManagementPojo newUser = new UserManagementPojo();
+        newUser.setUserName(request.getUsername());
+        newUser.setPassword(request.getPassword()); // TODO: encode password
+        newUser.setActive(true);
+        newUser.setLocked(false);
+        // assign default role
+        newUser.setRoleGroupRefs(List.of("USER_ROLE"));
+
+        userManagementService.createUser(newUser); // implement in your service
+
+        logger.debug("registerUser user created={}", newUser);
+
+        return ResponseEntity.ok("User registered successfully");
+    }
+}
+
+///////////////
+
+hung : dont remove
+DynamicAccessFilter is triggered automatically by Spring Security because it 
+extends OncePerRequestFilter and is registered as a Spring bean with @Component
+
+1>Spring Security filter chain
+When Spring Security is enabled, it builds a filter chain for every HTTP request. 
+Each filter in the chain gets a chance to process the request before it reaches 
+your controllers.
+2>OncePerRequestFilter behavior
+DynamicAccessFilter extends OncePerRequestFilter, which ensures that your 
+doFilterInternal runs once per request. Spring Security automatically calls 
+this method for each incoming request.
+3>Triggering the filter
+Any HTTP request that goes through Spring Security’s filter chain will trigger it.
+That includes typing a URL directly in the browser, clicking a link, or making 
+an AJAX call.
+Inside doFilterInternal, your code checks the user’s roles and allowed roles for 
+that URL and either lets the request continue or returns a 403 Forbidden.
+/////////////
+So yes, if you type /user/users.jsp directly, your DynamicAccessFilter will 
+fire, check the logged-in user’s roles, and decide whether access is permitted.
+
+/////////////////////////
+
+3>DynamicAccessFilter logic executes
+Usually, DynamicAccessFilter looks at:
+SecurityContextHolder.getContext().getAuthentication() → your current logged-in 
+authentication object.
+Your roles/authorities.
+Requested URL (/user/users.jsp in this case).
+Based on its rules, it decides: allow or deny.
+
+4>Access decisions:
+If you are already logged in:
+Filter checks your roles.
+If roles match required access → request continues to JSP.
+If roles don’t match → typically AccessDeniedHandler triggers (HTTP 403).
+
+If you are not logged in:
+SecurityContextHolder has no authentication.
+The filter usually delegates to AuthenticationEntryPoint.
+That triggers the login prompt (e.g., redirect to /login page or HTTP Basic 
+popup, depending on your setup).
+
+//////////////////////
+
+i need AuthenticationEntryPoint
+1>if user is not login, then redirect to login.jsp page
+2>and when user logout, then redirec to logout.js page?
+
+how is that done via AuthenticationEntryPoint and SecurityConfig???
+
+AuthenticationEntryPoint, login redirect, and logout redirect
+
+1>Custom AuthenticationEntryPoint
+We want this to redirect unauthenticated users to /login.jsp.
+
+package simple.chatgpt.config.security;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.stereotype.Component;
+
+import java.io.IOException;
+
+@Component
+public class CustomAuthenticationEntryPoint implements AuthenticationEntryPoint {
+
+    private static final Logger logger = LogManager.getLogger(CustomAuthenticationEntryPoint.class);
+
+    @Override
+    public void commence(HttpServletRequest request,
+                         HttpServletResponse response,
+                         AuthenticationException authException) throws IOException {
+
+        logger.debug("commence called");
+        logger.debug("commence requestURI={}", request.getRequestURI());
+        logger.debug("commence authException={}", authException.getMessage());
+
+        // Redirect to login page
+        response.sendRedirect(request.getContextPath() + "/login.jsp");
+    }
+}
+
+Unauthenticated access
+User types /user/users.jsp directly.
+DynamicAccessFilter triggers → Spring sees no authenticated user → 
+AuthenticationEntryPoint.commence() is called → redirects to /login.jsp
+
+----------------
+
+SecurityConfig
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.web.SecurityFilterChain;
+
+@Configuration
+public class SecurityConfig {
+
+    private final CustomAuthenticationEntryPoint entryPoint;
+
+    public SecurityConfig(CustomAuthenticationEntryPoint entryPoint) {
+        this.entryPoint = entryPoint;
+    }
+
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http
+            .csrf().disable()
+            .authorizeHttpRequests(authorize -> authorize
+                .requestMatchers("/user/**").authenticated()
+                .anyRequest().permitAll()
+            )
+            // Use our AuthenticationEntryPoint for unauthenticated requests
+            .exceptionHandling(exception -> exception
+                .authenticationEntryPoint(entryPoint)
+            )
+            // form login config (optional, if you want Spring login handling)
+            .formLogin(form -> form
+                .loginPage("/login.jsp")  // your login page
+                .permitAll()
+            )
+            // logout config
+            .logout(logout -> logout
+                .logoutUrl("/logout")               // URL to trigger logout
+                .logoutSuccessUrl("/logout.jsp")     // redirect after logout
+                .invalidateHttpSession(true)
+                .deleteCookies("JSESSIONID")
+                .permitAll()
+            );
+
+        return http.build();
+    }
+}
+
+Logout
+User hits /logout (POST or GET if configured) → Spring invalidates session 
+and cookies → redirects to /logout.js.
+
+Logging
+Each login attempt and unauthorized access is logged in 
+CustomAuthenticationEntryPoint.
+
+////////////////////
+
+Optional notes:
+
+/login.jsp → your login form (fields username and password).
+
+/logout.js → could be a simple page showing “You have logged out” or redirecting elsewhere.
+
+You don’t need a separate AuthenticationEntryPoint for logout; logout redirection is handled in SecurityConfig.logout().
+
+//////////////
+
+Goals
+Permit all /auth/** requests (login, registration, etc.)
+Use CustomAuthenticationEntryPoint to handle unauthenticated requests
+Apply DynamicAccessFilter for runtime authorization on all other endpoints
+Add JwtAuthenticationFilter for JWT validation
+Keep JWT stateless setup (SessionCreationPolicy.STATELESS)
+Optionally disable formLogin and logout if you rely on JWT entirely
+
+
+
+
+
+
+
+
+
+
+
+

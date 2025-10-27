@@ -1,0 +1,17 @@
+spring:
+  profiles: dev
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/chatgpt_db?useSSL=false
+    username: root
+    password: ZAQ!zaq1
+
+server:
+  port: 8080
+  servlet:
+    context-path: /chatgpt-dev  # base context path for the application
+
+logging:
+  level:
+    root: DEBUG
+    com.yourpackage: DEBUG

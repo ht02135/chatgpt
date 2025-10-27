@@ -1,0 +1,210 @@
+
+1>Valuation Metrics
+| Field                               | Meaning                                                                                                                                          |
+| ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **P/E (Price-to-Earnings)**         | Current stock price ÷ earnings per share (EPS) over the past 12 months (TTM). For WMT: 38.42 means investors pay $38.42 for each $1 of earnings. |
+| **Forward P/E**                     | Projected P/E based on analysts’ expected **next year’s** earnings.                                                                              |
+| **PEG (Price-Earnings-to-Growth)**  | P/E ratio ÷ expected EPS growth rate. It adjusts P/E for growth. Lower (< 1) can imply better value.                                             |
+| **P/S (Price-to-Sales)**            | Market cap ÷ total annual revenue (sales). Shows how much investors pay per dollar of sales.                                                     |
+| **P/B (Price-to-Book)**             | Market price per share ÷ book value per share. Reflects market’s valuation vs. accounting value.                                                 |
+| **P/C (Price-to-Cash)**             | Stock price ÷ cash per share.                                                                                                                    |
+| **P/FCF (Price-to-Free Cash Flow)** | Market price ÷ free cash flow per share. Useful for cash-generating firms.                                                                       |
+| **EV/EBITDA**                       | Enterprise Value ÷ Earnings Before Interest, Taxes, Depreciation, and Amortization. A capital-structure-neutral valuation measure.               |
+| **EV/Sales**                        | Enterprise Value ÷ total revenue — another valuation ratio.                                                                                      |
+
+P/E
+PEG, peter lynch said at 1 or below is bargain
+
+2>Company Fundamentals
+| Field                              | Meaning                                                                |
+| ---------------------------------- | ---------------------------------------------------------------------- |
+| **Market Cap**                     | Total value of all outstanding shares (price × shares outstanding).    |
+| **Enterprise Value (EV)**          | Market Cap + total debt − cash. Represents theoretical takeover value. |
+| **Income**                         | Net income over the last 12 months.                                    |
+| **Sales**                          | Total revenue over the last 12 months.                                 |
+| **Book/sh (Book Value per Share)** | Shareholders’ equity ÷ shares outstanding.                             |
+| **Cash/sh (Cash per Share)**       | Company’s cash holdings ÷ shares outstanding.                          |
+| **Employees**                      | Number of employees.                                                   |
+| **IPO**                            | Date the company first went public.                                    |
+
+3>Earnings / Growth
+| Field                | Meaning                                                                                                                                                                                                                    |
+| -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **EPS (ttm)**        | Earnings Per Share for the trailing twelve months.                                                                                                                                                                         |
+| **EPS next Q**       | Analyst consensus for **next quarter’s** EPS.                                                                                                                                                                              |
+| **EPS next Y**       | Expected EPS for **next fiscal year.**                                                                                                                                                                                     |
+| **EPS next 5Y**      | Average annual EPS growth expected over the **next five years.**                                                                                                                                                           |
+| **EPS this Y**       | EPS growth percentage **this year** vs. last year.                                                                                                                                                                         |
+| **EPS past 3/5Y**    | EPS growth rate averaged over the **past 3 years / 5 years.**                                                                                                                                                              |
+| **EPS Y/Y TTM**      | “Earnings Per Share Year-over-Year (Trailing Twelve Months).” It shows **how much EPS grew vs. the same period last year** using the last 12 months of data. (e.g., 38.05% means EPS grew 38% vs. last year’s TTM period.) |
+| **EPS Q/Q**          | EPS growth rate this quarter vs. the **previous quarter.**                                                                                                                                                                 |
+| **EPS/Sales Surpr.** | Earnings or sales surprise — % difference between **actual** results and **analyst expectations.** Two numbers = EPS surprise and sales surprise respectively.                                                             |
+
+EPS (ttm) = for me is past 12 months...
+EPS past 3/5Y = past 3/5y
+EPS next Y = next y
+EPS next 5Y = next 5y
+
+4>Revenue / Sales Growth
+| Field               | Meaning                                                          |
+| ------------------- | ---------------------------------------------------------------- |
+| **Sales past 3/5Y** | Average revenue growth over the **past 3 and 5 years.**          |
+| **Sales Y/Y TTM**   | Sales growth over the last 12 months vs. the previous 12 months. |
+| **Sales Q/Q**       | Revenue growth this quarter vs. the prior quarter.               |
+
+5>Dividends
+| Field                 | Meaning                                                                           |
+| --------------------- | --------------------------------------------------------------------------------- |
+| **Dividend Est.**     | Estimated upcoming annual dividend (and yield %).                                 |
+| **Dividend TTM**      | Total dividends paid in the last 12 months (and yield %).                         |
+| **Dividend Ex-Date**  | Date you must own the stock to **receive the next dividend.**                     |
+| **Dividend Gr. 3/5Y** | Historical dividend growth rate over the past 3 / 5 years.                        |
+| **Payout**            | Dividend payout ratio = dividends ÷ earnings. Lower means more retained earnings. |
+
+Dividend TTM = total dividend pat 12 months
+
+6>Profitability
+| Field                                 | Meaning                                                                        |
+| ------------------------------------- | ------------------------------------------------------------------------------ |
+| **ROA (Return on Assets)**            | Net income ÷ total assets — efficiency of asset use.                           |
+| **ROE (Return on Equity)**            | Net income ÷ shareholder equity — profit on owners’ capital.                   |
+| **ROIC (Return on Invested Capital)** | Profit relative to all invested capital — good for comparing across companies. |
+| **Gross Margin**                      | (Revenue − COGS) ÷ Revenue — % kept after direct costs.                        |
+| **Oper. Margin (Operating Margin)**   | Operating income ÷ Revenue.                                                    |
+| **Profit Margin**                     | Net income ÷ Revenue — bottom-line profitability.                              |
+
+7>Balance Sheet / Liquidity
+| Field             | Meaning                                                                        |
+| ----------------- | ------------------------------------------------------------------------------ |
+| **Quick Ratio**   | (Current Assets − Inventory) ÷ Current Liabilities — strict liquidity measure. |
+| **Current Ratio** | Current Assets ÷ Current Liabilities — general short-term solvency.            |
+| **Debt/Eq**       | Total debt ÷ shareholders’ equity.                                             |
+| **LT Debt/Eq**    | Long-term debt ÷ shareholders’ equity.                                         |
+
+8>Ownership
+| Field              | Meaning                                                              |
+| ------------------ | -------------------------------------------------------------------- |
+| **Insider Own**    | % of shares owned by company insiders (executives, directors).       |
+| **Insider Trans**  | Change in insider ownership (positive = buying, negative = selling). |
+| **Inst Own**       | % of shares owned by institutional investors (funds, pensions).      |
+| **Inst Trans**     | Change in institutional ownership.                                   |
+| **Shs Outstand**   | Total number of shares outstanding.                                  |
+| **Shs Float**      | Shares available for public trading (excludes insider holdings).     |
+| **Short Float**    | % of the float currently sold short.                                 |
+| **Short Interest** | Actual number of shares sold short.                                  |
+| **Short Ratio**    | Short Interest ÷ average daily volume — days needed to cover shorts. |
+
+9>Performance / Technicals
+| Field                                                                 | Meaning                                                                                                         |
+| --------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| **Perf Week / Month / Quarter / Half Y / YTD / Year / 3Y / 5Y / 10Y** | Stock price performance over those periods (percent change).                                                    |
+| **52W High / Low**                                                    | Highest / lowest price in the past 52 weeks. The percentage shows how far the current price is from that level. |
+| **Volatility**                                                        | Weekly and monthly volatility (% movement).                                                                     |
+| **ATR (14)**                                                          | Average True Range — technical measure of average daily price range over 14 days.                               |
+| **SMA20 / SMA50 / SMA200**                                            | % above/below the 20-, 50-, and 200-day simple moving averages.                                                 |
+| **RSI (14)**                                                          | 14-day Relative Strength Index — momentum indicator (70 = overbought, 30 = oversold).                           |
+| **Beta**                                                              | Measures volatility vs. the overall market (1 = market-level volatility).                                       |
+| **Rel Volume**                                                        | Today’s trading volume ÷ average volume — > 1 means heavier trading than usual.                                 |
+| **Avg Volume**                                                        | Average number of shares traded daily.                                                                          |
+| **Volume**                                                            | Current day’s trading volume.                                                                                   |
+| **Prev Close**                                                        | Previous trading day’s closing price.                                                                           |
+| **Price**                                                             | Latest market price.                                                                                            |
+| **Change**                                                            | Current day’s price change (%).                                                                                 |
+| **Target Price**                                                      | Analyst average price target.                                                                                   |
+| **Recom**                                                             | Analyst consensus recommendation (1 = Strong Buy, 5 = Sell).                                                    |
+| **Earnings (Aug 21 BMO)**                                             | Next earnings date, “BMO” = Before Market Open (or “AMC” = After Market Close).                                 |
+| **Option / Short = Yes / Yes**                                        | Indicates options exist for the stock and short selling is allowed.                                             |
+| **Trades**                                                            | Refers to recent trade activity on that day.                                                                    |
+
+/////////////
+
+P/E =
+PEG =
+EPS (ttm) = 
+EPS past 3/5Y = 
+EPS next Y = 
+EPS next 5Y = 
+Dividend TTM = 
+Profit Margin = 
+RSI (14) =
+
+/////////////
+
+PEG, peter lynch said at 1 or below is bargain
+but than again, peter lynch value player not growth player...
+because growth never get price at 1 or bloew PEG unless bear
+market which is rare...
+
+GOOGL https://finviz.com/quote.ashx?t=GOOGL&p=d
+| Metric        | Value           |
+| ------------- | --------------- |
+| P/E           | 26.18           |
+| PEG           | 1.74            | <- bargain
+| EPS (ttm)     | 9.39            |
+| EPS past 3/5Y | 12.76% / 26.76% |
+| EPS next Y    | 10.70           |
+| EPS next 5Y   | 15.02%          |
+| Dividend TTM  | 0.82 (0.33%)    |
+| Profit Margin | 31.13%          |
+| RSI (14)      | 67.65           |
+
+/////////////
+
+AMZN https://finviz.com/quote.ashx?t=AMZN&ty=c&ta=1&p=m
+P/E Ratio (TTM): 32.98
+PEG Ratio: 1.77
+EPS (TTM): $6.69
+EPS Growth (3-Year Avg.): 19.7%
+EPS Growth (5-Year Avg.): 37.1%
+EPS Next Year Estimate: $7.60
+EPS Next 5 Years Estimate: 14.44%
+Dividend Yield (TTM): 0.00%
+Profit Margin: 10.54%
+RSI (14): 40.14
+
+/////////////
+
+WMT https://finviz.com/quote.ashx?t=WMT&p=d
+| Metric        | Value              |
+| ------------- | ------------------ |
+| P/E           | 38.40              | <- high PE is priced as growth
+| PEG           | 4.10               | <- obvious will be higher PEG
+| EPS (ttm)     | 2.65               |
+| EPS past 3/5Y | 13.97% / 6.82%     |
+| EPS next Y    | 2.94               |
+| EPS next 5Y   | 9.37%              |
+| Dividend TTM  | 0.91 (yield 0.90%) |
+| Profit Margin | 3.08%              | <- pretty low for a growth no?
+| RSI (14)      | 50.95              |
+
+/////////////
+
+COST https://finviz.com/quote.ashx?t=COST&p=d
+| Metric        | Value           |
+| ------------- | --------------- |
+| P/E           | 51.08           |	<- unless grow better than WMT, over priced
+| PEG           | 4.79            | <- unless grow better than WMT, over priced
+| EPS (ttm)     | 18.21           |
+| EPS past 3/5Y | 11.49% / 15.09% |
+| EPS next Y    | 22.10           |
+| EPS next 5Y   | 10.66%          |
+| Dividend TTM  | 4.92 (0.53%)    |
+| Profit Margin | 2.94%           | <- pretty low for a growth no?
+| RSI (14)      | 46.88           |
+
+/////////////
+
+CMCS https://finviz.com/quote.ashx?t=CMCS&p=d
+| Metric        | Value          |
+| ------------- | -------------- |
+| P/E           | 8.00           | <- lower PE is priced as value
+| PEG           | 1.54           | <- obvious will be lower PEG
+| EPS (ttm)     | 4.07           |
+| EPS past 3/5Y | 10.84% / 7.90% |
+| EPS next Y    | 4.63           |
+| EPS next 5Y   | 5.20%          |
+| Dividend TTM  | 1.28 (3.93%)   |
+| Profit Margin | 12.72%         |
+| RSI (14)      | 33.17          |
+
+/////////////

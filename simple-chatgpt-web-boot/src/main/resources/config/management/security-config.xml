@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<security-config>
+
+	<!-- ========================= -->
+	<!-- Base Roles -->
+	<!-- ========================= -->
+	<roles>
+		<role name="ROOT_ROLE" description="ROOT privileges" />
+		<role name="ADMIN_ROLE" description="Admin privileges" />
+		<role name="USER_ROLE" description="Standard user privileges" />
+	</roles>
+
+	<!-- ========================= -->
+	<!-- Role Groups -->
+	<!-- ========================= -->
+	<role-groups>
+		<!-- User Role Groups -->
+		<role-group name="ROOT_USER_ROLE_GROUP"
+			delimit-roles="|ROOT_ROLE|ADMIN_ROLE|USER_ROLE|">
+		</role-group>
+		<role-group name="ADMIN_USER_ROLE_GROUP"
+			delimit-roles="|ADMIN_ROLE|USER_ROLE|">
+		</role-group>
+		<role-group name="BASIC_USER_ROLE_GROUP"
+			delimit-roles="|USER_ROLE|">
+		</role-group>
+
+		<!-- Page Role Groups -->
+		<role-group name="ADMIN_PAGE_ROLE_GROUP"
+			delimit-roles="|ADMIN_ROLE|">
+		</role-group>
+		<role-group name="USER_PAGE_ROLE_GROUP"
+			delimit-roles="|USER_ROLE|">
+		</role-group>
+	</role-groups>
+
+	<!-- ========================= -->
+	<!-- Default Pages -->
+	<!-- ========================= -->
+	<pages>
+		<!-- Property -->
+		<page url-pattern="/property/**"
+			delimit-role-groups="|ADMIN_PAGE_ROLE_GROUP|" />
+		<page url-pattern="/management/jsp/property/**"
+			delimit-role-groups="|ADMIN_PAGE_ROLE_GROUP|" />
+
+		<!-- Role -->
+		<page url-pattern="/role/**"
+			delimit-role-groups="|ADMIN_PAGE_ROLE_GROUP|" />
+		<page url-pattern="/management/jsp/role/**"
+			delimit-role-groups="|ADMIN_PAGE_ROLE_GROUP|" />
+
+		<!-- RoleGroup -->
+		<page url-pattern="/roleGroup/**"
+			delimit-role-groups="|ADMIN_PAGE_ROLE_GROUP|" />
+		<page url-pattern="/management/jsp/roleGroup/**"
+			delimit-role-groups="|ADMIN_PAGE_ROLE_GROUP|" />
+
+		<!-- RoleGroupRole -->
+		<page url-pattern="/roleGroupRole/**"
+			delimit-role-groups="|ADMIN_PAGE_ROLE_GROUP|" />
+		<page url-pattern="/management/jsp/roleGroupRole/**"
+			delimit-role-groups="|ADMIN_PAGE_ROLE_GROUP|" />
+
+		<!-- User -->
+		<page url-pattern="/user/**"
+			delimit-role-groups="|USER_PAGE_ROLE_GROUP|" />
+		<page url-pattern="/management/jsp/user/**"
+			delimit-role-groups="|USER_PAGE_ROLE_GROUP|" />
+			
+		<!-- Page -->
+		<page url-pattern="/page/**"
+			delimit-role-groups="|ADMIN_PAGE_ROLE_GROUP|" />
+		<page url-pattern="/management/jsp/page/**"
+			delimit-role-groups="|ADMIN_PAGE_ROLE_GROUP|" />
+
+		<!-- UserList -->
+		<page url-pattern="/userList/**"
+			delimit-role-groups="|USER_PAGE_ROLE_GROUP|" />
+		<page url-pattern="/management/jsp/userList/**"
+			delimit-role-groups="|USER_PAGE_ROLE_GROUP|" />
+
+		<!-- UserRoleGroup -->
+		<page url-pattern="/userRoleGroup/**"
+			delimit-role-groups="|ADMIN_PAGE_ROLE_GROUP|" />
+		<page url-pattern="/management/jsp/userRoleGroup/**"
+			delimit-role-groups="|ADMIN_PAGE_ROLE_GROUP|" />
+
+		<!-- PageRoleGroup -->
+		<page url-pattern="/pageRoleGroup/**"
+			delimit-role-groups="|ADMIN_PAGE_ROLE_GROUP|" />
+		<page url-pattern="/management/jsp/pageRoleGroup/**"
+			delimit-role-groups="|ADMIN_PAGE_ROLE_GROUP|" />
+	</pages>
+
+	<!-- ========================= -->
+	<!-- Default Users -->
+	<!-- ========================= -->
+	<users>
+		<!-- Root user -->
+		<user user_name="root" user_key="root"
+			password="ENC(RXvLHTYi5AngbW0s5/DwyQ==)" first_name="System"
+			last_name="Root" email="root@eyahoo.com" address_line_1="1 Admin Way"
+			address_line_2="" city="SystemCity" state="CA" post_code="90001"
+			country="USA" active="true" locked="false"
+			delimit-role-groups="|ROOT_USER_ROLE_GROUP|" />
+
+		<!-- Admin user -->
+		<user user_name="admin" user_key="admin"
+			password="ENC(RXvLHTYi5AngbW0s5/DwyQ==)" first_name="Admin"
+			last_name="User" email="admin@eyahoo.com"
+			address_line_1="2 Admin Way" address_line_2="" city="SystemCity"
+			state="CA" post_code="90002" country="USA" active="true"
+			locked="false" delimit-role-groups="|ADMIN_USER_ROLE_GROUP|" />
+
+		<!-- user1 → user10 (BASIC_USER_ROLE_GROUP) -->
+		<user user_name="user1" user_key="user1"
+			password="ENC(RXvLHTYi5AngbW0s5/DwyQ==)" first_name="User1"
+			last_name="Test" email="user1@eyahoo.com"
+			address_line_1="10 User Street" address_line_2="Apt 1" city="City1"
+			state="CA" post_code="90010" country="USA" active="true"
+			locked="false" delimit-role-groups="|BASIC_USER_ROLE_GROUP|" />
+		<user user_name="user2" user_key="user2"
+			password="ENC(RXvLHTYi5AngbW0s5/DwyQ==)" first_name="User2"
+			last_name="Test" email="user2@eyahoo.com"
+			address_line_1="11 User Street" address_line_2="Apt 2" city="City2"
+			state="CA" post_code="90011" country="USA" active="true"
+			locked="false" delimit-role-groups="|BASIC_USER_ROLE_GROUP|" />
+		<user user_name="user3" user_key="user3"
+			password="ENC(RXvLHTYi5AngbW0s5/DwyQ==)" first_name="User3"
+			last_name="Test" email="user3@eyahoo.com"
+			address_line_1="12 User Street" address_line_2="Apt 3" city="City3"
+			state="CA" post_code="90012" country="USA" active="true"
+			locked="false" delimit-role-groups="|BASIC_USER_ROLE_GROUP|" />
+		<user user_name="user4" user_key="user4"
+			password="ENC(RXvLHTYi5AngbW0s5/DwyQ==)" first_name="User4"
+			last_name="Test" email="user4@eyahoo.com"
+			address_line_1="13 User Street" address_line_2="Apt 4" city="City4"
+			state="CA" post_code="90013" country="USA" active="true"
+			locked="false" delimit-role-groups="|BASIC_USER_ROLE_GROUP|" />
+		<user user_name="user5" user_key="user5"
+			password="ENC(RXvLHTYi5AngbW0s5/DwyQ==)" first_name="User5"
+			last_name="Test" email="user5@eyahoo.com"
+			address_line_1="14 User Street" address_line_2="Apt 5" city="City5"
+			state="CA" post_code="90014" country="USA" active="true"
+			locked="false" delimit-role-groups="|BASIC_USER_ROLE_GROUP|" />
+		<user user_name="user6" user_key="user6"
+			password="ENC(RXvLHTYi5AngbW0s5/DwyQ==)" first_name="User6"
+			last_name="Test" email="user6@eyahoo.com"
+			address_line_1="15 User Street" address_line_2="Apt 6" city="City6"
+			state="CA" post_code="90015" country="USA" active="true"
+			locked="false" delimit-role-groups="|BASIC_USER_ROLE_GROUP|" />
+		<user user_name="user7" user_key="user7"
+			password="ENC(RXvLHTYi5AngbW0s5/DwyQ==)" first_name="User7"
+			last_name="Test" email="user7@eyahoo.com"
+			address_line_1="16 User Street" address_line_2="Apt 7" city="City7"
+			state="CA" post_code="90016" country="USA" active="true"
+			locked="false" delimit-role-groups="|BASIC_USER_ROLE_GROUP|" />
+		<user user_name="user8" user_key="user8"
+			password="ENC(RXvLHTYi5AngbW0s5/DwyQ==)" first_name="User8"
+			last_name="Test" email="user8@eyahoo.com"
+			address_line_1="17 User Street" address_line_2="Apt 8" city="City8"
+			state="CA" post_code="90017" country="USA" active="true"
+			locked="false" delimit-role-groups="|BASIC_USER_ROLE_GROUP|" />
+		<user user_name="user9" user_key="user9"
+			password="ENC(RXvLHTYi5AngbW0s5/DwyQ==)" first_name="User9"
+			last_name="Test" email="user9@eyahoo.com"
+			address_line_1="18 User Street" address_line_2="Apt 9" city="City9"
+			state="CA" post_code="90018" country="USA" active="true"
+			locked="false" delimit-role-groups="|BASIC_USER_ROLE_GROUP|" />
+		<user user_name="user10" user_key="user10"
+			password="ENC(RXvLHTYi5AngbW0s5/DwyQ==)" first_name="User10"
+			last_name="Test" email="user10@eyahoo.com"
+			address_line_1="19 User Street" address_line_2="Apt 10" city="City10"
+			state="CA" post_code="90019" country="USA" active="true"
+			locked="false" delimit-role-groups="|BASIC_USER_ROLE_GROUP|" />
+
+		<!-- custom1 → custom10 (BASIC_USER_ROLE_GROUP) -->
+		<user user_name="custom1" user_key="custom1"
+			password="ENC(RXvLHTYi5AngbW0s5/DwyQ==)" first_name="Custom1"
+			last_name="Test" email="custom1@eyahoo.com"
+			address_line_1="101 Custom Street" address_line_2="Apt 1" city="C1"
+			state="CA" post_code="90101" country="USA" active="true"
+			locked="false" delimit-role-groups="|BASIC_USER_ROLE_GROUP|" />
+		<user user_name="custom2" user_key="custom2"
+			password="ENC(RXvLHTYi5AngbW0s5/DwyQ==)" first_name="Custom2"
+			last_name="Test" email="custom2@eyahoo.com"
+			address_line_1="102 Custom Street" address_line_2="Apt 2" city="C2"
+			state="CA" post_code="90102" country="USA" active="true"
+			locked="false" delimit-role-groups="|BASIC_USER_ROLE_GROUP|" />
+		<user user_name="custom3" user_key="custom3"
+			password="ENC(RXvLHTYi5AngbW0s5/DwyQ==)" first_name="Custom3"
+			last_name="Test" email="custom3@eyahoo.com"
+			address_line_1="103 Custom Street" address_line_2="Apt 3" city="C3"
+			state="CA" post_code="90103" country="USA" active="true"
+			locked="false" delimit-role-groups="|BASIC_USER_ROLE_GROUP|" />
+		<user user_name="custom4" user_key="custom4"
+			password="ENC(RXvLHTYi5AngbW0s5/DwyQ==)" first_name="Custom4"
+			last_name="Test" email="custom4@eyahoo.com"
+			address_line_1="104 Custom Street" address_line_2="Apt 4" city="C4"
+			state="CA" post_code="90104" country="USA" active="true"
+			locked="false" delimit-role-groups="|BASIC_USER_ROLE_GROUP|" />
+		<user user_name="custom5" user_key="custom5"
+			password="ENC(RXvLHTYi5AngbW0s5/DwyQ==)" first_name="Custom5"
+			last_name="Test" email="custom5@eyahoo.com"
+			address_line_1="105 Custom Street" address_line_2="Apt 5" city="C5"
+			state="CA" post_code="90105" country="USA" active="true"
+			locked="false" delimit-role-groups="|BASIC_USER_ROLE_GROUP|" />
+		<user user_name="custom6" user_key="custom6"
+			password="ENC(RXvLHTYi5AngbW0s5/DwyQ==)" first_name="Custom6"
+			last_name="Test" email="custom6@eyahoo.com"
+			address_line_1="106 Custom Street" address_line_2="Apt 6" city="C6"
+			state="CA" post_code="90106" country="USA" active="true"
+			locked="false" delimit-role-groups="|BASIC_USER_ROLE_GROUP|" />
+		<user user_name="custom7" user_key="custom7"
+			password="ENC(RXvLHTYi5AngbW0s5/DwyQ==)" first_name="Custom7"
+			last_name="Test" email="custom7@eyahoo.com"
+			address_line_1="107 Custom Street" address_line_2="Apt 7" city="C7"
+			state="CA" post_code="90107" country="USA" active="true"
+			locked="false" delimit-role-groups="|BASIC_USER_ROLE_GROUP|" />
+		<user user_name="custom8" user_key="custom8"
+			password="ENC(RXvLHTYi5AngbW0s5/DwyQ==)" first_name="Custom8"
+			last_name="Test" email="custom8@eyahoo.com"
+			address_line_1="108 Custom Street" address_line_2="Apt 8" city="C8"
+			state="CA" post_code="90108" country="USA" active="true"
+			locked="false" delimit-role-groups="|BASIC_USER_ROLE_GROUP|" />
+		<user user_name="custom9" user_key="custom9"
+			password="ENC(RXvLHTYi5AngbW0s5/DwyQ==)" first_name="Custom9"
+			last_name="Test" email="custom9@eyahoo.com"
+			address_line_1="109 Custom Street" address_line_2="Apt 9" city="C9"
+			state="CA" post_code="90109" country="USA" active="true"
+			locked="false" delimit-role-groups="|BASIC_USER_ROLE_GROUP|" />
+		<user user_name="custom10" user_key="custom10"
+			password="ENC(RXvLHTYi5AngbW0s5/DwyQ==)" first_name="Custom10"
+			last_name="Test" email="custom10@eyahoo.com"
+			address_line_1="110 Custom Street" address_line_2="Apt 10" city="C10"
+			state="CA" post_code="90110" country="USA" active="true"
+			locked="false" delimit-role-groups="|BASIC_USER_ROLE_GROUP|" />
+	</users>
+
+</security-config>

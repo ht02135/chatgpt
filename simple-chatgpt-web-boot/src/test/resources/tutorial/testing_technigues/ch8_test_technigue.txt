@@ -1,0 +1,103 @@
+
+////////////////
+
+https://www.guru99.com/software-testing-techniques.html
+
+Boundary Value Analysis (BVA)
+
+Boundary value analysis is based on testing at the boundaries between partitions. It includes maximum, minimum, inside or outside boundaries, typical values and error values.
+
+It is generally seen that a large number of errors occur at the boundaries of the defined input values rather than the center. It is also known as BVA and gives a selection of test cases which exercise bounding values.
+
+This black box testing technique complements equivalence partitioning. 
+
+Guidelines for Boundary Value analysis
+
+    If an input condition is restricted between values x and y, then the test cases should be designed with values x and y as well as values which are above and below x and y.
+    If an input condition is a large number of values, the test case should be developed which need to exercise the minimum and maximum numbers. Here, values above and below the minimum and maximum values are also tested.
+    Apply guidelines 1 and 2 to output conditions. It gives an output which reflects the minimum and the maximum values expected. It also tests the below or above values.
+
+Example:
+
+Input condition is valid between 1 to 10
+Boundary values 0,1,2 and 9,10,11
+
+///////////////////
+
+Equivalence Class Partitioning
+
+Equivalent Class Partitioning allows you to divide set of test condition into a partition which should be considered the same. This software testing method divides the input domain of a program into classes of data from which test cases should be designed.
+
+Example:
+
+Input conditions are valid between
+
+ 1 to 10 and 20 to 30
+
+Hence there are five equivalence classes
+
+--- to 0 (invalid)
+1 to 10 (valid)
+11 to 19 (invalid)
+20 to 30 (valid)
+31 to --- (invalid)
+
+////////////////
+
+Decision Table Based Testing
+
+A decision table is also known as to Cause-Effect table. This software testing technique is used for functions which respond to a combination of inputs or events. For example, a submit button should be enabled if the user has entered all required fields.
+
+The first task is to identify functionalities where the output depends on a combination of inputs. If there are large input set of combinations, then divide it into smaller subsets which are helpful for managing a decision table.
+
+For every function, you need to create a table and list down all types of combinations of inputs and its respective outputs. This helps to identify a condition that is overlooked by the tester.
+
+///////////////
+
+State Transition
+
+In State Transition technique changes in input conditions change the state of the Application Under Test (AUT). This testing technique allows the tester to test the behavior of an AUT. The tester can perform this action by entering various input conditions in a sequence. In State transition technique, the testing team provides positive as well as negative input test values for evaluating the system behavior.
+
+Guideline for State Transition:
+
+    State transition should be used when a testing team is testing the application for a limited set of input values.
+    The Test Case Design Technique should be used when the testing team wants to test sequence of events which happen in the application under test.
+
+/////////////
+
+Error Guessing
+
+Error Guessing is a software testing technique based on guessing the error which can prevail in the code. The technique is heavily based on the experience where the test analysts use their experience to guess the problematic part of the testing application. Hence, the test analysts must be skilled and experienced for better error guessing.
+
+The technique counts a list of possible errors or error-prone situations. Then tester writes a test case to expose those errors. To design test cases based on this software testing technique, the analyst can use the past experiences to identify the conditions.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="simple.chatgpt.mapper.management.security.RoleManagementMapper">
+
+    <!-- =======================
+         ResultMap for POJO
+         ======================= -->
+    <resultMap id="RoleManagementResultMap" type="simple.chatgpt.pojo.management.security.RoleManagementPojo">
+        <id property="id" column="id"/>
+        <result property="roleName" column="role_name"/>
+        <result property="description" column="description"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
+    <!-- =======================
+         CREATE
+         ======================= -->
+    <insert id="insertRole" parameterType="map" useGeneratedKeys="true" keyProperty="params.role.id">
+        INSERT INTO role_management
+        (role_name, description, created_at, updated_at)
+        VALUES
+        (#{params.role.roleName}, #{params.role.description}, NOW(), NOW())
+    </insert>
+
+    <!-- =======================
+         UPDATE
+         ======================= -->
+    <update id="updateRole" parameterType="map">
+        UPDATE role_management
+        <set>
+            <if test="params.role.roleName != null">role_name = #{params.role.roleName},</if>
+            <if test="params.role.description != null">description = #{params.role.description},</if>
+            updated_at = NOW()
+        </set>
+        WHERE id = #{params.role.id}
+    </update>
+
+    <!-- =======================
+         DELETE
+         ======================= -->
+    <delete id="deleteRoleById" parameterType="map">
+        DELETE FROM role_management WHERE id = #{params.roleId}
+    </delete>
+
+    <!-- =======================
+         READ
+         ======================= -->
+    <select id="findRoleById" parameterType="map" resultMap="RoleManagementResultMap">
+        SELECT id, role_name, description, created_at, updated_at
+        FROM role_management
+        WHERE id = #{params.roleId}
+    </select>
+
+    <select id="findAllRoles" resultMap="RoleManagementResultMap">
+        SELECT id, role_name, description, created_at, updated_at
+        FROM role_management
+        ORDER BY created_at DESC
+    </select>
+
+    <select id="getAllRoles" resultMap="RoleManagementResultMap">
+        SELECT id, role_name, description, created_at, updated_at
+        FROM role_management
+        ORDER BY created_at DESC
+    </select>
+
+    <!-- =======================
+         SQL fragment for filtering
+         ======================= -->
+    <sql id="RoleManagementFilter">
+        <where>
+            <if test="params.role != null or params != null">
+                <if test="(params.role != null and params.role.roleName != null and params.role.roleName != '') 
+                          or (params.roleName != null and params.roleName != '')">
+                    AND role_name LIKE CONCAT('%', 
+                        <choose>
+                            <when test="params.role != null and params.role.roleName != null and params.role.roleName != ''">
+                                #{params.role.roleName}
+                            </when>
+                            <otherwise>#{params.roleName}</otherwise>
+                        </choose>, '%')
+                </if>
+
+                <if test="(params.role != null and params.role.description != null and params.role.description != '') 
+                          or (params.description != null and params.description != '')">
+                    AND description LIKE CONCAT('%', 
+                        <choose>
+                            <when test="params.role != null and params.role.description != null and params.role.description != ''">
+                                #{params.role.description}
+                            </when>
+                            <otherwise>#{params.description}</otherwise>
+                        </choose>, '%')
+                </if>
+            </if>
+        </where>
+    </sql>
+
+    <!-- =======================
+         SEARCH / PAGINATION
+         ======================= -->
+    <select id="findRoles" parameterType="map" resultMap="RoleManagementResultMap">
+        SELECT id, role_name, description, created_at, updated_at
+        FROM role_management
+        <include refid="RoleManagementFilter"/>
+        <if test="params.sortField != null and params.sortDirection != null">
+            ORDER BY ${params.sortField} ${params.sortDirection}
+        </if>
+        <if test="params.offset != null and params.limit != null">
+            LIMIT #{params.offset}, #{params.limit}
+        </if>
+    </select>
+
+    <select id="searchRoles" parameterType="map" resultMap="RoleManagementResultMap">
+        SELECT id, role_name, description, created_at, updated_at
+        FROM role_management
+        <include refid="RoleManagementFilter"/>
+        <if test="params.sortField != null and params.sortDirection != null">
+            ORDER BY ${params.sortField} ${params.sortDirection}
+        </if>
+        <if test="params.offset != null and params.limit != null">
+            LIMIT #{params.offset}, #{params.limit}
+        </if>
+    </select>
+
+    <!-- =======================
+         COUNT FOR PAGINATION
+         ======================= -->
+    <select id="countRoles" parameterType="map" resultType="long">
+        SELECT COUNT(*)
+        FROM role_management
+        <include refid="RoleManagementFilter"/>
+    </select>
+
+</mapper>

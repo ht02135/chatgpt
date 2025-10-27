@@ -1,0 +1,243 @@
+
+i need a pojo for UserListJobConfig
+
+1>in step1, create that pojo processing_stage=100 processing_status=1 status=SUBMITTED
+2>step 2, check if that pojo processing_stage=100 processing_status=1 status=SUBMITTED
+  if issue happen flip processing_status=1 status=FAILED
+  else if complete flip processing_stage=200 processing_status=1
+  and go step3
+3>then step 3, read 200 1 and write 300 1
+4>then step 4, is there way to flip 400 1
+5>tehn step 5, is there way to flip 1000 1 competed status=COMPLETED
+
+and way to track data processed between step in this pojo
+
+so anytime, job failed, we can see which job failed, at what stage
+and what data it passed to the step.  so we can track issue?
+
+i want to keep that pojo in database too..
+so i might create a serveice to view it...
+
+///////////////
+
+Updated POJO — JobRequest.java
+package com.example.batch.pojo;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
+import jakarta.persistence.*;
+import java.time.LocalDateTime;
+import java.util.Map;
+
+@Entity
+@Table(name = "job_request")
+public class JobRequest {
+
+    private static final Logger logger = LogManager.getLogger(JobRequest.class);
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+    private Long id;
+
+    @Column(name = "processing_stage")
+    private Integer processingStage;
+
+    @Column(name = "processing_status")
+    private Integer processingStatus;
+
+    @Column(name = "status")
+    private String status;
+
+    @Column(name = "job_name")
+    private String jobName;
+
+    @Column(name = "error_message", length = 2000)
+    private String errorMessage;
+
+    @Column(name = "created_date")
+    private LocalDateTime createdDate;
+
+    @Column(name = "updated_date")
+    private LocalDateTime updatedDate;
+
+    /*
+     * hung: step_data stored as JSON, tracking job’s stage snapshots
+     */
+    @Convert(converter = JsonDataConverter.class)
+    @Column(name = "step_data", columnDefinition = "TEXT")
+    private Map<String, Object> stepData;
+
+    public JobRequest() {
+        logger.debug("JobRequest() constructor called");
+    }
+
+    // ---------- GETTERS / SETTERS WITH LOGGING ----------
+
+    public Long getId() {
+        logger.debug("getId() called");
+        return id;
+    }
+
+    public void setId(Long id) {
+        logger.debug("setId called");
+        logger.debug("setId id={}", id);
+        this.id = id;
+    }
+
+    public Integer getProcessingStage() {
+        logger.debug("getProcessingStage() called");
+        return processingStage;
+    }
+
+    public void setProcessingStage(Integer processingStage) {
+        logger.debug("setProcessingStage called");
+        logger.debug("setProcessingStage processingStage={}", processingStage);
+        this.processingStage = processingStage;
+        this.updatedDate = LocalDateTime.now();
+    }
+
+    public Integer getProcessingStatus() {
+        logger.debug("getProcessingStatus() called");
+        return processingStatus;
+    }
+
+    public void setProcessingStatus(Integer processingStatus) {
+        logger.debug("setProcessingStatus called");
+        logger.debug("setProcessingStatus processingStatus={}", processingStatus);
+        this.processingStatus = processingStatus;
+        this.updatedDate = LocalDateTime.now();
+    }
+
+    public String getStatus() {
+        logger.debug("getStatus() called");
+        return status;
+    }
+
+    public void setStatus(String status) {
+        logger.debug("setStatus called");
+        logger.debug("setStatus status={}", status);
+        this.status = status;
+        this.updatedDate = LocalDateTime.now();
+    }
+
+    public String getJobName() {
+        logger.debug("getJobName() called");
+        return jobName;
+    }
+
+    public void setJobName(String jobName) {
+        logger.debug("setJobName called");
+        logger.debug("setJobName jobName={}", jobName);
+        this.jobName = jobName;
+    }
+
+    public String getErrorMessage() {
+        logger.debug("getErrorMessage() called");
+        return errorMessage;
+    }
+
+    public void setErrorMessage(String errorMessage) {
+        logger.debug("setErrorMessage called");
+        logger.debug("setErrorMessage errorMessage={}", errorMessage);
+        this.errorMessage = errorMessage;
+    }
+
+    public LocalDateTime getCreatedDate() {
+        logger.debug("getCreatedDate() called");
+        return createdDate;
+    }
+
+    public void setCreatedDate(LocalDateTime createdDate) {
+        logger.debug("setCreatedDate called");
+        logger.debug("setCreatedDate createdDate={}", createdDate);
+        this.createdDate = createdDate;
+    }
+
+    public LocalDateTime getUpdatedDate() {
+        logger.debug("getUpdatedDate() called");
+        return updatedDate;
+    }
+
+    public void setUpdatedDate(LocalDateTime updatedDate) {
+        logger.debug("setUpdatedDate called");
+        logger.debug("setUpdatedDate updatedDate={}", updatedDate);
+        this.updatedDate = updatedDate;
+    }
+
+    public Map<String, Object> getStepData() {
+        logger.debug("getStepData() called");
+        return stepData;
+    }
+
+    public void setStepData(Map<String, Object> stepData) {
+        logger.debug("setStepData called");
+        logger.debug("setStepData stepData={}", stepData);
+        this.stepData = stepData;
+        this.updatedDate = LocalDateTime.now();
+    }
+
+    @PrePersist
+    protected void onCreate() {
+        logger.debug("onCreate() called");
+        createdDate = LocalDateTime.now();
+        updatedDate = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        logger.debug("onUpdate() called");
+        updatedDate = LocalDateTime.now();
+    }
+
+    @Override
+    public String toString() {
+        return "JobRequest{" +
+                "id=" + id +
+                ", processingStage=" + processingStage +
+                ", processingStatus=" + processingStatus +
+                ", status='" + status + '\'' +
+                ", jobName='" + jobName + '\'' +
+                ", errorMessage='" + errorMessage + '\'' +
+                ", createdDate=" + createdDate +
+                ", updatedDate=" + updatedDate +
+                ", stepData=" + stepData +
+                '}';
+    }
+}
+
+
+/////////////////////
+
+SQL Table for job_request
+/*
+ hung: job_request table tracks submitted jobs and their stage transitions
+*/
+
+CREATE TABLE job_request (
+    id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    processing_stage INT NOT NULL,
+    processing_status INT NOT NULL,
+    status VARCHAR(50) NOT NULL,
+    job_name VARCHAR(255),
+    error_message VARCHAR(2000),
+    created_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    step_data JSON
+);
+
+INSERT INTO job_request (
+    processing_stage,
+    processing_status,
+    status,
+    job_name
+)
+VALUES (
+    100,   -- stage
+    1,     -- processing_status
+    'SUBMITTED',
+    'UserListJobConfig'
+);
+
+Would you like me to include a small service class (e.g., JobRequestServiceImpl) that logs everything per your rules — like when submitting or updating job state (e.g., FAILED, COMPLETED)?

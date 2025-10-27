@@ -1,0 +1,21 @@
+package simple.chatgpt.cucumber.stepdefinitions;
+
+import io.cucumber.java.en.Given;
+import io.cucumber.java.en.Then;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
+public class HelloStepDefinitions {
+
+    private String greeting;
+
+    @Given("I say hello")
+    public void i_say_hello() {
+        greeting = "Hello, ChatGPT!";
+    }
+
+    @Then("I should get a greeting")
+    public void i_should_get_a_greeting() {
+        assertEquals("Hello, ChatGPT!", greeting);
+    }
+}

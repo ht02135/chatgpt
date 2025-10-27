@@ -1,0 +1,53 @@
+
+////////////////////
+
+https://www.guru99.com/smoke-sanity-testing.html
+
+Key Difference Between Smoke Testing and Sanity Testing
+
+
+    Smoke Testing has a goal to verify “stability” whereas Sanity Testing has a goal to verify “rationality”.
+    Smoke Testing is done by both developers or testers whereas Sanity Testing is done by testers.
+    Smoke Testing verifies the critical functionalities of the system whereas Sanity Testing verifies the new functionality like bug fixes.
+    Smoke testing is a subset of acceptance testing whereas Sanity testing is a subset of Regression Testing.
+    Smoke testing is documented or scripted whereas Sanity testing isn’t.
+    Smoke testing verifies the entire system from end to end whereas Sanity Testing verifies only a particular component.
+
+/////////////
+
+What is Smoke Testing?
+
+Smoke Testing is a software testing technique performed post software build to verify that the critical functionalities of software are working fine. It is executed before any detailed functional or regression tests are executed. The main purpose of smoke testing is to reject a software application with defects so that QA team does not waste time testing broken software application.
+
+////////////////
+
+What is Sanity Testing?
+
+Sanity testing is a kind of Software Testing performed after receiving a software build, with minor changes in code, or functionality, to ascertain that the bugs have been fixed and no further issues are introduced due to these changes. The goal is to determine that the proposed functionality works roughly as expected. If sanity test fails, the build is rejected to save the time and costs involved in a more rigorous testing.
+
+////////////////////
+
+Difference between Smoke Testing and Sanity Testing
+
+Following is the difference between Smoke and Sanity testing:
+Smoke Testing 	Sanity Testing
+Smoke Testing is performed to ascertain that the critical functionalities of the program is working fine 	Sanity Testing is done to check the new functionality/bugs have been fixed
+The objective of this testing is to verify the “stability” of the system in order to proceed with more rigorous testing 	The objective of the testing is to verify the “rationality” of the system in order to proceed with more rigorous testing
+This testing is performed by the developers or testers 	Sanity testing in software testing is usually performed by testers
+Smoke testing is usually documented or scripted 	Sanity testing is usually not documented and is unscripted
+Smoke testing is a subset of Acceptance testing 	Sanity testing is a subset of Regression Testing
+Smoke testing exercises the entire system from end to end 	Sanity testing exercises only the particular component of the entire system
+Smoke testing is like General Health Check Up 	Sanity Testing is like specialized health check up
+
+
+
+
+
+
+
+
+
+
+
+
+

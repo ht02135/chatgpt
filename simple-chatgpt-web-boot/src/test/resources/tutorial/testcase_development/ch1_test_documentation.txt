@@ -1,0 +1,41 @@
+///////////////////
+
+https://www.guru99.com/testing-documentation.html
+
+Test Documentation in Software Testing (Example)
+
+What is Test Documentation?
+
+Test documentation is documentation of artifacts created before or during the testing of software. It helps the testing team to estimate testing effort needed, test coverage, resource tracking, execution progress, etc. It is a complete suite of documents that allows you to describe and document test planning, test design, test execution, test results that are drawn from the testing activity.
+
+Examples of Test Documentation
+
+Test policy
+It is a high-level document which describes principles, methods and all the important testing goals of the organization.
+
+Test strategy
+A high-level document which identifies the Test Levels (types) to be executed for the project.
+
+Test plan
+A test plan is a complete planning document which contains the scope, approach, resources, schedule, etc. of testing activities.
+
+Requirements Traceability Matrix
+This is a document which connects the requirements to the test cases.
+
+Test Scenario
+Test Scenario is an item or event of a software system which could be verified by one or more Test cases.
+
+Test Case
+It is a group of input values, execution preconditions, expected execution postconditions and results. It is developed for a Test Scenario.
+
+Test Data
+Test Data is a data which exists before a test is executed. It used to execute the test case.
+
+Defect Report
+Defect report is a documented report of any flaw in a Software System which fails to perform its expected function.
+ 	
+Test summary report
+Test summary report is a high-level document which summarizes testing activities conducted as well as the test result.
+
+/////////////////
+

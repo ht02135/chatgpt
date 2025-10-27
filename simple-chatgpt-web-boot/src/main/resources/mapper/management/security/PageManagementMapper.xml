@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper
+	namespace="simple.chatgpt.mapper.management.security.PageManagementMapper">
+
+	<!-- ======================= RESULT MAP for POJO ======================= -->
+	<resultMap id="PageManagementResultMap"
+		type="simple.chatgpt.pojo.management.security.PageManagementPojo">
+		<id property="id" column="id" />
+		<result property="urlPattern" column="url_pattern" />
+		<result property="delimitRoleGroups" column="delimit_role_groups" />
+		<result property="createdAt" column="created_at" />
+		<result property="updatedAt" column="updated_at" />
+	</resultMap>
+
+	<!-- ======= 5 CORE METHODS (on top) ======= -->
+
+	<!-- void create(@Param("page") PageManagementPojo page) -->
+	<!-- ======================= CREATE ======================= -->
+	<insert id="create" parameterType="map" useGeneratedKeys="true" keyProperty="page.id">
+		INSERT INTO page_management
+		(url_pattern, delimit_role_groups, created_at, updated_at)
+		VALUES
+		(#{page.urlPattern}, #{page.delimitRoleGroups}, NOW(), NOW())
+	</insert>
+
+	<!-- void update(@Param("id") Long id, @Param("page") PageManagementPojo page) -->
+	<!-- ======================= UPDATE ======================= -->
+	<update id="update" parameterType="map">
+		UPDATE page_management
+		<set>
+			<if test="page.urlPattern != null">url_pattern = #{page.urlPattern},</if>
+			<if test="page.delimitRoleGroups != null">delimit_role_groups = #{page.delimitRoleGroups},</if>
+			updated_at = NOW()
+		</set>
+		WHERE id = #{id}
+	</update>
+
+	<!-- ======================= SQL fragment for filtering ======================= -->
+    <sql id="PageManagementFilter">
+        <where>
+            <if test="params.urlPattern != null and params.urlPattern != ''">
+                AND url_pattern LIKE CONCAT('%', #{params.urlPattern}, '%')
+            </if>
+            <if test="params.roleGroupId != null">
+                AND role_group_id = #{params.roleGroupId}
+            </if>
+        </where>
+    </sql>
+
+	<!-- List<PageManagementPojo> search(@Param("params") Map<String, Object> params) -->
+	<!-- ======================= SEARCH / PAGINATION ======================= -->
+	<select id="search" parameterType="map" resultMap="PageManagementResultMap">
+		SELECT id, url_pattern, delimit_role_groups, created_at, updated_at
+		FROM
+		page_management
+		<include refid="PageManagementFilter" />
+		<if
+			test="params.sortField != null and params.sortDirection != null">
+			ORDER BY ${params.sortField} ${params.sortDirection}
+		</if>
+		<if test="params.offset != null and params.limit != null">
+			LIMIT #{params.offset}, #{params.limit}
+		</if>
+	</select>
+
+	<!-- PageManagementPojo get(@Param("id") Long id) -->
+	<!-- ======================= READ ======================= -->
+	<select id="get" parameterType="long" resultMap="PageManagementResultMap">
+		SELECT * FROM page_management WHERE id = #{id}
+	</select>
+
+	<!-- void delete(@Param("id") Long id) -->
+	<!-- ======================= DELETE ======================= -->
+	<delete id="delete" parameterType="long">
+		DELETE FROM page_management WHERE id = #{id}
+	</delete>
+
+	<!-- ======= OTHER METHODS ======= -->
+
+</mapper>

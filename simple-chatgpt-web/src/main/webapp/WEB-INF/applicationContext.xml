@@ -1,0 +1,159 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="
+           http://www.springframework.org/schema/aop 
+           http://www.springframework.org/schema/aop/spring-aop-3.0.xsd
+           http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans.xsd
+           http://www.springframework.org/schema/context
+           http://www.springframework.org/schema/context/spring-context.xsd
+           http://www.springframework.org/schema/tx
+           http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+    <!-- ========================================================= -->
+    <!-- =============  GENERAL CONFIGURATION SECTION  ============ -->
+    <!-- ========================================================= -->
+
+    <!-- Component scan for all service, DAO, and utility components -->
+    <context:component-scan base-package="simple.chatgpt">
+        <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+        <context:exclude-filter type="annotation" expression="org.springframework.web.bind.annotation.RestController"/>
+    </context:component-scan>
+
+    <!-- Load external database properties -->
+    <context:property-placeholder location="classpath:database.properties"/>
+
+    <!-- Enable @AspectJ-style annotations -->
+    <aop:aspectj-autoproxy proxy-target-class="true"/>
+
+    <!-- Generic cache bean -->
+    <bean id="propertyCache" class="simple.chatgpt.util.GenericCache">
+        <constructor-arg value="30" type="long"/>     <!-- expireAfterMinutes -->
+        <constructor-arg value="1000" type="long"/>   <!-- maximumSize -->
+    </bean>
+
+
+    <!-- ========================================================= -->
+    <!-- ===================  DATA SOURCE SETUP  ================== -->
+    <!-- ========================================================= -->
+
+    <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+        <property name="driverClassName" value="${jdbc.driver}"/>
+        <property name="url" value="${jdbc.url}"/>
+        <property name="username" value="${db.username}"/>
+        <property name="password" value="${db.password}"/>
+    </bean>
+
+
+    <!-- ========================================================= -->
+    <!-- =================  HIBERNATE CONFIGURATION  ============== -->
+    <!-- ========================================================= -->
+
+    <!-- Hibernate SessionFactory -->
+    <bean id="sessionFactory" class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"/>
+        <property name="packagesToScan" value="simple.chatgpt.pojo"/>
+        <property name="hibernateProperties">
+            <props>
+                <prop key="hibernate.dialect">org.hibernate.dialect.MySQL8Dialect</prop>
+                <prop key="hibernate.show_sql">true</prop>
+                <prop key="hibernate.format_sql">true</prop>
+                <prop key="hibernate.hbm2ddl.auto">update</prop>
+            </props>
+        </property>
+    </bean>
+
+    <!-- Hibernate Transaction Manager -->
+    <bean id="transactionManager" class="org.springframework.orm.hibernate5.HibernateTransactionManager">
+        <property name="sessionFactory" ref="sessionFactory"/>
+    </bean>
+
+    <!-- Enable @Transactional annotation support for Hibernate -->
+    <tx:annotation-driven transaction-manager="transactionManager"/>
+
+    <!-- AOP transaction advice for Hibernate services -->
+    <tx:advice id="hibernateTxAdvice" transaction-manager="transactionManager">
+        <tx:attributes>
+            <tx:method name="get*" read-only="true"/>
+            <tx:method name="*" propagation="REQUIRED"/>
+        </tx:attributes>
+    </tx:advice>
+
+    <!-- AOP configuration for Hibernate service layer -->
+    <aop:config>
+        <aop:pointcut id="hibernateServiceMethods" expression="execution(* simple.chatgpt.service.UserService.*(..))"/>
+        <aop:advisor pointcut-ref="hibernateServiceMethods" advice-ref="hibernateTxAdvice"/>
+    </aop:config>
+
+
+    <!-- ========================================================= -->
+    <!-- ==================  MYBATIS CONFIGURATION  =============== -->
+    <!-- ========================================================= -->
+
+    <!-- MyBatis SqlSessionFactory -->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"/>
+        <property name="typeAliasesPackage" value="simple.chatgpt.pojo"/>
+        <property name="mapperLocations" value="classpath*:mapper/**/*.xml"/>
+        <property name="configurationProperties">
+            <props>
+                <prop key="mapUnderscoreToCamelCase">true</prop>
+            </props>
+        </property>
+    </bean>
+
+    <!-- MyBatis Mapper Scanner -->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="simple.chatgpt.mapper"/>
+        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"/>
+    </bean>
+
+    <!-- MyBatis Transaction Manager -->
+    <bean id="mybatisTransactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+
+    <!-- AOP transaction advice for MyBatis services -->
+    <tx:advice id="mybatisTxAdvice" transaction-manager="mybatisTransactionManager">
+        <tx:attributes>
+            <tx:method name="get*" read-only="true"/>
+            <tx:method name="*" propagation="REQUIRED"/>
+        </tx:attributes>
+    </tx:advice>
+
+    <!-- AOP configuration for MyBatis service layer -->
+    <aop:config>
+        <aop:pointcut id="mybatisServiceMethods" expression="execution(* simple.chatgpt.service.mybatis.*Service.*(..))"/>
+        <aop:advisor pointcut-ref="mybatisServiceMethods" advice-ref="mybatisTxAdvice"/>
+    </aop:config>
+
+
+    <!-- ========================================================= -->
+    <!-- ====================  CUSTOM AOP LOGIC  ================== -->
+    <!-- ========================================================= -->
+
+    <!-- XML-based AOP configuration for Property validation -->
+    <bean id="propertyValidationXMLAspect" class="simple.chatgpt.aop.mybatis.PropertyValidationXMLAspect"/>
+
+    <aop:config>
+        <!-- Pointcut for PropertyServiceImpl.updateProperty -->
+        <aop:pointcut id="propertyUpdatePointcut" expression="execution(* simple.chatgpt.service.mybatis.PropertyServiceImpl.updateProperty(..))"/>
+
+        <!-- Advice runs before the method execution -->
+        <aop:aspect ref="propertyValidationXMLAspect">
+            <aop:before method="validateProperty" pointcut-ref="propertyUpdatePointcut"/>
+        </aop:aspect>
+    </aop:config>
+
+
+    <!-- ========================================================= -->
+    <!-- ====================  VALIDATION SETUP  ================== -->
+    <!-- ========================================================= -->
+
+    <!-- Hibernate Validator (JSR-303/JSR-380) -->
+    <bean id="validator" class="org.springframework.validation.beanvalidation.LocalValidatorFactoryBean"/>
+
+</beans>

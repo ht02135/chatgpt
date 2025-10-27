@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper
+	namespace="simple.chatgpt.mapper.management.security.UserManagementRoleGroupMappingMapper">
+
+	<!-- ======================= RESULT MAP for POJO ======================= -->
+	<resultMap id="UserManagementRoleGroupMappingResultMap"
+		type="simple.chatgpt.pojo.management.security.UserManagementRoleGroupMappingPojo">
+		<id property="id" column="id" />
+		<result property="userId" column="user_id" />
+		<result property="roleGroupId" column="role_group_id" />
+		<result property="createdAt" column="created_at" />
+		<result property="updatedAt" column="updated_at" />
+	</resultMap>
+
+	<!-- ======= 5 CORE METHODS (on top) ======= -->
+	
+	<!-- void create(@Param("entity") entityPojo entity) -->
+	<!-- ======================= CREATE ======================= -->
+	<insert id="create" parameterType="map" useGeneratedKeys="true" keyProperty="mapping.id">
+		INSERT INTO user_management_role_group_mapping (user_id, role_group_id, created_at)
+		VALUES (#{mapping.userId}, #{mapping.roleGroupId}, NOW())
+	</insert>
+
+	<!-- void update(@Param("id") Long id, @Param("entity") entityPojo entity) -->
+	<!-- ======================= UPDATE ======================= -->
+	<update id="update" parameterType="map">
+		UPDATE user_management_role_group_mapping
+		<set>
+			<if test="mapping.userId != null">user_id = #{mapping.userId},</if>
+			<if test="mapping.roleGroupId != null">role_group_id = #{mapping.roleGroupId},</if>
+			updated_at = NOW()
+		</set>
+		WHERE id = #{id}
+	</update>
+
+	<!-- ======================= SQL FILTER FRAGMENT ======================= -->
+	<sql id="UserRoleGroupFilter">
+		<where>
+			<if test="params.userId != null">
+				AND user_id = #{params.userId}
+			</if>
+			<if test="params.roleGroupId != null">
+				AND role_group_id = #{params.roleGroupId}
+			</if>
+		</where>
+	</sql>
+	
+    <!-- List<entityPojo> search(@Param("params") Map<String, Object> params) -->
+	<!-- ======================= SEARCH / PAGINATION ======================= -->
+	<select id="search" parameterType="map" resultMap="UserManagementRoleGroupMappingResultMap">
+		SELECT id, user_id, role_group_id, created_at, updated_at
+		FROM user_management_role_group_mapping
+		<include refid="UserRoleGroupFilter" />
+		<if
+			test="params.sortField != null and params.sortDirection != null">
+			ORDER BY ${params.sortField} ${params.sortDirection}
+		</if>
+		<if test="params.offset != null and params.limit != null">
+			LIMIT #{params.offset}, #{params.limit}
+		</if>
+	</select>
+
+	<!-- ======================= READ ======================= -->
+	<select id="get" parameterType="long" resultMap="UserManagementRoleGroupMappingResultMap">
+		SELECT * FROM user_management_role_group_mapping WHERE id = #{id}
+	</select>
+
+	<!-- ======================= DELETE ======================= -->
+	<delete id="delete" parameterType="long">
+		DELETE FROM user_management_role_group_mapping WHERE id = #{id}
+	</delete>
+
+	<!-- ======= OTHER METHODS ======= -->
+
+</mapper>

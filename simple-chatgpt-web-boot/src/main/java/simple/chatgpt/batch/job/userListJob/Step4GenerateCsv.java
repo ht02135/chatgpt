@@ -1,0 +1,134 @@
+package simple.chatgpt.batch.job.userListJob;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
+import java.nio.file.Paths;
+import java.util.Map;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.springframework.batch.core.ExitStatus;
+import org.springframework.batch.core.StepContribution;
+import org.springframework.batch.core.StepExecution;
+import org.springframework.batch.core.listener.StepExecutionListenerSupport;
+import org.springframework.batch.core.scope.context.ChunkContext;
+import org.springframework.batch.core.step.tasklet.Tasklet;
+import org.springframework.batch.repeat.RepeatStatus;
+import org.springframework.stereotype.Component;
+
+import simple.chatgpt.batch.BatchJobConstants;
+import simple.chatgpt.pojo.batch.JobRequest;
+import simple.chatgpt.service.batch.JobRequestService;
+import simple.chatgpt.service.management.UserManagementListService;
+
+@Component
+public class Step4GenerateCsv extends StepExecutionListenerSupport implements Tasklet {
+
+    private static final Logger logger = LogManager.getLogger(Step4GenerateCsv.class);
+
+    private final UserManagementListService listService;
+    private final JobRequestService jobRequestService;
+
+    private JobRequest jobRequest; // internal variable
+
+    public Step4GenerateCsv(UserManagementListService listService,
+                            JobRequestService jobRequestService) {
+        this.listService = listService;
+        this.jobRequestService = jobRequestService;
+    }
+
+    @Override
+    public void beforeStep(StepExecution stepExecution) {
+        logger.debug("Step4GenerateCsv beforeStep called");
+
+        // Initialize internal JobRequest
+        jobRequest = jobRequestService.getOneRecentJobRequestByParams(
+                UserListJobConfig.JOB_NAME, 400, 1, JobRequest.STATUS_SUBMITTED);
+        logger.debug("Fetched JobRequest for CSV generation: {}", jobRequest);
+    }
+
+    @Override
+    public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
+        StepExecution stepExecution = chunkContext.getStepContext().getStepExecution();
+
+        if (jobRequest == null) {
+            logger.warn("No JobRequest to process. Skipping CSV generation.");
+            return RepeatStatus.FINISHED;
+        }
+
+        Map<String, Object> stepData = jobRequest.getStepData();
+        if (stepData == null) {
+            logger.warn("JobRequest.stepData is null. Skipping CSV generation.");
+            return RepeatStatus.FINISHED;
+        }
+
+        Number listIdNum = (Number) stepExecution.getJobExecution()
+                .getExecutionContext().get(BatchJobConstants.CONTEXT_LIST_ID);
+        Long listId = (listIdNum != null) ? listIdNum.longValue() : null;
+
+        String userListFilePath = (String) stepExecution.getJobExecution().getExecutionContext()
+                .get(BatchJobConstants.CONTEXT_LIST_FILE_PATH);
+
+        if (listId == null || userListFilePath == null || userListFilePath.isBlank()) {
+            logger.warn("LIST_ID or LIST_FILE_PATH missing. Skipping CSV generation.");
+            return RepeatStatus.FINISHED;
+        }
+
+        logger.debug("Generating CSV for listId={} at path={}", listId, userListFilePath);
+
+        // Ensure parent directory exists
+        File csvFile = Paths.get(userListFilePath).toFile();
+        File parentDir = csvFile.getParentFile();
+        if (parentDir != null && !parentDir.exists()) {
+            boolean created = parentDir.mkdirs();
+            logger.debug("CSV parent directory creation: {}", created ? parentDir.getAbsolutePath() : "FAILED");
+        }
+
+        try (OutputStream fos = new FileOutputStream(csvFile)) {
+            Map<String, Object> params = Map.of(
+                    "listId", listId,
+                    "outputStream", fos
+            );
+
+            listService.exportListToCsv(params);
+            logger.debug("CSV successfully generated at {}", csvFile.getAbsolutePath());
+
+            // Update JobRequest stepData and stage
+            stepData.put(BatchJobConstants.CONTEXT_LIST_FILE_PATH, userListFilePath);
+            jobRequest.setStepData(stepData);
+            jobRequest.setProcessingStage(500); // advance stage
+            jobRequest.setProcessingStatus(1);
+            jobRequestService.update(jobRequest.getId(), jobRequest);
+
+            logger.debug("###########");
+            logger.debug("Step4GenerateCsv updated jobRequest stage=500 status=1");
+            logger.debug("Step4GenerateCsv jobRequest={}", jobRequest);
+            logger.debug("###########");
+
+            // Persist file path in ExecutionContext
+            stepExecution.getJobExecution().getExecutionContext()
+                    .put(BatchJobConstants.CONTEXT_LIST_FILE_PATH, userListFilePath);
+
+        } catch (Exception e) {
+            logger.error("Error generating CSV for listId={}", listId, e);
+            jobRequest.setStatus(JobRequest.STATUS_FAILED);
+            jobRequest.setErrorMessage(e.getMessage());
+            try {
+                jobRequestService.update(jobRequest.getId(), jobRequest);
+                logger.debug("JobRequest updated to FAILED due to exception");
+            } catch (Exception ex) {
+                logger.error("Failed to update JobRequest to FAILED", ex);
+            }
+            throw e;
+        }
+
+        return RepeatStatus.FINISHED;
+    }
+
+    @Override
+    public ExitStatus afterStep(StepExecution stepExecution) {
+        logger.debug("Step4GenerateCsv finished with status {}", stepExecution.getStatus());
+        return stepExecution.getExitStatus();
+    }
+}

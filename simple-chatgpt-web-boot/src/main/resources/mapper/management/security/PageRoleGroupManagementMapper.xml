@@ -1,0 +1,103 @@
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper
+	namespace="simple.chatgpt.mapper.management.security.PageRoleGroupManagementMapper">
+
+	<!-- ======================= RESULT MAP for POJO ======================= -->
+	<resultMap id="PageRoleGroupManagementResultMap"
+		type="simple.chatgpt.pojo.management.security.PageRoleGroupManagementPojo">
+		<id property="id" column="id" />
+		<result property="urlPattern" column="url_pattern" />
+		<result property="createdAt" column="created_at" />
+		<result property="updatedAt" column="updated_at" />
+
+		<!-- Nested RoleGroup object -->
+		<association property="roleGroup"
+			javaType="simple.chatgpt.pojo.management.security.RoleGroupManagementPojo">
+			<id property="id" column="role_group_id" />
+			<result property="groupName" column="role_group_name" />
+		</association>
+	</resultMap>
+
+	<!-- ======= 5 CORE METHODS (on top) ======= -->
+	
+	<!-- void create(@Param("entity") entityPojo entity) -->
+	<!-- ======================= CREATE ======================= -->
+    <insert id="create" parameterType="map" useGeneratedKeys="true" keyProperty="pageRoleGroup.id">
+        INSERT INTO page_role_group_management (url_pattern, role_group_id, created_at, updated_at)
+        VALUES (#{pageRoleGroup.urlPattern}, #{pageRoleGroup.roleGroup.id}, NOW(), NOW())
+    </insert>
+
+	<!-- void update(@Param("id") Long id, @Param("entity") entityPojo entity) -->
+	<!-- ======================= UPDATE ======================= -->
+    <update id="update" parameterType="map">
+        UPDATE page_role_group_management
+        <set>
+            <if test="pageRoleGroup.urlPattern != null">url_pattern = #{pageRoleGroup.urlPattern},</if>
+            <if test="pageRoleGroup.roleGroup != null and pageRoleGroup.roleGroup.id != null">
+                role_group_id = #{pageRoleGroup.roleGroup.id},
+            </if>
+            updated_at = NOW()
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <!-- ======================= SEARCH / PAGINATION ======================= -->
+    <sql id="PageRoleGroupFilter">
+        <where>
+            <if test="params.urlPattern != null and params.urlPattern != ''">
+                AND p.url_pattern LIKE CONCAT('%', #{params.urlPattern}, '%')
+            </if>
+            <if test="params.roleGroupId != null">
+                AND p.role_group_id = #{params.roleGroupId}
+            </if>
+        </where>
+    </sql>
+    
+    <!-- List<entityPojo> search(@Param("params") Map<String, Object> params) -->
+    <!-- ======================= SEARCH / PAGINATION ======================= -->
+    <select id="search" parameterType="map" resultMap="PageRoleGroupManagementResultMap">
+        SELECT
+            p.id,
+            p.url_pattern,
+            p.role_group_id,
+            r.group_name AS role_group_name,
+            p.created_at,
+            p.updated_at
+        FROM page_role_group_management p
+        LEFT JOIN role_group_management r ON p.role_group_id = r.id
+        <include refid="PageRoleGroupFilter" />
+        <if test="params.sortField != null and params.sortDirection != null">
+            ORDER BY ${params.sortField} ${params.sortDirection}
+        </if>
+        <if test="params.offset != null and params.limit != null">
+            LIMIT #{params.offset}, #{params.limit}
+		</if>
+	</select>
+
+	<!-- entityPojo get(@Param("id") Long id) -->
+	<!-- ======================= GET ======================= -->
+    <select id="get" parameterType="long" resultMap="PageRoleGroupManagementResultMap">
+        SELECT
+            p.id,
+            p.url_pattern,
+            p.role_group_id,
+            r.group_name AS role_group_name,
+            p.created_at,
+            p.updated_at
+        FROM page_role_group_management p
+        LEFT JOIN role_group_management r ON p.role_group_id = r.id
+        WHERE p.id = #{id}
+    </select>
+
+	<!-- void delete(@Param("id") Long id) -->
+	<!-- ======================= DELETE ======================= -->
+    <delete id="delete" parameterType="long">
+		DELETE FROM page_role_group_management WHERE id = #{id}
+	</delete>
+
+	<!-- ======= OTHER METHODS ======= -->
+
+</mapper>

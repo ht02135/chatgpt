@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="simple.chatgpt.mapper.batch.JobRequestMapper">
+
+    <!-- ========================= -->
+    <!-- ResultMap for JobRequest -->
+    <!-- ========================= -->
+    <resultMap id="JobRequestResultMap" type="simple.chatgpt.pojo.batch.JobRequest">
+        <id property="id" column="id"/>
+        <result property="processingStage" column="processing_stage"/>
+        <result property="processingStatus" column="processing_status"/>
+        <result property="status" column="status"/>
+        <result property="jobName" column="job_name"/>
+        <result property="errorMessage" column="error_message"/>
+        <result property="downloadUrl" column="download_url"/>
+        <result property="createdDate" column="created_date"/>
+        <result property="updatedDate" column="updated_date"/>
+        <result property="stepData" column="step_data" typeHandler="simple.chatgpt.util.JsonTypeHandler"/>
+    </resultMap>
+
+    <!-- ======================= CREATE ======================= -->
+	<insert id="create" parameterType="map" useGeneratedKeys="true" keyProperty="jobRequest.id">
+    	INSERT INTO job_request
+    	(processing_stage, processing_status, status, job_name, error_message, download_url, created_date, updated_date, step_data)
+    	VALUES
+    	(#{jobRequest.processingStage}, #{jobRequest.processingStatus}, #{jobRequest.status}, 
+     	#{jobRequest.jobName}, #{jobRequest.errorMessage}, #{jobRequest.downloadUrl}, 
+     	NOW(), NOW(), 
+     	#{jobRequest.stepData, typeHandler=simple.chatgpt.util.JsonTypeHandler})
+	</insert>
+
+    <!-- ======================= UPDATE ======================= -->
+    <update id="update" parameterType="map">
+        UPDATE job_request
+        <set>
+            <if test="jobRequest.processingStage != null">processing_stage = #{jobRequest.processingStage},</if>
+            <if test="jobRequest.processingStatus != null">processing_status = #{jobRequest.processingStatus},</if>
+            <if test="jobRequest.status != null">status = #{jobRequest.status},</if>
+            <if test="jobRequest.jobName != null">job_name = #{jobRequest.jobName},</if>
+            <if test="jobRequest.errorMessage != null">error_message = #{jobRequest.errorMessage},</if>
+            <if test="jobRequest.downloadUrl != null">download_url = #{jobRequest.downloadUrl},</if>
+            <if test="jobRequest.createdDate != null">created_date = #{jobRequest.createdDate},</if>
+            <if test="jobRequest.updatedDate != null">updated_date = #{jobRequest.updatedDate},</if>
+            <if test="jobRequest.stepData != null">step_data = #{jobRequest.stepData, typeHandler=simple.chatgpt.util.JsonTypeHandler},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <!-- ======================= SEARCH ======================= -->
+    <select id="search" parameterType="map" resultMap="JobRequestResultMap">
+        SELECT * FROM job_request
+        <where>
+            <if test="params.jobName != null and params.jobName != ''">
+                AND job_name LIKE CONCAT('%', #{params.jobName}, '%')
+            </if>
+            <if test="params.status != null and params.status != ''">
+                AND status = #{params.status}
+            </if>
+            <if test="params.processingStage != null">
+                AND processing_stage = #{params.processingStage}
+            </if>
+            <if test="params.processingStatus != null">
+                AND processing_status = #{params.processingStatus}
+            </if>
+        </where>
+        <if test="params.sortField != null and params.sortDirection != null">
+            ORDER BY ${params.sortField} ${params.sortDirection}
+        </if>
+        <if test="params.offset != null and params.limit != null">
+            LIMIT #{params.offset}, #{params.limit}
+        </if>
+    </select>
+
+    <!-- ======================= GET BY ID ======================= -->
+    <select id="get" parameterType="long" resultMap="JobRequestResultMap">
+        SELECT * FROM job_request WHERE id = #{id}
+    </select>
+
+    <!-- ======================= DELETE ======================= -->
+    <delete id="delete" parameterType="long">
+        DELETE FROM job_request WHERE id = #{id}
+    </delete>
+
+    <!-- ======================= GET LIVE JOB BY NAME ======================= -->
+    <select id="getLiveJobRequestByJobName" parameterType="string" resultMap="JobRequestResultMap">
+        SELECT * FROM job_request
+        WHERE job_name = #{jobName}
+          AND processing_stage = 100
+          AND processing_status = 1
+          AND status = 'SUBMITTED'
+        LIMIT 1
+    </select>
+
+</mapper>

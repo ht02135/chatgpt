@@ -1,0 +1,16 @@
+# searchUser.feature 
+
+# hung: this feature is for user search page testing
+Feature: Search user page
+  # hung: business purpose of this feature
+  As an admin
+  I want to search for a user by username
+  So that I can confirm the user exists in the system
+
+  # hung: positive test case
+  Scenario: Search a user by username
+    Given I am on the users page
+    When I enter the username "ht02135@yahoo.com"
+    And I click the search button
+    Then I should still be on the users page
+    And I should see the user "ht02135@yahoo.com" in the grid

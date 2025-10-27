@@ -1,0 +1,8 @@
+<validEmailDomains>
+    <domain>@company.com</domain>
+    <domain>@test.com</domain>
+    <domain>@yahoo.com</domain>
+    <domain>@example2.com</domain>
+    <domain>@example4.com</domain>
+    <domain>@ha.com</domain>
+</validEmailDomains>

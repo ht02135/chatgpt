@@ -1,0 +1,149 @@
+package simple.chatgpt.cucumber.stepdefinitions;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.firefox.FirefoxDriver;
+
+import io.cucumber.java.After;
+import io.cucumber.java.Before;
+import io.cucumber.java.en.Given;
+import io.cucumber.java.en.Then;
+import io.cucumber.java.en.When;
+import simple.chatgpt.selenium.pom.UserCreateWDPage;
+import simple.chatgpt.selenium.pom.UserEditWDPage;
+import simple.chatgpt.selenium.pom.UsersWDPage;
+
+public class EditUserSteps {
+
+    private static final Logger logger = LogManager.getLogger(EditUserSteps.class);
+
+    private WebDriver driver;
+    private UsersWDPage usersPage;
+    private UserCreateWDPage createPage;
+    private UserEditWDPage editPage;
+
+    private final String baseUrl = "http://localhost:8080/chatgpt/management/jsp/user/";
+    private String currentUsername;
+
+    @Before
+    public void setUp() {
+        logger.debug("setUp called");
+        driver = new FirefoxDriver();
+        logger.debug("WebDriver initialized: driver={}", driver);
+
+        usersPage = new UsersWDPage(driver, baseUrl);
+        createPage = new UserCreateWDPage(driver, baseUrl);
+        editPage = new UserEditWDPage(driver, baseUrl);
+        logger.debug("Page objects initialized: usersPage={}, createPage={}, editPage={}", usersPage, createPage, editPage);
+    }
+
+    @After
+    public void tearDown() {
+        logger.debug("tearDown called");
+        if (driver != null) {
+            driver.quit();
+            logger.debug("WebDriver quit successfully");
+        }
+    }
+
+    @Given("I am on the users page")
+    public void i_am_on_the_users_page() {
+        logger.debug("i_am_on_the_users_page called");
+        usersPage.gotoMyPage();
+        if (!usersPage.isInMyOwnPage()) {
+            throw new AssertionError("Expected to be on users.jsp after navigation");
+        }
+    }
+
+    @When("I search for the user {string}")
+    public void i_search_for_the_user(String username) {
+        logger.debug("i_search_for_the_user called");
+        logger.debug("username={}", username);
+
+        currentUsername = username;
+        usersPage.enterSearchUsername(username);
+        usersPage.clickSearch();
+    }
+
+    @When("the user does not exist, I create a new user with username {string}")
+    public void the_user_does_not_exist_i_create_a_new_user(String username) {
+        logger.debug("the_user_does_not_exist_i_create_a_new_user called");
+        logger.debug("username={}", username);
+
+        currentUsername = username;
+        if (!usersPage.isUserPresentInGrid(username)) {
+            logger.debug("User {} not found, creating it first", username);
+
+            usersPage.clickCreate();
+            createPage.gotoMyPage();
+            if (!createPage.isInMyOwnPage()) {
+                throw new AssertionError("Expected to be on addUser.jsp after clicking Create");
+            }
+
+            createPage.enterUsername(username);
+            createPage.enterUserKey(username);
+            createPage.enterFirstName("Test");
+            createPage.enterLastName("Selenium");
+            createPage.enterEmail(username);
+            createPage.enterPassword("ZAQ!zaq1");
+            createPage.enterAddress1("123 Selenium Street");
+            createPage.enterAddress2("Suite 456");
+            createPage.enterCity("TestCity");
+            createPage.enterState("TS");
+            createPage.enterPostCode("99999");
+            createPage.enterCountry("USA");
+            createPage.clickSave();
+
+            usersPage.gotoMyPage();
+            if (!usersPage.isInMyOwnPage()) {
+                throw new AssertionError("Expected to return to users.jsp after saving new user");
+            }
+
+            usersPage.enterSearchUsername(username);
+            usersPage.clickSearch();
+            usersPage.assertUserPresentInGrid(username);
+        }
+    }
+
+    @When("I click Edit for the user {string}")
+    public void i_click_edit_for_the_user(String username) {
+        logger.debug("i_click_edit_for_the_user called");
+        logger.debug("username={}", username);
+
+        usersPage.clickEditForUser(username);
+        editPage.gotoMyPage();
+        if (!editPage.isInMyOwnPage()) {
+            throw new AssertionError("Expected to be on editUser.jsp after clicking Edit");
+        }
+    }
+
+    @When("I update the first name to {string} and last name to {string}")
+    public void i_update_first_last_name(String firstName, String lastName) {
+        logger.debug("i_update_first_last_name called");
+        logger.debug("firstName={}", firstName);
+        logger.debug("lastName={}", lastName);
+
+        editPage.enterFirstName(firstName);
+        editPage.enterLastName(lastName);
+    }
+
+    @When("I save the user")
+    public void i_save_the_user() {
+        logger.debug("i_save_the_user called");
+        editPage.clickSave();
+    }
+
+    @Then("the user {string} should be present in the grid")
+    public void the_user_should_be_present_in_the_grid(String username) {
+        logger.debug("the_user_should_be_present_in_the_grid called");
+        logger.debug("username={}", username);
+
+        usersPage.gotoMyPage();
+        usersPage.enterSearchUsername(username);
+        usersPage.clickSearch();
+        usersPage.assertUserPresentInGrid(username);
+
+        logger.debug("User {} verified in grid after edit", username);
+    }
+}

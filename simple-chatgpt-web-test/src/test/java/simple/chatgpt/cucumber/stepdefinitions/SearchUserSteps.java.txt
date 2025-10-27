@@ -1,0 +1,82 @@
+package simple.chatgpt.cucumber.stepdefinitions;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.firefox.FirefoxDriver;
+
+import io.cucumber.java.After;
+import io.cucumber.java.Before;
+import io.cucumber.java.en.Given;
+import io.cucumber.java.en.Then;
+import io.cucumber.java.en.When;
+import simple.chatgpt.selenium.pom.UsersWDPage;
+
+public class SearchUserSteps {
+
+    private static final Logger logger = LogManager.getLogger(SearchUserSteps.class);
+
+    private WebDriver driver;
+    private UsersWDPage usersPage;
+    private String searchedUsername;
+
+    @Before
+    public void setUp() {
+        logger.debug("setUp called");
+        driver = new FirefoxDriver();
+        logger.debug("WebDriver initialized: driver={}", driver);
+
+        usersPage = new UsersWDPage(driver, "http://localhost:8080/chatgpt/management/jsp/user/");
+        logger.debug("UsersWDPage initialized: usersPage={}", usersPage);
+    }
+
+    @After
+    public void tearDown() {
+        logger.debug("tearDown called");
+        if (driver != null) {
+            driver.quit();
+            logger.debug("WebDriver quit successfully");
+        }
+    }
+
+    @Given("I am on the users page")
+    public void i_am_on_the_users_page() {
+        logger.debug("i_am_on_the_users_page called");
+        usersPage.gotoMyPage();
+    }
+
+    @When("I enter the username {string}")
+    public void i_enter_the_username(String username) {
+        logger.debug("i_enter_the_username called");
+        logger.debug("username={}", username);
+
+        searchedUsername = username;
+        usersPage.enterSearchUsername(username);
+    }
+
+    @When("I click the search button")
+    public void i_click_the_search_button() {
+        logger.debug("i_click_the_search_button called");
+        usersPage.clickSearch();
+    }
+
+    @Then("I should still be on the users page")
+    public void i_should_still_be_on_the_users_page() {
+        logger.debug("i_should_still_be_on_the_users_page called");
+
+        boolean inPage = usersPage.isInMyOwnPage();
+        logger.debug("isInMyOwnPage={}", inPage);
+
+        if (!inPage) {
+            throw new AssertionError("Expected to remain on users.jsp after searching");
+        }
+    }
+
+    @Then("I should see the user {string} in the grid")
+    public void i_should_see_the_user_in_the_grid(String username) {
+        logger.debug("i_should_see_the_user_in_the_grid called");
+        logger.debug("username={}", username);
+
+        usersPage.assertUserPresentInGrid(username);
+    }
+}

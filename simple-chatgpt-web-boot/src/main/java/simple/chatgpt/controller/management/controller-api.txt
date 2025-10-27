@@ -1,0 +1,86 @@
+
+| API / Action      | `user.js`                              | `userListMember.js`                              | `role.js`                              | `roleGroup.js`                                                | `roleGroupRole.js`                                                        |
+| ----------------- | -------------------------------------- | ------------------------------------------------ | -------------------------------------- | ------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| **Create / save** | url=`/create` b=`userObj` r=n/a        | url=`/create` b=`userListMemberObj` r=n/a        | url=`/add` b=`roleObj` r=n/a           | url=`/insertRoleGroup` b=`roleGroupObj` r=n/a                 | url=`/insertRoleGroupRole` b=`roleGroupRoleObj` r=n/a                     |
+| **Update / save** | url=`/update?id=123` b=`userObj` r=n/a | url=`/update?id=123` b=`userListMemberObj` r=n/a | url=`/update?id=123` b=`roleObj` r=n/a | url=`/updateRoleGroup?roleGroupId=123` b=`roleGroupObj` r=n/a | url=`/updateRoleGroupRole?roleGroupRoleId=123` b=`roleGroupRoleObj` r=n/a |
+| **Get / list**    | url=`/list` b=n/a r=`[userObj]`        | url=`/list` b=n/a r=`[userListMemberObj]`        | url=`/list` b=n/a r=`[roleObj]`        | url=`/getRoleGroups` b=n/a r=`[roleGroupObj]`                 | url=`/getRoleGroupRoles` b=n/a r=`[roleGroupRoleObj]`                     |
+| **Get / by id**   | url=`/get?id=123` b=n/a r=`userObj`    | url=`/get?id=123` b=n/a r=`userListMemberObj`    | url=`/get?id=123` b=n/a r=`roleObj`    | url=`/getRoleGroup?id=123` b=n/a r=`roleGroupObj`             | url=`/getRoleGroupRole?id=123` b=n/a r=`roleGroupRoleObj`                 |
+| **Delete**        | url=`/delete?id=123` b=n/a r=n/a       | url=`/delete?id=123` b=n/a r=n/a                 | url=`/delete?id=123` b=n/a r=n/a       | url=`/deleteRoleGroup?roleGroupId=123` b=n/a r=n/a            | url=`/deleteRoleGroupRole?roleGroupRoleId=123` b=n/a r=n/a                |
+
+| API / Action             | `userList.js`                                  | `property.js`                                  | `roleGroupRole.js`                                                 | `userRoleGroup.js`                                                        |
+| ------------------------ | ---------------------------------------------- | ---------------------------------------------- | ------------------------------------------------------------------ | --------------------------------------------------------------------------|
+| **Create / Save**        | n/a                                            | url=`/create` b=`currentProperty` r=n/a        | url=`/insertPageRoleGroup` b=`currentPageRoleGroup` r=n/a          | url=`/insertUserRoleGroup` b=`currentUserRoleGroup` r=n/a                 |
+| **Update / Save**        | n/a                                            | url=`/update?id=123` b=`currentProperty` r=n/a | url=`/updatePageRoleGroup?id=123` b=`currentPageRoleGroup` r=n/a   | url=`/updateUserRoleGroup?id=123` b=`currentUserRoleGroup` r=n/a          |
+| **Delete**               | url=`/delete?listId=123` b=n/a r=n/a           | n/a                                            | url=`/deletePageRoleGroupById?id=123` b=n/a r=n/a                  | url=`/deleteUserRoleGroupById?id=123` b=n/a r=n/a                         |
+| **Load / Search / List** | url=`/userlists?query` b=n/a r=`[userListObj]` | url=`/?query` b=n/a r=`[currentProperty]`      | url=`/searchPageRoleGroups?query` b=n/a r=`[currentPageRoleGroup]` | url=`/searchUserRoleGroups?query` b=n/a r=`[currentUserRoleGroup]`        |
+| **Load by ID**           | url=`/get?listId=123` b=n/a r=`userListObj`    | url=`/get?id=123` b=n/a r=`currentProperty`    | url=`/findById?id=123` b=n/a r=`currentPageRoleGroup`              | url=`/findByUserId?userId=123` b=n/a r=`currentUserRoleGroup`             |
+		
+
+/////////////////////
+
+| **Method**        | **User Service**                                                              | **User List Member Service**                                      | **Role Service**                              | **Role Group Service**                                       | **Role Group Role Service**                            |
+| ----------------- | ----------------------------------------------------------------------------- | ----------------------------------------------------------------- | --------------------------------------------- | ------------------------------------------------------------ | ------------------------------------------------------ |
+| **Create / Save** | `POST /create`<br>b=`UserManagementListPojo`<br>r=n/a                         | `POST /create`<br>b=`UserManagementListMemberPojo`<br>r=n/a       | `POST /add`<br>b=`RolePojo`<br>r=n/a          | `POST /create`<br>b=`RoleGroupManagementPojo`<br>r=n/a       | `POST /create`<br>b=`RoleGroupRolePojo`<br>r=n/a       |
+| **Update / Save** | `PUT /update?id=123`<br>b=`UserManagementListPojo`<br>r=n/a (not implemented) | `PUT /update?id=123`<br>b=`UserManagementListMemberPojo`<br>r=n/a | `PUT /update?id=123`<br>b=`RolePojo`<br>r=n/a | `PUT /update?id=123`<br>b=`RoleGroupManagementPojo`<br>r=n/a | `PUT /update?id=123`<br>b=`RoleGroupRolePojo`<br>r=n/a |
+| **Get / List**    | `GET /search`<br>b=n/a<br>r=`[UserManagementListPojo]`                        | `GET /search`<br>b=n/a<br>r=`[UserManagementListMemberPojo]`      | `GET /list`<br>b=n/a<br>r=`[RolePojo]`        | `GET /search`<br>b=n/a<br>r=`[RoleGroupManagementPojo]`      | `GET /search`<br>b=n/a<br>r=`[RoleGroupRolePojo]`      |
+| **Get / By ID**   | `GET /get?id=123`<br>b=n/a<br>r=`UserManagementListPojo`                      | `GET /get?id=123`<br>b=n/a<br>r=`UserManagementListMemberPojo`    | `GET /get?id=123`<br>b=n/a<br>r=`RolePojo`    | `GET /get?id=123`<br>b=n/a<br>r=`RoleGroupManagementPojo`    | `GET /get?id=123`<br>b=n/a<br>r=`RoleGroupRolePojo`    |
+| **Delete**        | `DELETE /delete?id=123`<br>b=n/a<br>r=n/a                                     | `DELETE /delete?id=123`<br>b=n/a<br>r=n/a                         | `DELETE /delete?id=123`<br>b=n/a<br>r=n/a     | `DELETE /delete?id=123`<br>b=n/a<br>r=n/a                    | `DELETE /delete?id=123`<br>b=n/a<br>r=n/a              |
+
+////////////////
+
+| Method / Entity                    | URL / Endpoint       | Body (`b`)                                   | Return (`r`)                                      |
+| ---------------------------------- | -------------------- | -------------------------------------------- | ------------------------------------------------- |
+| **UserManagementListMember**       | `/create`            | `UserManagementListMemberPojo member`        | `UserManagementListMemberPojo`                    |
+|                                    | `/update?id=123`     | `UserManagementListMemberPojo member`        | `UserManagementListMemberPojo`                    |
+|                                    | `/search`            | n/a                                          | `PagedResult<UserManagementListMemberPojo>`       |
+|                                    | `/get?id=123`        | n/a                                          | `UserManagementListMemberPojo`                    |
+|                                    | `/delete?id=123`     | n/a                                          | void                                              |
+| **UserManagementList**             | `/create`            | `UserManagementListPojo list`                | `UserManagementListPojo`                          |
+|                                    | `/update?id=123`     | `UserManagementListPojo list`                | *not implemented* (returns 400 + message)         |
+|                                    | `/search`            | n/a                                          | `PagedResult<UserManagementListPojo>`             |
+|                                    | `/get?id=123`        | n/a                                          | `UserManagementListPojo`                          |
+|                                    | `/delete?listId=123` | n/a                                          | void                                              |
+| **UserManagementRoleGroupMapping** | `/create`            | `UserManagementRoleGroupMappingPojo mapping` | `UserManagementRoleGroupMappingPojo`              |
+|                                    | `/update?id=123`     | `UserManagementRoleGroupMappingPojo mapping` | `UserManagementRoleGroupMappingPojo`              |
+|                                    | `/search`            | n/a                                          | `PagedResult<UserManagementRoleGroupMappingPojo>` |
+|                                    | `/get?id=123`        | n/a                                          | `UserManagementRoleGroupMappingPojo`              |
+|                                    | `/delete?id=123`     | n/a                                          | void                                              |
+| **RoleGroupManagement**            | `/create`            | `RoleGroupManagementPojo group`              | `RoleGroupManagementPojo`                         |
+|                                    | `/update?id=123`     | `RoleGroupManagementPojo group`              | `RoleGroupManagementPojo`                         |
+|                                    | `/search`            | n/a                                          | `PagedResult<RoleGroupManagementPojo>`            |
+|                                    | `/get?id=123`        | n/a                                          | `RoleGroupManagementPojo`                         |
+|                                    | `/delete?id=123`     | n/a                                          | void                                              |
+
+///////////////////
+
+public interface UserManagementListMemberService { 
+	UserManagementListMemberPojo createMember(UserManagementListMemberPojo member); 
+	UserManagementListMemberPojo updateMemberById(Long id, UserManagementListMemberPojo member); 
+	PagedResult<UserManagementListMemberPojo> searchMembers(Map<String, Object> params); 
+	UserManagementListMemberPojo getMemberById(Long id); 
+	void deleteMemberById(Long id); 
+} 
+	
+public interface UserManagementListService { 
+	UserManagementListPojo createList(UserManagementListPojo list, List<UserManagementListMemberPojo> members); 
+	UserManagementListPojo updateListById(Long id, UserManagementListPojo list); 
+	PagedResult<UserManagementListPojo> searchUserLists(Map<String, Object> params); 
+	UserManagementListPojo getListById(Long id); 
+	void deleteList(Long id); 
+} 
+public interface UserManagementRoleGroupMappingService { 
+	UserManagementRoleGroupMappingPojo insertUserRoleGroup(UserManagementRoleGroupMappingPojo mapping); 
+	UserManagementRoleGroupMappingPojo updateUserRoleGroup(UserManagementRoleGroupMappingPojo mapping); 
+	PagedResult<UserManagementRoleGroupMappingPojo> searchUserRoleGroups(Map<String, Object> params); 
+	UserManagementRoleGroupMappingPojo findById(Long id); 
+	void deleteUserRoleGroupById(Long id); 
+} 
+public interface RoleGroupManagementService { 
+	RoleGroupManagementPojo insertRoleGroup(RoleGroupManagementPojo group); 
+	RoleGroupManagementPojo updateRoleGroup(Map<String, Object> params); 
+	PagedResult<RoleGroupManagementPojo> searchRoleGroups(Map<String, Object> params); 
+	RoleGroupManagementPojo findRoleGroupById(Long id); 
+	void deleteRoleGroupById(Long id); 
+}
+
+

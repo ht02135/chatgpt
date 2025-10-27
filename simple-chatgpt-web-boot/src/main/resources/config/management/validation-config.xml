@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<validation-config>
+
+	<validation id="emailValidation" field="email"
+		regex="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
+		error="wrong email format" />
+
+	<validation id="postalCodeValidation" field="postCode"
+		regex="^\d{5}(?:[-\s]\d{4})?$" error="wrong postal code format" />
+
+	<validation id="passwordValidation" field="password"
+		regex="^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9\s])(?!.*\s).{8,}$"
+		error="wrong password format" />
+
+	<validEmailDomains>
+		<domain domainName="@company.com" />
+		<domain domainName="@test.com" />
+		<domain domainName="@yahoo.com" />
+		<domain domainName="@example2.com" />
+		<domain domainName="@example4.com" />
+		<domain domainName="@ha.com" />
+	</validEmailDomains>
+
+</validation-config>

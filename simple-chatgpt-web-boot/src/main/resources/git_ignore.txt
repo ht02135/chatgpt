@@ -1,0 +1,28 @@
+
+1. Add .gradle to .gitignore
+
+.gradle/
+**/simple-chatgpt-web.txt
+
+This ignores the entire .gradle folder, including subfolders like 8.14.3/checksums/checksums.lock.
+
+////////////
+
+2. Remove the file from Git’s index (without deleting locally)
+
+git rm --cached -r .gradle     <-- -r is for directory
+
+need relative path
+git rm --cached src/main/resources/simple-chatgpt-web.txt    <-- for file, remove -r
+
+--cached → removes from Git but keeps locally
+
+-r → recursive, removes the entire folder from the index
+
+////////////
+
+Commit the change
+
+git commit -m "Stop tracking Gradle cache folder"
+
+////////////

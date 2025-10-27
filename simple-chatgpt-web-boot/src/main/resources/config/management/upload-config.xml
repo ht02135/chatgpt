@@ -1,0 +1,17 @@
+<upload-config>
+    <grid id="userListMembers">
+        <column name="userName"     dbField="user_name" index="0" required="true"/>
+        <column name="userKey"      dbField="user_key"  index="1" required="true"/>
+        <column name="password"     dbField="password" index="2" required="true" regex="passwordValidation"/>
+        <column name="firstName"    dbField="first_name" index="3"/>
+        <column name="lastName"     dbField="last_name" index="4"/>
+        <column name="email"        dbField="email" index="5" regex="emailValidation"/>
+        <column name="addressLine1" dbField="address_line_1" index="6"/>
+        <column name="addressLine2" dbField="address_line_2" index="7"/>
+        <column name="city"         dbField="city" index="8"/>
+        <column name="state"        dbField="state" index="9"/>
+        <column name="postCode"     dbField="post_code" index="10" regex="postalCodeValidation"/>
+        <column name="country"      dbField="country" index="11"/>
+    </grid>
+</upload-config>
+

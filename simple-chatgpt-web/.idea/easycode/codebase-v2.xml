@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="com.obiscr.chatgpt.settings.EasyCodeState">
+    <option name="projectFiles" value="$PROJECT_DIR$/src/main/java/simple/chatgpt/controller/UserController.java;C:/worksplace/sts/chatgpt/simple-chatgpt-web/src/main/java/simple/chatgpt/dao/UserDao.java;C:/worksplace/sts/chatgpt/simple-chatgpt-web/src/main/java/simple/chatgpt/pojo/User.java;C:/worksplace/sts/chatgpt/simple-chatgpt-web/src/main/java/simple/chatgpt/service/UserService.java;C:/worksplace/sts/chatgpt/simple-chatgpt-web/src/main/java/simple/chatgpt/service/UserServiceImpl.java;C:/worksplace/sts/chatgpt/simple-chatgpt-web/src/main/resources/User.sql;C:/worksplace/sts/chatgpt/simple-chatgpt-web/src/main/webapp/js/User.js;C:/worksplace/sts/chatgpt/simple-chatgpt-web/src/main/webapp/user/user.html;C:/worksplace/sts/chatgpt/simple-chatgpt-web/src/main/webapp/index.html" />
+  </component>
+</project>

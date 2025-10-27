@@ -1,0 +1,16 @@
+# editUser.feature
+
+Feature: Edit user functionality
+  As an admin
+  I want to edit an existing user
+  So that I can update their details when needed
+
+  # Scenario will check: if user not exists, create first, then edit it
+  Scenario: Edit an existing user
+    Given I am on the users page
+    When I search for the user "testSelenium@yahoo.com"
+    And the user does not exist, I create a new user with username "testSelenium@yahoo.com"
+    And I click Edit for the user "testSelenium@yahoo.com"
+    And I update the first name to "Test updated" and last name to "Selenium updated"
+    And I save the user
+    Then the user "testSelenium@yahoo.com" should be present in the grid

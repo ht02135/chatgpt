@@ -1,0 +1,33 @@
+<%-- src/main/webapp/management/include/constants.jspf --%>
+<%
+    // Base context path
+    String CONTEXT_PATH = request.getContextPath();
+	String API_CONTEXT_PATH = CONTEXT_PATH;
+
+    // ==========================
+    // JSP page paths
+    // ==========================
+    String LOGIN_PAGE = CONTEXT_PATH + "/management/jsp/auth/login.jsp";
+    String LOGOUT_PAGE = CONTEXT_PATH + "/management/jsp/auth/logout.jsp";
+    String REGISTER_PAGE = CONTEXT_PATH + "/management/jsp/auth/register.jsp";
+    String INDEX_PAGE = CONTEXT_PATH + "/index.jsp";
+    String DASHBOARD_PAGE = CONTEXT_PATH + "/dashboard.jsp";
+
+    // ==========================
+    // API endpoints
+    // ==========================
+    String API_AUTH_LOGIN = API_CONTEXT_PATH + "/api/management/auth/login";
+	String API_AUTH_OUT = API_CONTEXT_PATH + "/api/management/auth/out";
+    String API_AUTH_REGISTER = API_CONTEXT_PATH + "/api/management/auth/register";
+    String API_CONFIG = API_CONTEXT_PATH + "/api/management/config";
+    String API_PROPERTY = API_CONTEXT_PATH + "/api/management/properties";
+    String API_USER = API_CONTEXT_PATH + "/api/management/users";
+	String API_PAGE = API_CONTEXT_PATH + "/api/management/pages";
+    String API_USERLIST = API_CONTEXT_PATH + "/api/management/userlists";
+    String API_USERLIST_MEMBER = API_CONTEXT_PATH + "/api/management/userlistmembers";
+    String API_ROLE = API_CONTEXT_PATH + "/api/management/roles";
+    String API_ROLE_GROUP = API_CONTEXT_PATH + "/api/management/rolegroups";
+    String API_ROLE_GROUP_ROLE = API_CONTEXT_PATH + "/api/management/rolegrouprolemappings";
+    String API_PAGE_ROLE_GROUP = API_CONTEXT_PATH + "/api/management/pagerolegroups";
+    String API_USER_ROLE_GROUP = API_CONTEXT_PATH + "/api/management/userrolegroups";
+%>

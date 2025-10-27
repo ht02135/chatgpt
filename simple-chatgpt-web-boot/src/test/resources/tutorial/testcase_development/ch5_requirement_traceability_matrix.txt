@@ -1,0 +1,150 @@
+
+https://www.guru99.com/traceability-matrix.html
+
+///////////////
+
+The Requirements Traceability Matrix (RTM) is a structured document that links project requirements to their corresponding test cases, ensuring full coverage and validation. It plays a critical role in software testing by preventing missed functionalities, supporting compliance, and providing visibility across stakeholders. 
+
+
+
+    Start RTM early in the project lifecycle to ensure complete alignment with requirements.
+    Keep the matrix updated whenever requirements or test cases change.
+    Use clear, unique IDs to map requirements, scenarios, and test cases effectively.
+    Collaborate across testers, developers, analysts, and managers for shared accountability.
+    Leverage automation tools (e.g., Jira, Zephyr) to reduce manual effort and improve scalability.
+
+A Requirement Traceability Matrix (RTM) is a document that maps and traces user requirements with test cases. It captures all requirements proposed by the client and requirement traceability in a single document, delivered at the conclusion of the Software development life cycle. The main purpose of the Requirement Traceability Matrix is to validate that all requirements are checked via test cases, such that no functionality is unchecked during Software testing.
+
+A Requirements Traceability Matrix (RTM) is not just for testers — it’s valuable for anyone involved in delivering high-quality software or projects.
+
+    QA and Testers → Ensure 100% requirement coverage with well-mapped test cases.
+    Business Analysts → Track requirements from SRS/User Stories through execution.
+    Project Managers → Gain visibility into scope, progress, and missed requirements.
+    Developers → Understand how features map back to business goals.
+    Regulated Industries (Healthcare, Automotive, Aerospace, Finance) → Prove compliance and pass audits with clear traceability.
+    Clients and Stakeholders → Get reassurance that their requirements are implemented and tested.
+
+Which Parameters to include in the Requirement Traceability Matrix?
+
+    Requirement ID
+    Requirement Type and Description
+    Test Cases with Status
+    
+EX
+| Req No | Req Description | Testcase ID | Status |
+| 123    | Login to app    | TC01, TC02  | PASS   |
+
+Requirements Traceability Matrix
+
+In Software Engineering, a traceability matrix can be divided into three major components as mentioned below:
+
+    Forward traceability: This matrix is used to check whether the project progresses in the desired direction and for the right product. It makes sure that each requirement is applied to the product and that each requirement is tested thoroughly. It maps requirements to test cases.
+    Backward or reverse traceability: It is used to ensure that the current product remains on the right track. The purpose behind this type of traceability is to verify that we are not expanding the scope of the project by adding code, design elements, test, or other work that is not specified in the requirements. It maps test cases to requirements.
+    Bi-directional traceability ( Forward+Backward): This traceability matrix ensures that test cases cover all requirements. It analyzes the impact of a change in requirements affected by the Defect in a work product and vice versa.
+
+////////////
+
+How to create a Requirement Traceability Matrix
+
+Let’s understand the concept of Requirement Traceability Matrix through a Guru99 banking project.
+
+On the basis of the Business Requirement Document (BRD) and Technical Requirement Document (TRD), testers start writing test cases.
+
+Let’s suppose the following table is our Business Requirement Document or BRD for the Guru99 banking project.
+
+| BR# | module name  | applicable role  | description                        |
+| B1  | login/logout | manager/customer | customer can login using login page|
+
+The table below is our Technical Requirement Document (TRD).
+
+Login
+T92 user-id must not bd blank
+T93 password must not be blank
+
+Step 1) Our sample Test Case is
+
+“Verify Login: When the correct ID and Password are entered, it should log in successfully.”
+
+| test case# | br# | tr# | test case    | test steps  | test data   | expected result |
+| 1          | B1  |T94 |verify login | see below A | see below B | logiin success  |
+
+A
+1>go to login page
+2>enter userID
+3>enter password
+4>click login
+
+B
+id=guru99
+pass=1234
+
+Step 4) Identify the Business Requirement for which this TR (Technical Requirement-T94) is defined
+T4 if user id and password are valid,login
+
+Step 5) Note the BR (Business Requirement) in the Test Case
+| BR# | module name  | applicable role  | description                        |
+| B1  | login/logout | manager/customer | customer can login using login page|
+
+
+//////////////////////////////
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,272 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="simple.chatgpt.mapper.management.UserManagementListMemberMapper">
+
+    <!-- =======================
+         ResultMap for POJO
+         ======================= -->
+    <resultMap id="UserManagementListMemberResultMap"
+               type="simple.chatgpt.pojo.management.UserManagementListMemberPojo">
+        <id property="id" column="id"/>
+        <result property="listId" column="list_id"/>
+        <result property="userName" column="user_name"/>
+        <result property="userKey" column="user_key"/>
+        <result property="password" column="password"/>
+        <result property="firstName" column="first_name"/>
+        <result property="lastName" column="last_name"/>
+        <result property="email" column="email"/>
+        <result property="addressLine1" column="address_line_1"/>
+        <result property="addressLine2" column="address_line_2"/>
+        <result property="city" column="city"/>
+        <result property="state" column="state"/>
+        <result property="postCode" column="post_code"/>
+        <result property="country" column="country"/>
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
+    <!-- =======================
+         SQL fragment for filtering/search
+         ======================= -->
+    <sql id="UserManagementListMemberFilter">
+        <where>
+            <if test="params.member != null or params != null">
+                <if test="(params.member != null and params.member.listId != null) or (params.listId != null)">
+                    AND list_id = <choose>
+                        <when test="params.member != null and params.member.listId != null">#{params.member.listId}</when>
+                        <otherwise>#{params.listId}</otherwise>
+                    </choose>
+                </if>
+                <if test="(params.member != null and params.member.userName != null and params.member.userName != '') 
+                          or (params.userName != null and params.userName != '')">
+                    AND user_name LIKE CONCAT('%', 
+                        <choose>
+                            <when test="params.member != null and params.member.userName != null and params.member.userName != ''">#{params.member.userName}</when>
+                            <otherwise>#{params.userName}</otherwise>
+                        </choose>, '%')
+                </if>
+                <if test="(params.member != null and params.member.userKey != null and params.member.userKey != '') 
+                          or (params.userKey != null and params.userKey != '')">
+                    AND user_key LIKE CONCAT('%', 
+                        <choose>
+                            <when test="params.member != null and params.member.userKey != null and params.member.userKey != ''">#{params.member.userKey}</when>
+                            <otherwise>#{params.userKey}</otherwise>
+                        </choose>, '%')
+                </if>
+                <if test="(params.member != null and params.member.firstName != null and params.member.firstName != '') 
+                          or (params.firstName != null and params.firstName != '')">
+                    AND first_name LIKE CONCAT('%', 
+                        <choose>
+                            <when test="params.member != null and params.member.firstName != null and params.member.firstName != ''">#{params.member.firstName}</when>
+                            <otherwise>#{params.firstName}</otherwise>
+                        </choose>, '%')
+                </if>
+                <if test="(params.member != null and params.member.lastName != null and params.member.lastName != '') 
+                          or (params.lastName != null and params.lastName != '')">
+                    AND last_name LIKE CONCAT('%', 
+                        <choose>
+                            <when test="params.member != null and params.member.lastName != null and params.member.lastName != ''">#{params.member.lastName}</when>
+                            <otherwise>#{params.lastName}</otherwise>
+                        </choose>, '%')
+                </if>
+                <if test="(params.member != null and params.member.email != null and params.member.email != '') 
+                          or (params.email != null and params.email != '')">
+                    AND email LIKE CONCAT('%', 
+                        <choose>
+                            <when test="params.member != null and params.member.email != null and params.member.email != ''">#{params.member.email}</when>
+                            <otherwise>#{params.email}</otherwise>
+                        </choose>, '%')
+                </if>
+                <if test="(params.member != null and params.member.addressLine1 != null and params.member.addressLine1 != '') 
+                          or (params.addressLine1 != null and params.addressLine1 != '')">
+                    AND address_line_1 LIKE CONCAT('%', 
+                        <choose>
+                            <when test="params.member != null and params.member.addressLine1 != null and params.member.addressLine1 != ''">#{params.member.addressLine1}</when>
+                            <otherwise>#{params.addressLine1}</otherwise>
+                        </choose>, '%')
+                </if>
+                <if test="(params.member != null and params.member.addressLine2 != null and params.member.addressLine2 != '') 
+                          or (params.addressLine2 != null and params.addressLine2 != '')">
+                    AND address_line_2 LIKE CONCAT('%', 
+                        <choose>
+                            <when test="params.member != null and params.member.addressLine2 != null and params.member.addressLine2 != ''">#{params.member.addressLine2}</when>
+                            <otherwise>#{params.addressLine2}</otherwise>
+                        </choose>, '%')
+                </if>
+                <if test="(params.member != null and params.member.city != null and params.member.city != '') 
+                          or (params.city != null and params.city != '')">
+                    AND city LIKE CONCAT('%', 
+                        <choose>
+                            <when test="params.member != null and params.member.city != null and params.member.city != ''">#{params.member.city}</when>
+                            <otherwise>#{params.city}</otherwise>
+                        </choose>, '%')
+                </if>
+                <if test="(params.member != null and params.member.state != null and params.member.state != '') 
+                          or (params.state != null and params.state != '')">
+                    AND state LIKE CONCAT('%', 
+                        <choose>
+                            <when test="params.member != null and params.member.state != null and params.member.state != ''">#{params.member.state}</when>
+                            <otherwise>#{params.state}</otherwise>
+                        </choose>, '%')
+                </if>
+                <if test="(params.member != null and params.member.postCode != null and params.member.postCode != '') 
+                          or (params.postCode != null and params.postCode != '')">
+                    AND post_code LIKE CONCAT('%', 
+                        <choose>
+                            <when test="params.member != null and params.member.postCode != null and params.member.postCode != ''">#{params.member.postCode}</when>
+                            <otherwise>#{params.postCode}</otherwise>
+                        </choose>, '%')
+                </if>
+                <if test="(params.member != null and params.member.country != null and params.member.country != '') 
+                          or (params.country != null and params.country != '')">
+                    AND country LIKE CONCAT('%', 
+                        <choose>
+                            <when test="params.member != null and params.member.country != null and params.member.country != ''">#{params.member.country}</when>
+                            <otherwise>#{params.country}</otherwise>
+                        </choose>, '%')
+                </if>
+            </if>
+        </where>
+    </sql>
+
+    <!-- =======================
+         CREATE
+         ======================= -->
+    <insert id="insertMember" parameterType="map" useGeneratedKeys="true" keyProperty="params.member.id">
+        INSERT INTO user_management_list_member
+        (list_id, user_name, user_key, password, first_name, last_name, email, address_line_1, address_line_2, city, state, post_code, country)
+        VALUES
+        (#{params.member.listId}, #{params.member.userName}, #{params.member.userKey}, #{params.member.password},
+         #{params.member.firstName}, #{params.member.lastName}, #{params.member.email},
+         #{params.member.addressLine1}, #{params.member.addressLine2}, #{params.member.city},
+         #{params.member.state}, #{params.member.postCode}, #{params.member.country})
+    </insert>
+
+    <insert id="createMember" parameterType="map" useGeneratedKeys="true" keyProperty="params.member.id">
+        INSERT INTO user_management_list_member
+        (list_id, user_name, user_key, password, first_name, last_name, email, address_line_1, address_line_2, city, state, post_code, country)
+        VALUES
+        (#{params.member.listId}, #{params.member.userName}, #{params.member.userKey}, #{params.member.password},
+         #{params.member.firstName}, #{params.member.lastName}, #{params.member.email},
+         #{params.member.addressLine1}, #{params.member.addressLine2}, #{params.member.city},
+         #{params.member.state}, #{params.member.postCode}, #{params.member.country})
+    </insert>
+
+	<insert id="batchInsertMembers" parameterType="map">
+    	INSERT INTO user_management_list_member
+    	(list_id, user_name, user_key, password, first_name, last_name, email, address_line_1, address_line_2, city, state, post_code, country)
+    	VALUES
+    	<foreach collection="params.members" item="member" separator=",">
+        	(#{member.listId}, #{member.userName}, #{member.userKey}, #{member.password},
+         	#{member.firstName}, #{member.lastName}, #{member.email},
+         	#{member.addressLine1}, #{member.addressLine2}, #{member.city},
+         	#{member.state}, #{member.postCode}, #{member.country})
+    	</foreach>
+	</insert>
+
+    <!-- =======================
+         READ
+         ======================= -->
+    <select id="getMemberById" parameterType="map" resultMap="UserManagementListMemberResultMap">
+        SELECT * FROM user_management_list_member WHERE id = #{params.memberId}
+    </select>
+
+    <select id="getMemberByUserName" parameterType="map" resultMap="UserManagementListMemberResultMap">
+        SELECT * FROM user_management_list_member WHERE user_name = #{params.member.userName}
+    </select>
+
+    <!-- =======================
+         UPDATE
+         ======================= -->
+    <update id="updateMemberById" parameterType="map">
+        UPDATE user_management_list_member
+        <set>
+            updated_at = NOW(),
+            <if test="params.member.userName != null">user_name = #{params.member.userName},</if>
+            <if test="params.member.userKey != null">user_key = #{params.member.userKey},</if>
+            <if test="params.member.password != null">password = #{params.member.password},</if>
+            <if test="params.member.firstName != null">first_name = #{params.member.firstName},</if>
+            <if test="params.member.lastName != null">last_name = #{params.member.lastName},</if>
+            <if test="params.member.email != null">email = #{params.member.email},</if>
+            <if test="params.member.addressLine1 != null">address_line_1 = #{params.member.addressLine1},</if>
+            <if test="params.member.addressLine2 != null">address_line_2 = #{params.member.addressLine2},</if>
+            <if test="params.member.city != null">city = #{params.member.city},</if>
+            <if test="params.member.state != null">state = #{params.member.state},</if>
+            <if test="params.member.postCode != null">post_code = #{params.member.postCode},</if>
+            <if test="params.member.country != null">country = #{params.member.country},</if>
+        </set>
+        WHERE id = #{params.memberId}
+    </update>
+
+    <update id="updateMemberByUserName" parameterType="map">
+        UPDATE user_management_list_member
+        <set>
+            updated_at = NOW(),
+            <if test="params.member.userKey != null">user_key = #{params.member.userKey},</if>
+            <if test="params.member.password != null">password = #{params.member.password},</if>
+            <if test="params.member.firstName != null">first_name = #{params.member.firstName},</if>
+            <if test="params.member.lastName != null">last_name = #{params.member.lastName},</if>
+            <if test="params.member.email != null">email = #{params.member.email},</if>
+            <if test="params.member.addressLine1 != null">address_line_1 = #{params.member.addressLine1},</if>
+            <if test="params.member.addressLine2 != null">address_line_2 = #{params.member.addressLine2},</if>
+            <if test="params.member.city != null">city = #{params.member.city},</if>
+            <if test="params.member.state != null">state = #{params.member.state},</if>
+            <if test="params.member.postCode != null">post_code = #{params.member.postCode},</if>
+            <if test="params.member.country != null">country = #{params.member.country},</if>
+        </set>
+        WHERE user_name = #{params.member.userName}
+    </update>
+
+    <!-- =======================
+         DELETE
+         ======================= -->
+    <delete id="deleteMemberById" parameterType="map">
+        DELETE FROM user_management_list_member WHERE id = #{params.memberId}
+    </delete>
+
+    <delete id="deleteMemberByUserName" parameterType="map">
+        DELETE FROM user_management_list_member WHERE user_name = #{params.member.userName}
+    </delete>
+
+    <delete id="deleteMembersByListId" parameterType="map">
+        DELETE FROM user_management_list_member WHERE list_id = #{params.listId}
+    </delete>
+
+    <!-- =======================
+         SEARCH / LIST
+         ======================= -->
+    <select id="findMembers" parameterType="map" resultMap="UserManagementListMemberResultMap">
+        SELECT * FROM user_management_list_member
+        <include refid="UserManagementListMemberFilter"/>
+        <if test="params.sortField != null and params.sortDirection != null">
+            ORDER BY ${params.sortField} ${params.sortDirection}
+        </if>
+        <if test="params.offset != null and params.limit != null">
+            LIMIT #{params.offset}, #{params.limit}
+        </if>
+    </select>
+
+    <select id="searchMembers" parameterType="map" resultMap="UserManagementListMemberResultMap">
+        <include refid="UserManagementListMemberFilter"/>
+        <if test="params.sortField != null and params.sortDirection != null">
+            ORDER BY ${params.sortField} ${params.sortDirection}
+        </if>
+        <if test="params.offset != null and params.limit != null">
+            LIMIT #{params.offset}, #{params.limit}
+        </if>
+    </select>
+
+    <select id="findMembersByListId" parameterType="map" resultMap="UserManagementListMemberResultMap">
+        SELECT * FROM user_management_list_member
+        WHERE list_id = #{params.listId}
+    </select>
+
+    <select id="countMembers" parameterType="map" resultType="long">
+        SELECT COUNT(*) FROM user_management_list_member
+        <include refid="UserManagementListMemberFilter"/>
+    </select>
+
+</mapper>

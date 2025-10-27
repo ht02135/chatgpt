@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper
+	namespace="simple.chatgpt.mapper.management.security.RoleGroupManagementMapper">
+
+	<!-- ======================= RESULT MAP for POJO ======================= -->
+	<resultMap id="RoleGroupManagementResultMap"
+		type="simple.chatgpt.pojo.management.security.RoleGroupManagementPojo">
+		<id property="id" column="id" />
+		<result property="groupName" column="group_name" />
+		<result property="description" column="description" />
+		<result property="delimitRoles" column="delimit_roles" />
+		<result property="createdAt" column="created_at" />
+		<result property="updatedAt" column="updated_at" />
+	</resultMap>
+
+	<!-- ======= 5 CORE METHODS (on top) ======= -->
+	
+	<!-- void create(@Param("entity") entityPojo entity) -->
+	<!-- ======================= CREATE ======================= -->
+	<insert id="create" parameterType="map" useGeneratedKeys="true" keyProperty="roleGroup.id">
+        INSERT INTO role_group_management
+        (group_name, description, delimit_roles, created_at, updated_at)
+        VALUES (#{roleGroup.groupName}, #{roleGroup.description}, #{roleGroup.delimitRoles}, NOW(), NOW())
+	</insert>
+
+	<!--  void update(@Param("id") Long id, @Param("entity") entityPojo entity) -->
+	<!-- ======================= UPDATE ======================= -->
+	<update id="update" parameterType="map">
+		UPDATE role_group_management
+		<set>
+			<if test="roleGroup.groupName != null">group_name = #{roleGroup.groupName},</if>
+			<if test="roleGroup.description != null">description = #{roleGroup.description},</if>
+			<if test="roleGroup.delimitRoles != null">delimit_roles = #{roleGroup.delimitRoles},</if>
+		</set>
+		WHERE id = #{id}
+	</update>
+
+	<!-- ======================= SEARCH ======================= -->
+    <sql id="RoleGroupManagementFilter">
+        <where>
+            <if test="params.roleGroup != null or params != null">
+                <if test="(params.roleGroup != null and params.roleGroup.groupName != null and params.roleGroup.groupName != '') 
+                          or (params.groupName != null and params.groupName != '')">
+                    AND group_name LIKE CONCAT('%',
+                        <choose>
+                            <when test="params.roleGroup != null and params.roleGroup.groupName != null and params.roleGroup.groupName != ''">
+                                #{params.roleGroup.groupName}
+                            </when>
+                            <otherwise>#{params.groupName}</otherwise>
+                        </choose>
+                    , '%')
+                </if>
+
+                <if test="(params.roleGroup != null and params.roleGroup.description != null and params.roleGroup.description != '') 
+                          or (params.description != null and params.description != '')">
+                    AND description LIKE CONCAT('%',
+                        <choose>
+                            <when test="params.roleGroup != null and params.roleGroup.description != null and params.roleGroup.description != ''">
+                                #{params.roleGroup.description}
+                            </when>
+                            <otherwise>#{params.description}</otherwise>
+                        </choose>
+                    , '%')
+                </if>
+            </if>
+        </where>
+    </sql>
+    
+    <!-- List<entityPojo> search(@Param("params") Map<String, Object> params) -->
+	<select id="search" parameterType="map" resultMap="RoleGroupManagementResultMap">
+        SELECT id, group_name, description, delimit_roles, created_at, updated_at
+        FROM role_group_management
+        <include refid="RoleGroupManagementFilter" />
+        <if test="params.sortField != null and params.sortDirection != null">
+            ORDER BY ${params.sortField} ${params.sortDirection}
+        </if>
+        <if test="params.offset != null and params.limit != null">
+            LIMIT #{params.offset}, #{params.limit}
+        </if>
+	</select>
+
+	<!-- ======================= GET ======================= -->
+	<select id="get" parameterType="long" resultMap="RoleGroupManagementResultMap">
+		SELECT * FROM role_group_management WHERE id = #{id}
+	</select>
+
+	<!-- ======================= DELETE ======================= -->
+	<delete id="delete" parameterType="long">
+		DELETE FROM role_group_management WHERE id = #{id}
+	</delete>
+
+</mapper>

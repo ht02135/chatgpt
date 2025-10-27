@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="simple.chatgpt.mapper.management.UserManagementMapper">
+
+    <!-- ========================= -->
+    <!-- ResultMap for POJO fields -->
+    <!-- ========================= -->
+    <resultMap id="UserManagementResultMap" type="simple.chatgpt.pojo.management.UserManagementPojo">
+        <id property="id" column="id"/>
+        <result property="userName" column="user_name"/>
+        <result property="userKey" column="user_key"/>
+        <result property="password" column="password"/>
+        <result property="firstName" column="first_name"/>
+        <result property="lastName" column="last_name"/>
+        <result property="email" column="email"/>
+        <result property="addressLine1" column="address_line_1"/>
+        <result property="addressLine2" column="address_line_2"/>
+        <result property="city" column="city"/>
+        <result property="state" column="state"/>
+        <result property="postCode" column="post_code"/>
+        <result property="country" column="country"/>
+        <result property="active" column="active"/>
+        <result property="locked" column="locked"/>
+        <result property="lastLoginIp" column="last_login_ip"/>
+        <result property="lastLoginAt" column="last_login_at"/>
+        <result property="jwtSecretVersion" column="jwt_secret_version"/>
+        <result property="delimitRoleGroups" column="delimit_role_groups"/> <!-- <<< ADDED -->
+        <result property="createdAt" column="created_at"/>
+        <result property="updatedAt" column="updated_at"/>
+    </resultMap>
+
+    <!-- ======= 5 CORE METHODS (on top) ======= -->
+
+	<!-- void create(@Param("entity") entityPojo entity) -->
+    <!-- ======================= CREATE ======================= -->
+    <insert id="create" parameterType="map" useGeneratedKeys="true" keyProperty="user.id">
+        INSERT INTO user_management
+        (user_name, user_key, password, first_name, last_name, email, address_line_1,
+         address_line_2, city, state, post_code, country, active, locked, last_login_ip,
+         last_login_at, jwt_secret_version, delimit_role_groups)
+        VALUES
+        (#{user.userName}, #{user.userKey}, #{user.password}, #{user.firstName}, #{user.lastName}, #{user.email},
+         #{user.addressLine1}, #{user.addressLine2}, #{user.city}, #{user.state}, #{user.postCode}, #{user.country},
+         #{user.active}, #{user.locked}, #{user.lastLoginIp}, #{user.lastLoginAt}, #{user.jwtSecretVersion}, #{user.delimitRoleGroups})
+    </insert>
+
+	<!-- void update(@Param("id") Long id, @Param("entity") entityPojo entity) -->
+	<!-- ======================= UPDATE ======================= -->
+    <update id="update" parameterType="map">
+        UPDATE user_management
+        <set>
+            <if test="user.userName != null">user_name = #{user.userName},</if>
+            <if test="user.userKey != null">user_key = #{user.userKey},</if>
+            <if test="user.password != null">password = #{user.password},</if>
+            <if test="user.firstName != null">first_name = #{user.firstName},</if>
+            <if test="user.lastName != null">last_name = #{user.lastName},</if>
+            <if test="user.email != null">email = #{user.email},</if>
+            <if test="user.addressLine1 != null">address_line_1 = #{user.addressLine1},</if>
+            <if test="user.addressLine2 != null">address_line_2 = #{user.addressLine2},</if>
+            <if test="user.city != null">city = #{user.city},</if>
+            <if test="user.state != null">state = #{user.state},</if>
+            <if test="user.postCode != null">post_code = #{user.postCode},</if>
+            <if test="user.country != null">country = #{user.country},</if>
+            <if test="user.active != null">active = #{user.active},</if>
+            <if test="user.locked != null">locked = #{user.locked},</if>
+            <if test="user.lastLoginIp != null">last_login_ip = #{user.lastLoginIp},</if>
+            <if test="user.lastLoginAt != null">last_login_at = #{user.lastLoginAt},</if>
+            <if test="user.jwtSecretVersion != null">jwt_secret_version = #{user.jwtSecretVersion},</if>
+            <if test="user.delimitRoleGroups != null">delimit_role_groups = #{user.delimitRoleGroups},</if> <!-- <<< ADDED -->
+        </set>
+        WHERE id = #{id}
+    </update>
+
+	<!-- List<entityPojo> search(@Param("params") Map<String, Object> params) -->
+	<!-- ======================= SEARCH / PAGINATION ======================= -->
+    <select id="search" parameterType="map" resultMap="UserManagementResultMap">
+        SELECT * FROM user_management
+        <where>
+            <if test="params.userName != null and params.userName != ''">
+                AND user_name LIKE CONCAT('%', #{params.userName}, '%')
+            </if>
+            <if test="params.userKey != null and params.userKey != ''">
+                AND user_key LIKE CONCAT('%', #{params.userKey}, '%')
+            </if>
+            <if test="params.firstName != null and params.firstName != ''">
+                AND first_name LIKE CONCAT('%', #{params.firstName}, '%')
+            </if>
+            <if test="params.lastName != null and params.lastName != ''">
+                AND last_name LIKE CONCAT('%', #{params.lastName}, '%')
+            </if>
+            <if test="params.email != null and params.email != ''">
+                AND email LIKE CONCAT('%', #{params.email}, '%')
+            </if>
+            <if test="params.addressLine1 != null and params.addressLine1 != ''">
+                AND address_line_1 LIKE CONCAT('%', #{params.addressLine1}, '%')
+            </if>
+            <if test="params.addressLine2 != null and params.addressLine2 != ''">
+                AND address_line_2 LIKE CONCAT('%', #{params.addressLine2}, '%')
+            </if>
+            <if test="params.city != null and params.city != ''">
+                AND city LIKE CONCAT('%', #{params.city}, '%')
+            </if>
+            <if test="params.state != null and params.state != ''">
+                AND state LIKE CONCAT('%', #{params.state}, '%')
+            </if>
+            <if test="params.postCode != null and params.postCode != ''">
+                AND post_code LIKE CONCAT('%', #{params.postCode}, '%')
+            </if>
+            <if test="params.country != null and params.country != ''">
+                AND country LIKE CONCAT('%', #{params.country}, '%')
+            </if>
+            <if test="params.active != null">
+                AND active = #{params.active}
+            </if>
+            <if test="params.locked != null">
+                AND locked = #{params.locked}
+            </if>
+            <if test="params.delimitRoleGroups != null and params.delimitRoleGroups != ''">
+                AND delimit_role_groups LIKE CONCAT('%', #{params.delimitRoleGroups}, '%') <!-- <<< ADDED -->
+            </if>
+        </where>
+        <if test="params.sortField != null and params.sortDirection != null">
+            ORDER BY ${params.sortField} ${params.sortDirection}
+        </if>
+        <if test="params.offset != null and params.limit != null">
+            LIMIT #{params.offset}, #{params.limit}
+        </if>
+    </select>
+
+	<!-- entityPojo get(@Param("id") Long id) -->
+	<!-- ======================= READ ======================= -->
+    <select id="get" parameterType="long" resultMap="UserManagementResultMap">
+        SELECT * FROM user_management WHERE id = #{id}
+    </select>
+
+	<!-- void delete(@Param("id") Long id) -->
+	<!-- ======================= DELETE ======================= -->
+    <delete id="delete" parameterType="long">
+        DELETE FROM user_management WHERE id = #{id}
+    </delete>
+
+	<!-- ======= OTHER METHODS ======= -->
+
+</mapper>

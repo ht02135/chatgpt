@@ -1,0 +1,124 @@
+
+///////////////
+
+https://www.guru99.com/equivalence-partitioning-boundary-value-analysis.html
+
+In Equivalence Partitioning, first, you divide a set of test condition into a partition that can be considered.
+In Boundary Value Analysis you then test boundaries between equivalence partitions
+
+Why Equivalence & Boundary Analysis Testing
+
+    This testing is used to reduce a very large number of test cases to manageable chunks.
+    Very clear guidelines on determining test cases without compromising on the effectiveness of testing.
+    Appropriate for calculation-intensive applications with a large number of variables/inputs
+
+Practically, due to time and budget considerations, it is not possible to perform exhausting testing for each set of test data, especially when there is a large pool of input combinations.
+
+We need an easy way or special techniques that can select test cases intelligently from the pool of test-case, such that all test scenarios are covered. We use two techniques – Equivalence Partitioning & Boundary Value Analysis testing techniques to achieve this.
+
+///////////////
+
+What is Boundary Testing?
+
+Boundary testing is the process of testing between extreme ends or boundaries between partitions of the input values.
+
+    So these extreme ends like Start- End, Lower- Upper, Maximum-Minimum, Just Inside-Just Outside values are called boundary values and the testing is called “boundary testing”.
+    The basic idea in normal boundary value testing is to select input variable values at their:
+
+    Minimum
+    Just above the minimum
+    A nominal value
+    Just below the maximum
+    Maximum
+
+///////////////
+
+quivalence Partitioning
+
+Equivalence Partitioning or Equivalence Class Partitioning is type of black box testing technique which can be applied to all levels of software testing like unit, integration, system, etc. In this technique, input data units are divided into equivalent partitions that can be used to derive test cases which reduces time required for testing because of small number of test cases.
+
+    It divides the input data of software into different equivalence data classes.
+    You can apply this technique, where there is a range in the input field.
+
+Example 1: Equivalence and Boundary Value
+
+    Let’s consider the behavior of Order Pizza Text Box Below
+    Pizza values 1 to 10 is considered valid. A success message is shown.
+    While value 11 to 99 are considered invalid for order and an error message will appear, “Only 10 Pizza can be ordered”
+
+Here is the test condition
+
+    Any Number greater than 10 entered in the Order Pizza field(let say 11) is considered invalid.
+    Any Number less than 1 that is 0 or below, then it is considered invalid.
+    Numbers 1 to 10 are considered valid
+    Any 3 Digit Number say -100 is invalid.
+
+The divided sets are called Equivalence Partitions or Equivalence Classes. Then we pick only one value from each partition for testing. The hypothesis behind this technique is that if one condition/value in a partition passes all others will also pass. Likewise, if one condition in a partition fails, all other conditions in that partition will fail.
+
+Boundary Value Analysis– in Boundary Value Analysis, you test boundaries between equivalence partitions
+
+/////////////
+
+Example 2: Equivalence and Boundary Value
+
+Following password field accepts minimum 6 characters and maximum 10 characters
+
+That means results for values in partitions 0-5, 6-10, 11-14 should be equivalent
+
+est Scenario # 	Test Scenario Description 	Expected Outcome
+1 	Enter 0 to 5 characters in password field 	System should not accept
+2 	Enter 6 to 10 characters in password field 	System should accept
+3 	Enter 11 to 14 character in password field 	System should not accept
+
+/////////////////
+
+Examples 3: Input Box should accept the Number 1 to 10
+
+Here we will see the Boundary Value Test Cases
+Test Scenario Description 	Expected Outcome
+Boundary Value = 0 	System should NOT accept
+Boundary Value = 1 	System should accept
+Boundary Value = 2 	System should accept
+Boundary Value = 9 	System should accept
+Boundary Value = 10 	System should accept
+Boundary Value = 11 	System should NOT accept
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

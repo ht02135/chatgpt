@@ -1,0 +1,63 @@
+
+///////////////////
+
+https://www.guru99.com/test-analysis-basis.html
+
+Test Analysis in software testing is a process of checking and analysing the test artifacts in order to base the test conditions or test cases. The goal of test analysis is to gather requirements and define test objectives to establish the basis of test conditions. Hence, it is also called Test Basis. The source from which you derive test information could be
+
+    SRS (Software Requirement Specification)
+    BRS (Business Requirement Specification)
+    Functional Design Documents
+
+Consider a scenario, where the client sends the following
+
+Add search functionality to an eCommerce Store
+
+Even though the application is yet to be developed, try and develop a few test cases for this requirement. Pause here, do your homework and move the solution ahead: A few test cases among the many you could have thought of are listed below 
+
+    Check the search results when no keyword is entered
+    Check the search results when no corresponding product is available for the keyword searched
+    Check the search results when a number of corresponding products are available for the keyword searched
+
+1>system requirement specification
+requirement analysis
+-> user acceptance test plan
+
+2>functional specification
+functional specification
+-> system test plan
+
+3>high-level document
+high level design
+-> integration test plan
+
+4>detail design document
+detailed design / program specification
+unit test plan
+
+///////////////////////
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    

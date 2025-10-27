@@ -1,0 +1,964 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<config>
+
+	<!-- ========================= -->
+	<!-- Regex Validators -->
+	<!-- ========================= -->
+	<regex id="emailValidation"
+		validRegexExpression="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
+		errorMessage="wrong email format" />
+
+	<regex id="postalCodeValidation"
+		validRegexExpression="^\d{5}(?:[-\s]\d{4})?$"
+		errorMessage="wrong postal code format" />
+
+	<!-- Password rules: - Min length: 8 - At least 1 uppercase, 1 lowercase, 
+		1 digit, 1 special char - No whitespace -->
+	<regex id="passwordValidation"
+		validRegexExpression="^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[^a-zA-Z0-9\s])(?!.*\s).{8,}$"
+		errorMessage="wrong password format" />
+
+	<!-- ========================= -->
+	<!-- User Management -->
+	<!-- ========================= -->
+
+	<actions id="search-user-actions">
+		<action name="Create" label="Create" visible="true"
+			jsMethod="addUser" />
+		<action name="Search" label="Search" visible="true"
+			jsMethod="searchUsers" />
+		<action name="Reset" label="Reset" visible="true"
+			jsMethod="resetSearch" />
+	</actions>
+
+	<form id="searchUser">
+		<field name="userName" label="Username" visible="true" />
+		<field name="userKey" label="User Key" visible="true" />
+		<field name="firstName" label="First Name" visible="true" />
+		<field name="lastName" label="Last Name" visible="true" />
+		<field name="email" label="Email" regex="emailValidation"
+			visible="true" />
+		<field name="addressLine1" label="Address Line 1" visible="true" />
+		<field name="addressLine2" label="Address Line 2" visible="true" />
+		<field name="city" label="City" visible="true" />
+		<field name="state" label="State" visible="true" />
+		<field name="postCode" label="Post Code"
+			regex="postalCodeValidation" visible="true" />
+		<field name="country" label="Country" visible="true" />
+	</form>
+	<actions id="user-actions">
+		<action name="Edit" label="Edit" visible="true"
+			jsMethod="editUser" />
+		<action name="Delete" label="Delete" visible="true"
+			jsMethod="deleteUser" />
+		<action name="ResetPassword" label="Reset Password"
+			visible="true" jsMethod="resetPassword" />
+	</actions>
+
+	<grid id="users">
+		<column name="id" label="ID" visible="true" sortable="true"
+			dbField="id" />
+		<column name="userName" label="Username" visible="true"
+			sortable="true" dbField="user_name" />
+		<column name="userKey" label="User Key" visible="false"
+			sortable="true" dbField="user_key" />
+		<column name="firstName" label="First Name" visible="true"
+			sortable="true" dbField="first_name" />
+		<column name="lastName" label="Last Name" visible="true"
+			sortable="true" dbField="last_name" />
+		<column name="email" label="Email" visible="true"
+			sortable="true" dbField="email" />
+		<column name="city" label="City" visible="false"
+			sortable="true" dbField="city" />
+		<column name="country" label="Country" visible="false"
+			sortable="true" dbField="country" />
+		<column name="delimitRoleGroups" label="Role Groups"
+			visible="true" sortable="true" dbField="delimit_role_groups" />
+		<column name="createdAt" label="Created At" visible="false"
+			sortable="true" dbField="created_at" />
+		<column name="updatedAt" label="Updated At" visible="false"
+			sortable="true" dbField="updated_at" />
+		<column name="actions" label="Actions" actions="user-actions"
+			visible="true" sortable="false" />
+	</grid>
+
+	<actions id="user-form-actions">
+		<action name="Save" label="Save" visible="true"
+			jsMethod="saveUser" />
+		<action name="Cancel" label="Cancel" visible="true"
+			jsMethod="navigateToUsers" />
+	</actions>
+
+	<form id="resetUserPassword">
+		<field name="id" label="ID" visible="true" required="true"
+			editable="false" />
+		<field name="userName" label="Username" visible="true"
+			required="true" editable="false" />
+		<field name="userKey" label="User Key" visible="true"
+			required="true" editable="false" />
+		<field name="firstName" label="First Name" visible="true"
+			required="true" editable="false" />
+		<field name="lastName" label="Last Name" visible="true"
+			required="true" editable="false" />
+		<field name="email" label="Email" regex="emailValidation"
+			visible="false" required="true" editable="false" />
+		<field name="password" label="Password"
+			regex="passwordValidation" visible="true" required="true"
+			editable="true" />
+		<field name="addressLine1" label="Address Line 1"
+			visible="false" editable="false" />
+		<field name="addressLine2" label="Address Line 2"
+			visible="false" editable="false" />
+		<field name="city" label="City" visible="false" editable="false" />
+		<field name="state" label="State" visible="false"
+			editable="false" />
+		<field name="postCode" label="Post Code"
+			regex="postalCodeValidation" visible="false" editable="false" />
+		<field name="country" label="Country" visible="false"
+			editable="false" />
+		<field name="delimitRoleGroups" label="Delimit Role Groups"
+			visible="false" editable="false" />
+	</form>
+
+	<form id="addUser">
+		<field name="userName" label="Username" visible="true"
+			required="true" editable="true" />
+		<field name="userKey" label="User Key" visible="true"
+			required="true" editable="true" />
+		<field name="firstName" label="First Name" visible="true"
+			required="true" editable="true" />
+		<field name="lastName" label="Last Name" visible="true"
+			required="true" editable="true" />
+		<field name="email" label="Email" regex="emailValidation"
+			visible="true" required="true" editable="true" />
+		<field name="password" label="Password"
+			regex="passwordValidation" visible="true" required="true"
+			editable="true" />
+		<field name="addressLine1" label="Address Line 1" visible="true"
+			editable="true" />
+		<field name="addressLine2" label="Address Line 2" visible="true"
+			editable="true" />
+		<field name="city" label="City" visible="true" editable="true" />
+		<field name="state" label="State" visible="true" editable="true" />
+		<field name="postCode" label="Post Code"
+			regex="postalCodeValidation" visible="true" editable="true" />
+		<field name="country" label="Country" visible="true"
+			editable="true" />
+		<field name="delimitRoleGroups" label="Delimit Role Groups"
+			visible="true" editable="true" />
+	</form>
+
+	<form id="editUser">
+		<field name="id" label="ID" visible="true" required="true"
+			editable="false" />
+		<field name="userName" label="Username" visible="true"
+			required="true" editable="true" />
+		<field name="userKey" label="User Key" visible="true"
+			required="true" editable="true" />
+		<field name="firstName" label="First Name" visible="true"
+			required="true" editable="true" />
+		<field name="lastName" label="Last Name" visible="true"
+			required="true" editable="true" />
+		<field name="email" label="Email" regex="emailValidation"
+			visible="true" required="true" editable="true" />
+		<field name="password" label="Password (Encoded)"
+			regex="passwordValidation" visible="true" required="true"
+			editable="false" />
+		<field name="addressLine1" label="Address Line 1" visible="true"
+			editable="true" />
+		<field name="addressLine2" label="Address Line 2" visible="true"
+			editable="true" />
+		<field name="city" label="City" visible="true" editable="true" />
+		<field name="state" label="State" visible="true" editable="true" />
+		<field name="postCode" label="Post Code"
+			regex="postalCodeValidation" visible="true" editable="true" />
+		<field name="country" label="Country" visible="true"
+			editable="true" />
+		<field name="delimitRoleGroups" label="Delimit Role Groups"
+			visible="true" editable="true" />
+		<field name="createdAt" label="Created At" visible="true"
+			editable="false" />
+		<field name="updatedAt" label="Updated At" visible="true"
+			editable="false" />
+	</form>
+
+	<!-- ========================= -->
+	<!-- JobRequests Management -->
+	<!-- ========================= -->
+
+	<!-- Actions for searching JobRequests -->
+	<actions id="search-job-request-actions">
+		<action name="Create" label="Create" visible="true"
+			jsMethod="addJobRequest" />
+		<action name="Search" label="Search" visible="true"
+			jsMethod="searchJobRequests" />
+		<action name="Reset" label="Reset" visible="true"
+			jsMethod="resetSearch" />
+	</actions>
+
+	<!-- Search form for JobRequests -->
+	<form id="searchJobRequest">
+		<field name="jobName" label="Job Name" visible="true" />
+		<field name="processingStage" label="Processing Stage"
+			visible="true" />
+		<field name="processingStatus" label="Processing Status"
+			visible="true" />
+		<field name="status" label="Status" visible="true" />
+		<field name="createdDateFrom" label="Created From"
+			visible="true" />
+		<field name="createdDateTo" label="Created To" visible="true" />
+	</form>
+
+	<!-- Actions for grid rows -->
+	<actions id="job-request-actions">
+		<action name="ResetJobRequest" label="Reset JobRequest" visible="true"
+			jsMethod="resetJobRequest" />
+		<action name="Edit" label="Edit" visible="true"
+			jsMethod="editJobRequest" />
+		<action name="Delete" label="Delete" visible="true"
+			jsMethod="deleteJobRequest" />
+		<action name="RunBatch" label="RunBatch"
+			visible="true" jsMethod="runBatch" />
+	</actions>
+
+	<!-- Grid showing JobRequests -->
+	<grid id="jobRequests">
+		<column name="id" label="ID" visible="true" sortable="true"
+			dbField="id" />
+		<column name="jobName" label="Job Name" visible="true"
+			sortable="true" dbField="job_name" />
+		<column name="processingStage" label="Stage" visible="true"
+			sortable="true" dbField="processing_stage" />
+		<column name="processingStatus" label="Status Code"
+			visible="true" sortable="true" dbField="processing_status" />
+		<column name="status" label="Status" visible="true"
+			sortable="true" dbField="status" />
+		<column type="jobRequestDownload" name="downloadUrl" label="Download URL" visible="true"
+			sortable="false" dbField="download_url" />
+		<column name="createdDate" label="Created At" visible="true"
+			sortable="true" dbField="created_date" />
+		<column name="updatedDate" label="Updated At" visible="false"
+			sortable="true" dbField="updated_date" />
+		<column name="actions" label="Actions"
+			actions="job-request-actions" visible="true" sortable="false" />
+	</grid>
+
+	<!-- Actions for JobRequest forms -->
+	<actions id="job-request-form-actions">
+		<action name="Save" label="Save" visible="true"
+			jsMethod="saveJobRequest" />
+		<action name="Cancel" label="Cancel" visible="true"
+			jsMethod="navigateToJobRequests" />
+	</actions>
+
+	<!-- Add JobRequest form -->
+	<form id="addJobRequest">
+		<field name="jobName" label="Job Name" visible="true"
+			required="true" editable="true" />
+		<field name="processingStage" label="Processing Stage"
+			visible="true" editable="true" />
+		<field name="processingStatus" label="Processing Status"
+			visible="true" editable="true" />
+		<field name="status" label="Status" visible="true"
+			required="true" editable="true" />
+		<field name="downloadUrl" label="Download URL" visible="true"
+			editable="false" />
+		<field name="errorMessage" label="Error Message" visible="true"
+			editable="false" />
+	</form>
+
+	<!-- Edit JobRequest form -->
+	<form id="editJobRequest">
+		<field name="id" label="ID" visible="true" required="true"
+			editable="false" />
+		<field name="jobName" label="Job Name" visible="true"
+			required="true" editable="true" />
+		<field name="processingStage" label="Processing Stage"
+			visible="true" editable="true" />
+		<field name="processingStatus" label="Processing Status"
+			visible="true" editable="true" />
+		<field name="status" label="Status" visible="true"
+			required="true" editable="true" />
+		<field name="downloadUrl" label="Download URL" visible="true"
+			editable="false" />
+		<field name="errorMessage" label="Error Message" visible="true"
+			editable="false" />
+		<field name="createdDate" label="Created At" visible="false"
+			editable="false" />
+		<field name="updatedDate" label="Updated At" visible="false"
+			editable="false" />
+	</form>
+
+	<!-- ========================= -->
+	<!-- Page Management -->
+	<!-- ========================= -->
+
+	<actions id="search-page-actions">
+		<action name="Create" label="Create" visible="true"
+			jsMethod="addPage" />
+		<action name="Search" label="Search" visible="true"
+			jsMethod="searchPages" />
+		<action name="Reset" label="Reset" visible="true"
+			jsMethod="resetSearch" />
+	</actions>
+
+	<form id="searchPage">
+		<field name="urlPattern" label="URL Pattern" visible="true" />
+	</form>
+
+	<actions id="page-actions">
+		<action name="Edit" label="Edit" visible="true"
+			jsMethod="editPage" />
+		<action name="Delete" label="Delete" visible="true"
+			jsMethod="deletePage" />
+	</actions>
+
+	<grid id="pages">
+		<column name="id" label="ID" visible="true" sortable="true"
+			dbField="id" />
+		<column name="urlPattern" label="URL Pattern" visible="true"
+			sortable="true" dbField="url_pattern" />
+		<column name="delimitRoleGroups" label="Role Groups"
+			visible="true" sortable="true" dbField="delimit_role_groups" />
+		<column name="createdAt" label="Created At" visible="false"
+			sortable="true" dbField="created_at" />
+		<column name="updatedAt" label="Updated At" visible="false"
+			sortable="true" dbField="updated_at" />
+		<column name="actions" label="Actions" actions="page-actions"
+			visible="true" sortable="false" />
+	</grid>
+
+	<actions id="page-form-actions">
+		<action name="Save" label="Save" visible="true"
+			jsMethod="savePage" />
+		<action name="Cancel" label="Cancel" visible="true"
+			jsMethod="navigateToPages" />
+	</actions>
+
+	<form id="addPage">
+		<field name="urlPattern" label="URL Pattern" visible="true"
+			required="true" editable="true" />
+		<field name="delimitRoleGroups" label="Delimit Role Groups"
+			visible="true" editable="true" />
+	</form>
+
+	<form id="editPage">
+		<field name="id" label="ID" visible="true" required="true"
+			editable="false" />
+		<field name="urlPattern" label="URL Pattern" visible="true"
+			required="true" editable="true" />
+		<field name="delimitRoleGroups" label="Delimit Role Groups"
+			visible="true" editable="true" />
+		<field name="createdAt" label="Created At" visible="true"
+			editable="false" />
+		<field name="updatedAt" label="Updated At" visible="true"
+			editable="false" />
+	</form>
+
+	<!-- ========================= -->
+	<!-- Property Management -->
+	<!-- ========================= -->
+
+	<actions id="search-property-actions">
+		<action name="Create" label="Create" visible="true"
+			jsMethod="addProperty" />
+		<action name="Search" label="Search" visible="true"
+			jsMethod="searchProperties" />
+		<action name="Reset" label="Reset" visible="true"
+			jsMethod="resetSearch" />
+	</actions>
+
+	<form id="searchProperty">
+		<field name="propertyName" label="Name" visible="true"
+			required="true" editable="true" />
+		<field name="propertyKey" label="Key" visible="false"
+			required="true" editable="true" />
+		<field name="type" label="Type" visible="true" required="true"
+			editable="true" />
+	</form>
+
+	<validators id="multiple-validators">
+		<validator type="boolean"
+			validRegexExpression="^(true|false)$"
+			errorMessage="wrong boolean format" />
+		<validator type="integer" validRegexExpression="^\d+$"
+			errorMessage="wrong integer format" />
+		<validator type="decimal"
+			validRegexExpression="^[+-]?\d*\.?\d+$"
+			errorMessage="wrong decimal format" />
+		<validator type="string" validRegexExpression=".*"
+			errorMessage="wrong string format" />
+	</validators>
+
+	<actions id="property-actions">
+		<action name="Edit" label="Edit" visible="true"
+			jsMethod="editProperty" />
+	</actions>
+
+	<grid id="properties">
+		<column name="id" label="ID" visible="true" sortable="true"
+			dbField="id" />
+		<column name="propertyName" label="Name" visible="true"
+			sortable="true" dbField="property_name" />
+		<column name="propertyKey" label="Key" visible="false"
+			sortable="true" dbField="property_key" />
+		<column name="type" label="Type" visible="true" sortable="true"
+			dbField="type" />
+		<column name="value" label="Value" visible="true"
+			sortable="true" dbField="value" />
+		<column name="actions" label="Actions"
+			actions="property-actions" visible="true" sortable="false" />
+	</grid>
+
+	<actions id="property-form-actions">
+		<action name="Save" label="Save" visible="true"
+			jsMethod="saveProperty" />
+		<action name="Cancel" label="Cancel" visible="true"
+			jsMethod="navigateToProperties" />
+	</actions>
+
+	<form id="editProperty">
+		<field name="id" label="ID" visible="true" required="true"
+			editable="false" />
+		<field name="propertyName" label="Name" visible="true"
+			required="true" editable="false" />
+		<field name="propertyKey" label="Key" visible="false"
+			required="true" editable="false" />
+		<field name="type" label="Type" visible="true" required="true"
+			editable="true" />
+		<field name="value" label="Value" visible="true" required="true"
+			editable="true" validators="multiple-validators" />
+	</form>
+
+	<!-- ========================= -->
+	<!-- User List Management -->
+	<!-- ========================= -->
+
+	<actions id="search-userList-actions">
+		<action name="Upload" label="Upload" visible="true"
+			jsMethod="uploadUserList" />
+		<action name="DownLoadSample" label="DownLoad Sample"
+			visible="true" jsMethod="downloadSampleUserList" />
+		<action name="Search" label="Search" visible="true"
+			jsMethod="searchUserLists" />
+		<action name="Reset" label="Reset" visible="true"
+			jsMethod="resetSearch" />
+	</actions>
+
+	<form id="searchUserList">
+		<field name="userListName" label="User List Name" visible="true" />
+		<field name="originalFileName" label="Original File Name"
+			visible="true" />
+		<field name="description" label="Description" visible="true" />
+	</form>
+
+	<actions id="userList-actions">
+		<action name="Edit" label="Edit" visible="true"
+			jsMethod="editUserList" />
+		<action name="ExportCSVUserList" label="Export CSV"
+			visible="true" jsMethod="exportCSVUserList" />
+		<action name="ExportExcelUserList" label="Export Excel"
+			visible="true" jsMethod="exportExcelUserList" />
+		<action name="Delete" label="Delete" visible="true"
+			jsMethod="deleteUserList" />
+	</actions>
+
+	<grid id="userLists">
+		<column name="id" label="ID" visible="true" sortable="true"
+			dbField="id" />
+		<column name="userListName" label="User List Name"
+			visible="true" sortable="true" dbField="user_list_name" />
+		<column name="originalFileName" label="Original File Name"
+			visible="true" sortable="true" dbField="original_file_name" />
+		<column name="description" label="Description" visible="true"
+			sortable="true" dbField="description" />
+		<column name="actions" label="Actions"
+			actions="userList-actions" visible="true" sortable="false" />
+	</grid>
+
+	<actions id="userList-form-actions">
+		<action name="Save" label="Save" visible="true"
+			jsMethod="saveUserList" />
+		<action name="Cancel" label="Cancel" visible="true"
+			jsMethod="navigateToUserLists" />
+	</actions>
+
+	<form id="editUserList">
+		<field name="id" label="ID" required="true" editable="false" />
+		<field name="userListName" label="User List Name"
+			required="true" editable="false" />
+		<field name="originalFileName" label="Original File Name"
+			required="true" editable="false" />
+		<field name="description" label="Description" required="true"
+			editable="false" />
+	</form>
+
+	<actions id="userListMember-actions">
+		<action name="Edit" label="Edit" visible="true"
+			jsMethod="editUserListMember" />
+		<action name="Delete" label="Delete" visible="true"
+			jsMethod="deleteUserListMember" />
+	</actions>
+
+	<actions id="search-userListMember-actions">
+		<action name="Create" label="Create" visible="true"
+			jsMethod="addUserListMember" />
+		<action name="Search" label="Search" visible="true"
+			jsMethod="searchUserListMembers" />
+		<action name="Reset" label="Reset" visible="true"
+			jsMethod="resetSearch" />
+	</actions>
+
+	<form id="searchUserListMember">
+		<field name="userName" label="Username" visible="true" />
+		<field name="userKey" label="User Key" visible="true" />
+		<field name="firstName" label="First Name" visible="true" />
+		<field name="lastName" label="Last Name" visible="true" />
+		<field name="email" label="Email" regex="emailValidation"
+			visible="true" />
+		<field name="addressLine1" label="Address Line 1" visible="true" />
+		<field name="addressLine2" label="Address Line 2" visible="true" />
+		<field name="city" label="City" visible="true" />
+		<field name="state" label="State" visible="true" />
+		<field name="postCode" label="Post Code"
+			regex="postalCodeValidation" visible="true" />
+		<field name="country" label="Country" visible="true" />
+	</form>
+
+	<grid id="userListMembers">
+		<column name="id" label="ID" visible="true" sortable="true"
+			dbField="id" />
+		<column name="listId" label="List ID" visible="true"
+			sortable="true" dbField="list_id" />
+		<column name="userName" label="Username" visible="true"
+			sortable="true" dbField="user_name" />
+		<column name="userKey" label="User Key" visible="false"
+			sortable="true" dbField="user_key" />
+		<column name="firstName" label="First Name" visible="true"
+			sortable="true" dbField="first_name" />
+		<column name="lastName" label="Last Name" visible="true"
+			sortable="true" dbField="last_name" />
+		<column name="email" label="Email" visible="true"
+			sortable="true" dbField="email" />
+		<column name="city" label="City" visible="false"
+			sortable="true" dbField="city" />
+		<column name="country" label="Country" visible="false"
+			sortable="true" dbField="country" />
+		<column name="createdAt" label="Created At" visible="false"
+			sortable="true" dbField="created_at" />
+		<column name="updatedAt" label="Updated At" visible="false"
+			sortable="true" dbField="updated_at" />
+		<column name="actions" label="Actions"
+			actions="userListMember-actions" visible="true" sortable="false" />
+	</grid>
+
+	<actions id="userListMember-form-actions">
+		<action name="Save" label="Save" visible="true"
+			jsMethod="saveUserListMember" />
+		<action name="Cancel" label="Cancel" visible="true"
+			jsMethod="navigateToMembers" />
+	</actions>
+
+	<form id="addUserListMember">
+		<field name="userName" label="Username" required="true"
+			editable="true" />
+		<field name="userKey" label="User Key" required="true"
+			editable="true" />
+		<field name="firstName" label="First Name" required="true"
+			editable="true" />
+		<field name="lastName" label="Last Name" required="true"
+			editable="true" />
+		<field name="email" label="Email" regex="emailValidation"
+			required="true" editable="true" />
+		<field name="password" label="Password"
+			regex="passwordValidation" required="true" editable="true" />
+		<field name="addressLine1" label="Address Line 1"
+			editable="true" />
+		<field name="addressLine2" label="Address Line 2"
+			editable="true" />
+		<field name="city" label="City" editable="true" />
+		<field name="state" label="State" editable="true" />
+		<field name="postCode" label="Post Code"
+			regex="postalCodeValidation" editable="true" />
+		<field name="country" label="Country" editable="true" />
+	</form>
+
+	<form id="editUserListMember">
+		<field name="id" label="ID" required="true" editable="false" />
+		<field name="userName" label="Username" required="true"
+			editable="true" />
+		<field name="userKey" label="User Key" required="true"
+			editable="true" />
+		<field name="firstName" label="First Name" required="true"
+			editable="true" />
+		<field name="lastName" label="Last Name" required="true"
+			editable="true" />
+		<field name="email" label="Email" regex="emailValidation"
+			required="true" editable="true" />
+		<field name="password" label="Password"
+			regex="passwordValidation" required="true" editable="true" />
+		<field name="addressLine1" label="Address Line 1"
+			editable="true" />
+		<field name="addressLine2" label="Address Line 2"
+			editable="true" />
+		<field name="city" label="City" editable="true" />
+		<field name="state" label="State" editable="true" />
+		<field name="postCode" label="Post Code"
+			regex="postalCodeValidation" editable="true" />
+		<field name="country" label="Country" editable="true" />
+		<field name="createdAt" label="Created At" editable="false" />
+		<field name="updatedAt" label="Updated At" editable="false" />
+	</form>
+
+	<!-- ========================= -->
+	<!-- Role Management -->
+	<!-- ========================= -->
+
+	<actions id="search-role-actions">
+		<action name="Create" label="Create" visible="true"
+			jsMethod="addRole" />
+		<action name="Search" label="Search" visible="true"
+			jsMethod="searchRoles" />
+		<action name="Reset" label="Reset" visible="true"
+			jsMethod="resetRoleSearch" />
+	</actions>
+
+	<form id="searchRole">
+		<field name="roleName" label="Role Name" visible="true" />
+		<field name="description" label="Description" visible="true" />
+	</form>
+
+	<actions id="role-actions">
+		<action name="Edit" label="Edit" visible="true"
+			jsMethod="editRole" />
+		<action name="Delete" label="Delete" visible="true"
+			jsMethod="deleteRole" />
+	</actions>
+
+	<grid id="roles">
+		<column name="id" label="ID" visible="true" sortable="true"
+			dbField="id" />
+		<column name="roleName" label="Role Name" visible="true"
+			sortable="true" dbField="role_name" />
+		<column name="description" label="Description" visible="true"
+			sortable="true" dbField="description" />
+		<column name="createdAt" label="Created At" visible="false"
+			sortable="true" dbField="created_at" />
+		<column name="updatedAt" label="Updated At" visible="false"
+			sortable="true" dbField="updated_at" />
+		<column name="actions" label="Actions" actions="role-actions"
+			visible="true" sortable="false" />
+	</grid>
+
+	<actions id="role-form-actions">
+		<action name="Save" label="Save" visible="true"
+			jsMethod="saveRole" />
+		<action name="Cancel" label="Cancel" visible="true"
+			jsMethod="navigateToRoles" />
+	</actions>
+
+	<form id="addRole">
+		<field name="roleName" label="Role Name" visible="true"
+			required="true" editable="true" />
+		<field name="description" label="Description" visible="true"
+			editable="true" />
+	</form>
+
+	<form id="editRole">
+		<field name="id" label="ID" visible="true" editable="false" />
+		<field name="roleName" label="Role Name" visible="true"
+			required="true" editable="true" />
+		<field name="description" label="Description" visible="true"
+			editable="true" />
+		<field name="createdAt" label="Created At" visible="true"
+			editable="false" />
+		<field name="updatedAt" label="Updated At" visible="true"
+			editable="false" />
+	</form>
+
+	<!-- ========================= -->
+	<!-- Role Group Management -->
+	<!-- ========================= -->
+
+	<actions id="search-role-group-actions">
+		<action name="Create" label="Create" visible="true"
+			jsMethod="addRoleGroup" />
+		<action name="Search" label="Search" visible="true"
+			jsMethod="searchRoleGroups" />
+		<action name="Reset" label="Reset" visible="true"
+			jsMethod="resetRoleGroupSearch" />
+	</actions>
+
+	<form id="searchRoleGroup">
+		<field name="groupName" label="Group Name" visible="true" />
+		<field name="description" label="Description" visible="true" />
+	</form>
+
+	<actions id="role-group-actions">
+		<action name="Edit" label="Edit" visible="true"
+			jsMethod="editRoleGroup" />
+		<action name="Delete" label="Delete" visible="true"
+			jsMethod="deleteRoleGroup" />
+	</actions>
+
+	<grid id="roleGroups">
+		<column name="id" label="ID" visible="true" sortable="true"
+			dbField="id" />
+		<column name="groupName" label="Group Name" visible="true"
+			sortable="true" dbField="group_name" />
+		<column name="description" label="Description" visible="true"
+			sortable="true" dbField="description" />
+		<column name="delimitRoles" label="Roles" visible="true"
+			sortable="true" dbField="delimit_roles" />
+		<column name="createdAt" label="Created At" visible="false"
+			sortable="true" dbField="created_at" />
+		<column name="updatedAt" label="Updated At" visible="false"
+			sortable="true" dbField="updated_at" />
+		<column name="actions" label="Actions"
+			actions="role-group-actions" visible="true" sortable="false" />
+	</grid>
+
+	<actions id="role-group-form-actions">
+		<action name="Save" label="Save" visible="true"
+			jsMethod="saveRoleGroup" />
+		<action name="Cancel" label="Cancel" visible="true"
+			jsMethod="navigateToRoleGroups" />
+	</actions>
+
+	<form id="addRoleGroup">
+		<field name="groupName" label="Group Name" visible="true"
+			required="true" editable="true" />
+		<field name="description" label="Description" visible="true"
+			editable="true" />
+		<field name="roleList" label="Roles in Group" type="multiSelect"
+			source="role_management" visible="true" editable="true" />
+	</form>
+
+	<form id="editRoleGroup">
+		<field name="id" label="ID" visible="true" editable="false" />
+		<field name="groupName" label="Group Name" visible="true"
+			required="true" editable="true" />
+		<field name="description" label="Description" visible="true"
+			editable="true" />
+		<field name="roleList" label="Roles in Group" type="multiSelect"
+			source="role_management" visible="true" editable="true" />
+		<field name="createdAt" label="Created At" visible="true"
+			editable="false" />
+		<field name="updatedAt" label="Updated At" visible="true"
+			editable="false" />
+	</form>
+
+	<!-- ========================= -->
+	<!-- Page Role Group Management -->
+	<!-- ========================= -->
+
+	<actions id="search-page-role-group-actions">
+		<action name="Create" label="Create" visible="true"
+			jsMethod="addPageRoleGroup" />
+		<action name="Search" label="Search" visible="true"
+			jsMethod="searchPageRoleGroups" />
+		<action name="Reset" label="Reset" visible="true"
+			jsMethod="resetPageRoleGroupSearch" />
+	</actions>
+
+	<form id="searchPageRoleGroup">
+		<field name="urlPattern" label="URL Pattern" visible="true" />
+		<field name="roleGroupId" label="Role Group" type="select"
+			source="role_group_management" visible="true" />
+	</form>
+
+	<actions id="page-role-group-actions">
+		<action name="Edit" label="Edit" visible="true"
+			jsMethod="editPageRoleGroup" />
+		<action name="Delete" label="Delete" visible="true"
+			jsMethod="deletePageRoleGroup" />
+	</actions>
+
+	<grid id="pageRoleGroups">
+		<column name="id" label="ID" visible="true" sortable="true"
+			dbField="id" />
+		<column name="urlPattern" label="URL Pattern" visible="true"
+			sortable="true" dbField="url_pattern" />
+		<column name="roleGroupName" label="Role Group" visible="true"
+			sortable="true" dbField="role_group_id" path="roleGroup.groupName" />
+		<column name="createdAt" label="Created At" visible="true"
+			sortable="true" dbField="created_at" />
+		<column name="updatedAt" label="Updated At" visible="false"
+			sortable="true" dbField="updated_at" />
+		<column name="actions" label="Actions"
+			actions="page-role-group-actions" visible="true" sortable="false" />
+	</grid>
+
+	<actions id="page-role-group-form-actions">
+		<action name="Save" label="Save" visible="true"
+			jsMethod="savePageRoleGroup" />
+		<action name="Cancel" label="Cancel" visible="true"
+			jsMethod="navigateToPageRoleGroups" />
+	</actions>
+
+	<form id="addPageRoleGroup">
+		<field name="urlPattern" label="URL Pattern" visible="true"
+			required="true" editable="true" />
+		<field name="roleGroupId" label="Role Group" type="select"
+			source="role_group_management" visible="true" required="true"
+			editable="true" />
+	</form>
+
+	<form id="editPageRoleGroup">
+		<field name="id" label="ID" visible="true" editable="false" />
+		<field name="urlPattern" label="URL Pattern" visible="true"
+			required="true" editable="true" />
+		<field name="roleGroupId" label="Role Group" type="select"
+			source="role_group_management" visible="true" required="true"
+			editable="true" />
+		<field name="createdAt" label="Created At" visible="true"
+			editable="false" />
+		<field name="updatedAt" label="Updated At" visible="true"
+			editable="false" />
+	</form>
+
+	<!-- ========================= -->
+	<!-- User Role Group Management -->
+	<!-- ========================= -->
+
+	<actions id="search-user-role-group-actions">
+		<action name="Create" label="Create" visible="true"
+			jsMethod="addUserRoleGroup" />
+		<action name="Search" label="Search" visible="true"
+			jsMethod="searchUserRoleGroups" />
+		<action name="Reset" label="Reset" visible="true"
+			jsMethod="resetUserRoleGroupSearch" />
+	</actions>
+
+	<form id="searchUserRoleGroup">
+		<field name="userId" label="User" type="select"
+			source="user_management" visible="true" />
+		<field name="roleGroupId" label="Role Group" type="select"
+			source="role_group_management" visible="true" />
+	</form>
+
+	<actions id="user-role-group-actions">
+		<action name="Edit" label="Edit" visible="true"
+			jsMethod="editUserRoleGroup" />
+		<action name="Delete" label="Delete" visible="true"
+			jsMethod="deleteUserRoleGroup" />
+	</actions>
+
+	<grid id="userRoleGroups">
+		<column name="id" label="ID" visible="true" sortable="true"
+			dbField="id" />
+		<column name="userId" label="User" visible="true"
+			sortable="true" dbField="user_id" />
+		<column name="roleGroupId" label="Role Group" visible="true"
+			sortable="true" dbField="role_group_id" />
+		<column name="createdAt" label="Created At" visible="true"
+			sortable="true" dbField="created_at" />
+		<column name="updatedAt" label="Updated At" visible="false"
+			sortable="true" dbField="updated_at" />
+		<column name="actions" label="Actions"
+			actions="user-role-group-actions" visible="true" sortable="false" />
+	</grid>
+
+	<actions id="user-role-group-form-actions">
+		<action name="Save" label="Save" visible="true"
+			jsMethod="saveUserRoleGroup" />
+		<action name="Cancel" label="Cancel" visible="true"
+			jsMethod="navigateToUserRoleGroups" />
+	</actions>
+
+	<form id="addUserRoleGroup">
+		<field name="userId" label="User" type="select"
+			source="user_management" visible="true" required="true"
+			editable="true" />
+		<field name="roleGroupId" label="Role Group" type="select"
+			source="role_group_management" visible="true" required="true"
+			editable="true" />
+	</form>
+
+	<form id="editUserRoleGroup">
+		<field name="id" label="ID" visible="true" editable="false" />
+		<field name="userId" label="User" type="select"
+			source="user_management" visible="true" required="true"
+			editable="true" />
+		<field name="roleGroupId" label="Role Group" type="select"
+			source="role_group_management" visible="true" required="true"
+			editable="true" />
+		<field name="createdAt" label="Created At" visible="true"
+			editable="false" />
+		<field name="updatedAt" label="Updated At" visible="true"
+			editable="false" />
+	</form>
+
+	<!-- ========================= -->
+	<!-- Role Group Role Management -->
+	<!-- ========================= -->
+
+	<actions id="search-role-group-role-actions">
+		<action name="Create" label="Create" visible="true"
+			jsMethod="addRoleToGroup" />
+		<action name="Search" label="Search" visible="true"
+			jsMethod="searchRoleGroupRoles" />
+		<action name="Reset" label="Reset" visible="true"
+			jsMethod="resetRoleGroupRoleSearch" />
+	</actions>
+
+	<form id="searchRoleGroupRole">
+		<field name="roleGroupId" label="Role Group" type="select"
+			source="role_group_management" visible="true" />
+		<field name="roleId" label="Role" type="select"
+			source="role_management" visible="true" />
+	</form>
+
+	<actions id="role-group-role-actions">
+		<action name="Edit" label="Edit" visible="true"
+			jsMethod="editRoleGroupRole" />
+		<action name="Delete" label="Delete" visible="true"
+			jsMethod="deleteRoleGroupRole" />
+	</actions>
+
+	<grid id="roleGroupRoles">
+		<column name="id" label="ID" visible="true" sortable="true"
+			dbField="id" />
+		<column name="roleGroupName" label="Role Group" visible="true"
+			sortable="true" dbField="role_group_id" />
+		<column name="roleName" label="Role" visible="true"
+			sortable="true" dbField="role_id" />
+		<column name="createdAt" label="Created At" visible="true"
+			sortable="true" dbField="created_at" />
+		<column name="updatedAt" label="Updated At" visible="false"
+			sortable="true" dbField="updated_at" />
+		<column name="actions" label="Actions"
+			actions="role-group-role-actions" visible="true" sortable="false" />
+	</grid>
+
+	<actions id="role-group-role-form-actions">
+		<action name="Save" label="Save" visible="true"
+			jsMethod="saveRoleGroupRole" />
+		<action name="Cancel" label="Cancel" visible="true"
+			jsMethod="navigateToRoleGroupRoles" />
+	</actions>
+
+	<form id="addRoleGroupRole">
+		<field name="roleGroupId" label="Role Group" type="select"
+			source="role_group_management" visible="true" required="true"
+			editable="true" />
+		<field name="roleId" label="Role" type="select"
+			source="role_management" visible="true" required="true"
+			editable="true" />
+	</form>
+
+	<form id="editRoleGroupRole">
+		<field name="id" label="ID" visible="true" editable="false" />
+		<field name="roleGroupId" label="Role Group" type="select"
+			source="role_group_management" visible="true" required="true"
+			editable="true" />
+		<field name="roleId" label="Role" type="select"
+			source="role_management" visible="true" required="true"
+			editable="true" />
+		<field name="createdAt" label="Created At" visible="true"
+			editable="false" />
+		<field name="updatedAt" label="Updated At" visible="true"
+			editable="false" />
+	</form>
+
+</config>

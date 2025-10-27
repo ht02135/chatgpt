@@ -1,0 +1,143 @@
+
+////////////////////
+
+https://www.guru99.com/non-functional-testing.html
+
+What is Non-Functional Testing?
+
+Non-Functional Testing is defined as a type of Software testing to check non-functional aspects (performance, usability, reliability, etc) 
+
+Objectives of Non-functional testing
+
+    Non-functional testing should increase usability, efficiency, maintainability, and portability of the product.
+    Helps to reduce production risk and cost associated with non-functional aspects of the product.
+    Optimize the way product is installed, setup, executes, managed and monitored.
+    Collect and produce measurements, and metrics for internal research and development.
+    Improve and enhance knowledge of the product behavior and technologies in use.
+
+//////////////////
+
+Non-functional testing Parameters
+
+1) Security:
+
+The parameter defines how a system is safeguarded against deliberate and sudden attacks from internal and external sources. This is tested via Security Testing.
+2) Reliability:
+
+The extent to which any software system continuously performs the specified functions without failure. This is tested by Reliability Testing
+3) Survivability:
+
+The parameter checks that the software system continues to function and recovers itself in case of system failure. This is checked by Recovery Testing
+4) Availability:
+
+The parameter determines the degree to which user can depend on the system during its operation. This is checked by Stability Testing.
+5) Usability:
+
+The ease with which the user can learn, operate, prepare inputs and outputs through interaction with a system. This is checked by Usability Testing
+6) Scalability:
+
+The term refers to the degree in which any software application can expand its processing capacity to meet an increase in demand. This is tested by Scalability Testing
+7) Interoperability:
+
+This non-functional parameter checks a software system interfaces with other software systems. This is checked by Interoperability Testing
+8) Efficiency:
+
+The extent to which any software system can handles capacity, quantity and response time.
+9) Flexibility:
+
+The term refers to the ease with which the application can work in different hardware and software configurations. Like minimum RAM, CPU requirements.
+10) Portability:
+
+The flexibility of software to transfer from its current hardware or software environment.
+11) Reusability:
+
+It refers to a portion of the software system that can be converted for use in another application.
+
+/////////////////
+
+type of testing
+
+1>functional
+uni test
+integration test
+smoke/sanity
+user acceptancce
+localization
+globalization
+
+
+2>non-functional
+performance
+endurance
+load
+volume
+scalability
+usability
+
+3>maintenance
+regression
+maintenance
+
+///////////////////////
+
+Types of Non Functional Testing
+
+Following are the most common Types of Non Functional Testing :
+
+    Performance Testing
+    Load Testing
+    Failover Testing
+    Compatibility Testing
+    Usability Testing
+    Stress Testing
+    Maintainability Testing
+    Scalability Testing
+    Volume Testing
+    Security Testing
+    Disaster Recovery Testing
+    Compliance Testing
+    Portability Testing
+    Efficiency Testing
+    Reliability Testing
+    Baseline Testing
+    Endurance Testing
+    Documentation Testing
+    Recovery Testing
+    Internationalization Testing
+
+//////////////////
+
+v
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

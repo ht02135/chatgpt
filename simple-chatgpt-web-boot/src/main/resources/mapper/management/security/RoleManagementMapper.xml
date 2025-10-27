@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper
+	namespace="simple.chatgpt.mapper.management.security.RoleManagementMapper">
+
+	<!-- ======================= RESULT MAP for POJO ======================= -->
+	<resultMap id="RoleManagementResultMap"
+		type="simple.chatgpt.pojo.management.security.RoleManagementPojo">
+		<id property="id" column="id" />
+		<result property="roleName" column="role_name" />
+		<result property="description" column="description" />
+		<result property="createdAt" column="created_at" />
+		<result property="updatedAt" column="updated_at" />
+	</resultMap>
+
+	<!-- ======= 5 CORE METHODS (on top) ======= -->
+
+	<!-- void create(@Param("entity") entityPojo entity) -->
+	<!-- ======================= CREATE ======================= -->
+	<insert id="create" parameterType="map" useGeneratedKeys="true" keyProperty="role.id">
+		INSERT INTO role_management
+		(role_name, description, created_at, updated_at)
+		VALUES
+		(#{role.roleName}, #{role.description}, NOW(), NOW())
+	</insert>
+
+	<!-- void update(@Param("id") Long id, @Param("entity") entityPojo entity) -->
+	<!-- ======================= UPDATE ======================= -->
+	<update id="update" parameterType="map">
+		UPDATE role_management
+		<set>
+			<if test="role.roleName != null">role_name = #{role.roleName},</if>
+			<if test="role.description != null">description = #{role.description},</if>
+			updated_at = NOW()
+		</set>
+		WHERE id = #{id}
+	</update>
+
+	<!-- ======================= SQL fragment for filtering ======================= -->
+	<sql id="RoleManagementFilter">
+		<where>
+			<if test="params.role != null or params != null">
+				<if
+					test="(params.role != null and params.role.roleName != null and params.role.roleName != '') 
+                          or (params.roleName != null and params.roleName != '')">
+					AND role_name LIKE CONCAT('%',
+					<choose>
+						<when
+							test="params.role != null and params.role.roleName != null and params.role.roleName != ''">
+							#{params.role.roleName}
+						</when>
+						<otherwise>#{params.roleName}</otherwise>
+					</choose>
+					, '%')
+				</if>
+
+				<if
+					test="(params.role != null and params.role.description != null and params.role.description != '') 
+                          or (params.description != null and params.description != '')">
+					AND description LIKE CONCAT('%',
+					<choose>
+						<when
+							test="params.role != null and params.role.description != null and params.role.description != ''">
+							#{params.role.description}
+						</when>
+						<otherwise>#{params.description}</otherwise>
+					</choose>
+					, '%')
+				</if>
+			</if>
+		</where>
+	</sql>
+
+	<!-- List<entityPojo> search(@Param("params") Map<String, Object> params) -->
+	<!-- ======================= SEARCH / PAGINATION ======================= -->
+	<select id="search" parameterType="map" resultMap="RoleManagementResultMap">
+		SELECT id, role_name, description, created_at, updated_at
+		FROM
+		role_management
+		<include refid="RoleManagementFilter" />
+		<if
+			test="params.sortField != null and params.sortDirection != null">
+			ORDER BY ${params.sortField} ${params.sortDirection}
+		</if>
+		<if test="params.offset != null and params.limit != null">
+			LIMIT #{params.offset}, #{params.limit}
+		</if>
+	</select>
+
+    <!-- entityPojo get(@Param("id") Long id) -->
+	<!-- ======================= READ ======================= -->
+	<select id="get" parameterType="long" resultMap="RoleManagementResultMap">
+		SELECT * FROM role_management WHERE
+		id = #{id}
+	</select>
+
+	<!-- void delete(@Param("id") Long id) -->
+	<!-- ======================= DELETE ======================= -->
+	<delete id="delete" parameterType="long">
+		DELETE FROM role_management WHERE id = #{id}
+	</delete>
+
+	<!-- ======= OTHER METHODS ======= -->
+
+</mapper>

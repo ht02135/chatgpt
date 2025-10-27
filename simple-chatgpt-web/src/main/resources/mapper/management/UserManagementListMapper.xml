@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="simple.chatgpt.mapper.management.UserManagementListMapper">
+
+    <!-- =======================
+         ResultMap for POJO
+         ======================= -->
+	<resultMap id="UserManagementListResultMap" type="simple.chatgpt.pojo.management.UserManagementListPojo">
+    	<id property="id" column="id"/>
+    	<result property="userListName" column="user_list_name"/>
+    	<result property="filePath" column="file_path"/>
+    	<result property="originalFileName" column="original_file_name"/>
+    	<result property="description" column="description"/>
+    	<result property="createdAt" column="created_at"/>
+    	<result property="updatedAt" column="updated_at"/>
+	</resultMap>
+
+    <!-- =======================
+         CREATE
+         ======================= -->
+    <insert id="insertList" parameterType="map" useGeneratedKeys="true" keyProperty="params.list.id">
+        INSERT INTO user_management_list
+        (user_list_name, file_path, original_file_name, description, created_at, updated_at)
+        VALUES
+        (#{params.list.userListName}, #{params.list.filePath}, #{params.list.originalFileName}, #{params.list.description}, NOW(), NOW())
+    </insert>
+
+    <insert id="createList" parameterType="map" useGeneratedKeys="true" keyProperty="params.list.id">
+        INSERT INTO user_management_list
+        (user_list_name, file_path, original_file_name, description, created_at, updated_at)
+        VALUES
+        (#{params.list.userListName}, #{params.list.filePath}, #{params.list.originalFileName}, #{params.list.description}, NOW(), NOW())
+    </insert>
+
+    <!-- =======================
+         UPDATE
+         ======================= -->
+    <update id="updateList" parameterType="map">
+        UPDATE user_management_list
+        SET
+            user_list_name = #{params.list.userListName},
+            file_path = #{params.list.filePath},
+            original_file_name = #{params.list.originalFileName},
+            description = #{params.list.description},
+            updated_at = NOW()
+        WHERE id = #{params.listId}
+    </update>
+
+    <update id="updateListById" parameterType="map">
+        UPDATE user_management_list
+        SET
+            user_list_name = #{params.list.userListName},
+            file_path = #{params.list.filePath},
+            original_file_name = #{params.list.originalFileName},
+            description = #{params.list.description},
+            updated_at = NOW()
+        WHERE id = #{params.listId}
+    </update>
+
+    <!-- =======================
+         DELETE
+         ======================= -->
+    <delete id="deleteList" parameterType="map">
+        DELETE FROM user_management_list WHERE id = #{params.listId}
+    </delete>
+
+    <delete id="deleteListById" parameterType="map">
+        DELETE FROM user_management_list WHERE id = #{params.listId}
+    </delete>
+
+    <!-- =======================
+         READ
+         ======================= -->
+    <select id="findListById" parameterType="map" resultMap="UserManagementListResultMap">
+        SELECT id, user_list_name, file_path, original_file_name, description, created_at, updated_at
+        FROM user_management_list
+        WHERE id = #{params.listId}
+    </select>
+
+    <select id="getListById" parameterType="map" resultMap="UserManagementListResultMap">
+        SELECT id, user_list_name, file_path, original_file_name, description, created_at, updated_at
+        FROM user_management_list
+        WHERE id = #{params.listId}
+    </select>
+
+    <select id="findAllLists" resultMap="UserManagementListResultMap">
+        SELECT id, user_list_name, file_path, original_file_name, description, created_at, updated_at
+        FROM user_management_list
+        ORDER BY created_at DESC
+    </select>
+
+    <select id="getAllLists" resultMap="UserManagementListResultMap">
+        SELECT id, user_list_name, file_path, original_file_name, description, created_at, updated_at
+        FROM user_management_list
+        ORDER BY created_at DESC
+    </select>
+
+    <!-- =======================
+         SQL fragment for filtering
+         ======================= -->
+    <sql id="UserManagementListFilter">
+        <where>
+            <if test="params.list != null or params != null">
+                <if test="(params.list != null and params.list.userListName != null and params.list.userListName != '') 
+                          or (params.userListName != null and params.userListName != '')">
+                    AND user_list_name LIKE CONCAT('%', 
+                        <choose>
+                            <when test="params.list != null and params.list.userListName != null and params.list.userListName != ''">#{params.list.userListName}</when>
+                            <otherwise>#{params.userListName}</otherwise>
+                        </choose>, '%')
+                </if>
+                <if test="(params.list != null and params.list.description != null and params.list.description != '') 
+                          or (params.description != null and params.description != '')">
+                    AND description LIKE CONCAT('%', 
+                        <choose>
+                            <when test="params.list != null and params.list.description != null and params.list.description != ''">#{params.list.description}</when>
+                            <otherwise>#{params.description}</otherwise>
+                        </choose>, '%')
+                </if>
+            </if>
+        </where>
+    </sql>
+
+    <!-- =======================
+         SEARCH / PAGINATION
+         ======================= -->
+    <select id="findLists" parameterType="map" resultMap="UserManagementListResultMap">
+        SELECT id, user_list_name, file_path, original_file_name, description, created_at, updated_at
+        FROM user_management_list
+        <include refid="UserManagementListFilter"/>
+        <if test="params.sortField != null and params.sortDirection != null">
+            ORDER BY ${params.sortField} ${params.sortDirection}
+        </if>
+        <if test="params.offset != null and params.limit != null">
+            LIMIT #{params.offset}, #{params.limit}
+        </if>
+    </select>
+
+    <select id="searchLists" parameterType="map" resultMap="UserManagementListResultMap">
+        SELECT id, user_list_name, file_path, original_file_name, description, created_at, updated_at
+        FROM user_management_list
+        <include refid="UserManagementListFilter"/>
+        <if test="params.sortField != null and params.sortDirection != null">
+            ORDER BY ${params.sortField} ${params.sortDirection}
+        </if>
+        <if test="params.offset != null and params.limit != null">
+            LIMIT #{params.offset}, #{params.limit}
+        </if>
+    </select>
+
+    <!-- =======================
+         COUNT FOR PAGINATION
+         ======================= -->
+    <select id="countLists" parameterType="map" resultType="long">
+        SELECT COUNT(*)
+        FROM user_management_list
+        <include refid="UserManagementListFilter"/>
+    </select>
+
+    <!-- =======================
+         LEGACY
+         ======================= -->
+    <select id="searchUserLists" parameterType="map" resultMap="UserManagementListResultMap">
+        SELECT id, user_list_name, file_path, original_file_name, description, created_at, updated_at
+        FROM user_management_list
+        <where>
+            <if test="params.list != null or params != null">
+                <if test="(params.list != null and params.list.userListName != null and params.list.userListName != '') 
+                          or (params.userListName != null and params.userListName != '')">
+                    AND user_list_name LIKE CONCAT('%', 
+                        <choose>
+                            <when test="params.list != null and params.list.userListName != null and params.list.userListName != ''">#{params.list.userListName}</when>
+                            <otherwise>#{params.userListName}</otherwise>
+                        </choose>, '%')
+                </if>
+            </if>
+        </where>
+    </select>
+
+</mapper>

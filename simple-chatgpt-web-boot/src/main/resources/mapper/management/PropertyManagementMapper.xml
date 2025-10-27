@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper
+	namespace="simple.chatgpt.mapper.management.PropertyManagementMapper">
+
+	<!-- ========================= -->
+	<!-- Result Map -->
+	<!-- ========================= -->
+	<resultMap id="PropertyManagementResultMap"
+		type="simple.chatgpt.pojo.management.PropertyManagementPojo">
+		<id property="id" column="id" />
+		<result property="propertyName" column="property_name" />
+		<result property="propertyKey" column="property_key" />
+		<result property="type" column="type" />
+		<result property="value" column="value" />
+	</resultMap>
+
+	<!-- ======= 5 CORE METHODS (on top) ======= -->
+
+	<!-- ========================= -->
+	<!-- CREATE -->
+	<!-- ========================= -->
+	<!-- void create(@Param("entity") entityPojo entity) -->
+	<insert id="create" useGeneratedKeys="true"
+		keyProperty="property.id">
+		INSERT INTO property_management (property_name, property_key, type, value)
+		VALUES (#{property.propertyName}, #{property.propertyKey},
+		#{property.type}, #{property.value})
+	</insert>
+
+	<!-- ========================= -->
+	<!-- UPDATE -->
+	<!-- ========================= -->
+	<!-- void update(@Param("id") Long id, @Param("entity") entityPojo entity) -->
+	<update id="update">
+		UPDATE property_management
+		<set>
+			<if test="property.propertyName != null">property_name = #{property.propertyName},</if>
+			<if test="property.propertyKey != null">property_key = #{property.propertyKey},</if>
+			<if test="property.type != null">type = #{property.type},</if>
+			<if test="property.value != null">value = #{property.value},</if>
+		</set>
+		WHERE id = #{id}
+	</update>
+
+	<!-- ========================= -->
+	<!-- SEARCH / LIST -->
+	<!-- ========================= -->
+	<!-- List<entityPojo> search(@Param("params") Map<String, Object> params) -->
+	<select id="search" resultMap="PropertyManagementResultMap"
+		parameterType="map">
+		SELECT * FROM property_management
+		<where>
+			<if test="params.propertyKey != null and params.propertyKey != ''">
+				AND property_key LIKE CONCAT('%', #{params.propertyKey}, '%')
+			</if>
+		</where>
+		<if
+			test="params.sortField != null and params.sortDirection != null">
+			ORDER BY ${params.sortField} ${params.sortDirection}
+		</if>
+		<if test="params.offset != null and params.limit != null">
+			LIMIT #{params.offset}, #{params.limit}
+		</if>
+	</select>
+
+	<!-- entityPojo get(@Param("id") Long id) -->
+	<!-- ======================= GET ======================= -->
+	<select id="get" parameterType="long" resultMap="PropertyManagementResultMap">
+		SELECT * FROM property_management WHERE id = #{id}
+	</select>
+
+	<!-- ========================= -->
+	<!-- DELETE -->
+	<!-- ========================= -->
+	<!-- void delete(@Param("id") Long id) -->
+	<delete id="delete" parameterType="long">
+		DELETE FROM property_management WHERE id = #{id}
+	</delete>
+
+	<!-- ======= OTHER METHODS ======= -->
+
+	<!-- PropertyManagementPojo findByPropertyKey(@Param("propertyKey") String propertyKey) -->
+	<select id="findByPropertyKey" parameterType="String" resultMap="PropertyManagementResultMap">
+		SELECT * FROM property_management WHERE property_key = #{propertyKey}
+	</select>
+	
+</mapper>

@@ -1,0 +1,254 @@
+
+Spring Boot Web Request Lifecycle (Simplified)
+
+HTTP Request
+   ↓
+Servlet Container (Tomcat/Jetty/Undertow)
+   ↓
+[Filter Chain]
+   ↓
+DispatcherServlet
+   ↓
+HandlerMapping
+   ↓
+HandlerInterceptor.preHandle()
+   ↓
+Controller
+   ↓
+HandlerInterceptor.postHandle()
+   ↓
+ViewResolver
+   ↓
+HandlerInterceptor.afterCompletion()
+   ↓
+HTTP Response
+
+/////////////
+
+Typical Spring Boot Filter Chain (with Spring Security enabled)
+
+| Order | Filter Class                                | Purpose                                                                 |
+| ----- | ------------------------------------------- | ----------------------------------------------------------------------- |
+| 1     | **WebAsyncManagerIntegrationFilter**        | Integrates Spring Security with async request handling                  |
+| 2     | **SecurityContextPersistenceFilter**        | Loads/Saves `SecurityContext` from session                              |
+| 3     | **HeaderWriterFilter**                      | Adds security headers (e.g. X-Content-Type-Options, X-Frame-Options)    |
+| 4     | **CorsFilter**                              | Handles Cross-Origin Resource Sharing (CORS)                            |
+| 5     | **CsrfFilter**                              | Validates CSRF tokens                                                   |
+| 6     | **LogoutFilter**                            | Handles logout requests (`/logout`)                                     |
+| 7     | **UsernamePasswordAuthenticationFilter**    | Processes login form (`/login`)                                         |
+| 8     | **ConcurrentSessionFilter**                 | Manages concurrent sessions                                             |
+| 9     | **BearerTokenAuthenticationFilter**         | Parses Bearer tokens (JWT)                                              |
+| 10    | **RequestCacheAwareFilter**                 | Restores saved requests after login                                     |
+| 11    | **SecurityContextHolderAwareRequestFilter** | Wraps HttpServletRequest for security methods                           |
+| 12    | **AnonymousAuthenticationFilter**           | Sets anonymous user when not authenticated                              |
+| 13    | **SessionManagementFilter**                 | Handles session fixation, creation policy                               |
+| 14    | **ExceptionTranslationFilter**              | Catches security exceptions and delegates to `AuthenticationEntryPoint` |
+| 15    | **FilterSecurityInterceptor**               | The last line — enforces access control (`@PreAuthorize`, etc.)         |
+| —     | *(Your custom filters)*                     | Can be inserted before/after any of the above                           |
+
+/////////////
+
+CsrfFilter Validates CSRF tokens
+when using JWT-based authentication, we almost always disable the CsrfFilter in 
+Spring Security.
+
+CSRF (Cross-Site Request Forgery) is a web attack where:
+A logged-in user’s browser automatically includes cookies (e.g., session cookies)
+A malicious site tricks the browser into sending a request to your app (e.g., a 
+POST to /transferMoney)
+Since the cookie is automatically sent, the app thinks the request is valid
+
+In JWT (JSON Web Token) authentication:
+The client stores the token (usually in localStorage or memory, not cookies)
+The token is sent explicitly in Authorization: Bearer <token> header
+The browser does not automatically attach the token — your frontend code must do it
+
+/////////////
+
+BearerTokenAuthenticationFilter
+Parses Bearer tokens (JWT)
+
+You almost never modify or override BearerTokenAuthenticationFilter directly,
+but you might replace or extend its behavior depending on your setup.
+
+Purpose
+It extracts the JWT token from the Authorization header (Bearer <token>)
+Then it delegates to an AuthenticationManager (via a BearerTokenAuthenticationToken)
+That manager uses a JwtAuthenticationProvider → which validates and parses the token using your configured JwtDecoder
+If valid → sets an Authentication object into the SecurityContextHolder
+
+Some teams do custom JWT authentication instead of using Spring’s built-in 
+OAuth2 Resource Server
+
+Use OncePerRequestFilter
+Parse Authorization: Bearer header manually
+Validate token using io.jsonwebtoken.Jwts
+Set SecurityContextHolder.getContext().setAuthentication(...) manually
+
+public class JwtAuthenticationFilter extends OncePerRequestFilter {
+
+    private static final Logger logger = LogManager.getLogger(JwtAuthenticationFilter.class);
+
+    @Override
+    protected void doFilterInternal(HttpServletRequest request,
+                                    HttpServletResponse response,
+                                    FilterChain filterChain)
+            throws ServletException, IOException {
+        logger.debug("JwtAuthenticationFilter doFilterInternal called");
+
+        String header = request.getHeader("Authorization");
+        logger.debug("Authorization header={}", header);
+
+        if (header != null && header.startsWith("Bearer ")) {
+            String token = header.substring(7);
+            logger.debug("JWT token extracted={}", token);
+
+            // validate token manually...
+            // create Authentication and set in SecurityContextHolder
+        }
+
+        filterChain.doFilter(request, response);
+    }
+}
+
+so i am NOT using Spring’s built-in OAuth2 Resource Server, because i have
+public class JwtAuthenticationFilter extends OncePerRequestFilter
+
+/////////////
+
+LogoutFilter
+LogoutFilter is part of Spring Security’s Servlet Filter chain, and it’s 
+responsible for handling user logout requests.
+1>Detect an HTTP request to the logout URL (default /logout)
+2>Call the configured LogoutHandlers to:
+Invalidate the HTTP session
+Clear cookies (JSESSIONID)
+Clear the SecurityContextHolder
+3>Then call a LogoutSuccessHandler to:
+Redirect user (e.g. /login?logout)
+Return HTTP 200 or JSON message
+
+When you use .logout() in your SecurityConfig, like:
+http.logout(logout -> logout
+    .logoutUrl("/logout")
+    .logoutSuccessUrl("/login?logout")
+    .permitAll()
+);
+
+Spring automatically adds LogoutFilter to the chain.
+LogoutFilter
+ ├─ SimpleUrlLogoutSuccessHandler  (redirects after logout)
+ └─ SecurityContextLogoutHandler   (clears SecurityContext + session)
+
+LogoutFilter is Useless for JWT Authentication
+In a JWT-based app:
+You are stateless (no session)
+You don’t store authentication on the server
+The token is stored client-side (browser memory or localStorage)
+The server can’t “invalidate” the token (unless you keep a blacklist)
+So when a client “logs out”, there’s nothing for LogoutFilter to clear — the client just forgets or deletes the JWT.
+That’s why in JWT setups, we don’t use LogoutFilter, or it does nothing.
+
+Typical JWT Logout Flow
+Frontend:
+function logout() {
+  localStorage.removeItem("token"); // forget JWT
+  window.location.href = "/login";
+}
+
+Backend (optional endpoint):
+@PostMapping("/logout")
+public ResponseEntity<?> logout(HttpServletRequest request) {
+    logger.debug("logout called");
+    // optionally blacklist JWT here
+    return ResponseEntity.ok("Logged out successfully");
+}
+
+/////////////
+
+UsernamePasswordAuthenticationFilter
+This is the filter that processes login form submissions — it reads a 
+username and password from the HTTP request and tries to authenticate them.
+
+It triggers when a POST request hits /login with parameters:
+username=user
+password=pass
+
+Then internally it:
+Builds a UsernamePasswordAuthenticationToken
+Passes it to the AuthenticationManager
+If success → calls SecurityContextHolder.setContext()
+If success → triggers a AuthenticationSuccessHandler (e.g. redirect)
+If failure → calls a AuthenticationFailureHandler
+
+Why You Don’t Use It in JWT Authentication
+In a JWT-based system, authentication works differently:
+| Step             | Session Auth                               | JWT Auth                                                    |
+| ---------------- | ------------------------------------------ | ----------------------------------------------------------- |
+| Login filter     | `UsernamePasswordAuthenticationFilter`     | ✅ your own `JwtAuthenticationFilter` or `JwtAuthEntryPoint` |
+| Auth success     | Session created, stored in SecurityContext | JWT generated and returned to client                        |
+| Auth persistence | Server keeps session                       | Client sends token on every request                         |
+| Auth restore     | Server reads session                       | Server parses token and validates                           |
+
+So — in JWT — you don’t use UsernamePasswordAuthenticationFilter because:
+You’re not logging in via form POST /login with username/password params
+You’re not storing session info
+You issue a token instead
+Instead, you create your own login endpoint (e.g. /api/auth/login) and issue a token.
+
+Your replacement for UsernamePasswordAuthenticationFilter
+You typically write a controller, like:
+@RestController
+@RequestMapping("/api/auth")
+public class AuthController {
+
+    private static final Logger logger = LogManager.getLogger(AuthController.class);
+    private final AuthenticationManager authenticationManager;
+    private final JwtTokenProvider jwtTokenProvider;
+
+    public AuthController(AuthenticationManager authenticationManager, JwtTokenProvider jwtTokenProvider) {
+        logger.debug("AuthController constructor called");
+        logger.debug("AuthController authenticationManager={}", authenticationManager);
+        logger.debug("AuthController jwtTokenProvider={}", jwtTokenProvider);
+        this.authenticationManager = authenticationManager;
+        this.jwtTokenProvider = jwtTokenProvider;
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
+        logger.debug("login called");
+        logger.debug("login loginRequest={}", loginRequest);
+
+        Authentication authentication = authenticationManager.authenticate(
+            new UsernamePasswordAuthenticationToken(
+                loginRequest.getUsername(),
+                loginRequest.getPassword()
+            )
+        );
+
+        logger.debug("login authentication={}", authentication);
+
+        String token = jwtTokenProvider.createToken(
+            loginRequest.getUsername(),
+            authentication.getAuthorities()
+                .stream()
+                .map(a -> a.getAuthority())
+                .toList()
+        );
+
+        logger.debug("login token={}", token);
+
+        return ResponseEntity.ok(new JwtResponse(token));
+    }
+}
+
+/////////////
+
+| Page                             | Action                                             |
+| -------------------------------- | -------------------------------------------------- |
+| `login.jsp`                      | Calls `/auth/login`, stores JWT locally            |
+| `register.jsp`                   | Calls `/auth/register`, creates new user           |
+| `logout.jsp`                     | Deletes JWT client-side, redirects to `/login.jsp` |
+| `CustomAuthenticationEntryPoint` | Redirects unauthenticated requests to `/login.jsp` |
+
+

@@ -1,0 +1,72 @@
+# ============================
+# Build directories and outputs
+# ============================
+target/
+**/target/
+build/
+**/build/
+*.class
+**/*.class
+*.jar
+**/*.jar
+*.bin
+*.lock
+.gradle/
+
+# Keep Maven/Gradle wrapper JARs
+!.mvn/wrapper/maven-wrapper.jar
+!gradle/wrapper/gradle-wrapper.jar
+
+# ============================
+# IDEs
+# ============================
+# IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# Eclipse / STS
+.project
+.classpath
+.settings/
+.apt_generated
+.factorypath
+.springBeans
+.sts4-cache
+
+# NetBeans
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+# VS Code
+.vscode/
+
+# ============================
+# OS files
+# ============================
+.DS_Store
+Thumbs.db
+
+# ============================
+# Maven/Gradle & test logs
+# ============================
+**/target/surefire-reports/*.dump
+**/target/surefire-reports/*.dumpstream
+**/target/surefire-reports/
+
+.simple-chatgpt-web-boot/.gradle/8.14.3/checksums/*.bin
+
+# ============================
+# Project-specific files
+# ============================
+# Ignore specific file anywhere
+**/simple-chatgpt-web.txt
+**/constants.txt
+
+# Ignore the simple-chatgpt-web.txt file
+simple-chatgpt-web.txt
+constants.txt

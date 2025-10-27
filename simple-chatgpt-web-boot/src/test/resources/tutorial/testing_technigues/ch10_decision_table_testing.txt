@@ -1,0 +1,103 @@
+
+//////////////////
+
+https://www.guru99.com/decision-table-testing.html
+
+What is Decision Table Testing?
+
+Decision table testing is a software testing technique used to test system behavior for different input combinations. This is a systematic approach where the different input combinations and their corresponding system behavior (Output) are captured in a tabular form. That is why it is also called as a Cause-Effect table where Cause and effects are captured for better test coverage.
+
+A Decision Table is a tabular representation of inputs versus rules/cases/test conditions. It is a very effective tool used for both complex software testing and requirements management. 
+
+Example 1: How to make Decision Base Table for Login Screen
+
+Let’s create a decision table for a login screen.
+
+The condition is simple if the user provides the correct username and password the user will be redirected to the homepage. If any of the input is wrong, an error message will be displayed.
+Conditions 	Rule 1 	Rule 2 	Rule 3 	Rule 4
+Username (T/F) 	F 	T 	F 	T
+Password (T/F) 	F 	F 	T 	T
+Output (E/H) 	E 	E 	E 	H
+
+Interpretation:
+
+    Case 1 – Username and password both were wrong. The user is shown an error message.
+    Case 2 – Username was correct, but the password was wrong. The user is shown an error message.
+    Case 3 – Username was wrong, but the password was correct. The user is shown an error message.
+    Case 4 – Username and password both were correct, and the user navigated to the homepage
+
+//////////////
+
+xample 2: How to make Decision Table for Upload Screen
+
+Now consider a dialogue box that will ask the user to upload a photo with certain conditions like –
+
+    You can upload only ‘.jpg’ format image
+    file size less than 32kb
+    resolution 137*177.
+
+If any of the conditions fails the system will throw a corresponding error message stating the issue and if all conditions are met photo will be updated successfully
+
+Let’s create the decision table for this case.
+Conditions 	Case 1 	Case 2 	Case 3 	Case 4 	Case 5 	Case 6 	Case 7 	Case 8
+Format 	.jpg 	.jpg 	.jpg 	.jpg 	Not .jpg 	Not .jpg 	Not .jpg 	Not .jpg
+Size 	Less than 32kb 	Less than 32kb 	>= 32kb 	>= 32kb 	Less than 32kb 	Less than 32kb 	>= 32kb 	>= 32kb
+resolution 	137*177 	Not 137*177 	137*177 	Not 137*177 	137*177 	Not 137*177 	137*177 	Not 137*177
+Output 	Photo uploaded 	Error message resolution mismatch 	Error message size mismatch 	Error message size and resolution mismatch 	Error message for format mismatch 	Error message format and resolution mismatch 	Error message for format and size mismatch 	Error message for format, size, and resolution mismatch
+
+Advantages of Decision Table Testing
+
+    When the system behavior is different for different inputs and not the same for a range of inputs, both equivalent partitioning, and boundary value analysis won’t help, but a decision table can be used.
+    The representation is simple so that it can be easily interpreted and is used for development and business as well.
+    This table will help to make effective combinations and can ensure better coverage for testing
+    Any complex business conditions can be easily turned into decision tables
+    In a case we are going for 100% coverage typically when the input combinations are low, this technique can ensure the coverage.
+
+Disadvantages of Decision Table Testing
+
+The main disadvantage is that when the number of inputs increases the table will become more complex
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

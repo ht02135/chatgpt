@@ -1,0 +1,73 @@
+
+//////////////////////
+
+https://www.guru99.com/system-testing.html
+
+System Testing is a level of testing that validates the complete and fully integrated software product. The purpose of a system test is to evaluate the end-to-end system specifications
+
+System Testing is Blackbox
+
+Two Category of Software Testing
+
+    Black Box Testing
+    White Box Testing
+
+White box testing is the testing of the internal workings or code of a software application. In contrast, black box or System Testing is the opposite. System test involves the external workings of the software from the user’s perspective.
+
+//////////////
+
+What do you verify in System Testing?
+
+
+    Testing the fully integrated applications including external peripherals in order to check how components interact with one another and with the system as a whole. This is also called End to End testing scenario.
+    Verify thorough testing of every input in the application to check for desired outputs.
+    Testing of the user’s experience with the application.
+
+
+////////////////////
+
+
+    Unit testing performed on each module or block of code during development. Unit Testing is normally done by the programmer who writes the code.
+    Integration testing done before, during and after integration of a new module into the main software package. This involves testing of each individual code module. One piece of software can contain several modules which are often created by several different programmers. It is crucial to test each module’s effect on the entire program model.
+    System testing done by a professional testing agent on the completed software product before it is introduced to the market.
+    Acceptance testing – beta testing of the product done by the actual end users.
+
+//////////////////
+
+Types of System Testing
+
+
+    Usability Testing – mainly focuses on the user’s ease to use the application, flexibility in handling controls and ability of the system to meet its objectives
+    Load Testing – is necessary to know that a software solution will perform under real-life loads.
+    Regression Testing – involves testing done to make sure none of the changes made over the course of the development process have caused new bugs. It also makes sure no old bugs appear from the addition of new software modules over time.
+    Recovery Testing – is done to demonstrate a software solution is reliable, trustworthy and can successfully recoup from possible crashes.
+    Migration Testing – is done to ensure that the software can be moved from older system infrastructures to current system infrastructures without any issues.
+    Functional Testing – Also known as functional completeness testing, Functional Testing involves trying to think of any possible missing functions. Testers might make a list of additional functionalities that a product could have to improve it during functional testing.
+    Hardware/Software Testing – IBM refers to Hardware/Software testing as “HW/SW Testing”. This is when the tester focuses his/her attention on the interactions between the hardware and software during system testing.
+
+
+/////////////
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
