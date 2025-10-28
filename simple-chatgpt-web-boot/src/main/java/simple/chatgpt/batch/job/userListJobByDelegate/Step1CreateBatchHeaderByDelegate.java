@@ -2,8 +2,6 @@ package simple.chatgpt.batch.job.userListJobByDelegate;
 
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.logging.log4j.LogManager;
@@ -65,16 +63,9 @@ public class Step1CreateBatchHeaderByDelegate extends AbstractJobRequestDelegate
         StepExecution stepExecution = chunkContext.getStepContext().getStepExecution();
         logger.debug("execute stepExecution={}", stepExecution);
 
-        // ==========================================
+        // ==================================================
         // STEP 1: Fetch JobRequest via mapper (stage=100, status=SUBMITTED)
-        // ==========================================
-        Map<String, Object> queryParams = new HashMap<>();
-        queryParams.put("jobName", UserListJobByDelegateConfig.JOB_NAME);
-        queryParams.put("processingStage", 100);
-        queryParams.put("processingStatus", 1);
-        queryParams.put("status", JobRequest.STATUS_SUBMITTED);
-
-        logger.debug("execute queryParams={}", queryParams);
+        // ==================================================
         JobRequest jobRequest = getOneRecentJobRequestByParams(
             UserListJobConfig.JOB_NAME, 100, 1, JobRequest.STATUS_SUBMITTED);
         logger.debug("execute jobRequest={}", jobRequest);
@@ -95,9 +86,8 @@ public class Step1CreateBatchHeaderByDelegate extends AbstractJobRequestDelegate
         String timestamp = LocalDateTime.now().format(BatchJobConstants.TIMESTAMP_FORMATTER);
         String fileNameWithTimestamp = String.format(BatchJobConstants.USER_LIST_FILENAME_PATTERN, timestamp);
         jobRequest.setDownloadUrl(fileNameWithTimestamp);
-        
-        String fullFilePath = Paths.get(BatchJobConstants.USER_LIST_BASE_DIR, fileNameWithTimestamp).toString();
 
+        String fullFilePath = Paths.get(BatchJobConstants.USER_LIST_BASE_DIR, fileNameWithTimestamp).toString();
         userList.setFilePath(fullFilePath);
         userList.setDescription(BatchJobConstants.DEFAULT_DESCRIPTION);
 
@@ -110,32 +100,16 @@ public class Step1CreateBatchHeaderByDelegate extends AbstractJobRequestDelegate
         logger.debug("execute userList inserted userList={}", userList);
 
         // ==================================================
-        // STEP 4: Update JobRequest with list info
+        // STEP 4: Update JobRequest stepData via helper method
         // ==================================================
-        Map<String, Object> stepData = jobRequest.getStepData();
-        if (stepData == null) {
-            stepData = new HashMap<>();
-        }
-
-        stepData.put(BatchJobConstants.CONTEXT_LIST_ID, userList.getId());
-        stepData.put(BatchJobConstants.CONTEXT_LIST_NAME, userList.getUserListName());
-        stepData.put(BatchJobConstants.CONTEXT_LIST_FILE_PATH, userList.getFilePath());
-        jobRequest.setStepData(stepData);
-
-        jobRequest.setProcessingStage(200);
-        jobRequest.setProcessingStatus(1);
-
-        jobRequestMapper.update(jobRequest.getId(), jobRequest);
-        logger.debug("execute updated jobRequest={}", jobRequest);
+        updateJobRequestStepData(jobRequest, stepExecution, BatchJobConstants.CONTEXT_LIST_ID, userList.getId());
+        updateJobRequestStepData(jobRequest, stepExecution, BatchJobConstants.CONTEXT_LIST_NAME, userList.getUserListName());
+        updateJobRequestStepData(jobRequest, stepExecution, BatchJobConstants.CONTEXT_LIST_FILE_PATH, userList.getFilePath());
 
         // ==================================================
-        // STEP 5: Store to ExecutionContext
+        // STEP 5: Update JobRequest stage/status
         // ==================================================
-        stepExecution.getJobExecution().getExecutionContext().putLong(BatchJobConstants.CONTEXT_LIST_ID, userList.getId());
-        stepExecution.getJobExecution().getExecutionContext().putString(BatchJobConstants.CONTEXT_LIST_NAME, userList.getUserListName());
-        stepExecution.getJobExecution().getExecutionContext().putString(BatchJobConstants.CONTEXT_LIST_FILE_PATH, userList.getFilePath());
-
-        logger.debug("execute ExecutionContext updated with list info");
+        updateJobRequest(jobRequest, 200, 1, JobRequest.STATUS_SUBMITTED);
 
         logger.debug("execute finished");
         return RepeatStatus.FINISHED;

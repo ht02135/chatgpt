@@ -2,8 +2,6 @@ package simple.chatgpt.batch.job.userListJob;
 
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -88,32 +86,14 @@ public class Step1CreateBatchHeader extends AbstractJobRequest {
         // ==================================================
         // STEP 3: Add userList info to JobRequest stepData
         // ==================================================
-        Map<String, Object> stepData = jobRequest.getStepData();
-        if (stepData == null) {
-            stepData = new HashMap<>();
-        }
-        stepData.put(BatchJobConstants.CONTEXT_LIST_ID, createdList.getId());
-        stepData.put(BatchJobConstants.CONTEXT_LIST_NAME, createdList.getUserListName());
-        stepData.put(BatchJobConstants.CONTEXT_LIST_FILE_PATH, createdList.getFilePath());
-        jobRequest.setStepData(stepData);
+        updateJobRequestStepData(jobRequest, stepExecution, BatchJobConstants.CONTEXT_LIST_ID, createdList.getId());
+        updateJobRequestStepData(jobRequest, stepExecution, BatchJobConstants.CONTEXT_LIST_NAME, createdList.getUserListName());
+        updateJobRequestStepData(jobRequest, stepExecution, BatchJobConstants.CONTEXT_LIST_FILE_PATH, createdList.getFilePath());
 
         // ==================================================
         // STEP 4: Update JobRequest stage to 200 / status=1
         // ==================================================
-        jobRequest.setProcessingStage(200);
-        jobRequest.setProcessingStatus(1);
-        jobRequestService.update(jobRequest.getId(), jobRequest);
-        logger.debug("###########");
-        logger.debug("execute updated jobRequest to stage=200 status=1");
-        logger.debug("execute jobRequest={}", jobRequest);
-        logger.debug("###########");
-        
-        // ==================================================
-        // ALSO PUT INTO ExecutionContext
-        // ==================================================
-        stepExecution.getJobExecution().getExecutionContext().putLong(BatchJobConstants.CONTEXT_LIST_ID, createdList.getId());
-        stepExecution.getJobExecution().getExecutionContext().putString(BatchJobConstants.CONTEXT_LIST_NAME, createdList.getUserListName());
-        stepExecution.getJobExecution().getExecutionContext().putString(BatchJobConstants.CONTEXT_LIST_FILE_PATH, createdList.getFilePath());
+        updateJobRequest(jobRequest, 200, 1, JobRequest.STATUS_SUBMITTED);
 
         // ==================================================
         // STEP 5: Done

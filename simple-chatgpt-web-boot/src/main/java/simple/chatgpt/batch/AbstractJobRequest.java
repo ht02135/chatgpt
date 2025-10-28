@@ -10,13 +10,14 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.listener.StepExecutionListenerSupport;
+import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.stereotype.Component;
 
 import simple.chatgpt.mapper.batch.JobRequestMapper;
 import simple.chatgpt.pojo.batch.JobRequest;
 
 @Component
-public abstract class AbstractJobRequest extends StepExecutionListenerSupport implements org.springframework.batch.core.step.tasklet.Tasklet {
+public abstract class AbstractJobRequest extends StepExecutionListenerSupport implements Tasklet {
 
     private static final Logger logger = LogManager.getLogger(AbstractJobRequest.class);
 
