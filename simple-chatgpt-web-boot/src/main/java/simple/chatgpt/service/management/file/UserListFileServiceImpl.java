@@ -35,6 +35,8 @@ public class UserListFileServiceImpl implements UserListFileService {
 
     private static final Logger logger = LogManager.getLogger(UserListFileServiceImpl.class);
 
+    private static final String MEMBER_GRID_ID = "userListMembers";
+    
     private final Path storageDir;
     private final List<ColumnConfig> uploadColumns;
     private final List<ColumnConfig> downloadColumns;
@@ -47,7 +49,6 @@ public class UserListFileServiceImpl implements UserListFileService {
             UserManagementListMemberService memberService,
             DownloadConfigLoader downloadConfigLoader,
             UploadConfigLoader uploadConfigLoader,
-            String memberGridId,
             CsvFileService csvFileService,
             ExcelFileService excelFileService) {
 
@@ -55,15 +56,14 @@ public class UserListFileServiceImpl implements UserListFileService {
         logger.debug("UserListFileServiceImpl memberService={}", memberService);
         logger.debug("UserListFileServiceImpl downloadConfigLoader={}", downloadConfigLoader);
         logger.debug("UserListFileServiceImpl uploadConfigLoader={}", uploadConfigLoader);
-        logger.debug("UserListFileServiceImpl memberGridId={}", memberGridId);
         logger.debug("UserListFileServiceImpl csvFileService={}", csvFileService);
         logger.debug("UserListFileServiceImpl excelFileService={}", excelFileService);
 
         this.memberService = memberService;
         this.csvFileService = csvFileService;
         this.excelFileService = excelFileService;
-        this.uploadColumns = uploadConfigLoader.getColumns(memberGridId);
-        this.downloadColumns = downloadConfigLoader.getColumns(memberGridId);
+        this.uploadColumns = uploadConfigLoader.getColumns(MEMBER_GRID_ID);
+        this.downloadColumns = downloadConfigLoader.getColumns(MEMBER_GRID_ID);
 
         // ================================
         // FIX: Use WEB-INF/classes/data for storage
