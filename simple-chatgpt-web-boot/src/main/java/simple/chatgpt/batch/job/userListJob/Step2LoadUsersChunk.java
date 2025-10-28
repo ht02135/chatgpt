@@ -38,6 +38,10 @@ public class Step2LoadUsersChunk extends AbstractJobRequest {
 
     private StepExecution stepExecution;
     private JobRequest jobRequest;
+    
+    private boolean initialized = false;
+    private int index = 0;
+    private List<UserManagementPojo> allUsers;
 
     @Autowired
     public Step2LoadUsersChunk(JobRequestMapper jobRequestMapper,
@@ -63,14 +67,8 @@ public class Step2LoadUsersChunk extends AbstractJobRequest {
     // PRIVATE INNER READER
     // =========================================
     private class UserReader implements ItemReader<UserManagementPojo> {
-        private int index = 0;
-        private boolean initialized = false;
-        private List<UserManagementPojo> allUsers;
 
-        public UserReader() {
-            this.index = 0;
-            this.initialized = false;
-            this.allUsers = null; 
+        public UserReader() { 
         }
         
         @Override
@@ -163,6 +161,9 @@ public class Step2LoadUsersChunk extends AbstractJobRequest {
     public void beforeStep(StepExecution stepExecution) {
         logger.debug("beforeStep called for Step2LoadUsersChunk");
         this.stepExecution = stepExecution;
+        initialized = false;
+        index = 0;
+        allUsers = null;
     }
 
     @AfterStep

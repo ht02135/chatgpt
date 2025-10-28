@@ -45,6 +45,10 @@ public class Step3PopulateUserListChunkByDelegate extends AbstractJobRequestDele
 
     private StepExecution stepExecution;
     private JobRequest jobRequest;
+    
+    private boolean initialized = false;
+    private int index = 0;
+    private List<Long> userIds;
 
     public Step3PopulateUserListChunkByDelegate(JobRequestMapper jobRequestMapper,
                                                 UserManagementMapper userManagementMapper) {
@@ -71,14 +75,8 @@ public class Step3PopulateUserListChunkByDelegate extends AbstractJobRequestDele
     // PRIVATE INNER READER
     // =========================================
     private class UserReader implements ItemReader<UserManagementPojo> {
-        private boolean initialized = false;
-        private int index = 0;
-        private List<Long> userIds;
 
         public UserReader() {
-            this.index = 0;
-            this.initialized = false;
-            this.userIds = null;
         }
         
         @Override
@@ -183,6 +181,9 @@ public class Step3PopulateUserListChunkByDelegate extends AbstractJobRequestDele
     public void beforeStep(StepExecution stepExecution) {
         logger.debug("beforeStep called for Step3PopulateUserListChunkByDelegate");
         this.stepExecution = stepExecution;
+        initialized = false;
+        index = 0;
+        userIds = null;
     }
 
     @AfterStep

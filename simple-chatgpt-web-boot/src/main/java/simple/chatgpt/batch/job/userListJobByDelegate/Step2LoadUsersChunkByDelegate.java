@@ -33,6 +33,10 @@ public class Step2LoadUsersChunkByDelegate extends AbstractJobRequestDelegate {
 
     private StepExecution stepExecution;
     private JobRequest jobRequest;
+    
+    private boolean initialized = false;
+    private int index = 0;
+    private List<UserManagementPojo> allUsers = null;
 
     /**
      * Constructor injection for all dependencies.
@@ -63,14 +67,8 @@ public class Step2LoadUsersChunkByDelegate extends AbstractJobRequestDelegate {
     // PRIVATE INNER READER
     // =========================================
     private class UserReader implements ItemReader<UserManagementPojo> {
-        private int index = 0;
-        private boolean initialized = false;
-        private List<UserManagementPojo> allUsers = null;
 
         public UserReader() {
-            this.index = 0;
-            this.initialized = false;
-            this.allUsers = null; 
         }
         
         @Override
@@ -162,6 +160,9 @@ public class Step2LoadUsersChunkByDelegate extends AbstractJobRequestDelegate {
     public void beforeStep(StepExecution stepExecution) {
         logger.debug("beforeStep called for Step2LoadUsersChunkByDelegate");
         this.stepExecution = stepExecution;
+        initialized = false;
+        index = 0;
+        allUsers = null;
     }
 
     @AfterStep
