@@ -1,9 +1,7 @@
 package simple.chatgpt.batch.job.userListJobByDelegate;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -49,7 +47,6 @@ public class Step2LoadUsersChunkByDelegate extends AbstractJobRequestDelegate {
     // =========================================
     // STEP BEAN
     // =========================================
-
     public Step step2LoadUsersByDelegate(StepBuilderFactory stepBuilderFactory) {
         logger.debug("step2LoadUsersByDelegate called");
 
@@ -132,29 +129,21 @@ public class Step2LoadUsersChunkByDelegate extends AbstractJobRequestDelegate {
                     userIds.add(user.getId());
                 }
 
-                Map<String, Object> stepData = jobRequest.getStepData() != null
-                        ? new HashMap<>(jobRequest.getStepData())
-                        : new HashMap<>();
-
+                // ==================================================
+                // Use helper methods instead of manual stepData & ExecutionContext
+                // ==================================================
                 List<Long> existingIds = (List<Long>) stepExecution.getJobExecution().getExecutionContext()
                         .get(BatchJobConstants.CONTEXT_USER_IDS);
                 if (existingIds == null) existingIds = new ArrayList<>();
                 existingIds.addAll(userIds);
-                logger.debug("UserWriter existingIds={}", existingIds);
 
-                stepData.put(BatchJobConstants.CONTEXT_USER_IDS, existingIds);
+                updateJobRequestStepData(jobRequest, stepExecution, BatchJobConstants.CONTEXT_USER_IDS, existingIds);
+                updateJobRequest(jobRequest, 300, 1, JobRequest.STATUS_SUBMITTED);
 
-                jobRequest.setStepData(stepData);
-                jobRequest.setProcessingStage(300);
-                jobRequest.setProcessingStatus(1);
-                jobRequestMapper.update(jobRequest.getId(), jobRequest);
                 logger.debug("###########");
                 logger.debug("UserWriter updated jobRequest stage=300 status=1");
                 logger.debug("UserWriter jobRequest={}", jobRequest);
                 logger.debug("###########");
-
-                stepExecution.getJobExecution().getExecutionContext()
-                        .put(BatchJobConstants.CONTEXT_USER_IDS, existingIds);
 
             } catch (Exception e) {
                 logger.error("UserWriter encountered error, marking jobRequest FAILED", e);

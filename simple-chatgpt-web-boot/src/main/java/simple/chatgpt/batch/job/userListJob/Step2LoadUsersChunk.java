@@ -1,9 +1,7 @@
 package simple.chatgpt.batch.job.userListJob;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -132,27 +130,21 @@ public class Step2LoadUsersChunk extends AbstractJobRequest {
                     userIds.add(user.getId());
                 }
 
-                Map<String, Object> stepData = jobRequest.getStepData() != null
-                        ? new HashMap<>(jobRequest.getStepData())
-                        : new HashMap<>();
-
+                // ==================================================
+                // Use helper methods instead of manual stepData & ExecutionContext
+                // ==================================================
                 List<Long> existingIds = (List<Long>) stepExecution.getJobExecution().getExecutionContext()
                         .get(BatchJobConstants.CONTEXT_USER_IDS);
                 if (existingIds == null) existingIds = new ArrayList<>();
                 existingIds.addAll(userIds);
-                stepData.put(BatchJobConstants.CONTEXT_USER_IDS, existingIds);
 
-                jobRequest.setStepData(stepData);
-                jobRequest.setProcessingStage(300);
-                jobRequest.setProcessingStatus(1);
-                jobRequestService.update(jobRequest.getId(), jobRequest);
+                updateJobRequestStepData(jobRequest, stepExecution, BatchJobConstants.CONTEXT_USER_IDS, existingIds);
+                updateJobRequest(jobRequest, 300, 1, JobRequest.STATUS_SUBMITTED);
+
                 logger.debug("###########");
                 logger.debug("UserWriter updated jobRequest stage=300 status=1");
                 logger.debug("UserWriter jobRequest={}", jobRequest);
                 logger.debug("###########");
-
-                stepExecution.getJobExecution().getExecutionContext()
-                        .put(BatchJobConstants.CONTEXT_USER_IDS, existingIds);
 
             } catch (Exception e) {
                 logger.error("UserWriter encountered error, marking jobRequest FAILED", e);

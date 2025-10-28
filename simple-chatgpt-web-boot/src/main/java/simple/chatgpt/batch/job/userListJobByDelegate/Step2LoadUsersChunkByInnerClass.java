@@ -1,9 +1,7 @@
 package simple.chatgpt.batch.job.userListJobByDelegate;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.logging.log4j.LogManager;
@@ -20,7 +18,6 @@ import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.repeat.RepeatStatus;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import simple.chatgpt.batch.BatchJobConstants;
@@ -43,30 +40,21 @@ public class Step2LoadUsersChunkByInnerClass extends AbstractJobRequestDelegate 
 
     private static final Logger logger = LogManager.getLogger(Step2LoadUsersChunkByInnerClass.class);
 
-    @Autowired
-    private JobRequestMapper jobRequestMapper;
-
-    @Autowired
-    private UserManagementMapper userManagementMapper;
-
-    @Autowired
-    private SqlSessionFactory sqlSessionFactory;
+    private final SqlSessionFactory sqlSessionFactory;
 
     private StepExecution stepExecution;
     private JobRequest jobRequest;
 
-    /**
-     * Constructor calling the superclass constructor
-     */
     public Step2LoadUsersChunkByInnerClass(JobRequestMapper jobRequestMapper,
-                                           UserManagementMapper userManagementMapper) {
+                                           UserManagementMapper userManagementMapper,
+                                           SqlSessionFactory sqlSessionFactory) {
         super(jobRequestMapper, userManagementMapper);
+        this.sqlSessionFactory = sqlSessionFactory;
     }
 
     // =========================================
     // STEP BEAN
     // =========================================
-
     public Step step2LoadUsersByInnerClass(StepBuilderFactory stepBuilderFactory) {
         logger.debug("step2LoadUsersByInnerClass called");
 
@@ -141,28 +129,21 @@ public class Step2LoadUsersChunkByInnerClass extends AbstractJobRequestDelegate 
                     userIds.add(user.getId());
                 }
 
-                Map<String, Object> stepData = jobRequest.getStepData() != null
-                        ? new HashMap<>(jobRequest.getStepData())
-                        : new HashMap<>();
-
+                // ==================================================
+                // Replace manual stepData/ExecutionContext update with helper methods
+                // ==================================================
                 List<Long> existingIds = (List<Long>) stepExecution.getJobExecution().getExecutionContext()
                         .get(BatchJobConstants.CONTEXT_USER_IDS);
                 if (existingIds == null) existingIds = new ArrayList<>();
                 existingIds.addAll(userIds);
-                logger.debug("UserWriter existingIds={}", existingIds);
 
-                stepData.put(BatchJobConstants.CONTEXT_USER_IDS, existingIds);
-                jobRequest.setStepData(stepData);
-                jobRequest.setProcessingStage(300);
-                jobRequest.setProcessingStatus(1);
-                jobRequestMapper.update(jobRequest.getId(), jobRequest);
+                updateJobRequestStepData(jobRequest, stepExecution, BatchJobConstants.CONTEXT_USER_IDS, existingIds);
+                updateJobRequest(jobRequest, 300, 1, JobRequest.STATUS_SUBMITTED);
+
                 logger.debug("###########");
                 logger.debug("UserWriter updated jobRequest stage=300 status=1");
                 logger.debug("UserWriter jobRequest={}", jobRequest);
                 logger.debug("###########");
-
-                stepExecution.getJobExecution().getExecutionContext()
-                        .put(BatchJobConstants.CONTEXT_USER_IDS, existingIds);
 
             } catch (Exception e) {
                 logger.error("UserWriter encountered error, marking jobRequest FAILED", e);
