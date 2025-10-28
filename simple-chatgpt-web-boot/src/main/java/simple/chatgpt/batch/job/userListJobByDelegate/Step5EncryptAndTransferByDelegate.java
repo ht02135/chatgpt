@@ -6,6 +6,7 @@ import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.batch.core.ExitStatus;
+import org.springframework.batch.core.Step;
 import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.annotation.AfterStep;
@@ -18,6 +19,8 @@ import org.springframework.stereotype.Component;
 
 import simple.chatgpt.batch.BatchJobConstants;
 import simple.chatgpt.batch.job.userListJob.UserListJobConfig;
+import simple.chatgpt.mapper.batch.JobRequestMapper;
+import simple.chatgpt.mapper.management.UserManagementMapper;
 import simple.chatgpt.pojo.batch.JobRequest;
 
 @Component
@@ -28,7 +31,15 @@ public class Step5EncryptAndTransferByDelegate extends AbstractJobRequestDelegat
     private StepExecution stepExecution;
     private JobRequest jobRequest;
 
-    public org.springframework.batch.core.Step step5EncryptAndTransferByDelegate(StepBuilderFactory stepBuilderFactory) {
+    /**
+     * Constructor calling superclass with required mappers
+     */
+    public Step5EncryptAndTransferByDelegate(JobRequestMapper jobRequestMapper,
+                                             UserManagementMapper userManagementMapper) {
+        super(jobRequestMapper, userManagementMapper);
+    }
+
+    public Step step5EncryptAndTransferByDelegate(StepBuilderFactory stepBuilderFactory) {
         logger.debug("step5EncryptAndTransferByDelegate called");
         return stepBuilderFactory.get("step5EncryptAndTransferByDelegate")
                 .tasklet(this)
@@ -92,6 +103,7 @@ public class Step5EncryptAndTransferByDelegate extends AbstractJobRequestDelegat
             jobRequest.setStepData(stepData);
             jobRequest.setProcessingStage(1000);
             jobRequest.setProcessingStatus(1);
+            jobRequest.setStatus(JobRequest.STATUS_COMPLETED);
             jobRequestMapper.update(jobRequest.getId(), jobRequest);
             logger.debug("###########");
             logger.debug("JobRequest updated to stage=1000 status=1 (completed)");

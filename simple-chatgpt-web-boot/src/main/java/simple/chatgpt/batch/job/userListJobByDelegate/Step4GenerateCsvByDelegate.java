@@ -14,7 +14,6 @@ import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.annotation.AfterStep;
 import org.springframework.batch.core.annotation.BeforeStep;
-import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.repeat.RepeatStatus;
@@ -23,7 +22,9 @@ import org.springframework.stereotype.Component;
 
 import simple.chatgpt.batch.BatchJobConstants;
 import simple.chatgpt.batch.job.userListJob.UserListJobConfig;
+import simple.chatgpt.mapper.batch.JobRequestMapper;
 import simple.chatgpt.mapper.management.UserManagementListMapper;
+import simple.chatgpt.mapper.management.UserManagementMapper;
 import simple.chatgpt.pojo.batch.JobRequest;
 import simple.chatgpt.service.management.file.UserListFileService;
 
@@ -40,17 +41,14 @@ public class Step4GenerateCsvByDelegate extends AbstractJobRequestDelegate imple
     private StepExecution stepExecution;
     private JobRequest jobRequest;
 
-    public Step4GenerateCsvByDelegate(UserListFileService listService) {
-        this.listFileService = listService;
-    }
-
-    public org.springframework.batch.core.Step step4GenerateCsvByDelegate(StepBuilderFactory stepBuilderFactory) {
-        logger.debug("step4GenerateCsvByDelegate called");
-
-        return stepBuilderFactory.get("step4GenerateCsvByDelegate")
-                .tasklet(this)
-                .listener(this)
-                .build();
+    /**
+     * Constructor injecting UserListFileService and passing required mappers to superclass
+     */
+    public Step4GenerateCsvByDelegate(UserListFileService listFileService,
+                                      JobRequestMapper jobRequestMapper,
+                                      UserManagementMapper userManagementMapper) {
+        super(jobRequestMapper, userManagementMapper);
+        this.listFileService = listFileService;
     }
 
     // ==================================================

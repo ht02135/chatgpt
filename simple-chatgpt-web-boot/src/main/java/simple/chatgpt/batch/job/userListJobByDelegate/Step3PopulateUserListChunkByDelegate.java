@@ -53,6 +53,14 @@ public class Step3PopulateUserListChunkByDelegate extends AbstractJobRequestDele
     private JobRequest jobRequest;
     private List<Long> userIds;
 
+    /**
+     * Constructor calling the superclass constructor
+     */
+    public Step3PopulateUserListChunkByDelegate(JobRequestMapper jobRequestMapper,
+                                                UserManagementMapper userManagementMapper) {
+        super(jobRequestMapper, userManagementMapper);
+    }
+
     // =========================================
     // STEP BEAN
     // =========================================

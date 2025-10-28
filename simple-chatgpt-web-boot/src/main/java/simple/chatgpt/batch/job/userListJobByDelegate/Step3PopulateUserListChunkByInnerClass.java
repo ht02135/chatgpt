@@ -52,6 +52,14 @@ public class Step3PopulateUserListChunkByInnerClass extends AbstractJobRequestDe
     private StepExecution stepExecution;
     private JobRequest jobRequest;
 
+    /**
+     * Constructor calling the superclass constructor
+     */
+    public Step3PopulateUserListChunkByInnerClass(JobRequestMapper jobRequestMapper,
+                                                  UserManagementMapper userManagementMapper) {
+        super(jobRequestMapper, userManagementMapper);
+    }
+
     // =========================================
     // STEP BEAN
     // =========================================

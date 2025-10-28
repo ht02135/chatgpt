@@ -20,6 +20,7 @@ import simple.chatgpt.batch.BatchJobConstants;
 import simple.chatgpt.batch.job.userListJob.UserListJobConfig;
 import simple.chatgpt.mapper.batch.JobRequestMapper;
 import simple.chatgpt.mapper.management.UserManagementListMapper;
+import simple.chatgpt.mapper.management.UserManagementMapper;
 import simple.chatgpt.pojo.batch.JobRequest;
 import simple.chatgpt.pojo.management.UserManagementListPojo;
 
@@ -36,14 +37,18 @@ public class Step1CreateBatchHeaderByDelegate extends AbstractJobRequestDelegate
 
     private static final Logger logger = LogManager.getLogger(Step1CreateBatchHeaderByDelegate.class);
 
-    @Autowired
-    private SqlSessionFactory sqlSessionFactory;
+    private final SqlSessionFactory sqlSessionFactory;
+    private final UserManagementListMapper userManagementListMapper;
 
     @Autowired
-    private JobRequestMapper jobRequestMapper;
-
-    @Autowired
-    private UserManagementListMapper userManagementListMapper;
+    public Step1CreateBatchHeaderByDelegate(JobRequestMapper jobRequestMapper,
+                                            UserManagementMapper userManagementMapper,
+                                            SqlSessionFactory sqlSessionFactory,
+                                            UserManagementListMapper userManagementListMapper) {
+        super(jobRequestMapper, userManagementMapper);
+        this.sqlSessionFactory = sqlSessionFactory;
+        this.userManagementListMapper = userManagementListMapper;
+    }
 
     @Override
     public void beforeStep(StepExecution stepExecution) {

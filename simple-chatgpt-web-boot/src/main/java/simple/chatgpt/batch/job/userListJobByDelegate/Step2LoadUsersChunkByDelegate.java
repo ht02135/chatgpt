@@ -19,7 +19,6 @@ import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.repeat.RepeatStatus;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import simple.chatgpt.batch.BatchJobConstants;
@@ -34,14 +33,18 @@ public class Step2LoadUsersChunkByDelegate extends AbstractJobRequestDelegate {
 
     private static final Logger logger = LogManager.getLogger(Step2LoadUsersChunkByDelegate.class);
 
-    @Autowired
-    private JobRequestMapper jobRequestMapper;
-
-    @Autowired
-    private UserManagementMapper userManagementMapper;
-
     private StepExecution stepExecution;
     private JobRequest jobRequest;
+
+    /**
+     * Constructor injection for all dependencies.
+     */
+    public Step2LoadUsersChunkByDelegate(JobRequestMapper jobRequestMapper,
+                                         UserManagementMapper userManagementMapper) {
+        super(jobRequestMapper, userManagementMapper);
+        this.stepExecution = null; // assign later in beforeStep or elsewhere
+        this.jobRequest = null;    // assign later in beforeStep or elsewhere
+    }
 
     // =========================================
     // STEP BEAN

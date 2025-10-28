@@ -55,6 +55,14 @@ public class Step2LoadUsersChunkByInnerClass extends AbstractJobRequestDelegate 
     private StepExecution stepExecution;
     private JobRequest jobRequest;
 
+    /**
+     * Constructor calling the superclass constructor
+     */
+    public Step2LoadUsersChunkByInnerClass(JobRequestMapper jobRequestMapper,
+                                           UserManagementMapper userManagementMapper) {
+        super(jobRequestMapper, userManagementMapper);
+    }
+
     // =========================================
     // STEP BEAN
     // =========================================
