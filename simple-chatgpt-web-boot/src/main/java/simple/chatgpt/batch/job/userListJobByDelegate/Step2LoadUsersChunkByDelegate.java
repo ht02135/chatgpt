@@ -67,8 +67,8 @@ public class Step2LoadUsersChunkByDelegate extends AbstractJobRequestDelegate {
     // =========================================
     private class UserReader implements ItemReader<UserManagementPojo> {
         private int index = 0;
-        private List<UserManagementPojo> allUsers = null;
         private boolean initialized = false;
+        private List<UserManagementPojo> allUsers = null;
 
         @Override
         public UserManagementPojo read() {

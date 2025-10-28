@@ -51,7 +51,6 @@ public class Step3PopulateUserListChunkByDelegate extends AbstractJobRequestDele
 
     private StepExecution stepExecution;
     private JobRequest jobRequest;
-    private List<Long> userIds;
 
     /**
      * Constructor calling the superclass constructor
@@ -83,6 +82,7 @@ public class Step3PopulateUserListChunkByDelegate extends AbstractJobRequestDele
     private class UserReader implements ItemReader<UserManagementPojo> {
         private boolean initialized = false;
         private int index = 0;
+        private List<Long> userIds;
 
         @Override
         public UserManagementPojo read() {

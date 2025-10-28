@@ -40,7 +40,6 @@ public class Step2LoadUsersChunk extends AbstractJobRequest {
 
     private StepExecution stepExecution;
     private JobRequest jobRequest;
-    private List<UserManagementPojo> allUsers;
 
     @Autowired
     public Step2LoadUsersChunk(JobRequestMapper jobRequestMapper,
@@ -68,6 +67,7 @@ public class Step2LoadUsersChunk extends AbstractJobRequest {
     private class UserReader implements ItemReader<UserManagementPojo> {
         private int index = 0;
         private boolean initialized = false;
+        private List<UserManagementPojo> allUsers;
 
         @Override
         public UserManagementPojo read() {

@@ -46,8 +46,6 @@ public class Step3PopulateUserListChunk extends AbstractJobRequest {
 
     private StepExecution stepExecution;
     private JobRequest jobRequest;
-    private List<Long> userIds;
-    private int index = 0;
 
     @Autowired
     public Step3PopulateUserListChunk(JobRequestMapper jobRequestMapper,
@@ -77,6 +75,8 @@ public class Step3PopulateUserListChunk extends AbstractJobRequest {
     // =========================================
     private class UserReader implements ItemReader<UserManagementPojo> {
         private boolean initialized = false;
+        private int index = 0;
+        private List<Long> userIds;
 
         @Override
         public UserManagementPojo read() {
