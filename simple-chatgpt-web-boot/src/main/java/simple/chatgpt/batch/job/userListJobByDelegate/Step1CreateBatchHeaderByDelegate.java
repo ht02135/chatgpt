@@ -80,7 +80,7 @@ public class Step1CreateBatchHeaderByDelegate extends AbstractJobRequestDelegate
         logger.debug("execute jobRequest={}", jobRequest);
 
         if (jobRequest == null) {
-            logger.error("No live JobRequest found for jobName={}", UserListJobByDelegateConfig.JOB_NAME);
+            logger.error("No live JobRequest found");
             return RepeatStatus.FINISHED;
         }
 

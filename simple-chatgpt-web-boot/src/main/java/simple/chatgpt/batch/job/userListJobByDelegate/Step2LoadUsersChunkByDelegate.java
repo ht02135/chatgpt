@@ -77,10 +77,10 @@ public class Step2LoadUsersChunkByDelegate extends AbstractJobRequestDelegate {
 
                 jobRequest = getOneRecentJobRequestByParams(
                         UserListJobConfig.JOB_NAME, 200, 1, JobRequest.STATUS_SUBMITTED);
-                logger.debug("UserReader fetched jobRequest={}", jobRequest);
+                logger.debug("read jobRequest={}", jobRequest);
 
                 if (jobRequest == null) {
-                    logger.debug("No JobRequest found, ending step");
+                    logger.debug("No live JobRequest found");
                     initialized = true;
                     return null;
                 }

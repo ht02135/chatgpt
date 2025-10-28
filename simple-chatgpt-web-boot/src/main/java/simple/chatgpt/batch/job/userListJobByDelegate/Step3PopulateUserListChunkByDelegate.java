@@ -91,12 +91,10 @@ public class Step3PopulateUserListChunkByDelegate extends AbstractJobRequestDele
 
                 jobRequest = getOneRecentJobRequestByParams(
                         UserListJobConfig.JOB_NAME, 300, 1, JobRequest.STATUS_SUBMITTED);
-                logger.debug("UserReader fetched jobRequest={}", jobRequest);
+                logger.debug("read jobRequest={}", jobRequest);
 
-                if (jobRequest == null || jobRequest.getStepData() == null
-                        || !jobRequest.getStepData().containsKey(BatchJobConstants.CONTEXT_USER_IDS)) {
-                    logger.debug("No USER_IDS found, ending step");
-                    initialized = true;
+                if (jobRequest == null) {
+                    logger.debug("No live JobRequest found");
                     return null;
                 }
 

@@ -58,10 +58,6 @@ public class Step4GenerateCsvByDelegate extends AbstractJobRequestDelegate imple
     public void beforeStep(StepExecution stepExecution) {
         logger.debug("beforeStep called for Step4GenerateCsvByDelegate");
         this.stepExecution = stepExecution;
-
-        jobRequest = getOneRecentJobRequestByParams(
-                UserListJobConfig.JOB_NAME, 400, 1, JobRequest.STATUS_SUBMITTED);
-        logger.debug("Fetched JobRequest for CSV generation: {}", jobRequest);
     }
 
     @AfterStep
@@ -76,8 +72,13 @@ public class Step4GenerateCsvByDelegate extends AbstractJobRequestDelegate imple
     // ==================================================
     @Override
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
-        if (jobRequest == null) {
-            logger.warn("No JobRequest to process. Skipping CSV generation.");
+        
+        jobRequest = getOneRecentJobRequestByParams(
+                UserListJobConfig.JOB_NAME, 400, 1, JobRequest.STATUS_SUBMITTED);
+        logger.debug("execute jobRequest={}", jobRequest);
+        
+    	if (jobRequest == null) {
+            logger.warn("No live JobRequest found");
             return RepeatStatus.FINISHED;
         }
 

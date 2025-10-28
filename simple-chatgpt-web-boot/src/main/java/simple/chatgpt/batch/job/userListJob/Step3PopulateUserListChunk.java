@@ -85,7 +85,7 @@ public class Step3PopulateUserListChunk extends AbstractJobRequest {
 
                 jobRequest = getOneRecentJobRequestByParams(
                 	UserListJobConfig.JOB_NAME, 300, 1, JobRequest.STATUS_SUBMITTED);
-                logger.debug("UserReader jobRequest={}", jobRequest);
+                logger.debug("read jobRequest={}", jobRequest);
 
                 if (jobRequest == null) {
                     logger.debug("No live JobRequest found");
