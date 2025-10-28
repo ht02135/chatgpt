@@ -28,7 +28,6 @@ public class Step5EncryptAndTransferByDelegate extends AbstractJobRequestDelegat
 
     private static final Logger logger = LogManager.getLogger(Step5EncryptAndTransferByDelegate.class);
 
-    private StepExecution stepExecution;
     private JobRequest jobRequest;
 
     /**
@@ -53,13 +52,12 @@ public class Step5EncryptAndTransferByDelegate extends AbstractJobRequestDelegat
     @BeforeStep
     public void beforeStep(StepExecution stepExecution) {
         logger.debug("beforeStep called for Step5EncryptAndTransferByDelegate");
-        this.stepExecution = stepExecution;
+     // NO context modifications here
     }
 
     @AfterStep
     public ExitStatus afterStep(StepExecution stepExecution) {
         logger.debug("afterStep called for Step5EncryptAndTransferByDelegate, status={}", stepExecution.getStatus());
-        this.stepExecution = null;
         return stepExecution.getExitStatus();
     }
 
@@ -68,7 +66,8 @@ public class Step5EncryptAndTransferByDelegate extends AbstractJobRequestDelegat
     // ==================================================
     @Override
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
-
+    	StepExecution stepExecution = chunkContext.getStepContext().getStepExecution();
+    	
         jobRequest = getOneRecentJobRequestByParams(
                 UserListJobConfig.JOB_NAME, 500, 1, JobRequest.STATUS_SUBMITTED);
         logger.debug("execute jobRequest={}", jobRequest);

@@ -53,6 +53,12 @@ public class Step4GenerateCsv extends AbstractJobRequest {
     }
 
     @Override
+    public ExitStatus afterStep(StepExecution stepExecution) {
+        logger.debug("Step4GenerateCsv finished with status {}", stepExecution.getStatus());
+        return stepExecution.getExitStatus();
+    }
+    
+    @Override
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
         StepExecution stepExecution = chunkContext.getStepContext().getStepExecution();
 
@@ -133,11 +139,5 @@ public class Step4GenerateCsv extends AbstractJobRequest {
         }
 
         return RepeatStatus.FINISHED;
-    }
-
-    @Override
-    public ExitStatus afterStep(StepExecution stepExecution) {
-        logger.debug("Step4GenerateCsv finished with status {}", stepExecution.getStatus());
-        return stepExecution.getExitStatus();
     }
 }

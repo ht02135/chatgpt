@@ -38,7 +38,6 @@ public class Step4GenerateCsvByDelegate extends AbstractJobRequestDelegate imple
     @Autowired
     private UserManagementListMapper listMapper;
 
-    private StepExecution stepExecution;
     private JobRequest jobRequest;
 
     /**
@@ -57,13 +56,12 @@ public class Step4GenerateCsvByDelegate extends AbstractJobRequestDelegate imple
     @BeforeStep
     public void beforeStep(StepExecution stepExecution) {
         logger.debug("beforeStep called for Step4GenerateCsvByDelegate");
-        this.stepExecution = stepExecution;
+     // NO context modifications here
     }
 
     @AfterStep
     public ExitStatus afterStep(StepExecution stepExecution) {
         logger.debug("afterStep called for Step4GenerateCsvByDelegate, status={}", stepExecution.getStatus());
-        this.stepExecution = null;
         return stepExecution.getExitStatus();
     }
 
@@ -72,7 +70,8 @@ public class Step4GenerateCsvByDelegate extends AbstractJobRequestDelegate imple
     // ==================================================
     @Override
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
-        
+    	StepExecution stepExecution = chunkContext.getStepContext().getStepExecution();
+    	
         jobRequest = getOneRecentJobRequestByParams(
                 UserListJobConfig.JOB_NAME, 400, 1, JobRequest.STATUS_SUBMITTED);
         logger.debug("execute jobRequest={}", jobRequest);
