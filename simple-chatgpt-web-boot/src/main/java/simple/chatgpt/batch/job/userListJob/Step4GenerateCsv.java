@@ -35,7 +35,7 @@ public class Step4GenerateCsv extends AbstractJobRequest {
     private final UserListFileService listFileService;
     private final JobRequestService jobRequestService;
 
-    private JobRequest jobRequest; // internal variable
+    private JobRequest jobRequest;
 
     @Autowired
     public Step4GenerateCsv(JobRequestMapper jobRequestMapper,
@@ -49,7 +49,6 @@ public class Step4GenerateCsv extends AbstractJobRequest {
     @Override
     public void beforeStep(StepExecution stepExecution) {
         logger.debug("Step4GenerateCsv beforeStep called");
-        // NO context modifications here
     }
 
     @Override
@@ -57,16 +56,16 @@ public class Step4GenerateCsv extends AbstractJobRequest {
         logger.debug("Step4GenerateCsv finished with status {}", stepExecution.getStatus());
         return stepExecution.getExitStatus();
     }
-    
+
     @Override
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
         StepExecution stepExecution = chunkContext.getStepContext().getStepExecution();
 
         // Initialize internal JobRequest
         jobRequest = getOneRecentJobRequestByParams(
-        	UserListJobConfig.JOB_NAME, 400, 1, JobRequest.STATUS_SUBMITTED);
+                UserListJobConfig.JOB_NAME, 400, 1, JobRequest.STATUS_SUBMITTED);
         logger.debug("execute jobRequest={}", jobRequest);
-        
+
         if (jobRequest == null) {
             logger.warn("No live JobRequest found");
             return RepeatStatus.FINISHED;
@@ -106,20 +105,12 @@ public class Step4GenerateCsv extends AbstractJobRequest {
                     "outputStream", fos
             );
 
-            listFileService.exportListToCsv(params); // changed to UserListFileService
+            listFileService.exportListToCsv(params);
             logger.debug("CSV successfully generated at {}", csvFile.getAbsolutePath());
 
-            // Update JobRequest stepData and stage
-            stepData.put(BatchJobConstants.CONTEXT_LIST_FILE_PATH, userListFilePath);
-            jobRequest.setStepData(stepData);
-            jobRequest.setProcessingStage(500); // advance stage
-            jobRequest.setProcessingStatus(1);
-            jobRequestService.update(jobRequest.getId(), jobRequest);
-
-            logger.debug("###########");
-            logger.debug("Step4GenerateCsv updated jobRequest stage=500 status=1");
-            logger.debug("Step4GenerateCsv jobRequest={}", jobRequest);
-            logger.debug("###########");
+            // === use helper methods for updating JobRequest ===
+            updateJobRequestStepData(jobRequest, stepExecution, BatchJobConstants.CONTEXT_LIST_FILE_PATH, userListFilePath);
+            updateJobRequest(jobRequest, 500, 1, JobRequest.STATUS_SUBMITTED);
 
             // Persist file path in ExecutionContext
             stepExecution.getJobExecution().getExecutionContext()

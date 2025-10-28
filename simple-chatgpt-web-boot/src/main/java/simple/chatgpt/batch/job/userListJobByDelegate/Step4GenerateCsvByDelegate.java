@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.nio.file.Paths;
-import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
@@ -40,9 +39,6 @@ public class Step4GenerateCsvByDelegate extends AbstractJobRequestDelegate imple
 
     private JobRequest jobRequest;
 
-    /**
-     * Constructor injecting UserListFileService and passing required mappers to superclass
-     */
     public Step4GenerateCsvByDelegate(UserListFileService listFileService,
                                       JobRequestMapper jobRequestMapper,
                                       UserManagementMapper userManagementMapper) {
@@ -56,7 +52,6 @@ public class Step4GenerateCsvByDelegate extends AbstractJobRequestDelegate imple
     @BeforeStep
     public void beforeStep(StepExecution stepExecution) {
         logger.debug("beforeStep called for Step4GenerateCsvByDelegate");
-     // NO context modifications here
     }
 
     @AfterStep
@@ -70,27 +65,23 @@ public class Step4GenerateCsvByDelegate extends AbstractJobRequestDelegate imple
     // ==================================================
     @Override
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
-    	StepExecution stepExecution = chunkContext.getStepContext().getStepExecution();
-    	
+        StepExecution stepExecution = chunkContext.getStepContext().getStepExecution();
+
         jobRequest = getOneRecentJobRequestByParams(
                 UserListJobConfig.JOB_NAME, 400, 1, JobRequest.STATUS_SUBMITTED);
         logger.debug("execute jobRequest={}", jobRequest);
-        
-    	if (jobRequest == null) {
+
+        if (jobRequest == null) {
             logger.warn("No live JobRequest found");
             return RepeatStatus.FINISHED;
         }
-
-        Map<String, Object> stepData = jobRequest.getStepData() != null
-                ? new HashMap<>(jobRequest.getStepData())
-                : new HashMap<>();
 
         Number listIdNum = (Number) stepExecution.getJobExecution()
                 .getExecutionContext().get(BatchJobConstants.CONTEXT_LIST_ID);
         Long listId = (listIdNum != null) ? listIdNum.longValue() : null;
 
-        String userListFilePath = (String) stepExecution.getJobExecution().getExecutionContext()
-                .get(BatchJobConstants.CONTEXT_LIST_FILE_PATH);
+        String userListFilePath = (String) stepExecution.getJobExecution()
+                .getExecutionContext().get(BatchJobConstants.CONTEXT_LIST_FILE_PATH);
 
         if (listId == null || userListFilePath == null || userListFilePath.isBlank()) {
             logger.warn("LIST_ID or LIST_FILE_PATH missing. Skipping CSV generation.");
@@ -114,34 +105,27 @@ public class Step4GenerateCsvByDelegate extends AbstractJobRequestDelegate imple
             /*
             hung : dont remove it
             i could add the helper, but risk split this complex thing into 2 place
-            i chose to jut localize in listSevice.
+            i chose to just localize in listService.
             */
             listFileService.exportListToCsv(params);
             logger.debug("CSV successfully generated at {}", csvFile.getAbsolutePath());
 
-            stepData.put(BatchJobConstants.CONTEXT_LIST_FILE_PATH, userListFilePath);
-            jobRequest.setStepData(stepData);
-            jobRequest.setProcessingStage(500);
-            jobRequest.setProcessingStatus(1);
-            jobRequestMapper.update(jobRequest.getId(), jobRequest);
+            // ==== USE updateJobRequestStepData ====
+            updateJobRequestStepData(jobRequest, stepExecution, BatchJobConstants.CONTEXT_LIST_FILE_PATH, userListFilePath);
+
+            // ==== USE updateJobRequest ====
+            updateJobRequest(jobRequest, 500, 1, jobRequest.getStatus());
+
             logger.debug("###########");
             logger.debug("Step4GenerateCsvByDelegate updated jobRequest stage=500 status=1");
             logger.debug("Step4GenerateCsvByDelegate jobRequest={}", jobRequest);
             logger.debug("###########");
 
-            stepExecution.getJobExecution().getExecutionContext()
-                    .put(BatchJobConstants.CONTEXT_LIST_FILE_PATH, userListFilePath);
-
         } catch (Exception e) {
             logger.error("Error generating CSV for listId={}", listId, e);
-            jobRequest.setStatus(JobRequest.STATUS_FAILED);
             jobRequest.setErrorMessage(e.getMessage());
-            try {
-                jobRequestMapper.update(jobRequest.getId(), jobRequest);
-                logger.debug("JobRequest updated to FAILED due to exception");
-            } catch (Exception ex) {
-                logger.error("Failed to update JobRequest to FAILED", ex);
-            }
+            // ==== USE updateJobRequest for FAILED status ====
+            updateJobRequest(jobRequest, jobRequest.getProcessingStage(), jobRequest.getProcessingStatus(), JobRequest.STATUS_FAILED);
             throw e;
         }
 
