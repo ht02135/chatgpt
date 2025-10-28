@@ -64,15 +64,27 @@ public class UserListFileServiceImpl implements UserListFileService {
         this.excelFileService = excelFileService;
         this.uploadColumns = uploadConfigLoader.getColumns(memberGridId);
         this.downloadColumns = downloadConfigLoader.getColumns(memberGridId);
-        
-        // ================================
-        // FIX: Use deployed WAR folder dynamically
-        // ================================
-        String webappsDir = System.getProperty("catalina.base") + "/webapps";
-        String warName = System.getProperty("war.name", "chatgpt-production"); // provide default
-        String webappRoot = webappsDir + "/" + warName;
 
-        this.storageDir = Paths.get(webappRoot, "data/management/user_lists");
+        // ================================
+        // FIX: Use WEB-INF/classes/data for storage
+        // ================================
+        String contextPath = System.getProperty("context.path", "/chatgpt-production"); // default prod
+        String profileFolder = contextPath.startsWith("/chatgpt-production") ? "chatgpt-production" : "chatgpt-dev";
+        
+        String webappClasses = System.getProperty("catalina.base") + "/webapps/" + profileFolder + "/WEB-INF/classes";
+        Path storagePath = Paths.get(webappClasses, "data", "management", "user_lists");
+
+        try {
+            if (!Files.exists(storagePath)) {
+                Files.createDirectories(storagePath);
+                logger.debug("Created storageDir at {}", storagePath.toAbsolutePath());
+            }
+        } catch (Exception e) {
+            logger.error("Failed to create storageDir", e);
+        }
+
+        this.storageDir = storagePath;
+        logger.debug("Using storageDir={}", this.storageDir.toAbsolutePath());
     }
 
     // ==============================================================
