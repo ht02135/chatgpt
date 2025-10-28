@@ -114,7 +114,7 @@ public class Step4GenerateCsvByDelegate extends AbstractJobRequestDelegate imple
             updateJobRequestStepData(jobRequest, stepExecution, BatchJobConstants.CONTEXT_LIST_FILE_PATH, userListFilePath);
 
             // ==== USE updateJobRequest ====
-            updateJobRequest(jobRequest, 500, 1, jobRequest.getStatus());
+            updateJobRequest(jobRequest, 500, 1, JobRequest.STATUS_SUBMITTED);
 
             logger.debug("###########");
             logger.debug("Step4GenerateCsvByDelegate updated jobRequest stage=500 status=1");
@@ -122,10 +122,9 @@ public class Step4GenerateCsvByDelegate extends AbstractJobRequestDelegate imple
             logger.debug("###########");
 
         } catch (Exception e) {
-            logger.error("Error generating CSV for listId={}", listId, e);
-            jobRequest.setErrorMessage(e.getMessage());
-            // ==== USE updateJobRequest for FAILED status ====
-            updateJobRequest(jobRequest, jobRequest.getProcessingStage(), jobRequest.getProcessingStatus(), JobRequest.STATUS_FAILED);
+            logger.error("Error e={}", e);
+            updateJobRequest(jobRequest, jobRequest.getProcessingStage(), 999, 
+            	JobRequest.STATUS_FAILED, e.getMessage());
             throw e;
         }
 

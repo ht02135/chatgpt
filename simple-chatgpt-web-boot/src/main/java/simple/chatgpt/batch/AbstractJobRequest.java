@@ -141,4 +141,29 @@ public abstract class AbstractJobRequest extends StepExecutionListenerSupport im
         logger.debug("updateJobRequest jobRequest after update={}", jobRequest);
     }
 
+    /**
+     * Update a JobRequest with given stage, status, processingStatus, and error message.
+     */
+    public void updateJobRequest(JobRequest jobRequest,
+                                 int processingStage,
+                                 int processingStatus,
+                                 String status,
+                                 String errorMessage) {
+        logger.debug("updateJobRequest (with errorMessage) called");
+        logger.debug("updateJobRequest jobRequest before update={}", jobRequest);
+        logger.debug("updateJobRequest processingStage={}", processingStage);
+        logger.debug("updateJobRequest processingStatus={}", processingStatus);
+        logger.debug("updateJobRequest status={}", status);
+        logger.debug("updateJobRequest errorMessage={}", errorMessage);
+
+        jobRequest.setProcessingStage(processingStage);
+        jobRequest.setProcessingStatus(processingStatus);
+        jobRequest.setStatus(status);
+        jobRequest.setErrorMessage(errorMessage);
+
+        jobRequestMapper.update(jobRequest.getId(), jobRequest);
+
+        logger.debug("updateJobRequest jobRequest after update={}", jobRequest);
+    }
+
 }

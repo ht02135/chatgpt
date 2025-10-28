@@ -117,15 +117,9 @@ public class Step4GenerateCsv extends AbstractJobRequest {
                     .put(BatchJobConstants.CONTEXT_LIST_FILE_PATH, userListFilePath);
 
         } catch (Exception e) {
-            logger.error("Error generating CSV for listId={}", listId, e);
-            jobRequest.setStatus(JobRequest.STATUS_FAILED);
-            jobRequest.setErrorMessage(e.getMessage());
-            try {
-                jobRequestService.update(jobRequest.getId(), jobRequest);
-                logger.debug("JobRequest updated to FAILED due to exception");
-            } catch (Exception ex) {
-                logger.error("Failed to update JobRequest to FAILED", ex);
-            }
+            logger.error("Error e={}", e);
+            updateJobRequest(jobRequest, jobRequest.getProcessingStage(), 999, 
+            	JobRequest.STATUS_FAILED, e.getMessage());
             throw e;
         }
 

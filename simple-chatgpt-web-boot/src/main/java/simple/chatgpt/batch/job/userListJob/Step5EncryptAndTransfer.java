@@ -1,8 +1,5 @@
 package simple.chatgpt.batch.job.userListJob;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.batch.core.ExitStatus;
@@ -76,41 +73,22 @@ public class Step5EncryptAndTransfer extends AbstractJobRequest {
             String fileName = jobRequest.getDownloadUrl();
             logger.debug("Generated fileName={}", fileName);
 
-            // 2️⃣ Store URL also in JobRequest.stepData map
-            Map<String, Object> stepData = jobRequest.getStepData() != null
-                    ? new HashMap<>(jobRequest.getStepData())
-                    : new HashMap<>();
-            stepData.put(BatchJobConstants.CONTEXT_LIST_FILE_PATH, filePath);
-            stepData.put(BatchJobConstants.DOWNLOAD_URL, fileName);
+            // ==== USE updateJobRequestStepData ====
+            updateJobRequestStepData(jobRequest, stepExecution, BatchJobConstants.CONTEXT_LIST_FILE_PATH, filePath);
+            updateJobRequestStepData(jobRequest, stepExecution, BatchJobConstants.DOWNLOAD_URL, fileName);
 
-            // ==================================================
-            // Flip JobRequest to stage=1000, status=1 (completed)
-            // ==================================================
-            jobRequest.setStepData(stepData);
-            jobRequest.setProcessingStage(1000);
-            jobRequest.setProcessingStatus(1);
-            jobRequestService.update(jobRequest.getId(), jobRequest);
+            // ==== USE updateJobRequest to mark completed ====
+            updateJobRequest(jobRequest, 1000, 1, JobRequest.STATUS_COMPLETED);
+
             logger.debug("###########");
             logger.debug("JobRequest updated to stage=1000 status=1 (completed)");
             logger.debug("JobRequest jobRequest={}", jobRequest);
             logger.debug("###########");
 
-            // Persist info in ExecutionContext
-            stepExecution.getJobExecution().getExecutionContext().put(BatchJobConstants.CONTEXT_LIST_FILE_PATH, filePath);
-            stepExecution.getJobExecution().getExecutionContext().put(BatchJobConstants.DOWNLOAD_URL, fileName);
-
         } catch (Exception e) {
-            logger.error("Error during encryption/transfer for jobRequest={}", jobRequest, e);
-
-            // Flip JobRequest to FAILED
-            jobRequest.setStatus(JobRequest.STATUS_FAILED);
-            jobRequest.setErrorMessage(e.getMessage());
-            try {
-                jobRequestService.update(jobRequest.getId(), jobRequest);
-                logger.debug("JobRequest updated to FAILED due to exception");
-            } catch (Exception ex) {
-                logger.error("Failed to update JobRequest to FAILED", ex);
-            }
+            logger.error("Error e={}", e);
+            updateJobRequest(jobRequest, jobRequest.getProcessingStage(), 999, 
+            	JobRequest.STATUS_FAILED, e.getMessage());
             throw e; // fail the step
         }
 

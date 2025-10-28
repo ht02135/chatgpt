@@ -147,14 +147,9 @@ public class Step2LoadUsersChunk extends AbstractJobRequest {
                 logger.debug("###########");
 
             } catch (Exception e) {
-                logger.error("UserWriter encountered error, marking jobRequest FAILED", e);
-                jobRequest.setStatus(JobRequest.STATUS_FAILED);
-                jobRequest.setErrorMessage(e.getMessage());
-                try {
-                    jobRequestService.update(jobRequest.getId(), jobRequest);
-                } catch (Exception ex) {
-                    logger.error("Failed to update JobRequest to FAILED", ex);
-                }
+                logger.error("Error e={}", e);
+                updateJobRequest(jobRequest, jobRequest.getProcessingStage(), 999, 
+                	JobRequest.STATUS_FAILED, e.getMessage());
                 throw e;
             }
         }

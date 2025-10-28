@@ -1,8 +1,5 @@
 package simple.chatgpt.batch.job.userListJobByDelegate;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.batch.core.ExitStatus;
@@ -52,7 +49,7 @@ public class Step5EncryptAndTransferByDelegate extends AbstractJobRequestDelegat
     @BeforeStep
     public void beforeStep(StepExecution stepExecution) {
         logger.debug("beforeStep called for Step5EncryptAndTransferByDelegate");
-     // NO context modifications here
+        // NO context modifications here
     }
 
     @AfterStep
@@ -66,13 +63,13 @@ public class Step5EncryptAndTransferByDelegate extends AbstractJobRequestDelegat
     // ==================================================
     @Override
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
-    	StepExecution stepExecution = chunkContext.getStepContext().getStepExecution();
-    	
+        StepExecution stepExecution = chunkContext.getStepContext().getStepExecution();
+
         jobRequest = getOneRecentJobRequestByParams(
                 UserListJobConfig.JOB_NAME, 500, 1, JobRequest.STATUS_SUBMITTED);
         logger.debug("execute jobRequest={}", jobRequest);
         
-    	if (jobRequest == null) {
+        if (jobRequest == null) {
             logger.warn("No live JobRequest found");
             return RepeatStatus.FINISHED;
         }
@@ -94,38 +91,22 @@ public class Step5EncryptAndTransferByDelegate extends AbstractJobRequestDelegat
             String fileName = jobRequest.getDownloadUrl();
             logger.debug("Generated fileName={}", fileName);
 
-            Map<String, Object> stepData = jobRequest.getStepData() != null
-                    ? new HashMap<>(jobRequest.getStepData())
-                    : new HashMap<>();
-            stepData.put(BatchJobConstants.CONTEXT_LIST_FILE_PATH, filePath);
-            stepData.put(BatchJobConstants.DOWNLOAD_URL, fileName);
+            // ==== use helpers instead of direct stepData put & mapper update ====
+            updateJobRequestStepData(jobRequest, stepExecution, BatchJobConstants.CONTEXT_LIST_FILE_PATH, filePath);
+            updateJobRequestStepData(jobRequest, stepExecution, BatchJobConstants.DOWNLOAD_URL, fileName);
 
-            jobRequest.setStepData(stepData);
-            jobRequest.setProcessingStage(1000);
-            jobRequest.setProcessingStatus(1);
-            jobRequest.setStatus(JobRequest.STATUS_COMPLETED);
-            jobRequestMapper.update(jobRequest.getId(), jobRequest);
+            // ==== mark JobRequest completed ====
+            updateJobRequest(jobRequest, 1000, 1, JobRequest.STATUS_COMPLETED);
+
             logger.debug("###########");
             logger.debug("JobRequest updated to stage=1000 status=1 (completed)");
             logger.debug("JobRequest jobRequest={}", jobRequest);
             logger.debug("###########");
 
-            stepExecution.getJobExecution().getExecutionContext()
-                    .put(BatchJobConstants.CONTEXT_LIST_FILE_PATH, filePath);
-            stepExecution.getJobExecution().getExecutionContext()
-                    .put(BatchJobConstants.DOWNLOAD_URL, fileName);
-
         } catch (Exception e) {
-            logger.error("Error during encryption/transfer for jobRequest={}", jobRequest, e);
-
-            jobRequest.setStatus(JobRequest.STATUS_FAILED);
-            jobRequest.setErrorMessage(e.getMessage());
-            try {
-                jobRequestMapper.update(jobRequest.getId(), jobRequest);
-                logger.debug("JobRequest updated to FAILED due to exception");
-            } catch (Exception ex) {
-                logger.error("Failed to update JobRequest to FAILED", ex);
-            }
+            logger.error("Error e={}", e);
+            updateJobRequest(jobRequest, jobRequest.getProcessingStage(), 999, 
+            	JobRequest.STATUS_FAILED, e.getMessage());
             throw e;
         }
 
