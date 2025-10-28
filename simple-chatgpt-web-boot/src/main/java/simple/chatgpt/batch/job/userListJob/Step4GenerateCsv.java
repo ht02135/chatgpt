@@ -11,13 +11,14 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.StepExecution;
-import org.springframework.batch.core.listener.StepExecutionListenerSupport;
 import org.springframework.batch.core.scope.context.ChunkContext;
-import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.repeat.RepeatStatus;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import simple.chatgpt.batch.AbstractJobRequest;
 import simple.chatgpt.batch.BatchJobConstants;
+import simple.chatgpt.mapper.batch.JobRequestMapper;
 import simple.chatgpt.pojo.batch.JobRequest;
 import simple.chatgpt.service.batch.JobRequestService;
 import simple.chatgpt.service.management.file.UserListFileService;
@@ -25,8 +26,9 @@ import simple.chatgpt.service.management.file.UserListFileService;
 /*
 hung: step 4 - generate user list CSV file
 */
+
 @Component
-public class Step4GenerateCsv extends StepExecutionListenerSupport implements Tasklet {
+public class Step4GenerateCsv extends AbstractJobRequest {
 
     private static final Logger logger = LogManager.getLogger(Step4GenerateCsv.class);
 
@@ -35,8 +37,11 @@ public class Step4GenerateCsv extends StepExecutionListenerSupport implements Ta
 
     private JobRequest jobRequest; // internal variable
 
-    public Step4GenerateCsv(UserListFileService listFileService,
+    @Autowired
+    public Step4GenerateCsv(JobRequestMapper jobRequestMapper,
+                            UserListFileService listFileService,
                             JobRequestService jobRequestService) {
+        super(jobRequestMapper);
         this.listFileService = listFileService;
         this.jobRequestService = jobRequestService;
     }

@@ -8,25 +8,29 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.StepExecution;
-import org.springframework.batch.core.listener.StepExecutionListenerSupport;
 import org.springframework.batch.core.scope.context.ChunkContext;
-import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.repeat.RepeatStatus;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import simple.chatgpt.batch.AbstractJobRequest;
 import simple.chatgpt.batch.BatchJobConstants;
+import simple.chatgpt.mapper.batch.JobRequestMapper;
 import simple.chatgpt.pojo.batch.JobRequest;
 import simple.chatgpt.service.batch.JobRequestService;
 
 @Component
-public class Step5EncryptAndTransfer extends StepExecutionListenerSupport implements Tasklet {
+public class Step5EncryptAndTransfer extends AbstractJobRequest {
 
     private static final Logger logger = LogManager.getLogger(Step5EncryptAndTransfer.class);
 
     private final JobRequestService jobRequestService;
     private JobRequest jobRequest; // internal variable
 
-    public Step5EncryptAndTransfer(JobRequestService jobRequestService) {
+    @Autowired
+    public Step5EncryptAndTransfer(JobRequestMapper jobRequestMapper,
+                                   JobRequestService jobRequestService) {
+        super(jobRequestMapper);
         this.jobRequestService = jobRequestService;
     }
 

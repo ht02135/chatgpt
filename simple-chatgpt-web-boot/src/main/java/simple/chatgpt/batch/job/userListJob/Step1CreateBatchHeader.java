@@ -10,29 +10,35 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.StepExecution;
-import org.springframework.batch.core.listener.StepExecutionListenerSupport;
 import org.springframework.batch.core.scope.context.ChunkContext;
-import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.repeat.RepeatStatus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import simple.chatgpt.batch.AbstractJobRequest;
 import simple.chatgpt.batch.BatchJobConstants;
+import simple.chatgpt.mapper.batch.JobRequestMapper;
 import simple.chatgpt.pojo.batch.JobRequest;
 import simple.chatgpt.pojo.management.UserManagementListPojo;
 import simple.chatgpt.service.batch.JobRequestService;
 import simple.chatgpt.service.management.UserManagementListService;
 
 @Component
-public class Step1CreateBatchHeader extends StepExecutionListenerSupport implements Tasklet {
+public class Step1CreateBatchHeader extends AbstractJobRequest {
 
     private static final Logger logger = LogManager.getLogger(Step1CreateBatchHeader.class);
 
-    @Autowired
-    private UserManagementListService userManagementListService;
+    private final UserManagementListService userManagementListService;
+    private final JobRequestService jobRequestService;
 
     @Autowired
-    private JobRequestService jobRequestService;
+    public Step1CreateBatchHeader(JobRequestMapper jobRequestMapper,
+                                  UserManagementListService userManagementListService,
+                                  JobRequestService jobRequestService) {
+        super(jobRequestMapper);
+        this.userManagementListService = userManagementListService;
+        this.jobRequestService = jobRequestService;
+    }
 
     @Override
     public void beforeStep(StepExecution stepExecution) {

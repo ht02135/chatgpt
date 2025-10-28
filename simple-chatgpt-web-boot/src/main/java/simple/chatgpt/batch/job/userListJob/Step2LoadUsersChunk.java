@@ -9,24 +9,29 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.Step;
+import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.annotation.AfterStep;
 import org.springframework.batch.core.annotation.BeforeStep;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
-import org.springframework.batch.core.listener.StepExecutionListenerSupport;
+import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
+import org.springframework.batch.repeat.RepeatStatus;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import simple.chatgpt.batch.AbstractJobRequest;
 import simple.chatgpt.batch.BatchJobConstants;
+import simple.chatgpt.mapper.batch.JobRequestMapper;
 import simple.chatgpt.pojo.batch.JobRequest;
 import simple.chatgpt.pojo.management.UserManagementPojo;
 import simple.chatgpt.service.batch.JobRequestService;
 import simple.chatgpt.service.management.UserManagementService;
 
 @Component
-public class Step2LoadUsersChunk extends StepExecutionListenerSupport {
+public class Step2LoadUsersChunk extends AbstractJobRequest {
 
     private static final Logger logger = LogManager.getLogger(Step2LoadUsersChunk.class);
 
@@ -37,8 +42,11 @@ public class Step2LoadUsersChunk extends StepExecutionListenerSupport {
     private JobRequest jobRequest;
     private List<UserManagementPojo> allUsers;
 
-    public Step2LoadUsersChunk(JobRequestService jobRequestService,
+    @Autowired
+    public Step2LoadUsersChunk(JobRequestMapper jobRequestMapper,
+                               JobRequestService jobRequestService,
                                UserManagementService userManagementService) {
+        super(jobRequestMapper);
         this.jobRequestService = jobRequestService;
         this.userManagementService = userManagementService;
     }
@@ -175,4 +183,10 @@ public class Step2LoadUsersChunk extends StepExecutionListenerSupport {
         this.stepExecution = null;
         return stepExecution.getExitStatus();
     }
+
+	@Override
+	public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

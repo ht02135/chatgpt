@@ -10,17 +10,22 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.Step;
+import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.StepExecution;
 import org.springframework.batch.core.annotation.AfterStep;
 import org.springframework.batch.core.annotation.BeforeStep;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
-import org.springframework.batch.core.listener.StepExecutionListenerSupport;
+import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
+import org.springframework.batch.repeat.RepeatStatus;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import simple.chatgpt.batch.AbstractJobRequest;
 import simple.chatgpt.batch.BatchJobConstants;
+import simple.chatgpt.mapper.batch.JobRequestMapper;
 import simple.chatgpt.pojo.batch.JobRequest;
 import simple.chatgpt.pojo.management.UserManagementListMemberPojo;
 import simple.chatgpt.pojo.management.UserManagementPojo;
@@ -30,7 +35,7 @@ import simple.chatgpt.service.management.UserManagementListService;
 import simple.chatgpt.service.management.UserManagementService;
 
 @Component
-public class Step3PopulateUserListChunk extends StepExecutionListenerSupport {
+public class Step3PopulateUserListChunk extends AbstractJobRequest {
 
     private static final Logger logger = LogManager.getLogger(Step3PopulateUserListChunk.class);
 
@@ -44,10 +49,13 @@ public class Step3PopulateUserListChunk extends StepExecutionListenerSupport {
     private List<Long> userIds;
     private int index = 0;
 
-    public Step3PopulateUserListChunk(JobRequestService jobRequestService,
+    @Autowired
+    public Step3PopulateUserListChunk(JobRequestMapper jobRequestMapper,
+                                      JobRequestService jobRequestService,
                                       UserManagementListService listService,
                                       UserManagementListMemberService memberService,
                                       UserManagementService userManagementService) {
+        super(jobRequestMapper);
         this.jobRequestService = jobRequestService;
         this.listService = listService;
         this.memberService = memberService;
@@ -208,4 +216,10 @@ public class Step3PopulateUserListChunk extends StepExecutionListenerSupport {
         this.stepExecution = null;
         return stepExecution.getExitStatus();
     }
+
+	@Override
+	public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }
