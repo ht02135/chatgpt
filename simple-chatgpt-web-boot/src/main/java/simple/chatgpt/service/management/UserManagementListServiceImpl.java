@@ -1,28 +1,16 @@
 package simple.chatgpt.service.management;
 
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import com.opencsv.CSVReader;
-import com.opencsv.CSVWriter;
 
 import simple.chatgpt.config.management.ColumnConfig;
 import simple.chatgpt.config.management.loader.DownloadConfigLoader;
@@ -31,8 +19,8 @@ import simple.chatgpt.mapper.management.UserManagementListMapper;
 import simple.chatgpt.pojo.management.UserManagementListMemberPojo;
 import simple.chatgpt.pojo.management.UserManagementListPojo;
 import simple.chatgpt.util.PagedResult;
-import simple.chatgpt.util.ParamWrapper;
 import simple.chatgpt.util.SafeConverter;
+
 
 @Service
 public class UserManagementListServiceImpl implements UserManagementListService {
@@ -48,26 +36,36 @@ public class UserManagementListServiceImpl implements UserManagementListService 
     private final List<ColumnConfig> uploadColumns;
     private final List<ColumnConfig> downloadColumns;
 
+    /*
+    hung: inject UserListFileServiceImpl for file handling
+    */
+    private final UserListFileServiceImpl userListFileService;
+
+    @Autowired
     public UserManagementListServiceImpl(UserManagementListMapper listMapper,
                                          UserManagementListMemberService memberService,
                                          DownloadConfigLoader downloadConfigLoader,
-                                         UploadConfigLoader uploadConfigLoader) throws Exception {
-        logger.debug("UserManagementListServiceImpl START");
+                                         UploadConfigLoader uploadConfigLoader,
+                                         UserListFileServiceImpl userListFileService) throws Exception {
+
+        logger.debug("UserManagementListServiceImpl constructor called");
         logger.debug("UserManagementListServiceImpl listMapper={}", listMapper);
         logger.debug("UserManagementListServiceImpl memberService={}", memberService);
         logger.debug("UserManagementListServiceImpl downloadConfigLoader={}", downloadConfigLoader);
         logger.debug("UserManagementListServiceImpl uploadConfigLoader={}", uploadConfigLoader);
+        logger.debug("UserManagementListServiceImpl userListFileService={}", userListFileService);
 
         this.listMapper = listMapper;
         this.memberService = memberService;
         this.downloadConfigLoader = downloadConfigLoader;
         this.uploadConfigLoader = uploadConfigLoader;
+        this.userListFileService = userListFileService;
 
         // ================================
         // FIX: Use deployed WAR folder dynamically
         // ================================
         String webappsDir = System.getProperty("catalina.base") + "/webapps";
-        String warName = System.getProperty("war.name", "chatgpt-production"); // provide default
+        String warName = System.getProperty("war.name", "chatgpt-production");
         String webappRoot = webappsDir + "/" + warName;
 
         storageDir = Paths.get(webappRoot, "data/management/user_lists");
@@ -87,14 +85,13 @@ public class UserManagementListServiceImpl implements UserManagementListService 
     }
 
     // ==============================================================
-    // ================ 5 CORE METHODS (on top) =====================
+    // ================ 5 CORE METHODS ==============================
     // ==============================================================
 
     @Override
     public UserManagementListPojo create(UserManagementListPojo list) {
         logger.debug("create called");
         logger.debug("create list={}", list);
-
         listMapper.create(list);
         return list;
     }
@@ -104,7 +101,6 @@ public class UserManagementListServiceImpl implements UserManagementListService 
         logger.debug("update called");
         logger.debug("update id={}", id);
         logger.debug("update list={}", list);
-
         listMapper.update(id, list);
         return list;
     }
@@ -128,18 +124,12 @@ public class UserManagementListServiceImpl implements UserManagementListService 
         if (!params.containsKey("sortDirection")) params.put("sortDirection", "ASC");
         params.put("sortDirection", params.get("sortDirection").toUpperCase());
 
-        // force uppercase for sortDirection
-        params.put("sortDirection", params.get("sortDirection").toUpperCase());
-
-        logger.debug("search final params={}", params);
-
-        // Hung : mapper expect Map<String, Object> for offset and limit
-    	Map<String, Object> mapperParams = new HashMap<>(params);
+        Map<String, Object> mapperParams = new HashMap<>(params);
         mapperParams.put("offset", SafeConverter.toIntOrDefault(params.get("offset"), 0));
         mapperParams.put("limit", SafeConverter.toIntOrDefault(params.get("limit"), 10));
-        
+
         List<UserManagementListPojo> items = listMapper.search(mapperParams);
-        long totalCount = items.size(); // ideally from count query
+        long totalCount = items.size();
 
         PagedResult<UserManagementListPojo> result = new PagedResult<>(items, totalCount, page, size);
         logger.debug("search result={}", result);
@@ -150,7 +140,6 @@ public class UserManagementListServiceImpl implements UserManagementListService 
     public UserManagementListPojo get(Long id) {
         logger.debug("get called");
         logger.debug("get id={}", id);
-
         return listMapper.get(id);
     }
 
@@ -158,150 +147,49 @@ public class UserManagementListServiceImpl implements UserManagementListService 
     public void delete(Long id) {
         logger.debug("delete called");
         logger.debug("delete id={}", id);
-
         listMapper.delete(id);
     }
 
     // ==============================================================
-    // ================ OTHER METHODS ===============================
+    // ================ FILE IMPORT/EXPORT ==========================
     // ==============================================================
-    
-    // ------------------ CSV/Excel ------------------
+
     @Override
     public void importListFromCsv(Map<String, Object> params) throws Exception {
         logger.debug("importListFromCsv START");
         logger.debug("importListFromCsv params={}", params);
-
-        InputStream inputStream = ParamWrapper.unwrap(params, "inputStream");
-        UserManagementListPojo list = ParamWrapper.unwrap(params, "list");
-        String originalFileName = ParamWrapper.unwrap(params, "originalFileName");
-
-        Path path = getListFilePath(list.getId(), originalFileName);
-        list.setFilePath(path.toString());
-        byte[] bytes = inputStream.readAllBytes();
-        try (OutputStream os = Files.newOutputStream(path)) {
-            os.write(bytes);
-        }
-
-        List<UserManagementListMemberPojo> members = new ArrayList<>();
-        try (CSVReader reader = new CSVReader(new java.io.InputStreamReader(new java.io.ByteArrayInputStream(bytes)))) {
-            reader.readNext();
-            String[] row;
-            while ((row = reader.readNext()) != null) {
-                UserManagementListMemberPojo member = new UserManagementListMemberPojo();
-                for (int i = 0; i < uploadColumns.size() && i < row.length; i++) {
-                    setFieldValue(member, uploadColumns.get(i).getName(), row[i]);
-                }
-                members.add(member);
-            }
-        }
-
-        create(list);
-        logger.debug("importListFromCsv DONE for listId={}", list.getId());
+        userListFileService.importListFromCsv(params);
+        logger.debug("importListFromCsv rerouted to userListFileService DONE");
     }
 
     @Override
     public void exportListToCsv(Map<String, Object> params) throws Exception {
         logger.debug("exportListToCsv START");
         logger.debug("exportListToCsv params={}", params);
-
-        Long listId = ParamWrapper.unwrap(params, "listId");
-        OutputStream outputStream = ParamWrapper.unwrap(params, "outputStream");
-
-        PagedResult<UserManagementListMemberPojo> result = getMembersByListId(listId);
-        List<UserManagementListMemberPojo> members = result.getItems();
-
-        try (CSVWriter writer = new CSVWriter(new java.io.OutputStreamWriter(outputStream))) {
-            String[] header = downloadColumns.stream().map(ColumnConfig::getDbField).toArray(String[]::new);
-            writer.writeNext(header);
-
-            for (UserManagementListMemberPojo m : members) {
-                String[] row = downloadColumns.stream()
-                        .map(c -> getFieldValue(m, c.getName()))
-                        .toArray(String[]::new);
-                writer.writeNext(row);
-            }
-        }
-
-        logger.debug("exportListToCsv DONE for listId={}", listId);
+        userListFileService.exportListToCsv(params);
+        logger.debug("exportListToCsv rerouted to userListFileService DONE");
     }
 
     @Override
     public void importListFromExcel(Map<String, Object> params) throws Exception {
         logger.debug("importListFromExcel START");
         logger.debug("importListFromExcel params={}", params);
-
-        InputStream inputStream = ParamWrapper.unwrap(params, "inputStream");
-        UserManagementListPojo list = ParamWrapper.unwrap(params, "list");
-        String originalFileName = ParamWrapper.unwrap(params, "originalFileName");
-
-        byte[] bytes = inputStream.readAllBytes();
-        List<UserManagementListMemberPojo> members = new ArrayList<>();
-
-        try (Workbook workbook = originalFileName.endsWith(".xls") ?
-                new HSSFWorkbook(new java.io.ByteArrayInputStream(bytes)) :
-                new XSSFWorkbook(new java.io.ByteArrayInputStream(bytes))) {
-
-            Sheet sheet = workbook.getSheetAt(0);
-            Iterator<Row> rows = sheet.iterator();
-            if (rows.hasNext()) rows.next();
-
-            while (rows.hasNext()) {
-                Row row = rows.next();
-                UserManagementListMemberPojo member = new UserManagementListMemberPojo();
-                for (int i = 0; i < uploadColumns.size(); i++) {
-                    if (row.getCell(i) != null)
-                        setFieldValue(member, uploadColumns.get(i).getName(), row.getCell(i).toString());
-                }
-                members.add(member);
-            }
-        }
-
-        create(list);
-        Path path = getListFilePath(list.getId(), originalFileName);
-        try (OutputStream os = Files.newOutputStream(path)) {
-            os.write(bytes);
-        }
-        list.setFilePath(path.toString());
-
-        logger.debug("importListFromExcel DONE for listId={}", list.getId());
+        userListFileService.importListFromExcel(params);
+        logger.debug("importListFromExcel rerouted to userListFileService DONE");
     }
 
     @Override
     public void exportListToExcel(Map<String, Object> params) throws Exception {
         logger.debug("exportListToExcel START");
         logger.debug("exportListToExcel params={}", params);
-
-        Long listId = ParamWrapper.unwrap(params, "listId");
-        OutputStream outputStream = ParamWrapper.unwrap(params, "outputStream");
-
-        PagedResult<UserManagementListMemberPojo> result = getMembersByListId(listId);
-        List<UserManagementListMemberPojo> members = result.getItems();
-
-        try (Workbook workbook = new XSSFWorkbook()) {
-            Sheet sheet = workbook.createSheet("Users");
-
-            Row header = sheet.createRow(0);
-            for (int i = 0; i < downloadColumns.size(); i++) {
-                header.createCell(i).setCellValue(downloadColumns.get(i).getDbField());
-            }
-
-            int rowIdx = 1;
-            for (UserManagementListMemberPojo m : members) {
-                Row row = sheet.createRow(rowIdx++);
-                for (int i = 0; i < downloadColumns.size(); i++) {
-                    row.createCell(i).setCellValue(getFieldValue(m, downloadColumns.get(i).getName()));
-                }
-            }
-
-            workbook.write(outputStream);
-        }
-
-        logger.debug("exportListToExcel DONE for listId={}", listId);
+        userListFileService.exportListToExcel(params);
+        logger.debug("exportListToExcel rerouted to userListFileService DONE");
     }
 
-    // ------------------ Helpers ------------------
-    
+    // ==============================================================
+    // ================ SUPPORT METHODS ==============================
+    // ==============================================================
+
     private PagedResult<UserManagementListMemberPojo> getMembersByListId(Long listId) {
         logger.debug("getMembersByListId START");
         logger.debug("getMembersByListId listId={}", listId);
@@ -320,66 +208,12 @@ public class UserManagementListServiceImpl implements UserManagementListService 
         logger.debug("getMembersByListId result size={} total={}", members.size(), total);
         return new PagedResult<>(members, total, page, size);
     }
-    
-    private Path getListFilePath(Long listId, String originalFileName) {
-        logger.debug("getListFilePath START");
-        logger.debug("getListFilePath listId={}", listId);
-        logger.debug("getListFilePath originalFileName={}", originalFileName);
 
-        String extension = "";
-        int dot = originalFileName.lastIndexOf('.');
-        if (dot >= 0) extension = originalFileName.substring(dot);
-        Path path = storageDir.resolve("list_" + listId + extension);
-
-        logger.debug("getListFilePath DONE");
-        return path;
-    }
-
-    private String getFieldValue(UserManagementListMemberPojo member, String property) {
-        logger.debug("getFieldValue START");
-        logger.debug("getFieldValue member={}", member);
-        logger.debug("getFieldValue property={}", property);
-
-        try {
-            String mName = "get" + property.substring(0, 1).toUpperCase() + property.substring(1);
-            Method m = UserManagementListMemberPojo.class.getMethod(mName);
-            Object val = m.invoke(member);
-            logger.debug("getFieldValue DONE");
-            return val != null ? val.toString() : "";
-        } catch (Exception e) {
-            logger.warn("Failed getFieldValue '{}': {}", property, e.getMessage());
-            logger.debug("getFieldValue DONE with exception");
-            return "";
-        }
-    }
-
-    private void setFieldValue(UserManagementListMemberPojo member, String property, String value) {
-        logger.debug("setFieldValue START");
-        logger.debug("setFieldValue member={}", member);
-        logger.debug("setFieldValue property={}", property);
-        logger.debug("setFieldValue value={}", value);
-
-        try {
-            String mName = "set" + property.substring(0, 1).toUpperCase() + property.substring(1);
-            Method m = UserManagementListMemberPojo.class.getMethod(mName, String.class);
-            m.invoke(member, value);
-        } catch (Exception e) {
-            logger.warn("Failed setFieldValue '{}': {}", property, e.getMessage());
-        }
-
-        logger.debug("setFieldValue DONE");
-    }
-    
     @Override
     public List<UserManagementListPojo> getAll() {
         logger.debug("getAll called");
-
-        // Reuse search mapper with empty params to get everything
         Map<String, Object> params = new HashMap<>();
-        // No offset/limit => all rows
         List<UserManagementListPojo> userLists = listMapper.search(params);
-        
         return userLists;
     }
-    
 }
