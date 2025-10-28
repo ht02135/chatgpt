@@ -1,4 +1,4 @@
-package simple.chatgpt.service.management;
+package simple.chatgpt.service.management.file;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -18,6 +18,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.stereotype.Service;
 
 import com.opencsv.CSVReader;
 import com.opencsv.CSVWriter;
@@ -27,6 +28,7 @@ import simple.chatgpt.config.management.loader.DownloadConfigLoader;
 import simple.chatgpt.config.management.loader.UploadConfigLoader;
 import simple.chatgpt.pojo.management.UserManagementListMemberPojo;
 import simple.chatgpt.pojo.management.UserManagementListPojo;
+import simple.chatgpt.service.management.UserManagementListMemberService;
 import simple.chatgpt.util.PagedResult;
 import simple.chatgpt.util.ParamWrapper;
 
@@ -35,6 +37,7 @@ hung: make sure you do not remove any of my comments.
 If you dare remove hung comment, you are in big trouble.
 */
 
+@Service
 public class ObsoleteUserListFileServiceImpl implements ObsoleteUserListFileService {
 
     private static final Logger logger = LogManager.getLogger(ObsoleteUserListFileServiceImpl.class);

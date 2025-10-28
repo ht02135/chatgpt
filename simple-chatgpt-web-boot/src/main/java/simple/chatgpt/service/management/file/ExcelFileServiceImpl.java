@@ -14,10 +14,13 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.stereotype.Service;
 
 /*
 hung: this class is generic Excel handler used by multiple services
 */
+
+@Service
 public class ExcelFileServiceImpl implements ExcelFileService {
 
     private static final Logger logger = LogManager.getLogger(ExcelFileServiceImpl.class);

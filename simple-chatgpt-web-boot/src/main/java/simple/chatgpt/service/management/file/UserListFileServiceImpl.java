@@ -5,6 +5,7 @@ import java.io.OutputStream;
 import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -13,6 +14,7 @@ import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.stereotype.Service;
 
 import simple.chatgpt.config.management.ColumnConfig;
 import simple.chatgpt.config.management.loader.DownloadConfigLoader;
@@ -28,6 +30,7 @@ hung: make sure you do not remove any of my comments.
 If you dare remove hung comment, you are in big trouble.
 */
 
+@Service
 public class UserListFileServiceImpl implements UserListFileService {
 
     private static final Logger logger = LogManager.getLogger(UserListFileServiceImpl.class);
@@ -44,7 +47,6 @@ public class UserListFileServiceImpl implements UserListFileService {
             UserManagementListMemberService memberService,
             DownloadConfigLoader downloadConfigLoader,
             UploadConfigLoader uploadConfigLoader,
-            Path storageDir,
             String memberGridId,
             CsvFileService csvFileService,
             ExcelFileService excelFileService) {
@@ -53,17 +55,24 @@ public class UserListFileServiceImpl implements UserListFileService {
         logger.debug("UserListFileServiceImpl memberService={}", memberService);
         logger.debug("UserListFileServiceImpl downloadConfigLoader={}", downloadConfigLoader);
         logger.debug("UserListFileServiceImpl uploadConfigLoader={}", uploadConfigLoader);
-        logger.debug("UserListFileServiceImpl storageDir={}", storageDir);
         logger.debug("UserListFileServiceImpl memberGridId={}", memberGridId);
         logger.debug("UserListFileServiceImpl csvFileService={}", csvFileService);
         logger.debug("UserListFileServiceImpl excelFileService={}", excelFileService);
 
         this.memberService = memberService;
-        this.storageDir = storageDir;
         this.csvFileService = csvFileService;
         this.excelFileService = excelFileService;
         this.uploadColumns = uploadConfigLoader.getColumns(memberGridId);
         this.downloadColumns = downloadConfigLoader.getColumns(memberGridId);
+        
+        // ================================
+        // FIX: Use deployed WAR folder dynamically
+        // ================================
+        String webappsDir = System.getProperty("catalina.base") + "/webapps";
+        String warName = System.getProperty("war.name", "chatgpt-production"); // provide default
+        String webappRoot = webappsDir + "/" + warName;
+
+        this.storageDir = Paths.get(webappRoot, "data/management/user_lists");
     }
 
     // ==============================================================

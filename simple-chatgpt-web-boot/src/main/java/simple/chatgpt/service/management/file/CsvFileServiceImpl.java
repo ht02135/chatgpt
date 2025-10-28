@@ -8,6 +8,7 @@ import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.springframework.stereotype.Service;
 
 import com.opencsv.CSVReader;
 import com.opencsv.CSVWriter;
@@ -15,6 +16,8 @@ import com.opencsv.CSVWriter;
 /*
 hung: this class is generic CSV handler used by multiple services
 */
+
+@Service
 public class CsvFileServiceImpl implements CsvFileService {
 
     private static final Logger logger = LogManager.getLogger(CsvFileServiceImpl.class);
