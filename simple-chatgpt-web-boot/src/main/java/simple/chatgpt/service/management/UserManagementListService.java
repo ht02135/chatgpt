@@ -17,11 +17,5 @@ public interface UserManagementListService {
 
 	// ======= OTHER METHODS =======
 
-    // ------------------ FILE IMPORT/EXPORT ------------------
-    void importListFromCsv(Map<String, Object> params) throws Exception;   // params include InputStream, list, originalFileName
-    void exportListToCsv(Map<String, Object> params) throws Exception;     // params include listId, OutputStream
-    void importListFromExcel(Map<String, Object> params) throws Exception; // params include InputStream, list, originalFileName
-    void exportListToExcel(Map<String, Object> params) throws Exception;   // params include listId, OutputStream
-    
     List<UserManagementListPojo> getAll();
 }

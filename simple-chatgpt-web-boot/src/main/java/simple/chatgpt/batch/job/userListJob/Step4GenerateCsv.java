@@ -20,21 +20,24 @@ import org.springframework.stereotype.Component;
 import simple.chatgpt.batch.BatchJobConstants;
 import simple.chatgpt.pojo.batch.JobRequest;
 import simple.chatgpt.service.batch.JobRequestService;
-import simple.chatgpt.service.management.UserManagementListService;
+import simple.chatgpt.service.management.file.UserListFileService;
 
+/*
+hung: step 4 - generate user list CSV file
+*/
 @Component
 public class Step4GenerateCsv extends StepExecutionListenerSupport implements Tasklet {
 
     private static final Logger logger = LogManager.getLogger(Step4GenerateCsv.class);
 
-    private final UserManagementListService listService;
+    private final UserListFileService listFileService;
     private final JobRequestService jobRequestService;
 
     private JobRequest jobRequest; // internal variable
 
-    public Step4GenerateCsv(UserManagementListService listService,
+    public Step4GenerateCsv(UserListFileService listFileService,
                             JobRequestService jobRequestService) {
-        this.listService = listService;
+        this.listFileService = listFileService;
         this.jobRequestService = jobRequestService;
     }
 
@@ -91,7 +94,7 @@ public class Step4GenerateCsv extends StepExecutionListenerSupport implements Ta
                     "outputStream", fos
             );
 
-            listService.exportListToCsv(params);
+            listFileService.exportListToCsv(params); // changed to UserListFileService
             logger.debug("CSV successfully generated at {}", csvFile.getAbsolutePath());
 
             // Update JobRequest stepData and stage

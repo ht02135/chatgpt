@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -26,12 +25,11 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import simple.chatgpt.pojo.management.UserManagementListMemberPojo;
 import simple.chatgpt.pojo.management.UserManagementListPojo;
 import simple.chatgpt.service.management.PropertyManagementService;
 import simple.chatgpt.service.management.UserManagementListService;
+import simple.chatgpt.service.management.file.UserListFileService;
 import simple.chatgpt.util.PagedResult;
-import simple.chatgpt.util.ParamWrapper;
 import simple.chatgpt.util.PropertyKey;
 import simple.chatgpt.util.Response;
 import simple.chatgpt.util.SafeConverter;
@@ -44,14 +42,17 @@ public class UserManagementListController {
 
 	private final UserManagementListService userManagementListService;
 	private final PropertyManagementService propertyService;
+	private final UserListFileService userListFileService;
 
 	public UserManagementListController(UserManagementListService userManagementListService,
-			PropertyManagementService propertyService) {
-		this.userManagementListService = userManagementListService;
-		this.propertyService = propertyService;
-		logger.debug(
-				"UserManagementListController constructor called, userManagementListService={}, propertyService={}",
-				userManagementListService, propertyService);
+	                                   UserListFileService userListFileService,
+	                                   PropertyManagementService propertyService) {
+	    this.userManagementListService = userManagementListService;
+	    this.userListFileService = userListFileService; // initialize new service
+	    this.propertyService = propertyService;
+	    logger.debug(
+	        "UserManagementListController constructor called, userManagementListService={}, userListFileService={}, propertyService={}",
+	        userManagementListService, userListFileService, propertyService);
 	}
 
     // ==============================================================
@@ -176,9 +177,9 @@ public class UserManagementListController {
 			params.put("originalFileName", file.getOriginalFilename());
 
 			if (filename.endsWith(".csv")) {
-				userManagementListService.importListFromCsv(params);
+				userListFileService.importListFromCsv(params);
 			} else if (filename.endsWith(".xlsx") || filename.endsWith(".xls")) {
-				userManagementListService.importListFromExcel(params);
+				userListFileService.importListFromExcel(params);
 			} else {
 				return ResponseEntity.badRequest()
 						.body(Response.error("Unsupported file type", null, HttpStatus.BAD_REQUEST.value()));
@@ -211,7 +212,7 @@ public class UserManagementListController {
 			params.put("listId", listId);
 			params.put("outputStream", os);
 
-			userManagementListService.exportListToCsv(params);
+			userListFileService.exportListToCsv(params);
 		} catch (Exception e) {
 			logger.error("exportListToCsv failed", e);
 			response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
@@ -235,7 +236,7 @@ public class UserManagementListController {
 			Map<String, Object> params = new HashMap<>();
 			params.put("listId", listId);
 			params.put("outputStream", os);
-			userManagementListService.exportListToExcel(params);
+			userListFileService.exportListToExcel(params);
 
 		} catch (Exception e) {
 			logger.error("exportListToExcel failed", e);

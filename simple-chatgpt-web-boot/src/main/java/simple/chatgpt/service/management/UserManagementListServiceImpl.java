@@ -152,63 +152,8 @@ public class UserManagementListServiceImpl implements UserManagementListService 
     }
 
     // ==============================================================
-    // ================ FILE IMPORT/EXPORT ==========================
-    // ==============================================================
-
-    @Override
-    public void importListFromCsv(Map<String, Object> params) throws Exception {
-        logger.debug("importListFromCsv START");
-        logger.debug("importListFromCsv params={}", params);
-        userListFileService.importListFromCsv(params);
-        logger.debug("importListFromCsv rerouted to userListFileService DONE");
-    }
-
-    @Override
-    public void exportListToCsv(Map<String, Object> params) throws Exception {
-        logger.debug("exportListToCsv START");
-        logger.debug("exportListToCsv params={}", params);
-        userListFileService.exportListToCsv(params);
-        logger.debug("exportListToCsv rerouted to userListFileService DONE");
-    }
-
-    @Override
-    public void importListFromExcel(Map<String, Object> params) throws Exception {
-        logger.debug("importListFromExcel START");
-        logger.debug("importListFromExcel params={}", params);
-        userListFileService.importListFromExcel(params);
-        logger.debug("importListFromExcel rerouted to userListFileService DONE");
-    }
-
-    @Override
-    public void exportListToExcel(Map<String, Object> params) throws Exception {
-        logger.debug("exportListToExcel START");
-        logger.debug("exportListToExcel params={}", params);
-        userListFileService.exportListToExcel(params);
-        logger.debug("exportListToExcel rerouted to userListFileService DONE");
-    }
-
-    // ==============================================================
     // ================ SUPPORT METHODS ==============================
     // ==============================================================
-
-    private PagedResult<UserManagementListMemberPojo> getMembersByListId(Long listId) {
-        logger.debug("getMembersByListId START");
-        logger.debug("getMembersByListId listId={}", listId);
-
-        int page = 0;
-        int size = Integer.MAX_VALUE;
-        int offset = page * size;
-
-        Map<String, Object> mapperParams = new HashMap<>();
-        mapperParams.put("listId", listId);
-        mapperParams.put("offset", offset);
-        mapperParams.put("limit", size);
-        List<UserManagementListMemberPojo> members = memberService.getMembersByParams(mapperParams);
-        long total = members.size();
-
-        logger.debug("getMembersByListId result size={} total={}", members.size(), total);
-        return new PagedResult<>(members, total, page, size);
-    }
 
     @Override
     public List<UserManagementListPojo> getAll() {

@@ -25,14 +25,14 @@ import simple.chatgpt.batch.BatchJobConstants;
 import simple.chatgpt.batch.job.userListJob.UserListJobConfig;
 import simple.chatgpt.mapper.management.UserManagementListMapper;
 import simple.chatgpt.pojo.batch.JobRequest;
-import simple.chatgpt.service.management.UserManagementListService;
+import simple.chatgpt.service.management.file.UserListFileService;
 
 @Component
 public class Step4GenerateCsvByDelegate extends AbstractJobRequestDelegate implements Tasklet {
 
     private static final Logger logger = LogManager.getLogger(Step4GenerateCsvByDelegate.class);
 
-    private final UserManagementListService listService;
+    private final UserListFileService listFileService;
 
     @Autowired
     private UserManagementListMapper listMapper;
@@ -40,8 +40,8 @@ public class Step4GenerateCsvByDelegate extends AbstractJobRequestDelegate imple
     private StepExecution stepExecution;
     private JobRequest jobRequest;
 
-    public Step4GenerateCsvByDelegate(UserManagementListService listService) {
-        this.listService = listService;
+    public Step4GenerateCsvByDelegate(UserListFileService listService) {
+        this.listFileService = listService;
     }
 
     public org.springframework.batch.core.Step step4GenerateCsvByDelegate(StepBuilderFactory stepBuilderFactory) {
@@ -118,7 +118,7 @@ public class Step4GenerateCsvByDelegate extends AbstractJobRequestDelegate imple
             i could add the helper, but risk split this complex thing into 2 place
             i chose to jut localize in listSevice.
             */
-            listService.exportListToCsv(params);
+            listFileService.exportListToCsv(params);
             logger.debug("CSV successfully generated at {}", csvFile.getAbsolutePath());
 
             stepData.put(BatchJobConstants.CONTEXT_LIST_FILE_PATH, userListFilePath);
