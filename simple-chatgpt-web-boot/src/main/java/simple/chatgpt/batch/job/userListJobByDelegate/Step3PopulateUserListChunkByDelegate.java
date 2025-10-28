@@ -132,8 +132,7 @@ public class Step3PopulateUserListChunkByDelegate extends AbstractJobRequestDele
             member.setCountry(user.getCountry());
             member.setCreatedAt(new java.sql.Timestamp(System.currentTimeMillis()));
             member.setUpdatedAt(new java.sql.Timestamp(System.currentTimeMillis()));
-
-            logger.debug("UserProcessor processed user {} -> list member", user.getUserName());
+            logger.debug("UserProcessor member=", member);
             return member;
         }
     }
