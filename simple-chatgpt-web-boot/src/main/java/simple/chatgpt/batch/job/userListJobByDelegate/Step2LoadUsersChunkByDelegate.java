@@ -67,6 +67,12 @@ public class Step2LoadUsersChunkByDelegate extends AbstractJobRequestDelegate {
         private boolean initialized = false;
         private List<UserManagementPojo> allUsers = null;
 
+        public UserReader() {
+            this.index = 0;
+            this.initialized = false;
+            this.allUsers = null; 
+        }
+        
         @Override
         public UserManagementPojo read() {
             if (!initialized) {

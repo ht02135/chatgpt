@@ -75,6 +75,12 @@ public class Step3PopulateUserListChunkByDelegate extends AbstractJobRequestDele
         private int index = 0;
         private List<Long> userIds;
 
+        public UserReader() {
+            this.index = 0;
+            this.initialized = false;
+            this.userIds = null;
+        }
+        
         @Override
         public UserManagementPojo read() {
             if (!initialized) {
