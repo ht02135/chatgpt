@@ -1,9 +1,7 @@
 package simple.chatgpt.batch.job.userListJobByDelegate;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.logging.log4j.LogManager;
@@ -52,9 +50,6 @@ public class Step3PopulateUserListChunkByInnerClass extends AbstractJobRequestDe
     private StepExecution stepExecution;
     private JobRequest jobRequest;
 
-    /**
-     * Constructor calling the superclass constructor
-     */
     public Step3PopulateUserListChunkByInnerClass(JobRequestMapper jobRequestMapper,
                                                   UserManagementMapper userManagementMapper) {
         super(jobRequestMapper, userManagementMapper);
@@ -63,7 +58,6 @@ public class Step3PopulateUserListChunkByInnerClass extends AbstractJobRequestDe
     // =========================================
     // STEP BEAN
     // =========================================
-
     public Step step3PopulateUserListByInnerClass(StepBuilderFactory stepBuilderFactory) {
         logger.debug("step3PopulateUserListByInnerClass called");
 
@@ -77,7 +71,7 @@ public class Step3PopulateUserListChunkByInnerClass extends AbstractJobRequestDe
     }
 
     // =========================================
-    // PRIVATE INNER READER (MyBatisCursorItemReader)
+    // PRIVATE INNER READER
     // =========================================
     private class UserReader extends MyBatisCursorItemReader<UserManagementPojo> {
 
@@ -160,28 +154,14 @@ public class Step3PopulateUserListChunkByInnerClass extends AbstractJobRequestDe
                     logger.debug("UserWriter saved list member user={}", member.getUserName());
                 }
 
-                Map<String, Object> stepData = jobRequest.getStepData() != null
-                        ? new HashMap<>(jobRequest.getStepData())
-                        : new HashMap<>();
-
+                // === use helper methods instead of manual map updates ===
                 List<Long> existingMemberIds = (List<Long>) stepExecution.getJobExecution().getExecutionContext()
                         .get(BatchJobConstants.CONTEXT_MEMBER_IDS);
                 if (existingMemberIds == null) existingMemberIds = new ArrayList<>();
                 existingMemberIds.addAll(memberIds);
-                stepData.put(BatchJobConstants.CONTEXT_MEMBER_IDS, existingMemberIds);
 
-                jobRequest.setStepData(stepData);
-                jobRequest.setProcessingStage(400);
-                jobRequest.setProcessingStatus(1);
-                jobRequestMapper.update(jobRequest.getId(), jobRequest);
-
-                logger.debug("###########");
-                logger.debug("UserWriter updated jobRequest stage=400 status=1");
-                logger.debug("UserWriter jobRequest={}", jobRequest);
-                logger.debug("###########");
-
-                stepExecution.getJobExecution().getExecutionContext()
-                        .put(BatchJobConstants.CONTEXT_MEMBER_IDS, existingMemberIds);
+                updateJobRequestStepData(jobRequest, stepExecution, BatchJobConstants.CONTEXT_MEMBER_IDS, existingMemberIds);
+                updateJobRequest(jobRequest, 400, 1, JobRequest.STATUS_SUBMITTED);
 
             } catch (Exception e) {
                 logger.error("UserWriter encountered error, marking jobRequest FAILED", e);
@@ -216,6 +196,7 @@ public class Step3PopulateUserListChunkByInnerClass extends AbstractJobRequestDe
     // =========================================
     // Tasklet compliance
     // =========================================
+    @Override
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) {
         logger.debug("execute called on Step3PopulateUserListChunkByInnerClass - no-op for chunk-based step");
         return RepeatStatus.FINISHED;

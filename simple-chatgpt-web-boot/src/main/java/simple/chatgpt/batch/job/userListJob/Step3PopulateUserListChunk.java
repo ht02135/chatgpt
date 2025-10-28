@@ -1,10 +1,7 @@
 package simple.chatgpt.batch.job.userListJob;
 
-import java.sql.Timestamp;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -84,7 +81,7 @@ public class Step3PopulateUserListChunk extends AbstractJobRequest {
                 logger.debug("UserReader initializing");
 
                 jobRequest = getOneRecentJobRequestByParams(
-                	UserListJobConfig.JOB_NAME, 300, 1, JobRequest.STATUS_SUBMITTED);
+                        UserListJobConfig.JOB_NAME, 300, 1, JobRequest.STATUS_SUBMITTED);
                 logger.debug("read jobRequest={}", jobRequest);
 
                 if (jobRequest == null) {
@@ -138,8 +135,8 @@ public class Step3PopulateUserListChunk extends AbstractJobRequest {
             member.setState(user.getState());
             member.setPostCode(user.getPostCode());
             member.setCountry(user.getCountry());
-            member.setCreatedAt(new Timestamp(System.currentTimeMillis()));
-            member.setUpdatedAt(new Timestamp(System.currentTimeMillis()));
+            member.setCreatedAt(new java.sql.Timestamp(System.currentTimeMillis()));
+            member.setUpdatedAt(new java.sql.Timestamp(System.currentTimeMillis()));
 
             logger.debug("UserProcessor processed user {} -> list member", user.getUserName());
             return member;
@@ -165,27 +162,14 @@ public class Step3PopulateUserListChunk extends AbstractJobRequest {
                     logger.debug("UserWriter saved list member user={}", member.getUserName());
                 }
 
-                Map<String, Object> stepData = jobRequest.getStepData() != null
-                        ? new HashMap<>(jobRequest.getStepData())
-                        : new HashMap<>();
-
                 List<Long> existingMemberIds = (List<Long>) stepExecution.getJobExecution().getExecutionContext()
                         .get(BatchJobConstants.CONTEXT_MEMBER_IDS);
                 if (existingMemberIds == null) existingMemberIds = new ArrayList<>();
                 existingMemberIds.addAll(memberIds);
-                stepData.put(BatchJobConstants.CONTEXT_MEMBER_IDS, existingMemberIds);
 
-                jobRequest.setStepData(stepData);
-                jobRequest.setProcessingStage(400);
-                jobRequest.setProcessingStatus(1);
-                jobRequestService.update(jobRequest.getId(), jobRequest);
-                logger.debug("###########");
-                logger.debug("UserWriter updated jobRequest stage=400 status=1");
-                logger.debug("UserWriter  jobRequest={}", jobRequest);
-                logger.debug("###########");
-
-                stepExecution.getJobExecution().getExecutionContext()
-                        .put(BatchJobConstants.CONTEXT_MEMBER_IDS, existingMemberIds);
+                // === use updateJobRequestStepData & updateJobRequest ===
+                updateJobRequestStepData(jobRequest, stepExecution, BatchJobConstants.CONTEXT_MEMBER_IDS, existingMemberIds);
+                updateJobRequest(jobRequest, 400, 1, JobRequest.STATUS_SUBMITTED);
 
             } catch (Exception e) {
                 logger.error("UserWriter encountered error, marking jobRequest FAILED", e);
@@ -217,9 +201,9 @@ public class Step3PopulateUserListChunk extends AbstractJobRequest {
         return stepExecution.getExitStatus();
     }
 
-	@Override
-	public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
-		// TODO Auto-generated method stub
-		return null;
-	}
+    @Override
+    public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
+        // no-op for chunk-based step
+        return RepeatStatus.FINISHED;
+    }
 }
