@@ -58,12 +58,13 @@ public abstract class AbstractJobRequest extends StepExecutionListenerSupport im
         params.put("status", status);
 
         logger.debug("getOneRecentJobRequestByParams params={}", params);
-
         List<JobRequest> results = getJobRequestByParams(params);
         logger.debug("getOneRecentJobRequestByParams results={}", results);
 
         if (results == null || results.isEmpty()) {
-            logger.debug("getOneRecentJobRequestByParams no JobRequest found");
+        	logger.debug("getOneRecentJobRequestByParams ##########");
+            logger.debug("getOneRecentJobRequestByParams NO JobRequest found");
+            logger.debug("getOneRecentJobRequestByParams ##########");
             return null;
         }
 
@@ -74,7 +75,9 @@ public abstract class AbstractJobRequest extends StepExecutionListenerSupport im
                 .findFirst()
                 .orElse(null);
 
+        logger.debug("getOneRecentJobRequestByParams ##########");
         logger.debug("getOneRecentJobRequestByParams mostRecent={}", mostRecent);
+        logger.debug("getOneRecentJobRequestByParams ##########");
         return mostRecent;
     }
 
@@ -115,6 +118,9 @@ public abstract class AbstractJobRequest extends StepExecutionListenerSupport im
         stepData.put(contextKey, value);
         jobRequest.setStepData(stepData);
         jobRequestMapper.update(jobRequest.getId(), jobRequest);
+        logger.debug("updateJobRequestStepData ##########");
+        logger.debug("updateJobRequestStepData jobRequest={}", jobRequest);
+        logger.debug("updateJobRequestStepData ##########");
         
         stepExecution.getJobExecution().getExecutionContext().put(contextKey, value);
     }
@@ -135,8 +141,10 @@ public abstract class AbstractJobRequest extends StepExecutionListenerSupport im
         jobRequest.setProcessingStage(processingStage);
         jobRequest.setProcessingStatus(processingStatus);
         jobRequest.setStatus(status);
-
         jobRequestMapper.update(jobRequest.getId(), jobRequest);
+        logger.debug("updateJobRequestStepData ##########");
+        logger.debug("updateJobRequestStepData jobRequest={}", jobRequest);
+        logger.debug("updateJobRequestStepData ##########");
 
         logger.debug("updateJobRequest jobRequest after update={}", jobRequest);
     }
