@@ -1,4 +1,4 @@
-package simple.chatgpt.service.management;
+package simple.chatgpt.service.management.file;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -13,20 +13,13 @@ import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-
-import com.opencsv.CSVReader;
-import com.opencsv.CSVWriter;
 
 import simple.chatgpt.config.management.ColumnConfig;
 import simple.chatgpt.config.management.loader.DownloadConfigLoader;
 import simple.chatgpt.config.management.loader.UploadConfigLoader;
 import simple.chatgpt.pojo.management.UserManagementListMemberPojo;
 import simple.chatgpt.pojo.management.UserManagementListPojo;
+import simple.chatgpt.service.management.UserManagementListMemberService;
 import simple.chatgpt.util.PagedResult;
 import simple.chatgpt.util.ParamWrapper;
 
@@ -44,12 +37,17 @@ public class UserListFileServiceImpl implements UserListFileService {
     private final List<ColumnConfig> downloadColumns;
     private final UserManagementListMemberService memberService;
 
+    private final CsvFileService csvFileService;
+    private final ExcelFileService excelFileService;
+
     public UserListFileServiceImpl(
             UserManagementListMemberService memberService,
             DownloadConfigLoader downloadConfigLoader,
             UploadConfigLoader uploadConfigLoader,
             Path storageDir,
-            String memberGridId) {
+            String memberGridId,
+            CsvFileService csvFileService,
+            ExcelFileService excelFileService) {
 
         logger.debug("UserListFileServiceImpl constructor called");
         logger.debug("UserListFileServiceImpl memberService={}", memberService);
@@ -57,18 +55,21 @@ public class UserListFileServiceImpl implements UserListFileService {
         logger.debug("UserListFileServiceImpl uploadConfigLoader={}", uploadConfigLoader);
         logger.debug("UserListFileServiceImpl storageDir={}", storageDir);
         logger.debug("UserListFileServiceImpl memberGridId={}", memberGridId);
+        logger.debug("UserListFileServiceImpl csvFileService={}", csvFileService);
+        logger.debug("UserListFileServiceImpl excelFileService={}", excelFileService);
 
         this.memberService = memberService;
         this.storageDir = storageDir;
+        this.csvFileService = csvFileService;
+        this.excelFileService = excelFileService;
         this.uploadColumns = uploadConfigLoader.getColumns(memberGridId);
         this.downloadColumns = downloadConfigLoader.getColumns(memberGridId);
     }
 
     // ==============================================================
-    // ================ OTHER METHODS ===============================
+    // ================ CSV ==========================================
     // ==============================================================
 
-    // ------------------ CSV/Excel ------------------
     @Override
     public void importListFromCsv(Map<String, Object> params) throws Exception {
         logger.debug("importListFromCsv START");
@@ -86,23 +87,26 @@ public class UserListFileServiceImpl implements UserListFileService {
         Path path = getListFilePath(list.getId(), originalFileName);
         logger.debug("importListFromCsv path={}", path);
 
-        list.setFilePath(path.toString());
         byte[] bytes = inputStream.readAllBytes();
         try (OutputStream os = Files.newOutputStream(path)) {
             os.write(bytes);
         }
+        list.setFilePath(path.toString());
+
+        List<List<String>> rows = csvFileService.readCsv(new java.io.ByteArrayInputStream(bytes));
+        logger.debug("importListFromCsv total rows read={}", rows.size());
 
         List<UserManagementListMemberPojo> members = new ArrayList<>();
-        try (CSVReader reader = new CSVReader(new java.io.InputStreamReader(new java.io.ByteArrayInputStream(bytes)))) {
-            reader.readNext(); // skip header
-            String[] row;
-            while ((row = reader.readNext()) != null) {
-                UserManagementListMemberPojo member = new UserManagementListMemberPojo();
-                for (int i = 0; i < uploadColumns.size() && i < row.length; i++) {
-                    setFieldValue(member, uploadColumns.get(i).getName(), row[i]);
-                }
-                members.add(member);
+        Iterator<List<String>> iterator = rows.iterator();
+        if (iterator.hasNext()) iterator.next(); // skip header
+
+        while (iterator.hasNext()) {
+            List<String> row = iterator.next();
+            UserManagementListMemberPojo member = new UserManagementListMemberPojo();
+            for (int i = 0; i < uploadColumns.size() && i < row.size(); i++) {
+                setFieldValue(member, uploadColumns.get(i).getName(), row.get(i));
             }
+            members.add(member);
         }
 
         logger.debug("importListFromCsv DONE for listId={}", list.getId());
@@ -122,20 +126,28 @@ public class UserListFileServiceImpl implements UserListFileService {
         PagedResult<UserManagementListMemberPojo> result = getMembersByListId(listId);
         List<UserManagementListMemberPojo> members = result.getItems();
 
-        try (CSVWriter writer = new CSVWriter(new java.io.OutputStreamWriter(outputStream))) {
-            String[] header = downloadColumns.stream().map(ColumnConfig::getDbField).toArray(String[]::new);
-            writer.writeNext(header);
-
-            for (UserManagementListMemberPojo m : members) {
-                String[] row = downloadColumns.stream()
-                        .map(c -> getFieldValue(m, c.getName()))
-                        .toArray(String[]::new);
-                writer.writeNext(row);
-            }
+        List<String> headers = new ArrayList<>();
+        for (ColumnConfig c : downloadColumns) {
+            headers.add(c.getDbField());
         }
+
+        List<List<String>> rows = new ArrayList<>();
+        for (UserManagementListMemberPojo m : members) {
+            List<String> row = new ArrayList<>();
+            for (ColumnConfig c : downloadColumns) {
+                row.add(getFieldValue(m, c.getName()));
+            }
+            rows.add(row);
+        }
+
+        csvFileService.writeCsv(headers, rows, outputStream);
 
         logger.debug("exportListToCsv DONE for listId={}", listId);
     }
+
+    // ==============================================================
+    // ================ EXCEL ========================================
+    // ==============================================================
 
     @Override
     public void importListFromExcel(Map<String, Object> params) throws Exception {
@@ -154,25 +166,20 @@ public class UserListFileServiceImpl implements UserListFileService {
         byte[] bytes = inputStream.readAllBytes();
         logger.debug("importListFromExcel bytes length={}", bytes.length);
 
+        List<List<String>> rows = excelFileService.readExcel(new java.io.ByteArrayInputStream(bytes), originalFileName);
+        logger.debug("importListFromExcel total rows read={}", rows.size());
+
         List<UserManagementListMemberPojo> members = new ArrayList<>();
+        Iterator<List<String>> iterator = rows.iterator();
+        if (iterator.hasNext()) iterator.next(); // skip header
 
-        try (Workbook workbook = originalFileName.endsWith(".xls") ?
-                new HSSFWorkbook(new java.io.ByteArrayInputStream(bytes)) :
-                new XSSFWorkbook(new java.io.ByteArrayInputStream(bytes))) {
-
-            Sheet sheet = workbook.getSheetAt(0);
-            Iterator<Row> rows = sheet.iterator();
-            if (rows.hasNext()) rows.next(); // skip header row
-
-            while (rows.hasNext()) {
-                Row row = rows.next();
-                UserManagementListMemberPojo member = new UserManagementListMemberPojo();
-                for (int i = 0; i < uploadColumns.size(); i++) {
-                    if (row.getCell(i) != null)
-                        setFieldValue(member, uploadColumns.get(i).getName(), row.getCell(i).toString());
-                }
-                members.add(member);
+        while (iterator.hasNext()) {
+            List<String> row = iterator.next();
+            UserManagementListMemberPojo member = new UserManagementListMemberPojo();
+            for (int i = 0; i < uploadColumns.size() && i < row.size(); i++) {
+                setFieldValue(member, uploadColumns.get(i).getName(), row.get(i));
             }
+            members.add(member);
         }
 
         Path path = getListFilePath(list.getId(), originalFileName);
@@ -198,24 +205,21 @@ public class UserListFileServiceImpl implements UserListFileService {
         PagedResult<UserManagementListMemberPojo> result = getMembersByListId(listId);
         List<UserManagementListMemberPojo> members = result.getItems();
 
-        try (Workbook workbook = new XSSFWorkbook()) {
-            Sheet sheet = workbook.createSheet("Users");
-
-            Row header = sheet.createRow(0);
-            for (int i = 0; i < downloadColumns.size(); i++) {
-                header.createCell(i).setCellValue(downloadColumns.get(i).getDbField());
-            }
-
-            int rowIdx = 1;
-            for (UserManagementListMemberPojo m : members) {
-                Row row = sheet.createRow(rowIdx++);
-                for (int i = 0; i < downloadColumns.size(); i++) {
-                    row.createCell(i).setCellValue(getFieldValue(m, downloadColumns.get(i).getName()));
-                }
-            }
-
-            workbook.write(outputStream);
+        List<String> headers = new ArrayList<>();
+        for (ColumnConfig c : downloadColumns) {
+            headers.add(c.getDbField());
         }
+
+        List<List<String>> rows = new ArrayList<>();
+        for (UserManagementListMemberPojo m : members) {
+            List<String> row = new ArrayList<>();
+            for (ColumnConfig c : downloadColumns) {
+                row.add(getFieldValue(m, c.getName()));
+            }
+            rows.add(row);
+        }
+
+        excelFileService.writeExcel(headers, rows, outputStream);
 
         logger.debug("exportListToExcel DONE for listId={}", listId);
     }

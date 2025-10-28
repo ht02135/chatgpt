@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Map;
 
 import simple.chatgpt.pojo.management.UserManagementListPojo;
-import simple.chatgpt.pojo.management.security.RoleManagementPojo;
 import simple.chatgpt.util.PagedResult;
 
 public interface UserManagementListService {

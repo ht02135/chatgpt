@@ -2,7 +2,7 @@ package simple.chatgpt.service.management;
 
 import java.util.Map;
 
-public interface UserListFileService {
+public interface ObsoleteUserListFileService {
 
 	// ======= 5 CORE METHODS (on top) =======
 	public void importListFromCsv(Map<String, Object> params) throws Exception;
