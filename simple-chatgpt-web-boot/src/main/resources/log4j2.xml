@@ -39,11 +39,20 @@
         <Logger name="simple.chatgpt.mapper" level="ERROR" additivity="false">
             <AppenderRef ref="LogToConsole"/>
         </Logger>
+        <Logger name="simple.chatgpt.mapper.management" level="ERROR" additivity="false">
+            <AppenderRef ref="LogToConsole"/>
+        </Logger>
+        <Logger name="simple.chatgpt.mapper.management.security" level="ERROR" additivity="false">
+            <AppenderRef ref="LogToConsole"/>
+        </Logger>
 
         <!-- ============================= -->
         <!-- Framework / JDBC / MyBatis ERROR -->
         <!-- ============================= -->
         <Logger name="org.springframework" level="ERROR" additivity="false">
+            <AppenderRef ref="LogToConsole"/>
+        </Logger>
+        <Logger name="org.springframework.batch" level="ERROR" additivity="false">
             <AppenderRef ref="LogToConsole"/>
         </Logger>
         <Logger name="org.springframework.jdbc" level="ERROR" additivity="false">

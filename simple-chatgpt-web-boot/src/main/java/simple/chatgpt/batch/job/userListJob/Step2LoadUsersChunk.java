@@ -83,7 +83,7 @@ public class Step2LoadUsersChunk extends AbstractJobRequest {
                 }
 
                 allUsers = userManagementService.getAll();
-                logger.debug("UserReader loaded {} users", allUsers.size());
+                logger.debug("UserReader allUsers.size()={}", allUsers.size());
 
                 initialized = true;
             }
@@ -94,7 +94,7 @@ public class Step2LoadUsersChunk extends AbstractJobRequest {
             }
 
             UserManagementPojo user = allUsers.get(index++);
-            logger.debug("UserReader returning user id={}, userName={}", user.getId(), user.getUserName());
+            logger.debug("UserReader user={}", user);
             return user;
         }
     }
@@ -126,7 +126,7 @@ public class Step2LoadUsersChunk extends AbstractJobRequest {
             try {
                 List<Long> userIds = new ArrayList<>();
                 for (UserManagementPojo user : users) {
-                    logger.debug("UserWriter processing user id={}, userName={}", user.getId(), user.getUserName());
+                    logger.debug("UserWriter user={}", user);
                     userIds.add(user.getId());
                 }
 
