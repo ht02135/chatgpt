@@ -122,11 +122,6 @@ public class Step2LoadUsersChunkByDelegate extends AbstractJobRequestDelegate {
     private class UserWriter implements ItemWriter<UserManagementPojo> {
         @Override
         public void write(List<? extends UserManagementPojo> users) {
-            if (jobRequest == null) {
-                logger.debug("UserWriter found no JobRequest, skipping update");
-                return;
-            }
-
             logger.debug("UserWriter users={}", users);
             try {
                 List<Long> userIds = new ArrayList<>();

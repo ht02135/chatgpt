@@ -149,11 +149,7 @@ public class Step3PopulateUserListChunkByDelegate extends AbstractJobRequestDele
     private class UserWriter implements ItemWriter<UserManagementListMemberPojo> {
         @Override
         public void write(List<? extends UserManagementListMemberPojo> members) {
-            if (jobRequest == null) {
-                logger.debug("UserWriter found no JobRequest, skipping update");
-                return;
-            }
-
+        	
             try {
                 List<Long> memberIds = new ArrayList<>();
                 for (UserManagementListMemberPojo member : members) {

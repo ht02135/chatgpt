@@ -38,144 +38,133 @@ Using MyBatisCursorItemReader ensures you’re streaming users efficiently, inst
 @Component
 public class Step2LoadUsersChunkByInnerClass extends AbstractJobRequestDelegate {
 
-    private static final Logger logger = LogManager.getLogger(Step2LoadUsersChunkByInnerClass.class);
+	private static final Logger logger = LogManager.getLogger(Step2LoadUsersChunkByInnerClass.class);
 
-    private final SqlSessionFactory sqlSessionFactory;
+	private final SqlSessionFactory sqlSessionFactory;
 
-    private StepExecution stepExecution;
-    private JobRequest jobRequest;
+	private StepExecution stepExecution;
+	private JobRequest jobRequest;
 
-    public Step2LoadUsersChunkByInnerClass(JobRequestMapper jobRequestMapper,
-                                           UserManagementMapper userManagementMapper,
-                                           SqlSessionFactory sqlSessionFactory) {
-        super(jobRequestMapper, userManagementMapper);
-        this.sqlSessionFactory = sqlSessionFactory;
-    }
+	public Step2LoadUsersChunkByInnerClass(JobRequestMapper jobRequestMapper, UserManagementMapper userManagementMapper,
+			SqlSessionFactory sqlSessionFactory) {
+		super(jobRequestMapper, userManagementMapper);
+		this.sqlSessionFactory = sqlSessionFactory;
+	}
 
-    // =========================================
-    // STEP BEAN
-    // =========================================
-    public Step step2LoadUsersByInnerClass(StepBuilderFactory stepBuilderFactory) {
-        logger.debug("step2LoadUsersByInnerClass called");
+	// =========================================
+	// STEP BEAN
+	// =========================================
+	public Step step2LoadUsersByInnerClass(StepBuilderFactory stepBuilderFactory) {
+		logger.debug("step2LoadUsersByInnerClass called");
 
-        return stepBuilderFactory.get("step2LoadUsersByInnerClass")
-                .<UserManagementPojo, UserManagementPojo>chunk(50)
-                .reader(new UserReader())
-                .processor(new UserProcessor())
-                .writer(new UserWriter())
-                .listener(this)
-                .build();
-    }
+		return stepBuilderFactory.get("step2LoadUsersByInnerClass").<UserManagementPojo, UserManagementPojo>chunk(50)
+				.reader(new UserReader()).processor(new UserProcessor()).writer(new UserWriter()).listener(this)
+				.build();
+	}
 
-    // =========================================
-    // PRIVATE INNER READER
-    // =========================================
-    private class UserReader extends MyBatisCursorItemReader<UserManagementPojo> {
+	// =========================================
+	// PRIVATE INNER READER
+	// =========================================
+	private class UserReader extends MyBatisCursorItemReader<UserManagementPojo> {
 
-        public UserReader() {
-            logger.debug("UserReader initializing");
-            setSqlSessionFactory(sqlSessionFactory);
-            setQueryId("simple.chatgpt.mapper.management.UserManagementMapper.getAll"); // MyBatis mapper query id
-        }
+		public UserReader() {
+			logger.debug("UserReader initializing");
+			setSqlSessionFactory(sqlSessionFactory);
+			setQueryId("simple.chatgpt.mapper.management.UserManagementMapper.getAll"); // MyBatis mapper query id
+		}
 
-        @Override
-        public UserManagementPojo read() throws Exception {
-            if (jobRequest == null) {
-                jobRequest = getOneRecentJobRequestByParams(
-                        UserListJobConfig.JOB_NAME, 200, 1, JobRequest.STATUS_SUBMITTED);
-                logger.debug("read jobRequest={}", jobRequest);
+		@Override
+		public UserManagementPojo read() throws Exception {
+			jobRequest = getOneRecentJobRequestByParams(UserListJobConfig.JOB_NAME, 200, 1,
+					JobRequest.STATUS_SUBMITTED);
+			logger.debug("read jobRequest={}", jobRequest);
 
-                if (jobRequest == null) {
-                    logger.debug("No live JobRequest found");
-                    return null;
-                }
-            }
+			if (jobRequest == null) {
+				logger.debug("No live JobRequest found");
+				return null;
+			}
 
-            UserManagementPojo user = super.read();
-            if (user != null) {
-                logger.debug("UserReader returning user id={}, userName={}", user.getId(), user.getUserName());
-            }
-            return user;
-        }
-    }
+			UserManagementPojo user = super.read();
+			if (user != null) {
+				logger.debug("UserReader returning user id={}, userName={}", user.getId(), user.getUserName());
+			}
+			return user;
+		}
+	}
 
-    // =========================================
-    // PRIVATE INNER PROCESSOR
-    // =========================================
-    private class UserProcessor implements ItemProcessor<UserManagementPojo, UserManagementPojo> {
-        @Override
-        public UserManagementPojo process(UserManagementPojo user) throws Exception {
-            logger.debug("UserProcessor processing user id={}, userName={}", user.getId(), user.getUserName());
-            return user;
-        }
-    }
+	// =========================================
+	// PRIVATE INNER PROCESSOR
+	// =========================================
+	private class UserProcessor implements ItemProcessor<UserManagementPojo, UserManagementPojo> {
+		@Override
+		public UserManagementPojo process(UserManagementPojo user) throws Exception {
+			logger.debug("UserProcessor processing user id={}, userName={}", user.getId(), user.getUserName());
+			return user;
+		}
+	}
 
-    // =========================================
-    // PRIVATE INNER WRITER
-    // =========================================
-    private class UserWriter implements ItemWriter<UserManagementPojo> {
-        @Override
-        public void write(List<? extends UserManagementPojo> users) throws Exception {
-            if (jobRequest == null) {
-                logger.debug("UserWriter found no JobRequest, skipping update");
-                return;
-            }
+	// =========================================
+	// PRIVATE INNER WRITER
+	// =========================================
+	private class UserWriter implements ItemWriter<UserManagementPojo> {
+		@Override
+		public void write(List<? extends UserManagementPojo> users) throws Exception {
+			logger.debug("UserWriter users={}", users);
+			try {
+				List<Long> userIds = new ArrayList<>();
+				for (UserManagementPojo user : users) {
+					logger.debug("UserWriter processing user id={}, userName={}", user.getId(), user.getUserName());
+					userIds.add(user.getId());
+				}
 
-            logger.debug("UserWriter users={}", users);
-            try {
-                List<Long> userIds = new ArrayList<>();
-                for (UserManagementPojo user : users) {
-                    logger.debug("UserWriter processing user id={}, userName={}", user.getId(), user.getUserName());
-                    userIds.add(user.getId());
-                }
+				// ==================================================
+				// Replace manual stepData/ExecutionContext update with helper methods
+				// ==================================================
+				List<Long> existingIds = (List<Long>) stepExecution.getJobExecution().getExecutionContext()
+						.get(BatchJobConstants.CONTEXT_USER_IDS);
+				if (existingIds == null)
+					existingIds = new ArrayList<>();
+				existingIds.addAll(userIds);
 
-                // ==================================================
-                // Replace manual stepData/ExecutionContext update with helper methods
-                // ==================================================
-                List<Long> existingIds = (List<Long>) stepExecution.getJobExecution().getExecutionContext()
-                        .get(BatchJobConstants.CONTEXT_USER_IDS);
-                if (existingIds == null) existingIds = new ArrayList<>();
-                existingIds.addAll(userIds);
+				updateJobRequestStepData(jobRequest, stepExecution, BatchJobConstants.CONTEXT_USER_IDS, existingIds);
+				updateJobRequest(jobRequest, 300, 1, JobRequest.STATUS_SUBMITTED);
 
-                updateJobRequestStepData(jobRequest, stepExecution, BatchJobConstants.CONTEXT_USER_IDS, existingIds);
-                updateJobRequest(jobRequest, 300, 1, JobRequest.STATUS_SUBMITTED);
+				logger.debug("###########");
+				logger.debug("UserWriter updated jobRequest stage=300 status=1");
+				logger.debug("UserWriter jobRequest={}", jobRequest);
+				logger.debug("###########");
 
-                logger.debug("###########");
-                logger.debug("UserWriter updated jobRequest stage=300 status=1");
-                logger.debug("UserWriter jobRequest={}", jobRequest);
-                logger.debug("###########");
+			} catch (Exception e) {
+				logger.error("Error e={}", e);
+				updateJobRequest(jobRequest, jobRequest.getProcessingStage(), 999, JobRequest.STATUS_FAILED,
+						e.getMessage());
+				throw e;
+			}
+		}
+	}
 
-            } catch (Exception e) {
-                logger.error("Error e={}", e);
-                updateJobRequest(jobRequest, jobRequest.getProcessingStage(), 999, 
-                	JobRequest.STATUS_FAILED, e.getMessage());
-                throw e;
-            }
-        }
-    }
+	// =========================================
+	// STEP LISTENER
+	// =========================================
+	@BeforeStep
+	public void beforeStep(StepExecution stepExecution) {
+		logger.debug("beforeStep called for Step2LoadUsersChunkByInnerClass");
+		this.stepExecution = stepExecution;
+	}
 
-    // =========================================
-    // STEP LISTENER
-    // =========================================
-    @BeforeStep
-    public void beforeStep(StepExecution stepExecution) {
-        logger.debug("beforeStep called for Step2LoadUsersChunkByInnerClass");
-        this.stepExecution = stepExecution;
-    }
+	@AfterStep
+	public ExitStatus afterStep(StepExecution stepExecution) {
+		logger.debug("afterStep called for Step2LoadUsersChunkByInnerClass, status={}", stepExecution.getStatus());
+		this.stepExecution = null;
+		return stepExecution.getExitStatus();
+	}
 
-    @AfterStep
-    public ExitStatus afterStep(StepExecution stepExecution) {
-        logger.debug("afterStep called for Step2LoadUsersChunkByInnerClass, status={}", stepExecution.getStatus());
-        this.stepExecution = null;
-        return stepExecution.getExitStatus();
-    }
-
-    // =========================================
-    // Tasklet compliance
-    // =========================================
-    @Override
-    public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) {
-        logger.debug("execute called on Step2LoadUsersChunkByInnerClass - no-op for chunk-based step");
-        return RepeatStatus.FINISHED;
-    }
+	// =========================================
+	// Tasklet compliance
+	// =========================================
+	@Override
+	public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) {
+		logger.debug("execute called on Step2LoadUsersChunkByInnerClass - no-op for chunk-based step");
+		return RepeatStatus.FINISHED;
+	}
 }
