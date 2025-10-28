@@ -49,19 +49,20 @@ public class Step4GenerateCsv extends AbstractJobRequest {
     @Override
     public void beforeStep(StepExecution stepExecution) {
         logger.debug("Step4GenerateCsv beforeStep called");
-
-        // Initialize internal JobRequest
-        jobRequest = jobRequestService.getOneRecentJobRequestByParams(
-                UserListJobConfig.JOB_NAME, 400, 1, JobRequest.STATUS_SUBMITTED);
-        logger.debug("Fetched JobRequest for CSV generation: {}", jobRequest);
+        // NO context modifications here
     }
 
     @Override
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
         StepExecution stepExecution = chunkContext.getStepContext().getStepExecution();
 
+        // Initialize internal JobRequest
+        jobRequest = getOneRecentJobRequestByParams(
+        	UserListJobConfig.JOB_NAME, 400, 1, JobRequest.STATUS_SUBMITTED);
+        logger.debug("execute jobRequest={}", jobRequest);
+        
         if (jobRequest == null) {
-            logger.warn("No JobRequest to process. Skipping CSV generation.");
+            logger.warn("No live JobRequest found");
             return RepeatStatus.FINISHED;
         }
 

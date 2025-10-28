@@ -37,19 +37,20 @@ public class Step5EncryptAndTransfer extends AbstractJobRequest {
     @Override
     public void beforeStep(StepExecution stepExecution) {
         logger.debug("Step5EncryptAndTransfer beforeStep called");
-
-        // Initialize internal JobRequest
-        jobRequest = jobRequestService.getOneRecentJobRequestByParams(
-                UserListJobConfig.JOB_NAME, 500, 1, JobRequest.STATUS_SUBMITTED);
-        logger.debug("Fetched JobRequest for encryption/transfer: {}", jobRequest);
+        // NO context modifications here
     }
 
     @Override
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
         StepExecution stepExecution = chunkContext.getStepContext().getStepExecution();
 
+        // Initialize internal JobRequest
+        jobRequest = jobRequestService.getOneRecentJobRequestByParams(
+                UserListJobConfig.JOB_NAME, 500, 1, JobRequest.STATUS_SUBMITTED);
+        logger.debug("execute jobRequest={}", jobRequest);
+        
         if (jobRequest == null) {
-            logger.warn("No JobRequest to process. Skipping encryption/transfer.");
+            logger.warn("No live JobRequest found");
             return RepeatStatus.FINISHED;
         }
 

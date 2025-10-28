@@ -53,12 +53,12 @@ public class Step1CreateBatchHeader extends AbstractJobRequest {
         // ==========================================
         // STEP 1: Fetch live JobRequest (stage=100, status=SUBMITTED)
         // ==========================================
-        JobRequest jobRequest = jobRequestService.getOneRecentJobRequestByParams(
+        JobRequest jobRequest = getOneRecentJobRequestByParams(
         	UserListJobConfig.JOB_NAME, 100, 1, JobRequest.STATUS_SUBMITTED);
         logger.debug("execute jobRequest={}", jobRequest);
 
         if (jobRequest == null) {
-            logger.error("No live JobRequest found for jobName=UserListJob");
+            logger.error("No live JobRequest found");
             return RepeatStatus.FINISHED;
         }
 

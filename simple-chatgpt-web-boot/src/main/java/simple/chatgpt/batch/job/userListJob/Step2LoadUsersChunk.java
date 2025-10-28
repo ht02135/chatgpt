@@ -74,12 +74,12 @@ public class Step2LoadUsersChunk extends AbstractJobRequest {
             if (!initialized) {
                 logger.debug("UserReader initializing");
 
-                jobRequest = jobRequestService.getOneRecentJobRequestByParams(
-                        UserListJobConfig.JOB_NAME, 200, 1, JobRequest.STATUS_SUBMITTED);
-                logger.debug("UserReader fetched jobRequest={}", jobRequest);
+                jobRequest = getOneRecentJobRequestByParams(
+                	UserListJobConfig.JOB_NAME, 200, 1, JobRequest.STATUS_SUBMITTED);
+                logger.debug("UserReader jobRequest={}", jobRequest);
 
                 if (jobRequest == null) {
-                    logger.debug("No JobRequest found, ending step");
+                    logger.debug("No live JobRequest found");
                     initialized = true;
                     return null;
                 }
