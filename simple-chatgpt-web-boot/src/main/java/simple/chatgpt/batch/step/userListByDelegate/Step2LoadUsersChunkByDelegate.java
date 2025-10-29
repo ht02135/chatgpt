@@ -121,12 +121,14 @@ public class Step2LoadUsersChunkByDelegate extends AbstractJobRequestByDelegateS
         @Override
         public void write(List<? extends UserManagementPojo> users) {
             logger.debug("UserWriter users={}", users);
+            
             try {
                 List<Long> userIds = new ArrayList<>();
                 for (UserManagementPojo user : users) {
                 	logger.debug("UserWriter user={}", user);
                     userIds.add(user.getId());
                 }
+                logger.debug("UserWriter userIds={}", userIds);
 
                 // ==================================================
                 // Use helper methods instead of manual stepData & ExecutionContext
@@ -135,6 +137,7 @@ public class Step2LoadUsersChunkByDelegate extends AbstractJobRequestByDelegateS
                         .get(BatchJobConstants.CONTEXT_USER_IDS);
                 if (existingIds == null) existingIds = new ArrayList<>();
                 existingIds.addAll(userIds);
+                logger.debug("UserWriter existingIds={}", existingIds);
 
                 updateJobRequestStepData(jobRequest, stepExecution, BatchJobConstants.CONTEXT_USER_IDS, existingIds);
                 updateJobRequest(jobRequest, 300, 1, JobRequest.STATUS_SUBMITTED);

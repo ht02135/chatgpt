@@ -129,6 +129,7 @@ public class Step2LoadUsersChunk extends AbstractJobRequestStep {
                     logger.debug("UserWriter user={}", user);
                     userIds.add(user.getId());
                 }
+                logger.debug("UserWriter userIds={}", userIds);
 
                 // ==================================================
                 // Use helper methods instead of manual stepData & ExecutionContext
@@ -137,6 +138,7 @@ public class Step2LoadUsersChunk extends AbstractJobRequestStep {
                         .get(BatchJobConstants.CONTEXT_USER_IDS);
                 if (existingIds == null) existingIds = new ArrayList<>();
                 existingIds.addAll(userIds);
+                logger.debug("UserWriter existingIds={}", existingIds);
 
                 updateJobRequestStepData(jobRequest, stepExecution, BatchJobConstants.CONTEXT_USER_IDS, existingIds);
                 updateJobRequest(jobRequest, 300, 1, JobRequest.STATUS_SUBMITTED);
