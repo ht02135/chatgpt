@@ -139,17 +139,17 @@ public class UserManagementListController {
     }
 
     @DeleteMapping("/delete")
-    public ResponseEntity<Response<Void>> delete(@RequestParam(required = false) Long listId) {
+    public ResponseEntity<Response<Void>> delete(@RequestParam(required = false) Long id) {
         logger.debug("delete called");
-        logger.debug("delete listId={}", listId);
+        logger.debug("delete id={}", id);
 
-        if (listId == null) {
+        if (id == null) {
             logger.debug("delete: missing id");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(Response.error("Missing id parameter", null, HttpStatus.BAD_REQUEST.value()));
         }
 
-        userManagementListService.delete(listId);
+        userManagementListService.delete(id);
         return ResponseEntity.ok(Response.success("Deleted successfully", null, HttpStatus.OK.value()));
     }
 

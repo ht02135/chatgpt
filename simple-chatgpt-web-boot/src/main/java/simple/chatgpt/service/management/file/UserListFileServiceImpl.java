@@ -5,11 +5,7 @@ import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -27,7 +23,7 @@ import simple.chatgpt.ftp.FtpServerConfig;
 import simple.chatgpt.pojo.management.UserManagementListMemberPojo;
 import simple.chatgpt.pojo.management.UserManagementListPojo;
 import simple.chatgpt.service.management.UserManagementListMemberService;
-import simple.chatgpt.util.PagedResult;
+import simple.chatgpt.service.management.UserManagementListService;
 import simple.chatgpt.util.ParamWrapper;
 
 /*
@@ -39,66 +35,42 @@ If you dare remove hung comment, you are in big trouble.
 public class UserListFileServiceImpl implements UserListFileService {
 
     private static final Logger logger = LogManager.getLogger(UserListFileServiceImpl.class);
-
     private static final String MEMBER_GRID_ID = "userListMembers";
 
-    private final Path storageDir;
     private final List<ColumnConfig> uploadColumns;
     private final List<ColumnConfig> downloadColumns;
+    private final UserManagementListService listService;
     private final UserManagementListMemberService memberService;
     private final CsvFileService csvFileService;
     private final ExcelFileService excelFileService;
-
-    // Injected dependencies
     private final FtpServerConfig ftpServerConfig;
-    private final UserListFileService listFileService;
 
     public UserListFileServiceImpl(
+            UserManagementListService listService,
             UserManagementListMemberService memberService,
             DownloadConfigLoader downloadConfigLoader,
             UploadConfigLoader uploadConfigLoader,
             CsvFileService csvFileService,
             ExcelFileService excelFileService,
-            UserListFileService listFileService,
             FtpServerConfig ftpServerConfig) {
 
         logger.debug("UserListFileServiceImpl constructor called");
+        logger.debug("listService={}", listService);
         logger.debug("memberService={}", memberService);
         logger.debug("downloadConfigLoader={}", downloadConfigLoader);
         logger.debug("uploadConfigLoader={}", uploadConfigLoader);
         logger.debug("csvFileService={}", csvFileService);
         logger.debug("excelFileService={}", excelFileService);
-        logger.debug("listFileService={}", listFileService);
         logger.debug("ftpServerConfig={}", ftpServerConfig);
 
+        this.listService = listService;
         this.memberService = memberService;
         this.csvFileService = csvFileService;
         this.excelFileService = excelFileService;
-        this.listFileService = listFileService;
         this.ftpServerConfig = ftpServerConfig;
 
         this.uploadColumns = uploadConfigLoader.getColumns(MEMBER_GRID_ID);
         this.downloadColumns = downloadConfigLoader.getColumns(MEMBER_GRID_ID);
-
-        // ================================
-        // Use WEB-INF/classes/data for storage
-        // ================================
-        String contextPath = System.getProperty("context.path", "/chatgpt-production");
-        String profileFolder = contextPath.startsWith("/chatgpt-production") ? "chatgpt-production" : "chatgpt-dev";
-        String webappClasses = System.getProperty("catalina.base") + "/webapps/" + profileFolder + "/WEB-INF/classes";
-        Path storagePath = Paths.get(webappClasses, "data", "management", "user_lists");
-
-        try {
-            if (!Files.exists(storagePath)) {
-                Files.createDirectories(storagePath);
-                logger.debug("storagePath={}", storagePath);
-            }
-        } catch (Exception e) {
-            logger.error("Failed to create storageDir", e);
-        }
-
-        this.storageDir = storagePath;
-        logger.debug("storageDir={}", this.storageDir);
     }
 
     // ==============================================================
@@ -111,73 +83,54 @@ public class UserListFileServiceImpl implements UserListFileService {
         logger.debug("importListFromCsv params={}", params);
 
         InputStream inputStream = ParamWrapper.unwrap(params, "inputStream");
-        logger.debug("importListFromCsv inputStream={}", inputStream);
-
         UserManagementListPojo list = ParamWrapper.unwrap(params, "list");
         logger.debug("importListFromCsv list={}", list);
 
-        String originalFileName = ParamWrapper.unwrap(params, "originalFileName");
-        logger.debug("importListFromCsv originalFileName={}", originalFileName);
+        // Persist list using proper service
+        UserManagementListPojo createdList = listService.create(list);
+        logger.debug("importListFromCsv createdList={}", createdList);
 
-        Path path = getListFilePath(list.getId(), originalFileName);
-        logger.debug("importListFromCsv path={}", path);
-
-        byte[] bytes = inputStream.readAllBytes();
-        try (OutputStream os = Files.newOutputStream(path)) {
-            os.write(bytes);
-        }
-        list.setFilePath(path.toString());
-
-        List<List<String>> rows = csvFileService.readCsv(new java.io.ByteArrayInputStream(bytes));
+        List<List<String>> rows = csvFileService.readCsv(inputStream);
         logger.debug("importListFromCsv total rows read={}", rows.size());
 
-        List<UserManagementListMemberPojo> members = new ArrayList<>();
         Iterator<List<String>> iterator = rows.iterator();
         if (iterator.hasNext()) iterator.next(); // skip header
 
         while (iterator.hasNext()) {
             List<String> row = iterator.next();
             UserManagementListMemberPojo member = new UserManagementListMemberPojo();
+            member.setListId(createdList.getId());
             for (int i = 0; i < uploadColumns.size() && i < row.size(); i++) {
                 setFieldValue(member, uploadColumns.get(i).getName(), row.get(i));
             }
-            members.add(member);
+            UserManagementListMemberPojo createdMember = memberService.create(member);
+            logger.debug("importListFromCsv createdMember={}", createdMember);
         }
-
-        logger.debug("importListFromCsv DONE for listId={}", list.getId());
     }
 
     @Override
     public void exportListToCsv(Map<String, Object> params) throws Exception {
         logger.debug("exportListToCsv START");
-        logger.debug("exportListToCsv params={}", params);
-
         Long listId = ParamWrapper.unwrap(params, "listId");
         logger.debug("exportListToCsv listId={}", listId);
-
         OutputStream outputStream = ParamWrapper.unwrap(params, "outputStream");
-        logger.debug("exportListToCsv outputStream={}", outputStream);
 
-        PagedResult<UserManagementListMemberPojo> result = getMembersByListId(listId);
-        List<UserManagementListMemberPojo> members = result.getItems();
+        List<UserManagementListMemberPojo> members = memberService.getMembersByListId(listId);
 
         List<String> headers = new ArrayList<>();
-        for (ColumnConfig c : downloadColumns) {
-            headers.add(c.getDbField());
-        }
+        for (ColumnConfig c : downloadColumns) headers.add(c.getDbField());
+        logger.debug("exportListToCsv headers={}", headers);
 
         List<List<String>> rows = new ArrayList<>();
         for (UserManagementListMemberPojo m : members) {
             List<String> row = new ArrayList<>();
-            for (ColumnConfig c : downloadColumns) {
-                row.add(getFieldValue(m, c.getName()));
-            }
+            for (ColumnConfig c : downloadColumns) row.add(getFieldValue(m, c.getName()));
             rows.add(row);
         }
+        logger.debug("exportListToCsv rows={}", rows);
 
         csvFileService.writeCsv(headers, rows, outputStream);
-
-        logger.debug("exportListToCsv DONE for listId={}", listId);
+        logger.debug("exportListToCsv DONE listId={}", listId);
     }
 
     // ==============================================================
@@ -187,170 +140,65 @@ public class UserListFileServiceImpl implements UserListFileService {
     @Override
     public void importListFromExcel(Map<String, Object> params) throws Exception {
         logger.debug("importListFromExcel START");
-        logger.debug("importListFromExcel params={}", params);
-
         InputStream inputStream = ParamWrapper.unwrap(params, "inputStream");
-        logger.debug("importListFromExcel inputStream={}", inputStream);
-
         UserManagementListPojo list = ParamWrapper.unwrap(params, "list");
         logger.debug("importListFromExcel list={}", list);
 
-        String originalFileName = ParamWrapper.unwrap(params, "originalFileName");
-        logger.debug("importListFromExcel originalFileName={}", originalFileName);
+        UserManagementListPojo createdList = listService.create(list);
+        logger.debug("importListFromExcel createdList={}", createdList);
 
-        byte[] bytes = inputStream.readAllBytes();
-        logger.debug("importListFromExcel bytes length={}", bytes.length);
-
-        List<List<String>> rows = excelFileService.readExcel(new java.io.ByteArrayInputStream(bytes), originalFileName);
+        List<List<String>> rows = excelFileService.readExcel(inputStream, "import.xlsx");
         logger.debug("importListFromExcel total rows read={}", rows.size());
 
-        List<UserManagementListMemberPojo> members = new ArrayList<>();
         Iterator<List<String>> iterator = rows.iterator();
         if (iterator.hasNext()) iterator.next(); // skip header
 
         while (iterator.hasNext()) {
             List<String> row = iterator.next();
             UserManagementListMemberPojo member = new UserManagementListMemberPojo();
+            member.setListId(createdList.getId());
             for (int i = 0; i < uploadColumns.size() && i < row.size(); i++) {
                 setFieldValue(member, uploadColumns.get(i).getName(), row.get(i));
             }
-            members.add(member);
+            UserManagementListMemberPojo createdMember = memberService.create(member);
+            logger.debug("importListFromExcel createdMember={}", createdMember);
         }
-
-        Path path = getListFilePath(list.getId(), originalFileName);
-        try (OutputStream os = Files.newOutputStream(path)) {
-            os.write(bytes);
-        }
-        list.setFilePath(path.toString());
-
-        logger.debug("importListFromExcel DONE for listId={}", list.getId());
     }
 
     @Override
     public void exportListToExcel(Map<String, Object> params) throws Exception {
         logger.debug("exportListToExcel START");
-        logger.debug("exportListToExcel params={}", params);
-
         Long listId = ParamWrapper.unwrap(params, "listId");
         logger.debug("exportListToExcel listId={}", listId);
-
         OutputStream outputStream = ParamWrapper.unwrap(params, "outputStream");
-        logger.debug("exportListToExcel outputStream={}", outputStream);
 
-        PagedResult<UserManagementListMemberPojo> result = getMembersByListId(listId);
-        List<UserManagementListMemberPojo> members = result.getItems();
+        List<UserManagementListMemberPojo> members = memberService.getMembersByListId(listId);
 
         List<String> headers = new ArrayList<>();
-        for (ColumnConfig c : downloadColumns) {
-            headers.add(c.getDbField());
-        }
+        for (ColumnConfig c : downloadColumns) headers.add(c.getDbField());
+        logger.debug("exportListToExcel headers={}", headers);
 
         List<List<String>> rows = new ArrayList<>();
         for (UserManagementListMemberPojo m : members) {
             List<String> row = new ArrayList<>();
-            for (ColumnConfig c : downloadColumns) {
-                row.add(getFieldValue(m, c.getName()));
-            }
+            for (ColumnConfig c : downloadColumns) row.add(getFieldValue(m, c.getName()));
             rows.add(row);
         }
+        logger.debug("exportListToExcel rows={}", rows);
 
         excelFileService.writeExcel(headers, rows, outputStream);
-
-        logger.debug("exportListToExcel DONE for listId={}", listId);
+        logger.debug("exportListToExcel DONE listId={}", listId);
     }
 
     // ==============================================================
-    // ================ SUPPORT METHODS ==============================
+    // ================ FTP HELPERS =================================
     // ==============================================================
 
-    /*
-    hung : dont remove
-    assume originalFileName='test_user_lists_1.csv'
-    path /data/uploads/list_1.csv
-    */
-    private Path getListFilePath(Long listId, String originalFileName) {
-        logger.debug("getListFilePath START");
-        logger.debug("getListFilePath listId={}", listId);
-        logger.debug("getListFilePath originalFileName={}", originalFileName);
-
-        String extension = "";
-        int dot = originalFileName.lastIndexOf('.');
-        if (dot >= 0) extension = originalFileName.substring(dot);
-        Path path = storageDir.resolve("list_" + listId + extension);
-        logger.debug("getListFilePath storageDir={}", storageDir);
-        logger.debug("getListFilePath path={}", path);
-        
-        logger.debug("getListFilePath DONE");
-        return path;
-    }
-
-    private String getFieldValue(UserManagementListMemberPojo member, String property) {
-        logger.debug("getFieldValue START");
-        logger.debug("getFieldValue member={}", member);
-        logger.debug("getFieldValue property={}", property);
-
-        try {
-            String mName = "get" + property.substring(0, 1).toUpperCase() + property.substring(1);
-            Method m = UserManagementListMemberPojo.class.getMethod(mName);
-            Object val = m.invoke(member);
-            logger.debug("getFieldValue DONE");
-            return val != null ? val.toString() : "";
-        } catch (Exception e) {
-            logger.warn("Failed getFieldValue '{}': {}", property, e.getMessage());
-            logger.debug("getFieldValue DONE with exception");
-            return "";
-        }
-    }
-
-    private void setFieldValue(UserManagementListMemberPojo member, String property, String value) {
-        logger.debug("setFieldValue START");
-        logger.debug("setFieldValue member={}", member);
-        logger.debug("setFieldValue property={}", property);
-        logger.debug("setFieldValue value={}", value);
-
-        try {
-            String mName = "set" + property.substring(0, 1).toUpperCase() + property.substring(1);
-            Method m = UserManagementListMemberPojo.class.getMethod(mName, String.class);
-            m.invoke(member, value);
-        } catch (Exception e) {
-            logger.warn("Failed setFieldValue '{}': {}", property, e.getMessage());
-        }
-
-        logger.debug("setFieldValue DONE");
-    }
-
-    private PagedResult<UserManagementListMemberPojo> getMembersByListId(Long listId) {
-        logger.debug("getMembersByListId START");
-        logger.debug("getMembersByListId listId={}", listId);
-
-        int page = 0;
-        int size = Integer.MAX_VALUE;
-        int offset = page * size;
-
-        Map<String, Object> mapperParams = new HashMap<>();
-        mapperParams.put("listId", listId);
-        mapperParams.put("offset", offset);
-        mapperParams.put("limit", size);
-
-        List<UserManagementListMemberPojo> members = memberService.getMembersByParams(mapperParams);
-        long total = members.size();
-
-        logger.debug("getMembersByListId result size={} total={}", members.size(), total);
-        return new PagedResult<>(members, total, page, size);
-    }
-    
-    /*
-    hung: helper to export CSV to Mock FTP server
-    */
     @Override
     public void exportCsvToFtp(Long listId, File csvFile, File parentDir) throws Exception {
         logger.debug("exportCsvToFtp START");
-        logger.debug("exportCsvToFtp csvFile={}", csvFile);
-        logger.debug("exportCsvToFtp parentDir={}", parentDir);
-
         FileSystem fs = ftpServerConfig.getFtpServer().getFileSystem();
 
-        // Ensure parent directory exists in FTP
         String ftpParentPath = parentDir.getAbsolutePath().replace("\\", "/");
         if (!fs.exists(ftpParentPath)) {
             String[] parts = ftpParentPath.split("/");
@@ -358,35 +206,55 @@ public class UserListFileServiceImpl implements UserListFileService {
             for (String part : parts) {
                 if (part.isBlank()) continue;
                 pathSoFar += "/" + part;
-                if (!fs.exists(pathSoFar)) {
-                    fs.add(new DirectoryEntry(pathSoFar));
-                    logger.debug("exportCsvToFtp pathSoFar={}", pathSoFar);
-                }
+                if (!fs.exists(pathSoFar)) fs.add(new DirectoryEntry(pathSoFar));
             }
         }
+        logger.debug("exportCsvToFtp ftpParentPath={}", ftpParentPath);
 
-        // Prepare file entry
         String ftpFilePath = csvFile.getAbsolutePath().replace("\\", "/");
         logger.debug("exportCsvToFtp ftpFilePath={}", ftpFilePath);
+        if (!fs.exists(ftpFilePath)) fs.add(new org.mockftpserver.fake.filesystem.FileEntry(ftpFilePath));
 
-        if (!fs.exists(ftpFilePath)) {
-            fs.add(new org.mockftpserver.fake.filesystem.FileEntry(ftpFilePath));
-        }
-
-        // Generate CSV into a byte array
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        Map<String, Object> params = Map.of(
-                "listId", listId,
-                "outputStream", baos
-        );
-        exportListToCsv(params);
+        exportListToCsv(Map.of("listId", listId, "outputStream", baos));
 
-        // Set contents in Mock FTP file
         org.mockftpserver.fake.filesystem.FileEntry fileEntry =
                 (org.mockftpserver.fake.filesystem.FileEntry) fs.getEntry(ftpFilePath);
         fileEntry.setContents(baos.toByteArray());
 
-        logger.debug("CSV successfully uploaded to FTP: {}", ftpFilePath);
+        logger.debug("exportCsvToFtp ftpFilePath={}", ftpFilePath);
         logger.debug("exportCsvToFtp DONE");
+    }
+
+    // ==============================================================
+    // ================ HELPER METHODS ==============================
+    // ==============================================================
+
+    private String getFieldValue(UserManagementListMemberPojo member, String property) {
+        logger.debug("getFieldValue START");
+        try {
+            String getter = "get" + property.substring(0, 1).toUpperCase() + property.substring(1);
+            Method m = UserManagementListMemberPojo.class.getMethod(getter);
+            Object val = m.invoke(member);
+            return val != null ? val.toString() : "";
+        } catch (Exception e) {
+            logger.warn("Failed getFieldValue '{}': {}", property, e.getMessage());
+            return "";
+        } finally {
+            logger.debug("getFieldValue DONE");
+        }
+    }
+
+    private void setFieldValue(UserManagementListMemberPojo member, String property, String value) {
+        logger.debug("setFieldValue START");
+        try {
+            String setter = "set" + property.substring(0, 1).toUpperCase() + property.substring(1);
+            Method m = UserManagementListMemberPojo.class.getMethod(setter, String.class);
+            m.invoke(member, value);
+        } catch (Exception e) {
+            logger.warn("Failed setFieldValue '{}': {}", property, e.getMessage());
+        } finally {
+            logger.debug("setFieldValue DONE");
+        }
     }
 }
