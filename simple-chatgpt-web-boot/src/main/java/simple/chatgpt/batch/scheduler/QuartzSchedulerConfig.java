@@ -1,4 +1,4 @@
-package simple.chatgpt.config.batch.scheduler;
+package simple.chatgpt.batch.scheduler;
 
 import org.quartz.CronScheduleBuilder;
 import org.quartz.JobBuilder;
@@ -8,8 +8,8 @@ import org.quartz.TriggerBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import simple.chatgpt.config.batch.launcher.UserListJobByDelegateQuartzLauncher;
-import simple.chatgpt.config.batch.launcher.UserListJobQuartzLauncher;
+import simple.chatgpt.batch.launcher.UserListJobByDelegateQuartzLauncher;
+import simple.chatgpt.batch.launcher.UserListJobQuartzLauncher;
 
 @Configuration
 public class QuartzSchedulerConfig {

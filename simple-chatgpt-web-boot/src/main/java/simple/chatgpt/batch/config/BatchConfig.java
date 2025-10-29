@@ -1,4 +1,4 @@
-package simple.chatgpt.config.batch;
+package simple.chatgpt.batch.config;
 
 import javax.sql.DataSource;
 
