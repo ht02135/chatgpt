@@ -132,7 +132,8 @@ public class UserListFileServiceImpl implements UserListFileService {
         OutputStream outputStream = ParamWrapper.unwrap(params, "outputStream");
 
         List<UserManagementListMemberPojo> members = memberService.getMembersByListId(listId);
-
+        logger.debug("exportListToCsv members={}", members);
+        
         List<String> headers = new ArrayList<>();
         for (ColumnConfig c : downloadColumns) headers.add(c.getDbField());
         logger.debug("exportListToCsv headers={}", headers);
@@ -206,7 +207,8 @@ public class UserListFileServiceImpl implements UserListFileService {
         OutputStream outputStream = ParamWrapper.unwrap(params, "outputStream");
 
         List<UserManagementListMemberPojo> members = memberService.getMembersByListId(listId);
-
+        logger.debug("exportListToExcel members={}", members);
+        
         List<String> headers = new ArrayList<>();
         for (ColumnConfig c : downloadColumns) headers.add(c.getDbField());
         logger.debug("exportListToExcel headers={}", headers);
@@ -219,7 +221,18 @@ public class UserListFileServiceImpl implements UserListFileService {
         }
         logger.debug("exportListToExcel rows={}", rows);
 
+        // Write Excel to provided OutputStream
         excelFileService.writeExcel(headers, rows, outputStream);
+
+        // ========== Update list file path ==========
+        UserManagementListPojo list = listService.get(listId);
+        String ftpRootPath = ftpServerConfig.getFtpRootPath();
+        String fileName = "list_" + listId + ".xlsx"; // you can customize naming
+        String excelFilePath = ftpRootPath + "/" + fileName;
+        list.setFilePath(excelFilePath);
+        listService.update(list.getId(), list);
+        logger.debug("exportListToExcel excelFilePath={}", excelFilePath);
+
         logger.debug("exportListToExcel DONE listId={}", listId);
     }
 
@@ -240,7 +253,7 @@ public class UserListFileServiceImpl implements UserListFileService {
         // Ensure FTP root exists
         if (!fs.exists(ftpRootPath)) {
             fs.add(new DirectoryEntry(ftpRootPath.replace("\\", "/")));
-            logger.debug("exportCsvToFtp created ftpRootPath={}", ftpRootPath);
+            logger.debug("exportCsvToFtp ftpRootPath={}", ftpRootPath);
         }
 
         // Build FTP file path
@@ -249,7 +262,7 @@ public class UserListFileServiceImpl implements UserListFileService {
 
         if (!fs.exists(ftpFilePath)) {
             fs.add(new org.mockftpserver.fake.filesystem.FileEntry(ftpFilePath));
-            logger.debug("exportCsvToFtp added new FileEntry for path={}", ftpFilePath);
+            logger.debug("exportCsvToFtp ftpFilePath={}", ftpFilePath);
         }
 
         // Export CSV into memory
@@ -262,8 +275,21 @@ public class UserListFileServiceImpl implements UserListFileService {
         fileEntry.setContents(baos.toByteArray());
         logger.debug("exportCsvToFtp wrote {} bytes to ftpFilePath={}", baos.size(), ftpFilePath);
 
+        // ========== Write real file to disk ==========
+        try (java.io.FileOutputStream fos = new java.io.FileOutputStream(csvFile)) {
+            baos.writeTo(fos);
+            logger.debug("exportCsvToFtp wrote {} bytes to real file path={}", baos.size(), csvFile.getAbsolutePath());
+        }
+
+        // ========== Update list.filePath in DB ==========
+        UserManagementListPojo list = listService.get(listId);
+        list.setFilePath(csvFile.getAbsolutePath());
+        listService.update(listId, list);
+        logger.debug("exportCsvToFtp updated list.filePath={}", csvFile.getAbsolutePath());
+
         logger.debug("exportCsvToFtp DONE");
     }
+
 
     // ==============================================================
     // ================ HELPER METHODS ==============================

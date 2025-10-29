@@ -75,24 +75,12 @@ public class Step5EncryptAndTransferByDelegate extends AbstractJobRequestByDeleg
         }
 
         try {
-            String filePath = jobRequest.getStepData() != null
-                    ? (String) jobRequest.getStepData().get(BatchJobConstants.CONTEXT_LIST_FILE_PATH)
-                    : null;
-
-            if (filePath == null) {
-                logger.warn("No CSV file path found in JobRequest.stepData. Skipping transfer.");
-                return RepeatStatus.FINISHED;
-            }
-
-            logger.debug("Encrypting and transferring file={}", filePath);
-
             // TODO: implement actual PGP encryption + FTP transfer
 
             String fileName = jobRequest.getDownloadUrl();
             logger.debug("Generated fileName={}", fileName);
 
             // ==== use helpers instead of direct stepData put & mapper update ====
-            updateJobRequestStepData(jobRequest, stepExecution, BatchJobConstants.CONTEXT_LIST_FILE_PATH, filePath);
             updateJobRequestStepData(jobRequest, stepExecution, BatchJobConstants.DOWNLOAD_URL, fileName);
 
             // ==== mark JobRequest completed ====

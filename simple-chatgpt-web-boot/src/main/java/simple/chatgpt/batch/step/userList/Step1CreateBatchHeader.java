@@ -75,6 +75,7 @@ public class Step1CreateBatchHeader extends AbstractJobRequestStep {
         jobRequest.setDownloadUrl(fileNameWithTimestamp);
         
         String fullFilePath = Paths.get(BatchJobConstants.USER_LIST_BASE_DIR, fileNameWithTimestamp).toString();
+        userList.setOriginalFileName(fileNameWithTimestamp);
         userList.setFilePath(fullFilePath);
         logger.debug("execute userList filePath set to {}", fullFilePath);
 
