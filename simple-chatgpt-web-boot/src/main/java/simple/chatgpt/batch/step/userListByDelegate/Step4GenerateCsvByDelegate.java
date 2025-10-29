@@ -28,7 +28,7 @@ import simple.chatgpt.pojo.batch.JobRequest;
 import simple.chatgpt.service.management.file.UserListFileService;
 
 @Component
-public class Step4GenerateCsvByDelegate extends AbstractJobRequestDelegate implements Tasklet {
+public class Step4GenerateCsvByDelegate extends AbstractJobRequestByDelegateStep implements Tasklet {
 
     private static final Logger logger = LogManager.getLogger(Step4GenerateCsvByDelegate.class);
 

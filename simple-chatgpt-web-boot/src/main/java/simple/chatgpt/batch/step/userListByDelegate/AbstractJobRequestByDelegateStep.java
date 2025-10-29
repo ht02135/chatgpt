@@ -8,33 +8,22 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
 
-import simple.chatgpt.batch.step.AbstractJobRequest;
+import simple.chatgpt.batch.step.AbstractJobRequestStep;
 import simple.chatgpt.mapper.batch.JobRequestMapper;
 import simple.chatgpt.mapper.management.UserManagementMapper;
 import simple.chatgpt.pojo.management.UserManagementPojo;
 
-/*
-hung:
-Abstract base class for all delegate-based steps.
--------------------------------------------------
-This base:
- - Extends StepExecutionListenerSupport and implements Tasklet
- - Provides MyBatis-based JobRequest lookups (no service)
- - Centralizes logging
- - Allows subclasses to only focus on their actual business logic
-*/
-
 @Component
-public abstract class AbstractJobRequestDelegate extends AbstractJobRequest {
+public abstract class AbstractJobRequestByDelegateStep extends AbstractJobRequestStep {
 
-    private static final Logger logger = LogManager.getLogger(AbstractJobRequestDelegate.class);
+    private static final Logger logger = LogManager.getLogger(AbstractJobRequestByDelegateStep.class);
 
     protected final UserManagementMapper userManagementMapper;
 
     /**
      * Constructor injection for mappers
      */
-    protected AbstractJobRequestDelegate(JobRequestMapper jobRequestMapper,
+    protected AbstractJobRequestByDelegateStep(JobRequestMapper jobRequestMapper,
                                          UserManagementMapper userManagementMapper) {
         super(jobRequestMapper);
         this.userManagementMapper = userManagementMapper;

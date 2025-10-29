@@ -21,7 +21,7 @@ import simple.chatgpt.mapper.management.UserManagementMapper;
 import simple.chatgpt.pojo.batch.JobRequest;
 
 @Component
-public class Step5EncryptAndTransferByDelegate extends AbstractJobRequestDelegate implements Tasklet {
+public class Step5EncryptAndTransferByDelegate extends AbstractJobRequestByDelegateStep implements Tasklet {
 
     private static final Logger logger = LogManager.getLogger(Step5EncryptAndTransferByDelegate.class);
 

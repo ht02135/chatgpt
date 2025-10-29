@@ -27,7 +27,7 @@ import simple.chatgpt.pojo.batch.JobRequest;
 import simple.chatgpt.pojo.management.UserManagementPojo;
 
 @Component
-public class Step2LoadUsersChunkByDelegate extends AbstractJobRequestDelegate {
+public class Step2LoadUsersChunkByDelegate extends AbstractJobRequestByDelegateStep {
 
     private static final Logger logger = LogManager.getLogger(Step2LoadUsersChunkByDelegate.class);
 

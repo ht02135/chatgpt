@@ -31,7 +31,7 @@ This version uses MyBatis mappers directly (no service layer).
 */
 
 @Component
-public class Step1CreateBatchHeaderByDelegate extends AbstractJobRequestDelegate {
+public class Step1CreateBatchHeaderByDelegate extends AbstractJobRequestByDelegateStep {
 
     private static final Logger logger = LogManager.getLogger(Step1CreateBatchHeaderByDelegate.class);
 

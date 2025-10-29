@@ -21,7 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import simple.chatgpt.batch.job.userList.UserListJobConfig;
-import simple.chatgpt.batch.step.AbstractJobRequest;
+import simple.chatgpt.batch.step.AbstractJobRequestStep;
 import simple.chatgpt.batch.step.BatchJobConstants;
 import simple.chatgpt.mapper.batch.JobRequestMapper;
 import simple.chatgpt.pojo.batch.JobRequest;
@@ -33,7 +33,7 @@ import simple.chatgpt.service.management.UserManagementListService;
 import simple.chatgpt.service.management.UserManagementService;
 
 @Component
-public class Step3PopulateUserListChunk extends AbstractJobRequest {
+public class Step3PopulateUserListChunk extends AbstractJobRequestStep {
 
     private static final Logger logger = LogManager.getLogger(Step3PopulateUserListChunk.class);
 

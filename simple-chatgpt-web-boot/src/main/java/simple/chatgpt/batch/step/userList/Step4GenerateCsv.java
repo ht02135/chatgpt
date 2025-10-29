@@ -17,7 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import simple.chatgpt.batch.job.userList.UserListJobConfig;
-import simple.chatgpt.batch.step.AbstractJobRequest;
+import simple.chatgpt.batch.step.AbstractJobRequestStep;
 import simple.chatgpt.batch.step.BatchJobConstants;
 import simple.chatgpt.mapper.batch.JobRequestMapper;
 import simple.chatgpt.pojo.batch.JobRequest;
@@ -29,7 +29,7 @@ hung: step 4 - generate user list CSV file
 */
 
 @Component
-public class Step4GenerateCsv extends AbstractJobRequest {
+public class Step4GenerateCsv extends AbstractJobRequestStep {
 
     private static final Logger logger = LogManager.getLogger(Step4GenerateCsv.class);
 

@@ -30,7 +30,7 @@ import simple.chatgpt.pojo.management.UserManagementListMemberPojo;
 import simple.chatgpt.pojo.management.UserManagementPojo;
 
 @Component
-public class Step3PopulateUserListChunkByDelegate extends AbstractJobRequestDelegate {
+public class Step3PopulateUserListChunkByDelegate extends AbstractJobRequestByDelegateStep {
 
     private static final Logger logger = LogManager.getLogger(Step3PopulateUserListChunkByDelegate.class);
 

@@ -36,7 +36,7 @@ Using MyBatisCursorItemReader ensures you’re streaming users efficiently, inst
 */
 
 @Component
-public class Step2LoadUsersChunkByInnerClass extends AbstractJobRequestDelegate {
+public class Step2LoadUsersChunkByInnerClass extends AbstractJobRequestByDelegateStep {
 
 	private static final Logger logger = LogManager.getLogger(Step2LoadUsersChunkByInnerClass.class);
 
