@@ -37,13 +37,19 @@ public class BatchJobController {
 
     @Autowired
     private Job userListJob;
+    
+    @Autowired
+    private Job userListJobByDelegate;
+    
+    @Autowired
+    private Job userListJobByInnerClass;
 
     @Autowired
     private JobRequestService jobRequestService; // <-- inject service
 
     // ------------------ RUN USER LIST JOB ------------------
     @GetMapping("/runUserListJob")
-    public ResponseEntity<Response<Void>> runJob() {
+    public ResponseEntity<Response<Void>> runUserListJob() {
         logger.debug("runUserListJob START");
 
         if (userListJob == null) {
@@ -62,6 +68,56 @@ public class BatchJobController {
 
         } catch (Exception e) {
             logger.error("runUserListJob FAILED", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Response.error("Job failed: " + e.getMessage(), null, HttpStatus.INTERNAL_SERVER_ERROR.value()));
+        }
+    }
+    
+    @GetMapping("/runUserListJobByDelegate")
+    public ResponseEntity<Response<Void>> runUserListJobByDelegate() {
+        logger.debug("runUserListJobByDelegate START");
+
+        if (userListJobByDelegate == null) {
+            logger.error("runUserListJobByDelegate failed: userListJobByDelegate bean is null");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Response.error("userListJobByDelegate bean is not available", null, HttpStatus.INTERNAL_SERVER_ERROR.value()));
+        }
+
+        try {
+            jobLauncher.run(userListJobByDelegate, new JobParametersBuilder()
+                    .addLong("timestamp", System.currentTimeMillis())
+                    .toJobParameters());
+
+            logger.debug("runUserListJobByDelegate SUCCESS");
+            return ResponseEntity.ok(Response.success("Job started successfully", null, HttpStatus.OK.value()));
+
+        } catch (Exception e) {
+            logger.error("runUserListJobByDelegate FAILED", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Response.error("Job failed: " + e.getMessage(), null, HttpStatus.INTERNAL_SERVER_ERROR.value()));
+        }
+    }
+    
+    @GetMapping("/runUserListJobByInnerClass")
+    public ResponseEntity<Response<Void>> runUserListJobByInnerClass() {
+        logger.debug("runUserListJobByInnerClass START");
+
+        if (userListJobByInnerClass == null) {
+            logger.error("runUserListJobByInnerClass failed: userListJobByInnerClass bean is null");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Response.error("userListJobByInnerClass bean is not available", null, HttpStatus.INTERNAL_SERVER_ERROR.value()));
+        }
+
+        try {
+            jobLauncher.run(userListJobByInnerClass, new JobParametersBuilder()
+                    .addLong("timestamp", System.currentTimeMillis())
+                    .toJobParameters());
+
+            logger.debug("runUserListJobByInnerClass SUCCESS");
+            return ResponseEntity.ok(Response.success("Job started successfully", null, HttpStatus.OK.value()));
+
+        } catch (Exception e) {
+            logger.error("runUserListJobByInnerClass FAILED", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Response.error("Job failed: " + e.getMessage(), null, HttpStatus.INTERNAL_SERVER_ERROR.value()));
         }
