@@ -73,8 +73,7 @@ public class Step3PopulateUserListChunkByInnerClass extends AbstractJobRequestBy
 
 		public UserReader() {
 			setSqlSessionFactory(sqlSessionFactory);
-			setQueryId("simple.chatgpt.mapper.management.UserManagementMapper.selectAllUsersForJob");
-			logger.debug("UserReader initialized with MyBatisCursorItemReader");
+			setQueryId("simple.chatgpt.mapper.management.UserManagementMapper.getAll");
 		}
 
 		@Override
@@ -141,7 +140,7 @@ public class Step3PopulateUserListChunkByInnerClass extends AbstractJobRequestBy
 				for (UserManagementListMemberPojo member : members) {
 					memberMapper.create(member);
 					memberIds.add(member.getId());
-					logger.debug("UserWriter saved list member user={}", member.getUserName());
+					logger.debug("UserWriter member={}", member);
 				}
 
 				// === use helper methods instead of manual map updates ===

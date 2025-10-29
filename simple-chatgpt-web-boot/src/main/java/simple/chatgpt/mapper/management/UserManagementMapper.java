@@ -17,5 +17,5 @@ public interface UserManagementMapper {
     void delete(@Param("id") Long id);
 
     // ======= OTHER METHODS  =======
-
+    List<UserManagementPojo> getAll();
 }

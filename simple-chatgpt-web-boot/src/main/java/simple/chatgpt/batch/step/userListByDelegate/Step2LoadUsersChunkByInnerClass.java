@@ -113,7 +113,7 @@ public class Step2LoadUsersChunkByInnerClass extends AbstractJobRequestByDelegat
 			try {
 				List<Long> userIds = new ArrayList<>();
 				for (UserManagementPojo user : users) {
-					logger.debug("UserWriter processing user id={}, userName={}", user.getId(), user.getUserName());
+					logger.debug("UserWriter processing user={}", user);
 					userIds.add(user.getId());
 				}
 

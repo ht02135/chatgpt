@@ -144,4 +144,31 @@
 
 	<!-- ======= OTHER METHODS ======= -->
 
+    <select id="getAll" resultMap="UserManagementResultMap">
+        SELECT
+            id,
+            user_name,
+            user_key,
+            password,
+            first_name,
+            last_name,
+            email,
+            address_line_1,
+            address_line_2,
+            city,
+            state,
+            post_code,
+            country,
+            active,
+            locked,
+            last_login_ip,
+            last_login_at,
+            jwt_secret_version,
+            delimit_role_groups,
+            created_at,
+            updated_at
+        FROM user_management
+        ORDER BY id
+    </select>
+
 </mapper>
