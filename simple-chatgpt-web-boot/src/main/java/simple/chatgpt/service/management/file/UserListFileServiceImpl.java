@@ -77,14 +77,14 @@ public class UserListFileServiceImpl implements UserListFileService {
         try {
             if (!Files.exists(storagePath)) {
                 Files.createDirectories(storagePath);
-                logger.debug("Created storageDir at {}", storagePath.toAbsolutePath());
+                logger.debug("UserListFileServiceImpl storagePath={}", storagePath);
             }
         } catch (Exception e) {
             logger.error("Failed to create storageDir", e);
         }
 
         this.storageDir = storagePath;
-        logger.debug("Using storageDir={}", this.storageDir.toAbsolutePath());
+        logger.debug("UserListFileServiceImpl storageDir={}", this.storageDir);
     }
 
     // ==============================================================
@@ -249,6 +249,11 @@ public class UserListFileServiceImpl implements UserListFileService {
     // ================ SUPPORT METHODS ==============================
     // ==============================================================
 
+    /*
+    hung : dont remove
+    assume originalFileName='test_user_lists_1.csv'
+    path /data/uploads/list_1.csv
+    */
     private Path getListFilePath(Long listId, String originalFileName) {
         logger.debug("getListFilePath START");
         logger.debug("getListFilePath listId={}", listId);
@@ -258,7 +263,9 @@ public class UserListFileServiceImpl implements UserListFileService {
         int dot = originalFileName.lastIndexOf('.');
         if (dot >= 0) extension = originalFileName.substring(dot);
         Path path = storageDir.resolve("list_" + listId + extension);
-
+        logger.debug("getListFilePath storageDir={}", storageDir);
+        logger.debug("getListFilePath path={}", path);
+        
         logger.debug("getListFilePath DONE");
         return path;
     }

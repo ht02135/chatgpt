@@ -14,6 +14,9 @@
         <Logger name="simple.chatgpt.batch" level="DEBUG" additivity="false">
             <AppenderRef ref="LogToConsole"/>
         </Logger>
+        <Logger name="simple.chatgpt.service.management.file" level="DEBUG" additivity="false">
+            <AppenderRef ref="LogToConsole"/>
+        </Logger>
 
         <!-- ============================= -->
         <!-- Other application packages ERROR -->
