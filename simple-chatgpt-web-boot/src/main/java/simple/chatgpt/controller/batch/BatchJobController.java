@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import simple.chatgpt.batch.BatchJobConstants;
+import simple.chatgpt.batch.step.BatchJobConstants;
 import simple.chatgpt.pojo.batch.JobRequest;
 import simple.chatgpt.service.batch.JobRequestService; // <-- import service
 import simple.chatgpt.util.Response;
