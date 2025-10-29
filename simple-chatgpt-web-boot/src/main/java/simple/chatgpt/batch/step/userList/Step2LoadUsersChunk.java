@@ -93,6 +93,10 @@ public class Step2LoadUsersChunk extends AbstractJobRequestStep {
                 initialized = true;
             }
 
+            logger.debug("UserReader ##########");
+            logger.debug("UserReader allUsers.size={}", allUsers.size());
+            logger.debug("UserReader index={}", index);
+            logger.debug("UserReader ##########");
             if (allUsers == null || index >= allUsers.size()) {
                 logger.debug("No more users, returning null");
                 return null;

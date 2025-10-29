@@ -123,7 +123,7 @@ public class Step3PopulateUserListChunkByInnerClass extends AbstractJobRequestBy
 			member.setCountry(user.getCountry());
 			member.setCreatedAt(new java.sql.Timestamp(System.currentTimeMillis()));
 			member.setUpdatedAt(new java.sql.Timestamp(System.currentTimeMillis()));
-			logger.debug("UserProcessor member=", member);
+			logger.debug("UserProcessor member={}", member);
 			return member;
 		}
 	}

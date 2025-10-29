@@ -102,6 +102,10 @@ public class Step3PopulateUserListChunk extends AbstractJobRequestStep {
                 initialized = true;
             }
 
+            logger.debug("UserReader ##########");
+            logger.debug("UserReader userIds.size={}", userIds.size());
+            logger.debug("UserReader index={}", index);
+            logger.debug("UserReader ##########");
             if (userIds == null || index >= userIds.size()) {
                 return null;
             }
@@ -144,7 +148,7 @@ public class Step3PopulateUserListChunk extends AbstractJobRequestStep {
             member.setCountry(user.getCountry());
             member.setCreatedAt(new java.sql.Timestamp(System.currentTimeMillis()));
             member.setUpdatedAt(new java.sql.Timestamp(System.currentTimeMillis()));
-            logger.debug("UserProcessor member=", member);
+            logger.debug("UserProcessor member={}", member);
             
             return member;
         }
@@ -156,7 +160,7 @@ public class Step3PopulateUserListChunk extends AbstractJobRequestStep {
     private class UserWriter implements ItemWriter<UserManagementListMemberPojo> {
         @Override
         public void write(List<? extends UserManagementListMemberPojo> members) {
-        	logger.debug("UserWriter members=", members);
+        	logger.debug("UserWriter members={}", members);
 
             try {
                 List<Long> memberIds = new ArrayList<>();
@@ -164,13 +168,13 @@ public class Step3PopulateUserListChunk extends AbstractJobRequestStep {
                     memberService.create(member);
                     memberIds.add(member.getId());
                 }
-                logger.debug("UserWriter memberIds=", memberIds);
+                logger.debug("UserWriter memberIds={}", memberIds);
 
                 List<Long> existingMemberIds = (List<Long>) stepExecution.getJobExecution().getExecutionContext()
                         .get(BatchJobConstants.CONTEXT_MEMBER_IDS);
                 if (existingMemberIds == null) existingMemberIds = new ArrayList<>();
                 existingMemberIds.addAll(memberIds);
-                logger.debug("UserWriter existingMemberIds=", existingMemberIds);
+                logger.debug("UserWriter existingMemberIds={}", existingMemberIds);
 
                 // === use updateJobRequestStepData & updateJobRequest ===
                 updateJobRequestStepData(jobRequest, stepExecution, BatchJobConstants.CONTEXT_MEMBER_IDS, existingMemberIds);
