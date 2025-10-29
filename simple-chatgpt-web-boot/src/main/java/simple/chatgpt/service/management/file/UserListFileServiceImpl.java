@@ -86,10 +86,24 @@ public class UserListFileServiceImpl implements UserListFileService {
         UserManagementListPojo list = ParamWrapper.unwrap(params, "list");
         logger.debug("importListFromCsv list={}", list);
 
+        // set file path before saving
+        String ftpRootPath = ftpServerConfig.getFtpRootPath();
+        String listFilePath = ftpRootPath + "/" + list.getOriginalFileName();
+        list.setFilePath(listFilePath);
+        logger.debug("importListFromCsv set filePath={}", listFilePath);
+
         // Persist list using proper service
         UserManagementListPojo createdList = listService.create(list);
         logger.debug("importListFromCsv createdList={}", createdList);
 
+        // Ensure FTP file exists in the fake FTP server
+        FileSystem fs = ftpServerConfig.getFtpServer().getFileSystem();
+        if (!fs.exists(listFilePath)) {
+            fs.add(new org.mockftpserver.fake.filesystem.FileEntry(listFilePath));
+            logger.debug("importListFromCsv added FileEntry in FTP for listFilePath={}", listFilePath);
+        }
+
+        // Read CSV rows
         List<List<String>> rows = csvFileService.readCsv(inputStream);
         logger.debug("importListFromCsv total rows read={}", rows.size());
 
@@ -106,6 +120,8 @@ public class UserListFileServiceImpl implements UserListFileService {
             UserManagementListMemberPojo createdMember = memberService.create(member);
             logger.debug("importListFromCsv createdMember={}", createdMember);
         }
+
+        logger.debug("importListFromCsv DONE for listFilePath={}", listFilePath);
     }
 
     @Override
@@ -144,9 +160,24 @@ public class UserListFileServiceImpl implements UserListFileService {
         UserManagementListPojo list = ParamWrapper.unwrap(params, "list");
         logger.debug("importListFromExcel list={}", list);
 
+        // set file path before saving
+        String ftpRootPath = ftpServerConfig.getFtpRootPath();
+        String listFilePath = ftpRootPath + "/" + list.getOriginalFileName();
+        list.setFilePath(listFilePath);
+        logger.debug("importListFromExcel set filePath={}", listFilePath);
+
+        // Persist list using proper service
         UserManagementListPojo createdList = listService.create(list);
         logger.debug("importListFromExcel createdList={}", createdList);
 
+        // Ensure FTP file exists in the fake FTP server
+        FileSystem fs = ftpServerConfig.getFtpServer().getFileSystem();
+        if (!fs.exists(listFilePath)) {
+            fs.add(new org.mockftpserver.fake.filesystem.FileEntry(listFilePath));
+            logger.debug("importListFromExcel added FileEntry in FTP for listFilePath={}", listFilePath);
+        }
+
+        // Read Excel rows
         List<List<String>> rows = excelFileService.readExcel(inputStream, "import.xlsx");
         logger.debug("importListFromExcel total rows read={}", rows.size());
 
@@ -163,6 +194,8 @@ public class UserListFileServiceImpl implements UserListFileService {
             UserManagementListMemberPojo createdMember = memberService.create(member);
             logger.debug("importListFromExcel createdMember={}", createdMember);
         }
+
+        logger.debug("importListFromExcel DONE for listFilePath={}", listFilePath);
     }
 
     @Override
@@ -195,34 +228,40 @@ public class UserListFileServiceImpl implements UserListFileService {
     // ==============================================================
 
     @Override
-    public void exportCsvToFtp(Long listId, File csvFile, File parentDir) throws Exception {
+    public void exportCsvToFtp(Long listId, File csvFile) throws Exception {
         logger.debug("exportCsvToFtp START");
+        logger.debug("exportCsvToFtp listId={}", listId);
+        logger.debug("exportCsvToFtp csvFile={}", csvFile);
+
         FileSystem fs = ftpServerConfig.getFtpServer().getFileSystem();
+        String ftpRootPath = ftpServerConfig.getFtpRootPath();
+        logger.debug("exportCsvToFtp ftpRootPath={}", ftpRootPath);
 
-        String ftpParentPath = parentDir.getAbsolutePath().replace("\\", "/");
-        if (!fs.exists(ftpParentPath)) {
-            String[] parts = ftpParentPath.split("/");
-            String pathSoFar = "";
-            for (String part : parts) {
-                if (part.isBlank()) continue;
-                pathSoFar += "/" + part;
-                if (!fs.exists(pathSoFar)) fs.add(new DirectoryEntry(pathSoFar));
-            }
+        // Ensure FTP root exists
+        if (!fs.exists(ftpRootPath)) {
+            fs.add(new DirectoryEntry(ftpRootPath.replace("\\", "/")));
+            logger.debug("exportCsvToFtp created ftpRootPath={}", ftpRootPath);
         }
-        logger.debug("exportCsvToFtp ftpParentPath={}", ftpParentPath);
 
-        String ftpFilePath = csvFile.getAbsolutePath().replace("\\", "/");
+        // Build FTP file path
+        String ftpFilePath = ftpRootPath.replace("\\", "/") + "/" + csvFile.getName();
         logger.debug("exportCsvToFtp ftpFilePath={}", ftpFilePath);
-        if (!fs.exists(ftpFilePath)) fs.add(new org.mockftpserver.fake.filesystem.FileEntry(ftpFilePath));
 
+        if (!fs.exists(ftpFilePath)) {
+            fs.add(new org.mockftpserver.fake.filesystem.FileEntry(ftpFilePath));
+            logger.debug("exportCsvToFtp added new FileEntry for path={}", ftpFilePath);
+        }
+
+        // Export CSV into memory
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         exportListToCsv(Map.of("listId", listId, "outputStream", baos));
 
+        // Write CSV bytes into fake FTP file
         org.mockftpserver.fake.filesystem.FileEntry fileEntry =
                 (org.mockftpserver.fake.filesystem.FileEntry) fs.getEntry(ftpFilePath);
         fileEntry.setContents(baos.toByteArray());
+        logger.debug("exportCsvToFtp wrote {} bytes to ftpFilePath={}", baos.size(), ftpFilePath);
 
-        logger.debug("exportCsvToFtp ftpFilePath={}", ftpFilePath);
         logger.debug("exportCsvToFtp DONE");
     }
 

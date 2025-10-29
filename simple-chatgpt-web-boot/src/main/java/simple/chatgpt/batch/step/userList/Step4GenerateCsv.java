@@ -106,7 +106,7 @@ public class Step4GenerateCsv extends AbstractJobRequestStep {
                     "outputStream", fos
             );
             // listFileService.exportListToCsv(params);
-            listFileService.exportCsvToFtp(listId, csvFile, parentDir);
+            listFileService.exportCsvToFtp(listId, csvFile);
             logger.debug("exec csvFile.getAbsolutePath={}", csvFile.getAbsolutePath());
 
             // === use helper methods for updating JobRequest ===

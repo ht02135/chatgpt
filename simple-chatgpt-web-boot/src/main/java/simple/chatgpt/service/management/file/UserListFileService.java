@@ -11,5 +11,5 @@ public interface UserListFileService {
 	public void importListFromExcel(Map<String, Object> params) throws Exception;
 	public void exportListToExcel(Map<String, Object> params) throws Exception;
 
-	public void exportCsvToFtp(Long listId, File csvFile, File parentDir) throws Exception; 
+	public void exportCsvToFtp(Long listId, File csvFile) throws Exception; 
 }
