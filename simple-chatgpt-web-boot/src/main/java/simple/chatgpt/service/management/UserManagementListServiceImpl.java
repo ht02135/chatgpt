@@ -1,8 +1,5 @@
 package simple.chatgpt.service.management;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,15 +9,12 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import simple.chatgpt.config.management.ColumnConfig;
 import simple.chatgpt.config.management.loader.DownloadConfigLoader;
 import simple.chatgpt.config.management.loader.UploadConfigLoader;
 import simple.chatgpt.mapper.management.UserManagementListMapper;
 import simple.chatgpt.pojo.management.UserManagementListPojo;
-import simple.chatgpt.service.management.file.UserListFileServiceImpl;
 import simple.chatgpt.util.PagedResult;
 import simple.chatgpt.util.SafeConverter;
-
 
 @Service
 public class UserManagementListServiceImpl implements UserManagementListService {
@@ -31,56 +25,21 @@ public class UserManagementListServiceImpl implements UserManagementListService 
     private final DownloadConfigLoader downloadConfigLoader;
     private final UploadConfigLoader uploadConfigLoader;
     private final UserManagementListMapper listMapper;
-    private final UserManagementListMemberService memberService;
-    private final Path storageDir;
-    private final List<ColumnConfig> uploadColumns;
-    private final List<ColumnConfig> downloadColumns;
-
-    /*
-    hung: inject UserListFileServiceImpl for file handling
-    */
-    private final UserListFileServiceImpl userListFileService;
 
     @Autowired
     public UserManagementListServiceImpl(UserManagementListMapper listMapper,
-                                         UserManagementListMemberService memberService,
                                          DownloadConfigLoader downloadConfigLoader,
-                                         UploadConfigLoader uploadConfigLoader,
-                                         UserListFileServiceImpl userListFileService) throws Exception {
+                                         UploadConfigLoader uploadConfigLoader) {
 
         logger.debug("UserManagementListServiceImpl constructor called");
-        logger.debug("UserManagementListServiceImpl listMapper={}", listMapper);
-        logger.debug("UserManagementListServiceImpl memberService={}", memberService);
-        logger.debug("UserManagementListServiceImpl downloadConfigLoader={}", downloadConfigLoader);
-        logger.debug("UserManagementListServiceImpl uploadConfigLoader={}", uploadConfigLoader);
-        logger.debug("UserManagementListServiceImpl userListFileService={}", userListFileService);
+        logger.debug("listMapper={}", listMapper);
+        logger.debug("downloadConfigLoader={}", downloadConfigLoader);
+        logger.debug("uploadConfigLoader={}", uploadConfigLoader);
 
         this.listMapper = listMapper;
-        this.memberService = memberService;
         this.downloadConfigLoader = downloadConfigLoader;
         this.uploadConfigLoader = uploadConfigLoader;
-        this.userListFileService = userListFileService;
 
-        // ================================
-        // FIX: Use deployed WAR folder dynamically
-        // ================================
-        String webappsDir = System.getProperty("catalina.base") + "/webapps";
-        String warName = System.getProperty("war.name", "chatgpt-production");
-        String webappRoot = webappsDir + "/" + warName;
-
-        storageDir = Paths.get(webappRoot, "data/management/user_lists");
-
-        if (!Files.exists(storageDir)) {
-            Files.createDirectories(storageDir);
-            logger.debug("Storage directory created at relativePath={}", storageDir);
-            logger.debug("Storage directory created at absolutePath={}", storageDir.toAbsolutePath());
-        } else {
-            logger.debug("Storage directory exists at relativePath={}", storageDir);
-            logger.debug("Storage directory exists at absolutePath={}", storageDir.toAbsolutePath());
-        }
-
-        this.uploadColumns = this.uploadConfigLoader.getColumns(MEMBER_GRID_ID);
-        this.downloadColumns = this.downloadConfigLoader.getColumns(MEMBER_GRID_ID);
         logger.debug("UserManagementListServiceImpl DONE");
     }
 
@@ -119,7 +78,6 @@ public class UserManagementListServiceImpl implements UserManagementListService 
 
         if (!params.containsKey("offset")) params.put("offset", String.valueOf(offset));
         if (!params.containsKey("limit")) params.put("limit", String.valueOf(size));
-
         if (!params.containsKey("sortField")) params.put("sortField", "id");
         if (!params.containsKey("sortDirection")) params.put("sortDirection", "ASC");
         params.put("sortDirection", params.get("sortDirection").toUpperCase());
