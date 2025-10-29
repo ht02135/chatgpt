@@ -1,5 +1,7 @@
 package simple.chatgpt.service.management.file;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
@@ -14,11 +16,14 @@ import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.mockftpserver.fake.filesystem.DirectoryEntry;
+import org.mockftpserver.fake.filesystem.FileSystem;
 import org.springframework.stereotype.Service;
 
 import simple.chatgpt.config.management.ColumnConfig;
 import simple.chatgpt.config.management.loader.DownloadConfigLoader;
 import simple.chatgpt.config.management.loader.UploadConfigLoader;
+import simple.chatgpt.ftp.FtpServerConfig;
 import simple.chatgpt.pojo.management.UserManagementListMemberPojo;
 import simple.chatgpt.pojo.management.UserManagementListPojo;
 import simple.chatgpt.service.management.UserManagementListMemberService;
@@ -36,55 +41,64 @@ public class UserListFileServiceImpl implements UserListFileService {
     private static final Logger logger = LogManager.getLogger(UserListFileServiceImpl.class);
 
     private static final String MEMBER_GRID_ID = "userListMembers";
-    
+
     private final Path storageDir;
     private final List<ColumnConfig> uploadColumns;
     private final List<ColumnConfig> downloadColumns;
     private final UserManagementListMemberService memberService;
-
     private final CsvFileService csvFileService;
     private final ExcelFileService excelFileService;
+
+    // Injected dependencies
+    private final FtpServerConfig ftpServerConfig;
+    private final UserListFileService listFileService;
 
     public UserListFileServiceImpl(
             UserManagementListMemberService memberService,
             DownloadConfigLoader downloadConfigLoader,
             UploadConfigLoader uploadConfigLoader,
             CsvFileService csvFileService,
-            ExcelFileService excelFileService) {
+            ExcelFileService excelFileService,
+            UserListFileService listFileService,
+            FtpServerConfig ftpServerConfig) {
 
         logger.debug("UserListFileServiceImpl constructor called");
-        logger.debug("UserListFileServiceImpl memberService={}", memberService);
-        logger.debug("UserListFileServiceImpl downloadConfigLoader={}", downloadConfigLoader);
-        logger.debug("UserListFileServiceImpl uploadConfigLoader={}", uploadConfigLoader);
-        logger.debug("UserListFileServiceImpl csvFileService={}", csvFileService);
-        logger.debug("UserListFileServiceImpl excelFileService={}", excelFileService);
+        logger.debug("memberService={}", memberService);
+        logger.debug("downloadConfigLoader={}", downloadConfigLoader);
+        logger.debug("uploadConfigLoader={}", uploadConfigLoader);
+        logger.debug("csvFileService={}", csvFileService);
+        logger.debug("excelFileService={}", excelFileService);
+        logger.debug("listFileService={}", listFileService);
+        logger.debug("ftpServerConfig={}", ftpServerConfig);
 
         this.memberService = memberService;
         this.csvFileService = csvFileService;
         this.excelFileService = excelFileService;
+        this.listFileService = listFileService;
+        this.ftpServerConfig = ftpServerConfig;
+
         this.uploadColumns = uploadConfigLoader.getColumns(MEMBER_GRID_ID);
         this.downloadColumns = downloadConfigLoader.getColumns(MEMBER_GRID_ID);
 
         // ================================
-        // FIX: Use WEB-INF/classes/data for storage
+        // Use WEB-INF/classes/data for storage
         // ================================
-        String contextPath = System.getProperty("context.path", "/chatgpt-production"); // default prod
+        String contextPath = System.getProperty("context.path", "/chatgpt-production");
         String profileFolder = contextPath.startsWith("/chatgpt-production") ? "chatgpt-production" : "chatgpt-dev";
-        
         String webappClasses = System.getProperty("catalina.base") + "/webapps/" + profileFolder + "/WEB-INF/classes";
         Path storagePath = Paths.get(webappClasses, "data", "management", "user_lists");
 
         try {
             if (!Files.exists(storagePath)) {
                 Files.createDirectories(storagePath);
-                logger.debug("UserListFileServiceImpl storagePath={}", storagePath);
+                logger.debug("storagePath={}", storagePath);
             }
         } catch (Exception e) {
             logger.error("Failed to create storageDir", e);
         }
 
         this.storageDir = storagePath;
-        logger.debug("UserListFileServiceImpl storageDir={}", this.storageDir);
+        logger.debug("storageDir={}", this.storageDir);
     }
 
     // ==============================================================
@@ -323,5 +337,56 @@ public class UserListFileServiceImpl implements UserListFileService {
 
         logger.debug("getMembersByListId result size={} total={}", members.size(), total);
         return new PagedResult<>(members, total, page, size);
+    }
+    
+    /*
+    hung: helper to export CSV to Mock FTP server
+    */
+    @Override
+    public void exportCsvToFtp(Long listId, File csvFile, File parentDir) throws Exception {
+        logger.debug("exportCsvToFtp START");
+        logger.debug("exportCsvToFtp csvFile={}", csvFile);
+        logger.debug("exportCsvToFtp parentDir={}", parentDir);
+
+        FileSystem fs = ftpServerConfig.getFtpServer().getFileSystem();
+
+        // Ensure parent directory exists in FTP
+        String ftpParentPath = parentDir.getAbsolutePath().replace("\\", "/");
+        if (!fs.exists(ftpParentPath)) {
+            String[] parts = ftpParentPath.split("/");
+            String pathSoFar = "";
+            for (String part : parts) {
+                if (part.isBlank()) continue;
+                pathSoFar += "/" + part;
+                if (!fs.exists(pathSoFar)) {
+                    fs.add(new DirectoryEntry(pathSoFar));
+                    logger.debug("exportCsvToFtp pathSoFar={}", pathSoFar);
+                }
+            }
+        }
+
+        // Prepare file entry
+        String ftpFilePath = csvFile.getAbsolutePath().replace("\\", "/");
+        logger.debug("exportCsvToFtp ftpFilePath={}", ftpFilePath);
+
+        if (!fs.exists(ftpFilePath)) {
+            fs.add(new org.mockftpserver.fake.filesystem.FileEntry(ftpFilePath));
+        }
+
+        // Generate CSV into a byte array
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        Map<String, Object> params = Map.of(
+                "listId", listId,
+                "outputStream", baos
+        );
+        exportListToCsv(params);
+
+        // Set contents in Mock FTP file
+        org.mockftpserver.fake.filesystem.FileEntry fileEntry =
+                (org.mockftpserver.fake.filesystem.FileEntry) fs.getEntry(ftpFilePath);
+        fileEntry.setContents(baos.toByteArray());
+
+        logger.debug("CSV successfully uploaded to FTP: {}", ftpFilePath);
+        logger.debug("exportCsvToFtp DONE");
     }
 }

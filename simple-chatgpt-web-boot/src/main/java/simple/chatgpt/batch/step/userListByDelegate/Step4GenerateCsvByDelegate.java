@@ -95,6 +95,11 @@ public class Step4GenerateCsvByDelegate extends AbstractJobRequestByDelegateStep
             boolean created = parentDir.mkdirs();
             logger.debug("CSV parent directory created: {}", created ? parentDir.getAbsolutePath() : "FAILED");
         }
+        /*
+		hung : dont remove it
+		csvFile=\\data\\user_lists\\generated_user_lists_20251029_1044.csv
+		parentDir=\\data\\user_lists
+        */
         logger.debug("execute csvFile={}", csvFile);
         logger.debug("execute parentDir={}", parentDir);
 
@@ -103,7 +108,8 @@ public class Step4GenerateCsvByDelegate extends AbstractJobRequestByDelegateStep
                     "listId", listId,
                     "outputStream", fos
             );
-            listFileService.exportListToCsv(params);
+            // listFileService.exportListToCsv(params);
+            listFileService.exportCsvToFtp(listId, csvFile, parentDir);
             logger.debug("exec csvFile.getAbsolutePath={}", csvFile.getAbsolutePath());
 
             // ==== USE updateJobRequestStepData ====
