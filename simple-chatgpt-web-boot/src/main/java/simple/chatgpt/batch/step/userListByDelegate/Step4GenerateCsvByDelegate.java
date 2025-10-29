@@ -79,36 +79,32 @@ public class Step4GenerateCsvByDelegate extends AbstractJobRequestByDelegateStep
         Number listIdNum = (Number) stepExecution.getJobExecution()
                 .getExecutionContext().get(BatchJobConstants.CONTEXT_LIST_ID);
         Long listId = (listIdNum != null) ? listIdNum.longValue() : null;
-
         String userListFilePath = (String) stepExecution.getJobExecution()
                 .getExecutionContext().get(BatchJobConstants.CONTEXT_LIST_FILE_PATH);
-
+        logger.debug("execute listId={}", listId);
+        logger.debug("execute userListFilePath={}", userListFilePath);
+        
         if (listId == null || userListFilePath == null || userListFilePath.isBlank()) {
             logger.warn("LIST_ID or LIST_FILE_PATH missing. Skipping CSV generation.");
             return RepeatStatus.FINISHED;
         }
-
-        logger.debug("Generating CSV for listId={} at path={}", listId, userListFilePath);
-
+        
         File csvFile = Paths.get(userListFilePath).toFile();
         File parentDir = csvFile.getParentFile();
         if (!parentDir.exists()) {
             boolean created = parentDir.mkdirs();
             logger.debug("CSV parent directory created: {}", created ? parentDir.getAbsolutePath() : "FAILED");
         }
+        logger.debug("execute csvFile={}", csvFile);
+        logger.debug("execute parentDir={}", parentDir);
 
         try (OutputStream fos = new FileOutputStream(csvFile)) {
             Map<String, Object> params = Map.of(
                     "listId", listId,
                     "outputStream", fos
             );
-            /*
-            hung : dont remove it
-            i could add the helper, but risk split this complex thing into 2 place
-            i chose to just localize in listService.
-            */
             listFileService.exportListToCsv(params);
-            logger.debug("CSV successfully generated at {}", csvFile.getAbsolutePath());
+            logger.debug("exec csvFile.getAbsolutePath={}", csvFile.getAbsolutePath());
 
             // ==== USE updateJobRequestStepData ====
             updateJobRequestStepData(jobRequest, stepExecution, BatchJobConstants.CONTEXT_LIST_FILE_PATH, userListFilePath);

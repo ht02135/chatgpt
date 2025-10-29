@@ -72,25 +72,18 @@ public class Step4GenerateCsv extends AbstractJobRequestStep {
             return RepeatStatus.FINISHED;
         }
 
-        Map<String, Object> stepData = jobRequest.getStepData();
-        if (stepData == null) {
-            logger.warn("JobRequest.stepData is null. Skipping CSV generation.");
-            return RepeatStatus.FINISHED;
-        }
-
         Number listIdNum = (Number) stepExecution.getJobExecution()
                 .getExecutionContext().get(BatchJobConstants.CONTEXT_LIST_ID);
         Long listId = (listIdNum != null) ? listIdNum.longValue() : null;
-
         String userListFilePath = (String) stepExecution.getJobExecution().getExecutionContext()
                 .get(BatchJobConstants.CONTEXT_LIST_FILE_PATH);
-
+        logger.debug("execute listId={}", listId);
+        logger.debug("execute userListFilePath={}", userListFilePath);
+        
         if (listId == null || userListFilePath == null || userListFilePath.isBlank()) {
             logger.warn("LIST_ID or LIST_FILE_PATH missing. Skipping CSV generation.");
             return RepeatStatus.FINISHED;
         }
-
-        logger.debug("Generating CSV for listId={} at path={}", listId, userListFilePath);
 
         // Ensure parent directory exists
         File csvFile = Paths.get(userListFilePath).toFile();
@@ -99,15 +92,16 @@ public class Step4GenerateCsv extends AbstractJobRequestStep {
             boolean created = parentDir.mkdirs();
             logger.debug("CSV parent directory creation: {}", created ? parentDir.getAbsolutePath() : "FAILED");
         }
+        logger.debug("execute csvFile={}", csvFile);
+        logger.debug("execute parentDir={}", parentDir);
 
         try (OutputStream fos = new FileOutputStream(csvFile)) {
             Map<String, Object> params = Map.of(
                     "listId", listId,
                     "outputStream", fos
             );
-
             listFileService.exportListToCsv(params);
-            logger.debug("CSV successfully generated at {}", csvFile.getAbsolutePath());
+            logger.debug("exec csvFile.getAbsolutePath={}", csvFile.getAbsolutePath());
 
             // === use helper methods for updating JobRequest ===
             updateJobRequestStepData(jobRequest, stepExecution, BatchJobConstants.CONTEXT_LIST_FILE_PATH, userListFilePath);
