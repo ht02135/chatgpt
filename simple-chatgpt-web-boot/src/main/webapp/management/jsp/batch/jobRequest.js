@@ -59,12 +59,19 @@ function JobRequestViewModel(params, config) {
         return params.toString();
     };
 	
-	self.runBatch = async function(job) {
-	    console.log("jobRequest.js -> runBatch: job=", job);
-	    if (!confirm('Are you sure you want to run the batch job?')) return;
+	/*
+	hung:
+	Generic runBatchJob(job, endpoint)
+	This replaces runBatch / runBatch2 / runBatch3 duplication.
+	*/
+	self.runBatchJob = async function(job, endpoint) {
+	    console.log("jobRequest.js -> runBatchJob: job=", job);
+	    console.log("jobRequest.js -> runBatchJob: endpoint=", endpoint);
+
+	    if (!confirm(`Are you sure you want to run the batch job (${endpoint})?`)) return;
 
 	    try {
-			const url = API_BATCH_REQUEST + "/runUserListJob";
+	        const url = API_BATCH_REQUEST + "/" + endpoint;
 	        console.log("Calling:", url);
 
 	        const response = await fetch(url, {
@@ -74,24 +81,44 @@ function JobRequestViewModel(params, config) {
 
 	        if (!response.ok) {
 	            const text = await response.text();
-	            console.error("runBatch failed:", text);
+	            console.error(`runBatchJob failed for ${endpoint}:`, text);
 	            alert("Batch job failed: " + text);
 	            return;
 	        }
 
 	        const result = await response.json();
-	        console.log("runBatch result =", result);
+	        console.log(`runBatchJob(${endpoint}) result =`, result);
 
 	        if (result.success) {
-	            alert("✅ Job started successfully!");
+	            alert(`✅ Job '${endpoint}' started successfully!`);
 	        } else {
-	            alert("⚠️ Job failed: " + (result.message || "Unknown error"));
+	            alert(`⚠️ Job '${endpoint}' failed: ` + (result.message || "Unknown error"));
 	        }
 
 	    } catch (e) {
-	        console.error("runBatch exception:", e);
+	        console.error(`runBatchJob(${endpoint}) exception:`, e);
 	        alert("Error: " + e.message);
 	    }
+	};
+
+	/*
+	hung:
+	These thin wrappers preserve compatibility with existing XML <action> jsMethod entries.
+	*/
+
+	self.runBatch = function(job) {
+	    console.log("runBatch called");
+	    return self.runBatchJob(job, "runUserListJob");
+	};
+
+	self.runBatch2 = function(job) {
+	    console.log("runBatch2 called");
+	    return self.runBatchJob(job, "runUserListJobByDelegate");
+	};
+
+	self.runBatch3 = function(job) {
+	    console.log("runBatch3 called");
+	    return self.runBatchJob(job, "runUserListJobByInnerClass");
 	};
 	
     // ========== Use /search endpoint ==========

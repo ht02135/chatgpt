@@ -219,6 +219,10 @@
 			jsMethod="deleteJobRequest" />
 		<action name="RunBatch" label="RunBatch"
 			visible="true" jsMethod="runBatch" />
+		<action name="RunBatch2" label="RunBatch2"
+			visible="true" jsMethod="runBatch2" />
+		<action name="RunBatch3" label="RunBatch3"
+			visible="true" jsMethod="runBatch3" />
 	</actions>
 
 	<!-- Grid showing JobRequests -->
