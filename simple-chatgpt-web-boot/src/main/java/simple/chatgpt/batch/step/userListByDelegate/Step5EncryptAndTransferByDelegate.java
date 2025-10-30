@@ -3,15 +3,12 @@ package simple.chatgpt.batch.step.userListByDelegate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.batch.core.ExitStatus;
-import org.springframework.batch.core.Step;
 import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.StepExecution;
-import org.springframework.batch.core.annotation.AfterStep;
-import org.springframework.batch.core.annotation.BeforeStep;
-import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.repeat.RepeatStatus;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import simple.chatgpt.batch.job.userList.UserListJobConfig;
@@ -27,44 +24,33 @@ public class Step5EncryptAndTransferByDelegate extends AbstractJobRequestByDeleg
 
     private JobRequest jobRequest;
 
-    /**
-     * Constructor calling superclass with required mappers
-     */
+    @Autowired
     public Step5EncryptAndTransferByDelegate(JobRequestMapper jobRequestMapper,
                                              UserManagementMapper userManagementMapper) {
         super(jobRequestMapper, userManagementMapper);
     }
 
-    public Step step5EncryptAndTransferByDelegate(StepBuilderFactory stepBuilderFactory) {
-        logger.debug("step5EncryptAndTransferByDelegate called");
-        return stepBuilderFactory.get("step5EncryptAndTransferByDelegate")
-                .tasklet(this)
-                .listener(this)
-                .build();
-    }
-
-    // ==================================================
-    // STEP LISTENER
-    // ==================================================
-    @BeforeStep
+    @Override
     public void beforeStep(StepExecution stepExecution) {
-        logger.debug("beforeStep called for Step5EncryptAndTransferByDelegate");
-        // NO context modifications here
+        logger.debug("beforeStep called");
+        logger.debug("beforeStep stepExecution={}", stepExecution);
     }
 
-    @AfterStep
+    @Override
     public ExitStatus afterStep(StepExecution stepExecution) {
-        logger.debug("afterStep called for Step5EncryptAndTransferByDelegate, status={}", stepExecution.getStatus());
+        logger.debug("afterStep called");
+        logger.debug("afterStep stepExecution={}", stepExecution);
         return stepExecution.getExitStatus();
     }
 
-    // ==================================================
-    // TASKLET EXECUTE
-    // ==================================================
     @Override
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
-        StepExecution stepExecution = chunkContext.getStepContext().getStepExecution();
+        logger.debug("execute called");
 
+        StepExecution stepExecution = chunkContext.getStepContext().getStepExecution();
+        logger.debug("execute stepExecution={}", stepExecution);
+
+        // Initialize internal JobRequest
         jobRequest = getOneRecentJobRequestByParams(
                 UserListJobConfig.JOB_NAME, 500, 1, JobRequest.STATUS_SUBMITTED);
         logger.debug("execute jobRequest={}", jobRequest);
@@ -76,20 +62,14 @@ public class Step5EncryptAndTransferByDelegate extends AbstractJobRequestByDeleg
 
         try {
             // TODO: implement actual PGP encryption + FTP transfer
-
             String fileName = jobRequest.getDownloadUrl();
             logger.debug("Generated fileName={}", fileName);
 
-            // ==== use helpers instead of direct stepData put & mapper update ====
+            // ==== USE updateJobRequestStepData ====
             updateJobRequestStepData(jobRequest, stepExecution, BatchJobConstants.DOWNLOAD_URL, fileName);
 
-            // ==== mark JobRequest completed ====
+            // ==== USE updateJobRequest to mark completed ====
             updateJobRequest(jobRequest, 1000, 1, JobRequest.STATUS_COMPLETED);
-
-            logger.debug("###########");
-            logger.debug("JobRequest updated to stage=1000 status=1 (completed)");
-            logger.debug("JobRequest jobRequest={}", jobRequest);
-            logger.debug("###########");
 
         } catch (Exception e) {
             logger.error("Error e={}", e);
@@ -100,4 +80,5 @@ public class Step5EncryptAndTransferByDelegate extends AbstractJobRequestByDeleg
 
         return RepeatStatus.FINISHED;
     }
+
 }

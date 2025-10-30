@@ -34,16 +34,26 @@ public class Step5EncryptAndTransfer extends AbstractJobRequestStep {
 
     @Override
     public void beforeStep(StepExecution stepExecution) {
-        logger.debug("Step5EncryptAndTransfer beforeStep called");
-        // NO context modifications here
+        logger.debug("beforeStep called");
+        logger.debug("beforeStep stepExecution={}", stepExecution);
     }
 
     @Override
+    public ExitStatus afterStep(StepExecution stepExecution) {
+        logger.debug("afterStep called");
+        logger.debug("afterStep stepExecution={}", stepExecution);
+        return stepExecution.getExitStatus();
+    }
+    
+    @Override
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
+        logger.debug("execute called");
+
         StepExecution stepExecution = chunkContext.getStepContext().getStepExecution();
+        logger.debug("execute stepExecution={}", stepExecution);
 
         // Initialize internal JobRequest
-        jobRequest = jobRequestService.getOneRecentJobRequestByParams(
+        jobRequest = getOneRecentJobRequestByParams(
                 UserListJobConfig.JOB_NAME, 500, 1, JobRequest.STATUS_SUBMITTED);
         logger.debug("execute jobRequest={}", jobRequest);
         
@@ -54,11 +64,6 @@ public class Step5EncryptAndTransfer extends AbstractJobRequestStep {
 
         try {
             // TODO: implement actual PGP encryption + FTP transfer
-            // Simulated step here, just for logging
-
-            // ==================================================
-            // Generate downloadable URL
-            // ==================================================
             String fileName = jobRequest.getDownloadUrl();
             logger.debug("Generated fileName={}", fileName);
 
@@ -68,24 +73,14 @@ public class Step5EncryptAndTransfer extends AbstractJobRequestStep {
             // ==== USE updateJobRequest to mark completed ====
             updateJobRequest(jobRequest, 1000, 1, JobRequest.STATUS_COMPLETED);
 
-            logger.debug("###########");
-            logger.debug("JobRequest updated to stage=1000 status=1 (completed)");
-            logger.debug("JobRequest jobRequest={}", jobRequest);
-            logger.debug("###########");
-
         } catch (Exception e) {
             logger.error("Error e={}", e);
             updateJobRequest(jobRequest, jobRequest.getProcessingStage(), 999, 
             	JobRequest.STATUS_FAILED, e.getMessage());
-            throw e; // fail the step
+            throw e;
         }
 
         return RepeatStatus.FINISHED;
     }
 
-    @Override
-    public ExitStatus afterStep(StepExecution stepExecution) {
-        logger.debug("Step5EncryptAndTransfer finished with status {}", stepExecution.getStatus());
-        return stepExecution.getExitStatus();
-    }
 }
