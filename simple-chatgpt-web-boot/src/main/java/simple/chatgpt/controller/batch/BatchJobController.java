@@ -21,7 +21,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import simple.chatgpt.batch.step.BatchJobConstants;
 import simple.chatgpt.pojo.batch.JobRequest;
 import simple.chatgpt.service.batch.JobRequestService; // <-- import service
 import simple.chatgpt.util.Response;
@@ -46,6 +45,9 @@ public class BatchJobController {
 
     @Autowired
     private JobRequestService jobRequestService; // <-- inject service
+    
+    @Autowired
+    private simple.chatgpt.ftp.FtpServerConfig ftpServerConfig; // <-- inject FTP config
 
     // ------------------ RUN USER LIST JOB ------------------
     @GetMapping("/runUserListJob")
@@ -152,7 +154,7 @@ public class BatchJobController {
 
         // Get the file name from the job request
         String fileName = jobRequest.getDownloadUrl(); // or jobRequest.getFileName()
-        File file = new File(BatchJobConstants.USER_LIST_BASE_DIR, fileName);
+        File file = ftpServerConfig.getTargetFile(fileName);
         logger.debug("downloadFile fileName={}", fileName);
         logger.debug("downloadFile file={}", file);
 
@@ -183,6 +185,9 @@ public class BatchJobController {
             logger.error("Error streaming file: {}", file.getAbsolutePath(), e);
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
         }
+
+        logger.debug("downloadFile DONE");
     }
+
 
 }

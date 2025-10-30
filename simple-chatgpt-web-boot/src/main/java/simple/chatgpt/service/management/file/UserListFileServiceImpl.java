@@ -1,6 +1,5 @@
 package simple.chatgpt.service.management.file;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -12,8 +11,6 @@ import java.util.Map;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.mockftpserver.fake.filesystem.DirectoryEntry;
-import org.mockftpserver.fake.filesystem.FileSystem;
 import org.springframework.stereotype.Service;
 
 import simple.chatgpt.config.management.ColumnConfig;
@@ -131,7 +128,6 @@ public class UserListFileServiceImpl implements UserListFileService {
         logger.debug("exportListToCsv listId={}", listId);
 
         List<UserManagementListMemberPojo> members = memberService.getMembersByListId(listId);
-        logger.debug("exportListToCsv members={}", members);
         
         List<String> headers = new ArrayList<>();
         for (ColumnConfig c : downloadColumns) headers.add(c.getDbField());
@@ -232,52 +228,38 @@ public class UserListFileServiceImpl implements UserListFileService {
     hung : dont remove this comment
     used by batch job to generate csv in ftp location
     */
+    /*
+    hung : dont remove this comment
+    used by batch job to generate csv in ftp location
+    */
     @Override
     public void exportCsvToFtp(Long listId, File csvFile) throws Exception {
         logger.debug("exportCsvToFtp START");
         logger.debug("exportCsvToFtp listId={}", listId);
         logger.debug("exportCsvToFtp csvFile={}", csvFile);
 
-        FileSystem fs = ftpServerConfig.getFtpServer().getFileSystem();
-        String ftpRootPath = ftpServerConfig.getFtpRootPath();
-        logger.debug("exportCsvToFtp ftpRootPath={}", ftpRootPath);
+        // Export CSV directly to FTP folder using FtpServerConfig
+        ftpServerConfig.writeCsv(csvFile.getName(), fos -> {
+            try {
+                exportListToCsv(Map.of("listId", listId, "outputStream", fos));
+            } catch (Exception e) {
+                throw new RuntimeException("Failed to export CSV for listId=" + listId, e);
+            }
+        });
 
-        // Ensure FTP root exists
-        if (!fs.exists(ftpRootPath)) {
-            fs.add(new DirectoryEntry(ftpRootPath.replace("\\", "/")));
-        }
-
-        // Build FTP file path
-        String ftpFilePath = ftpRootPath.replace("\\", "/") + "/" + csvFile.getName();
-        logger.debug("exportCsvToFtp ftpFilePath={}", ftpFilePath);
-
-        if (!fs.exists(ftpFilePath)) {
-            fs.add(new org.mockftpserver.fake.filesystem.FileEntry(ftpFilePath));
-        }
-
-        // Export CSV into memory
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        exportListToCsv(Map.of("listId", listId, "outputStream", baos));
-
-        // Write CSV bytes into fake FTP file
-        org.mockftpserver.fake.filesystem.FileEntry fileEntry =
-                (org.mockftpserver.fake.filesystem.FileEntry) fs.getEntry(ftpFilePath);
-        fileEntry.setContents(baos.toByteArray());
-
-        // ========== Write real file to disk ==========
-        try (java.io.FileOutputStream fos = new java.io.FileOutputStream(csvFile)) {
-            baos.writeTo(fos);
-        }
-
-        // ========== Update list.filePath in DB ==========
+        // Update list.filePath in DB to the real FTP location
         UserManagementListPojo list = listService.get(listId);
-        list.setFilePath(csvFile.getAbsolutePath());
+        logger.debug("exportCsvToFtp list={}", list);
+
+        File target = ftpServerConfig.getTargetFile(csvFile.getName());
+        logger.debug("exportCsvToFtp target={}", target);
+
+        list.setFilePath(target.getAbsolutePath());
         listService.update(listId, list);
         logger.debug("exportCsvToFtp updated list={}", list);
 
         logger.debug("exportCsvToFtp DONE");
     }
-
 
     // ==============================================================
     // ================ HELPER METHODS ==============================
