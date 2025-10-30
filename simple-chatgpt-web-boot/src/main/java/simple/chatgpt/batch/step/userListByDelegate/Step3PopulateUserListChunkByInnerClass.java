@@ -88,9 +88,7 @@ public class Step3PopulateUserListChunkByInnerClass extends AbstractJobRequestBy
 			}
 
 			UserManagementPojo user = super.read();
-			if (user != null) {
-				logger.debug("UserReader returning user id={}, userName={}", user.getId(), user.getUserName());
-			}
+			logger.debug("UserReader returning user={}", user);
 			return user;
 		}
 	}
@@ -101,11 +99,14 @@ public class Step3PopulateUserListChunkByInnerClass extends AbstractJobRequestBy
 	private class UserProcessor implements ItemProcessor<UserManagementPojo, UserManagementListMemberPojo> {
 		@Override
 		public UserManagementListMemberPojo process(UserManagementPojo user) {
-			Number listIdNum = (Number) stepExecution.getJobExecution().getExecutionContext()
-					.get(BatchJobConstants.CONTEXT_LIST_ID);
+        	logger.debug("UserProcessor user={}", user);
+        	
+            Number listIdNum = (Number) stepExecution.getJobExecution()
+                    .getExecutionContext().get(BatchJobConstants.CONTEXT_LIST_ID);
 			Long listId = (listIdNum != null) ? listIdNum.longValue() : null;
-			if (listId == null)
+            if (listId == null) {
 				throw new IllegalStateException("listId not found in ExecutionContext");
+            }
 
 			UserManagementListMemberPojo member = new UserManagementListMemberPojo();
 			member.setListId(listId);
@@ -124,6 +125,7 @@ public class Step3PopulateUserListChunkByInnerClass extends AbstractJobRequestBy
 			member.setCreatedAt(new java.sql.Timestamp(System.currentTimeMillis()));
 			member.setUpdatedAt(new java.sql.Timestamp(System.currentTimeMillis()));
 			logger.debug("UserProcessor member={}", member);
+            
 			return member;
 		}
 	}
@@ -134,30 +136,28 @@ public class Step3PopulateUserListChunkByInnerClass extends AbstractJobRequestBy
 	private class UserWriter implements ItemWriter<UserManagementListMemberPojo> {
 		@Override
 		public void write(List<? extends UserManagementListMemberPojo> members) {
-
 			try {
 				List<Long> memberIds = new ArrayList<>();
 				for (UserManagementListMemberPojo member : members) {
 					memberMapper.create(member);
 					memberIds.add(member.getId());
-					logger.debug("UserWriter member={}", member);
 				}
+                logger.debug("UserWriter memberIds={}", memberIds);
 
-				// === use helper methods instead of manual map updates ===
 				List<Long> existingMemberIds = (List<Long>) stepExecution.getJobExecution().getExecutionContext()
 						.get(BatchJobConstants.CONTEXT_MEMBER_IDS);
-				if (existingMemberIds == null)
-					existingMemberIds = new ArrayList<>();
+                if (existingMemberIds == null) existingMemberIds = new ArrayList<>();
 				existingMemberIds.addAll(memberIds);
+                logger.debug("UserWriter existingMemberIds={}", existingMemberIds);
 
-				updateJobRequestStepData(jobRequest, stepExecution, BatchJobConstants.CONTEXT_MEMBER_IDS,
-						existingMemberIds);
+				// === use updateJobRequestStepData & updateJobRequest ===
+				updateJobRequestStepData(jobRequest, stepExecution, BatchJobConstants.CONTEXT_MEMBER_IDS,existingMemberIds);
 				updateJobRequest(jobRequest, 400, 1, JobRequest.STATUS_SUBMITTED);
 
 			} catch (Exception e) {
 				logger.error("Error e={}", e);
-				updateJobRequest(jobRequest, jobRequest.getProcessingStage(), 999, JobRequest.STATUS_FAILED,
-						e.getMessage());
+                updateJobRequest(jobRequest, jobRequest.getProcessingStage(), 999, 
+                	JobRequest.STATUS_FAILED, e.getMessage());
 				throw e;
 			}
 		}
@@ -168,24 +168,22 @@ public class Step3PopulateUserListChunkByInnerClass extends AbstractJobRequestBy
 	// =========================================
 	@BeforeStep
 	public void beforeStep(StepExecution stepExecution) {
-		logger.debug("beforeStep called for Step3PopulateUserListChunkByInnerClass");
-		this.stepExecution = stepExecution;
+    	logger.debug("beforeStep called");
+        logger.debug("beforeStep stepExecution={}", stepExecution);
+        this.stepExecution = stepExecution;
 	}
 
 	@AfterStep
 	public ExitStatus afterStep(StepExecution stepExecution) {
-		logger.debug("afterStep called for Step3PopulateUserListChunkByInnerClass, status={}",
-				stepExecution.getStatus());
+    	logger.debug("afterStep called");
+        logger.debug("afterStep stepExecution={}", stepExecution);
+        
 		this.stepExecution = null;
 		return stepExecution.getExitStatus();
 	}
 
-	// =========================================
-	// Tasklet compliance
-	// =========================================
 	@Override
-	public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) {
-		logger.debug("execute called on Step3PopulateUserListChunkByInnerClass - no-op for chunk-based step");
+    public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
 		return RepeatStatus.FINISHED;
 	}
 }

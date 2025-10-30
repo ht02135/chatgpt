@@ -86,7 +86,7 @@ public class Step3PopulateUserListChunkByDelegate extends AbstractJobRequestByDe
 
                 jobRequest = getOneRecentJobRequestByParams(
                         UserListJobConfig.JOB_NAME, 300, 1, JobRequest.STATUS_SUBMITTED);
-                logger.debug("read jobRequest={}", jobRequest);
+                logger.debug("UserReader jobRequest={}", jobRequest);
 
                 if (jobRequest == null) {
                     logger.debug("No live JobRequest found");
@@ -96,11 +96,18 @@ public class Step3PopulateUserListChunkByDelegate extends AbstractJobRequestByDe
 
                 userIds = (List<Long>) stepExecution.getJobExecution().getExecutionContext()
                         .get(BatchJobConstants.CONTEXT_USER_IDS);
-                logger.debug("UserReader loaded {} userIds from ExecutionContext", (userIds != null ? userIds.size() : 0));
+                logger.debug("UserReader userIds={}", userIds);
+
                 initialized = true;
             }
 
-            if (userIds == null || index >= userIds.size()) return null;
+            logger.debug("UserReader ##########");
+            logger.debug("UserReader userIds={}", userIds);
+            logger.debug("UserReader index={}", index);
+            logger.debug("UserReader ##########");
+            if (userIds == null || index >= userIds.size()) {
+                return null;
+            }
 
             Long userId = userIds.get(index++);
             UserManagementPojo user = userManagementMapper.get(userId);
@@ -117,10 +124,12 @@ public class Step3PopulateUserListChunkByDelegate extends AbstractJobRequestByDe
         public UserManagementListMemberPojo process(UserManagementPojo user) {
         	logger.debug("UserProcessor user={}", user);
         	
-            Number listIdNum = (Number) stepExecution.getJobExecution().getExecutionContext()
-                    .get(BatchJobConstants.CONTEXT_LIST_ID);
+            Number listIdNum = (Number) stepExecution.getJobExecution()
+                    .getExecutionContext().get(BatchJobConstants.CONTEXT_LIST_ID);
             Long listId = (listIdNum != null) ? listIdNum.longValue() : null;
-            if (listId == null) throw new IllegalStateException("listId not found in ExecutionContext");
+            if (listId == null) {
+                throw new IllegalStateException("listId not found in ExecutionContext");
+            }
 
             UserManagementListMemberPojo member = new UserManagementListMemberPojo();
             member.setListId(listId);
@@ -150,8 +159,6 @@ public class Step3PopulateUserListChunkByDelegate extends AbstractJobRequestByDe
     private class UserWriter implements ItemWriter<UserManagementListMemberPojo> {
         @Override
         public void write(List<? extends UserManagementListMemberPojo> members) {
-        	logger.debug("UserWriter members={}", members);
-        	
             try {
                 List<Long> memberIds = new ArrayList<>();
                 for (UserManagementListMemberPojo member : members) {
@@ -184,7 +191,9 @@ public class Step3PopulateUserListChunkByDelegate extends AbstractJobRequestByDe
     // =========================================
     @BeforeStep
     public void beforeStep(StepExecution stepExecution) {
-        logger.debug("beforeStep called for Step3PopulateUserListChunkByDelegate");
+    	logger.debug("beforeStep called");
+        logger.debug("beforeStep stepExecution={}", stepExecution);
+        
         this.stepExecution = stepExecution;
         initialized = false;
         index = 0;
@@ -193,17 +202,15 @@ public class Step3PopulateUserListChunkByDelegate extends AbstractJobRequestByDe
 
     @AfterStep
     public ExitStatus afterStep(StepExecution stepExecution) {
-        logger.debug("afterStep called for Step3PopulateUserListChunkByDelegate, status={}", stepExecution.getStatus());
+    	logger.debug("afterStep called");
+        logger.debug("afterStep stepExecution={}", stepExecution);
+        
         this.stepExecution = null;
         return stepExecution.getExitStatus();
     }
 
-    // =========================================
-    // Tasklet compliance
-    // =========================================
     @Override
-    public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) {
-        logger.debug("execute called on Step3PopulateUserListChunkByDelegate - no-op for chunk-based step");
+    public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
         return RepeatStatus.FINISHED;
     }
 }

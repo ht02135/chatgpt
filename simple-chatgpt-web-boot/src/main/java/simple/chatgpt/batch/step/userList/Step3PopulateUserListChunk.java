@@ -87,7 +87,7 @@ public class Step3PopulateUserListChunk extends AbstractJobRequestStep {
 
                 jobRequest = getOneRecentJobRequestByParams(
                         UserListJobConfig.JOB_NAME, 300, 1, JobRequest.STATUS_SUBMITTED);
-                logger.debug("read jobRequest={}", jobRequest);
+                logger.debug("UserReader jobRequest={}", jobRequest);
 
                 if (jobRequest == null) {
                     logger.debug("No live JobRequest found");
@@ -97,13 +97,13 @@ public class Step3PopulateUserListChunk extends AbstractJobRequestStep {
 
                 userIds = (List<Long>) stepExecution.getJobExecution().getExecutionContext()
                         .get(BatchJobConstants.CONTEXT_USER_IDS);
-                logger.debug("UserReader loaded {} userIds from ExecutionContext", userIds != null ? userIds.size() : 0);
+                logger.debug("UserReader userIds={}", userIds);
 
                 initialized = true;
             }
 
             logger.debug("UserReader ##########");
-            logger.debug("UserReader userIds.size={}", userIds.size());
+            logger.debug("UserReader userIds={}", userIds);
             logger.debug("UserReader index={}", index);
             logger.debug("UserReader ##########");
             if (userIds == null || index >= userIds.size()) {
@@ -160,8 +160,6 @@ public class Step3PopulateUserListChunk extends AbstractJobRequestStep {
     private class UserWriter implements ItemWriter<UserManagementListMemberPojo> {
         @Override
         public void write(List<? extends UserManagementListMemberPojo> members) {
-        	logger.debug("UserWriter members={}", members);
-
             try {
                 List<Long> memberIds = new ArrayList<>();
                 for (UserManagementListMemberPojo member : members) {
@@ -194,22 +192,26 @@ public class Step3PopulateUserListChunk extends AbstractJobRequestStep {
     // =========================================
     @BeforeStep
     public void beforeStep(StepExecution stepExecution) {
+    	logger.debug("beforeStep called");
+        logger.debug("beforeStep stepExecution={}", stepExecution);
+        
         this.stepExecution = stepExecution;
         initialized = false;
-        int index = 0;
+        index = 0;
         userIds = null;
     }
 
     @AfterStep
     public ExitStatus afterStep(StepExecution stepExecution) {
-        logger.debug("afterStep called for Step3PopulateUserListChunk, status={}", stepExecution.getStatus());
+    	logger.debug("afterStep called");
+        logger.debug("afterStep stepExecution={}", stepExecution);
+        
         this.stepExecution = null;
         return stepExecution.getExitStatus();
     }
 
     @Override
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
-        // no-op for chunk-based step
         return RepeatStatus.FINISHED;
     }
 }
