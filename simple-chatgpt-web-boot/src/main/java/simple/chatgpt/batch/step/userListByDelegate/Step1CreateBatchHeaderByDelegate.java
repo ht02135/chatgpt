@@ -22,14 +22,6 @@ import simple.chatgpt.mapper.management.UserManagementMapper;
 import simple.chatgpt.pojo.batch.JobRequest;
 import simple.chatgpt.pojo.management.UserManagementListPojo;
 
-/*
-hung:
-Step1CreateBatchHeaderByDelegate
-This version uses MyBatis mappers directly (no service layer).
-- JobRequestMapper for fetching/updating JobRequest
-- UserManagementListMapper for inserting user list header
-*/
-
 @Component
 public class Step1CreateBatchHeaderByDelegate extends AbstractJobRequestByDelegateStep {
 
@@ -51,14 +43,12 @@ public class Step1CreateBatchHeaderByDelegate extends AbstractJobRequestByDelega
     @Override
     public void beforeStep(StepExecution stepExecution) {
         logger.debug("beforeStep called");
-        logger.debug("beforeStep stepExecution={}", stepExecution);
+        logger.debug("afterStep stepExecution={}", stepExecution);
     }
 
     @Override
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
         logger.debug("execute called");
-        logger.debug("execute param contribution={}", contribution);
-        logger.debug("execute param chunkContext={}", chunkContext);
 
         StepExecution stepExecution = chunkContext.getStepContext().getStepExecution();
         logger.debug("execute stepExecution={}", stepExecution);
@@ -79,10 +69,9 @@ public class Step1CreateBatchHeaderByDelegate extends AbstractJobRequestByDelega
         // STEP 2: Create new UserManagementListPojo
         // ==================================================
         UserManagementListPojo userList = new UserManagementListPojo();
-        logger.debug("execute userList initialized={}", userList);
-
         userList.setUserListName(BatchJobConstants.DEFAULT_USER_LIST_NAME);
 
+        // Generate timestamped filename
         String timestamp = LocalDateTime.now().format(BatchJobConstants.TIMESTAMP_FORMATTER);
         String fileNameWithTimestamp = String.format(BatchJobConstants.USER_LIST_FILENAME_PATTERN, timestamp);
         jobRequest.setDownloadUrl(fileNameWithTimestamp);
@@ -91,14 +80,14 @@ public class Step1CreateBatchHeaderByDelegate extends AbstractJobRequestByDelega
         userList.setOriginalFileName(fileNameWithTimestamp);
         userList.setFilePath(fullFilePath);
         userList.setDescription(BatchJobConstants.DEFAULT_DESCRIPTION);
-
-        logger.debug("execute userList filePath={}", userList.getFilePath());
+        logger.debug("execute fileNameWithTimestamp={}", fileNameWithTimestamp);
+        logger.debug("execute fullFilePath={}", fullFilePath);
 
         // ==================================================
-        // STEP 3: Insert userList via MyBatis mapper
+        // STEP 3: Insert userList
         // ==================================================
         userManagementListMapper.create(userList);
-        logger.debug("execute userList inserted userList={}", userList);
+        logger.debug("execute userList={}", userList);
 
         // ==================================================
         // STEP 4: Update JobRequest stepData via helper method
@@ -112,6 +101,9 @@ public class Step1CreateBatchHeaderByDelegate extends AbstractJobRequestByDelega
         // ==================================================
         updateJobRequest(jobRequest, 200, 1, JobRequest.STATUS_SUBMITTED);
 
+        // ==================================================
+        // STEP 5: Done
+        // ==================================================
         logger.debug("execute finished");
         return RepeatStatus.FINISHED;
     }
@@ -120,7 +112,6 @@ public class Step1CreateBatchHeaderByDelegate extends AbstractJobRequestByDelega
     public ExitStatus afterStep(StepExecution stepExecution) {
         logger.debug("afterStep called");
         logger.debug("afterStep stepExecution={}", stepExecution);
-        logger.debug("afterStep finished with ExitStatus={}", stepExecution.getExitStatus());
         return stepExecution.getExitStatus();
     }
 }

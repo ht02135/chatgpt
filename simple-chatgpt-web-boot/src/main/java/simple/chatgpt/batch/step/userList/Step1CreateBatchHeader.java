@@ -41,14 +41,17 @@ public class Step1CreateBatchHeader extends AbstractJobRequestStep {
 
     @Override
     public void beforeStep(StepExecution stepExecution) {
-        logger.debug("Step1CreateBatchHeader beforeStep called");
-        // NO context modifications here
+        logger.debug("beforeStep called");
+        logger.debug("afterStep stepExecution={}", stepExecution);
     }
 
     @Override
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
-        StepExecution stepExecution = chunkContext.getStepContext().getStepExecution();
+        logger.debug("execute called");
 
+        StepExecution stepExecution = chunkContext.getStepContext().getStepExecution();
+        logger.debug("execute stepExecution={}", stepExecution);
+        
         // ==========================================
         // STEP 1: Fetch live JobRequest (stage=100, status=SUBMITTED)
         // ==========================================
@@ -65,8 +68,6 @@ public class Step1CreateBatchHeader extends AbstractJobRequestStep {
         // STEP 2: Create new UserManagementList
         // ==================================================
         UserManagementListPojo userList = new UserManagementListPojo();
-        logger.debug("execute userList={}", userList);
-
         userList.setUserListName(BatchJobConstants.DEFAULT_USER_LIST_NAME);
 
         // Generate timestamped filename
@@ -77,38 +78,39 @@ public class Step1CreateBatchHeader extends AbstractJobRequestStep {
         String fullFilePath = Paths.get(BatchJobConstants.USER_LIST_BASE_DIR, fileNameWithTimestamp).toString();
         userList.setOriginalFileName(fileNameWithTimestamp);
         userList.setFilePath(fullFilePath);
-        logger.debug("execute userList filePath set to {}", fullFilePath);
-
         userList.setDescription(BatchJobConstants.DEFAULT_DESCRIPTION);
+        logger.debug("execute fileNameWithTimestamp={}", fileNameWithTimestamp);
+        logger.debug("execute fullFilePath={}", fullFilePath);
 
-        // Persist userList
+        // ==================================================
+        // STEP 3: Insert userList
+        // ==================================================
         UserManagementListPojo createdList = userManagementListService.create(userList);
         logger.debug("execute createdList={}", createdList);
 
         // ==================================================
-        // STEP 3: Add userList info to JobRequest stepData
+        // STEP 4: Update JobRequest stepData via helper method
         // ==================================================
         updateJobRequestStepData(jobRequest, stepExecution, BatchJobConstants.CONTEXT_LIST_ID, createdList.getId());
         updateJobRequestStepData(jobRequest, stepExecution, BatchJobConstants.CONTEXT_LIST_NAME, createdList.getUserListName());
         updateJobRequestStepData(jobRequest, stepExecution, BatchJobConstants.CONTEXT_LIST_FILE_PATH, createdList.getFilePath());
 
         // ==================================================
-        // STEP 4: Update JobRequest stage to 200 / status=1
+        // STEP 5: Update JobRequest stage/status
         // ==================================================
         updateJobRequest(jobRequest, 200, 1, JobRequest.STATUS_SUBMITTED);
 
         // ==================================================
         // STEP 5: Done
         // ==================================================
-        logger.debug("Step1CreateBatchHeader execute finished");
+        logger.debug("execute finished");
         return RepeatStatus.FINISHED;
     }
 
     @Override
     public ExitStatus afterStep(StepExecution stepExecution) {
-        logger.debug("Step1CreateBatchHeader afterStep called");
+        logger.debug("afterStep called");
         logger.debug("afterStep stepExecution={}", stepExecution);
-        logger.debug("Step1CreateBatchHeader finished with status {}", stepExecution.getStatus());
         return stepExecution.getExitStatus();
     }
 }
