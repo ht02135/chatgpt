@@ -43,7 +43,7 @@ public class Step1CreateBatchHeaderByDelegate extends AbstractJobRequestByDelega
     @Override
     public void beforeStep(StepExecution stepExecution) {
         logger.debug("beforeStep called");
-        logger.debug("afterStep stepExecution={}", stepExecution);
+        logger.debug("beforeStep stepExecution={}", stepExecution);
     }
 
     @Override
@@ -100,11 +100,6 @@ public class Step1CreateBatchHeaderByDelegate extends AbstractJobRequestByDelega
         // STEP 5: Update JobRequest stage/status
         // ==================================================
         updateJobRequest(jobRequest, 200, 1, JobRequest.STATUS_SUBMITTED);
-
-        // ==================================================
-        // STEP 5: Done
-        // ==================================================
-        logger.debug("execute finished");
         return RepeatStatus.FINISHED;
     }
 

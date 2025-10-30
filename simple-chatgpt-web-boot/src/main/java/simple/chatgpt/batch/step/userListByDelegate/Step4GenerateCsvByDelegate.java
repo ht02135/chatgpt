@@ -11,8 +11,6 @@ import org.apache.logging.log4j.Logger;
 import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.StepExecution;
-import org.springframework.batch.core.annotation.AfterStep;
-import org.springframework.batch.core.annotation.BeforeStep;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.core.step.tasklet.Tasklet;
 import org.springframework.batch.repeat.RepeatStatus;
@@ -46,27 +44,27 @@ public class Step4GenerateCsvByDelegate extends AbstractJobRequestByDelegateStep
         this.listFileService = listFileService;
     }
 
-    // ==================================================
-    // STEP LISTENER
-    // ==================================================
-    @BeforeStep
+    @Override
     public void beforeStep(StepExecution stepExecution) {
-        logger.debug("beforeStep called for Step4GenerateCsvByDelegate");
+        logger.debug("beforeStep called");
+        logger.debug("beforeStep stepExecution={}", stepExecution);
     }
 
-    @AfterStep
+    @Override
     public ExitStatus afterStep(StepExecution stepExecution) {
-        logger.debug("afterStep called for Step4GenerateCsvByDelegate, status={}", stepExecution.getStatus());
+        logger.debug("afterStep called");
+        logger.debug("afterStep stepExecution={}", stepExecution);
         return stepExecution.getExitStatus();
     }
 
-    // ==================================================
-    // TASKLET EXECUTE
-    // ==================================================
     @Override
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
-        StepExecution stepExecution = chunkContext.getStepContext().getStepExecution();
+        logger.debug("execute called");
 
+        StepExecution stepExecution = chunkContext.getStepContext().getStepExecution();
+        logger.debug("execute stepExecution={}", stepExecution);
+        
+        // Initialize internal JobRequest
         jobRequest = getOneRecentJobRequestByParams(
                 UserListJobConfig.JOB_NAME, 400, 1, JobRequest.STATUS_SUBMITTED);
         logger.debug("execute jobRequest={}", jobRequest);
@@ -89,11 +87,12 @@ public class Step4GenerateCsvByDelegate extends AbstractJobRequestByDelegateStep
             return RepeatStatus.FINISHED;
         }
         
+        // Ensure parent directory exists
         File csvFile = Paths.get(userListFilePath).toFile();
         File parentDir = csvFile.getParentFile();
-        if (!parentDir.exists()) {
+        if (parentDir != null && !parentDir.exists()) {
             boolean created = parentDir.mkdirs();
-            logger.debug("CSV parent directory created: {}", created ? parentDir.getAbsolutePath() : "FAILED");
+            logger.debug("CSV parent directory creation: {}", created ? parentDir.getAbsolutePath() : "FAILED");
         }
         /*
 		hung : dont remove it
@@ -108,28 +107,21 @@ public class Step4GenerateCsvByDelegate extends AbstractJobRequestByDelegateStep
                     "listId", listId,
                     "outputStream", fos
             );
-            // listFileService.exportListToCsv(params);
             listFileService.exportCsvToFtp(listId, csvFile);
-            logger.debug("exec csvFile.getAbsolutePath={}", csvFile.getAbsolutePath());
 
-            // ==== USE updateJobRequestStepData ====
+            // === use helper methods for updating JobRequest ===
             updateJobRequestStepData(jobRequest, stepExecution, BatchJobConstants.CONTEXT_LIST_FILE_PATH, userListFilePath);
 
             // ==== USE updateJobRequest ====
             updateJobRequest(jobRequest, 500, 1, JobRequest.STATUS_SUBMITTED);
-
-            logger.debug("###########");
-            logger.debug("Step4GenerateCsvByDelegate updated jobRequest stage=500 status=1");
-            logger.debug("Step4GenerateCsvByDelegate jobRequest={}", jobRequest);
-            logger.debug("###########");
-
+			
         } catch (Exception e) {
             logger.error("Error e={}", e);
             updateJobRequest(jobRequest, jobRequest.getProcessingStage(), 999, 
             	JobRequest.STATUS_FAILED, e.getMessage());
             throw e;
         }
-
+        
         return RepeatStatus.FINISHED;
     }
 }

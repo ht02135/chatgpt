@@ -24,10 +24,6 @@ import simple.chatgpt.pojo.batch.JobRequest;
 import simple.chatgpt.service.batch.JobRequestService;
 import simple.chatgpt.service.management.file.UserListFileService;
 
-/*
-hung: step 4 - generate user list CSV file
-*/
-
 @Component
 public class Step4GenerateCsv extends AbstractJobRequestStep {
 
@@ -49,19 +45,24 @@ public class Step4GenerateCsv extends AbstractJobRequestStep {
 
     @Override
     public void beforeStep(StepExecution stepExecution) {
-        logger.debug("Step4GenerateCsv beforeStep called");
+        logger.debug("beforeStep called");
+        logger.debug("beforeStep stepExecution={}", stepExecution);
     }
 
     @Override
     public ExitStatus afterStep(StepExecution stepExecution) {
-        logger.debug("Step4GenerateCsv finished with status {}", stepExecution.getStatus());
+        logger.debug("afterStep called");
+        logger.debug("afterStep stepExecution={}", stepExecution);
         return stepExecution.getExitStatus();
     }
 
     @Override
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
-        StepExecution stepExecution = chunkContext.getStepContext().getStepExecution();
+        logger.debug("execute called");
 
+        StepExecution stepExecution = chunkContext.getStepContext().getStepExecution();
+        logger.debug("execute stepExecution={}", stepExecution);
+        
         // Initialize internal JobRequest
         jobRequest = getOneRecentJobRequestByParams(
                 UserListJobConfig.JOB_NAME, 400, 1, JobRequest.STATUS_SUBMITTED);
@@ -105,25 +106,21 @@ public class Step4GenerateCsv extends AbstractJobRequestStep {
                     "listId", listId,
                     "outputStream", fos
             );
-            // listFileService.exportListToCsv(params);
             listFileService.exportCsvToFtp(listId, csvFile);
-            logger.debug("exec csvFile.getAbsolutePath={}", csvFile.getAbsolutePath());
 
             // === use helper methods for updating JobRequest ===
             updateJobRequestStepData(jobRequest, stepExecution, BatchJobConstants.CONTEXT_LIST_FILE_PATH, userListFilePath);
+
+            // ==== USE updateJobRequest ====
             updateJobRequest(jobRequest, 500, 1, JobRequest.STATUS_SUBMITTED);
-
-            // Persist file path in ExecutionContext
-            stepExecution.getJobExecution().getExecutionContext()
-                    .put(BatchJobConstants.CONTEXT_LIST_FILE_PATH, userListFilePath);
-
+			
         } catch (Exception e) {
             logger.error("Error e={}", e);
             updateJobRequest(jobRequest, jobRequest.getProcessingStage(), 999, 
             	JobRequest.STATUS_FAILED, e.getMessage());
             throw e;
         }
-
+        
         return RepeatStatus.FINISHED;
     }
 }
