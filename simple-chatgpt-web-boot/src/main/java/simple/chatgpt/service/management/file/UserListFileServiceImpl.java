@@ -127,9 +127,11 @@ public class UserListFileServiceImpl implements UserListFileService {
     @Override
     public void exportListToCsv(Map<String, Object> params) throws Exception {
         logger.debug("exportListToCsv START");
+        logger.debug("exportListToCsv params={}", params);
+
+        OutputStream outputStream = ParamWrapper.unwrap(params, "outputStream");
         Long listId = ParamWrapper.unwrap(params, "listId");
         logger.debug("exportListToCsv listId={}", listId);
-        OutputStream outputStream = ParamWrapper.unwrap(params, "outputStream");
 
         List<UserManagementListMemberPojo> members = memberService.getMembersByListId(listId);
         logger.debug("exportListToCsv members={}", members);
@@ -157,6 +159,7 @@ public class UserListFileServiceImpl implements UserListFileService {
     @Override
     public void importListFromExcel(Map<String, Object> params) throws Exception {
         logger.debug("importListFromExcel START");
+        logger.debug("importListFromExcel params={}", params);
         InputStream inputStream = ParamWrapper.unwrap(params, "inputStream");
         UserManagementListPojo list = ParamWrapper.unwrap(params, "list");
         logger.debug("importListFromExcel list={}", list);
@@ -202,9 +205,11 @@ public class UserListFileServiceImpl implements UserListFileService {
     @Override
     public void exportListToExcel(Map<String, Object> params) throws Exception {
         logger.debug("exportListToExcel START");
+        logger.debug("exportListToExcel params={}", params);
+        
+        OutputStream outputStream = ParamWrapper.unwrap(params, "outputStream");
         Long listId = ParamWrapper.unwrap(params, "listId");
         logger.debug("exportListToExcel listId={}", listId);
-        OutputStream outputStream = ParamWrapper.unwrap(params, "outputStream");
 
         List<UserManagementListMemberPojo> members = memberService.getMembersByListId(listId);
         logger.debug("exportListToExcel members={}", members);
@@ -221,18 +226,7 @@ public class UserListFileServiceImpl implements UserListFileService {
         }
         logger.debug("exportListToExcel rows={}", rows);
 
-        // Write Excel to provided OutputStream
         excelFileService.writeExcel(headers, rows, outputStream);
-
-        // ========== Update list file path ==========
-        UserManagementListPojo list = listService.get(listId);
-        String ftpRootPath = ftpServerConfig.getFtpRootPath();
-        String fileName = "list_" + listId + ".xlsx"; // you can customize naming
-        String excelFilePath = ftpRootPath + "/" + fileName;
-        list.setFilePath(excelFilePath);
-        listService.update(list.getId(), list);
-        logger.debug("exportListToExcel excelFilePath={}", excelFilePath);
-
         logger.debug("exportListToExcel DONE listId={}", listId);
     }
 
@@ -253,7 +247,6 @@ public class UserListFileServiceImpl implements UserListFileService {
         // Ensure FTP root exists
         if (!fs.exists(ftpRootPath)) {
             fs.add(new DirectoryEntry(ftpRootPath.replace("\\", "/")));
-            logger.debug("exportCsvToFtp ftpRootPath={}", ftpRootPath);
         }
 
         // Build FTP file path
@@ -262,7 +255,6 @@ public class UserListFileServiceImpl implements UserListFileService {
 
         if (!fs.exists(ftpFilePath)) {
             fs.add(new org.mockftpserver.fake.filesystem.FileEntry(ftpFilePath));
-            logger.debug("exportCsvToFtp ftpFilePath={}", ftpFilePath);
         }
 
         // Export CSV into memory
@@ -273,19 +265,17 @@ public class UserListFileServiceImpl implements UserListFileService {
         org.mockftpserver.fake.filesystem.FileEntry fileEntry =
                 (org.mockftpserver.fake.filesystem.FileEntry) fs.getEntry(ftpFilePath);
         fileEntry.setContents(baos.toByteArray());
-        logger.debug("exportCsvToFtp wrote {} bytes to ftpFilePath={}", baos.size(), ftpFilePath);
 
         // ========== Write real file to disk ==========
         try (java.io.FileOutputStream fos = new java.io.FileOutputStream(csvFile)) {
             baos.writeTo(fos);
-            logger.debug("exportCsvToFtp wrote {} bytes to real file path={}", baos.size(), csvFile.getAbsolutePath());
         }
 
         // ========== Update list.filePath in DB ==========
         UserManagementListPojo list = listService.get(listId);
         list.setFilePath(csvFile.getAbsolutePath());
         listService.update(listId, list);
-        logger.debug("exportCsvToFtp updated list.filePath={}", csvFile.getAbsolutePath());
+        logger.debug("exportCsvToFtp updated list={}", list);
 
         logger.debug("exportCsvToFtp DONE");
     }
