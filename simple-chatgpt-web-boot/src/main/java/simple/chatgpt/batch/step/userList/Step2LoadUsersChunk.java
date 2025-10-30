@@ -9,8 +9,6 @@ import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.StepExecution;
-import org.springframework.batch.core.annotation.AfterStep;
-import org.springframework.batch.core.annotation.BeforeStep;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.item.ItemProcessor;
@@ -79,7 +77,7 @@ public class Step2LoadUsersChunk extends AbstractJobRequestStep {
 
                 jobRequest = getOneRecentJobRequestByParams(
                 	UserListJobConfig.JOB_NAME, 200, 1, JobRequest.STATUS_SUBMITTED);
-                logger.debug("read jobRequest={}", jobRequest);
+                logger.debug("UserReader jobRequest={}", jobRequest);
 
                 if (jobRequest == null) {
                     logger.debug("No live JobRequest found");
@@ -125,12 +123,9 @@ public class Step2LoadUsersChunk extends AbstractJobRequestStep {
     private class UserWriter implements ItemWriter<UserManagementPojo> {
         @Override
         public void write(List<? extends UserManagementPojo> users) {
-            logger.debug("UserWriter users={}", users);
-
             try {
                 List<Long> userIds = new ArrayList<>();
                 for (UserManagementPojo user : users) {
-                    logger.debug("UserWriter user={}", user);
                     userIds.add(user.getId());
                 }
                 logger.debug("UserWriter userIds={}", userIds);
@@ -147,11 +142,6 @@ public class Step2LoadUsersChunk extends AbstractJobRequestStep {
                 updateJobRequestStepData(jobRequest, stepExecution, BatchJobConstants.CONTEXT_USER_IDS, existingIds);
                 updateJobRequest(jobRequest, 300, 1, JobRequest.STATUS_SUBMITTED);
 
-                logger.debug("###########");
-                logger.debug("UserWriter updated jobRequest stage=300 status=1");
-                logger.debug("UserWriter jobRequest={}", jobRequest);
-                logger.debug("###########");
-
             } catch (Exception e) {
                 logger.error("Error e={}", e);
                 updateJobRequest(jobRequest, jobRequest.getProcessingStage(), 999, 
@@ -164,25 +154,28 @@ public class Step2LoadUsersChunk extends AbstractJobRequestStep {
     // =========================================
     // STEP LISTENER
     // =========================================
-    @BeforeStep
+    @Override
     public void beforeStep(StepExecution stepExecution) {
-        logger.debug("beforeStep called for Step2LoadUsersChunk");
+    	logger.debug("beforeStep called");
+        logger.debug("beforeStep stepExecution={}", stepExecution);
+        
         this.stepExecution = stepExecution;
         initialized = false;
         index = 0;
         allUsers = null;
     }
 
-    @AfterStep
+    @Override
     public ExitStatus afterStep(StepExecution stepExecution) {
-        logger.debug("afterStep called for Step2LoadUsersChunk, status={}", stepExecution.getStatus());
+    	logger.debug("afterStep called");
+        logger.debug("afterStep stepExecution={}", stepExecution);
+        
         this.stepExecution = null;
         return stepExecution.getExitStatus();
     }
 
 	@Override
 	public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
-		// TODO Auto-generated method stub
-		return null;
+		return RepeatStatus.FINISHED;
 	}
 }

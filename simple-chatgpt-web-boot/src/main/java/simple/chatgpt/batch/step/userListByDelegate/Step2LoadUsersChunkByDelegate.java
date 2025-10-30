@@ -9,14 +9,13 @@ import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.StepExecution;
-import org.springframework.batch.core.annotation.AfterStep;
-import org.springframework.batch.core.annotation.BeforeStep;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
 import org.springframework.batch.item.ItemWriter;
 import org.springframework.batch.repeat.RepeatStatus;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import simple.chatgpt.batch.job.userList.UserListJobConfig;
@@ -38,9 +37,7 @@ public class Step2LoadUsersChunkByDelegate extends AbstractJobRequestByDelegateS
     private int index = 0;
     private List<UserManagementPojo> allUsers = null;
 
-    /**
-     * Constructor injection for all dependencies.
-     */
+    @Autowired
     public Step2LoadUsersChunkByDelegate(JobRequestMapper jobRequestMapper,
                                          UserManagementMapper userManagementMapper) {
         super(jobRequestMapper, userManagementMapper);
@@ -48,9 +45,6 @@ public class Step2LoadUsersChunkByDelegate extends AbstractJobRequestByDelegateS
         this.jobRequest = null;    // assign later in beforeStep or elsewhere
     }
 
-    // =========================================
-    // STEP BEAN
-    // =========================================
     public Step step2LoadUsersByDelegate(StepBuilderFactory stepBuilderFactory) {
         logger.debug("step2LoadUsersByDelegate called");
 
@@ -78,7 +72,7 @@ public class Step2LoadUsersChunkByDelegate extends AbstractJobRequestByDelegateS
 
                 jobRequest = getOneRecentJobRequestByParams(
                         UserListJobConfig.JOB_NAME, 200, 1, JobRequest.STATUS_SUBMITTED);
-                logger.debug("read jobRequest={}", jobRequest);
+                logger.debug("UserReader jobRequest={}", jobRequest);
 
                 if (jobRequest == null) {
                     logger.debug("No live JobRequest found");
@@ -120,12 +114,9 @@ public class Step2LoadUsersChunkByDelegate extends AbstractJobRequestByDelegateS
     private class UserWriter implements ItemWriter<UserManagementPojo> {
         @Override
         public void write(List<? extends UserManagementPojo> users) {
-            logger.debug("UserWriter users={}", users);
-            
             try {
                 List<Long> userIds = new ArrayList<>();
                 for (UserManagementPojo user : users) {
-                	logger.debug("UserWriter user={}", user);
                     userIds.add(user.getId());
                 }
                 logger.debug("UserWriter userIds={}", userIds);
@@ -142,11 +133,6 @@ public class Step2LoadUsersChunkByDelegate extends AbstractJobRequestByDelegateS
                 updateJobRequestStepData(jobRequest, stepExecution, BatchJobConstants.CONTEXT_USER_IDS, existingIds);
                 updateJobRequest(jobRequest, 300, 1, JobRequest.STATUS_SUBMITTED);
 
-                logger.debug("###########");
-                logger.debug("UserWriter updated jobRequest stage=300 status=1");
-                logger.debug("UserWriter jobRequest={}", jobRequest);
-                logger.debug("###########");
-
             } catch (Exception e) {
                 logger.error("Error e={}", e);
                 updateJobRequest(jobRequest, jobRequest.getProcessingStage(), 999, 
@@ -159,28 +145,28 @@ public class Step2LoadUsersChunkByDelegate extends AbstractJobRequestByDelegateS
     // =========================================
     // STEP LISTENER
     // =========================================
-    @BeforeStep
+    @Override
     public void beforeStep(StepExecution stepExecution) {
-        logger.debug("beforeStep called for Step2LoadUsersChunkByDelegate");
+    	logger.debug("beforeStep called");
+        logger.debug("beforeStep stepExecution={}", stepExecution);
+        
         this.stepExecution = stepExecution;
         initialized = false;
         index = 0;
         allUsers = null;
     }
 
-    @AfterStep
+    @Override
     public ExitStatus afterStep(StepExecution stepExecution) {
-        logger.debug("afterStep called for Step2LoadUsersChunkByDelegate, status={}", stepExecution.getStatus());
+    	logger.debug("afterStep called");
+        logger.debug("afterStep stepExecution={}", stepExecution);
+        
         this.stepExecution = null;
         return stepExecution.getExitStatus();
     }
 
-    // =========================================
-    // Tasklet compliance
-    // =========================================
     @Override
-    public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) {
-        logger.debug("execute called on Step2LoadUsersChunkByDelegate - no-op for chunk-based step");
+	public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
         return RepeatStatus.FINISHED;
     }
 }

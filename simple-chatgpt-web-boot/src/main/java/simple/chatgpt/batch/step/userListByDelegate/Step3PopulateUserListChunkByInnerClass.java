@@ -11,8 +11,6 @@ import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.StepExecution;
-import org.springframework.batch.core.annotation.AfterStep;
-import org.springframework.batch.core.annotation.BeforeStep;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.item.ItemProcessor;
@@ -166,14 +164,14 @@ public class Step3PopulateUserListChunkByInnerClass extends AbstractJobRequestBy
 	// =========================================
 	// STEP LISTENER
 	// =========================================
-	@BeforeStep
+    @Override
 	public void beforeStep(StepExecution stepExecution) {
     	logger.debug("beforeStep called");
         logger.debug("beforeStep stepExecution={}", stepExecution);
         this.stepExecution = stepExecution;
 	}
 
-	@AfterStep
+    @Override
 	public ExitStatus afterStep(StepExecution stepExecution) {
     	logger.debug("afterStep called");
         logger.debug("afterStep stepExecution={}", stepExecution);

@@ -11,8 +11,6 @@ import org.springframework.batch.core.ExitStatus;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.StepContribution;
 import org.springframework.batch.core.StepExecution;
-import org.springframework.batch.core.annotation.AfterStep;
-import org.springframework.batch.core.annotation.BeforeStep;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.scope.context.ChunkContext;
 import org.springframework.batch.item.ItemProcessor;
@@ -68,7 +66,6 @@ public class Step2LoadUsersChunkByInnerClass extends AbstractJobRequestByDelegat
 	private class UserReader extends MyBatisCursorItemReader<UserManagementPojo> {
 
 		public UserReader() {
-			logger.debug("UserReader initializing");
 			setSqlSessionFactory(sqlSessionFactory);
 			setQueryId("simple.chatgpt.mapper.management.UserManagementMapper.getAll"); // MyBatis mapper query id
 		}
@@ -97,7 +94,7 @@ public class Step2LoadUsersChunkByInnerClass extends AbstractJobRequestByDelegat
 	// =========================================
 	private class UserProcessor implements ItemProcessor<UserManagementPojo, UserManagementPojo> {
 		@Override
-		public UserManagementPojo process(UserManagementPojo user) throws Exception {
+        public UserManagementPojo process(UserManagementPojo user) {
 			logger.debug("UserProcessor processing user id={}, userName={}", user.getId(), user.getUserName());
 			return user;
 		}
@@ -108,36 +105,30 @@ public class Step2LoadUsersChunkByInnerClass extends AbstractJobRequestByDelegat
 	// =========================================
 	private class UserWriter implements ItemWriter<UserManagementPojo> {
 		@Override
-		public void write(List<? extends UserManagementPojo> users) throws Exception {
-			logger.debug("UserWriter users={}", users);
+        public void write(List<? extends UserManagementPojo> users) {
 			try {
 				List<Long> userIds = new ArrayList<>();
 				for (UserManagementPojo user : users) {
-					logger.debug("UserWriter processing user={}", user);
 					userIds.add(user.getId());
 				}
+                logger.debug("UserWriter userIds={}", userIds);
 
 				// ==================================================
-				// Replace manual stepData/ExecutionContext update with helper methods
+                // Use helper methods instead of manual stepData & ExecutionContext
 				// ==================================================
 				List<Long> existingIds = (List<Long>) stepExecution.getJobExecution().getExecutionContext()
 						.get(BatchJobConstants.CONTEXT_USER_IDS);
-				if (existingIds == null)
-					existingIds = new ArrayList<>();
+                if (existingIds == null) existingIds = new ArrayList<>();
 				existingIds.addAll(userIds);
+                logger.debug("UserWriter existingIds={}", existingIds);
 
 				updateJobRequestStepData(jobRequest, stepExecution, BatchJobConstants.CONTEXT_USER_IDS, existingIds);
 				updateJobRequest(jobRequest, 300, 1, JobRequest.STATUS_SUBMITTED);
 
-				logger.debug("###########");
-				logger.debug("UserWriter updated jobRequest stage=300 status=1");
-				logger.debug("UserWriter jobRequest={}", jobRequest);
-				logger.debug("###########");
-
 			} catch (Exception e) {
 				logger.error("Error e={}", e);
-				updateJobRequest(jobRequest, jobRequest.getProcessingStage(), 999, JobRequest.STATUS_FAILED,
-						e.getMessage());
+                updateJobRequest(jobRequest, jobRequest.getProcessingStage(), 999, 
+                	JobRequest.STATUS_FAILED, e.getMessage());
 				throw e;
 			}
 		}
@@ -146,25 +137,25 @@ public class Step2LoadUsersChunkByInnerClass extends AbstractJobRequestByDelegat
 	// =========================================
 	// STEP LISTENER
 	// =========================================
-	@BeforeStep
+    @Override
 	public void beforeStep(StepExecution stepExecution) {
-		logger.debug("beforeStep called for Step2LoadUsersChunkByInnerClass");
+    	logger.debug("beforeStep called");
+        logger.debug("beforeStep stepExecution={}", stepExecution);
+        
 		this.stepExecution = stepExecution;
 	}
 
-	@AfterStep
+    @Override
 	public ExitStatus afterStep(StepExecution stepExecution) {
-		logger.debug("afterStep called for Step2LoadUsersChunkByInnerClass, status={}", stepExecution.getStatus());
+    	logger.debug("afterStep called");
+        logger.debug("afterStep stepExecution={}", stepExecution);
+        
 		this.stepExecution = null;
 		return stepExecution.getExitStatus();
 	}
 
-	// =========================================
-	// Tasklet compliance
-	// =========================================
 	@Override
-	public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) {
-		logger.debug("execute called on Step2LoadUsersChunkByInnerClass - no-op for chunk-based step");
+	public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
 		return RepeatStatus.FINISHED;
 	}
 }
