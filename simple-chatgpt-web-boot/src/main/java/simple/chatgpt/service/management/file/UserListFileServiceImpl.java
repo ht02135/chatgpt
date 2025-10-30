@@ -77,6 +77,10 @@ public class UserListFileServiceImpl implements UserListFileService {
     // ================ CSV ==========================================
     // ==============================================================
 
+    /*
+    hung : dont remove this comment
+    importList only import list into table 
+    */
     @Override
     public void importListFromCsv(Map<String, Object> params) throws Exception {
         logger.debug("importListFromCsv START");
@@ -84,24 +88,13 @@ public class UserListFileServiceImpl implements UserListFileService {
 
         InputStream inputStream = ParamWrapper.unwrap(params, "inputStream");
         UserManagementListPojo list = ParamWrapper.unwrap(params, "list");
-        logger.debug("importListFromCsv list={}", list);
 
-        // set file path before saving
-        String ftpRootPath = ftpServerConfig.getFtpRootPath();
-        String listFilePath = ftpRootPath + "/" + list.getOriginalFileName();
-        list.setFilePath(listFilePath);
-        logger.debug("importListFromCsv set filePath={}", listFilePath);
+        list.setFilePath(list.getOriginalFileName());
+        logger.debug("importListFromCsv list={}", list);
 
         // Persist list using proper service
         UserManagementListPojo createdList = listService.create(list);
         logger.debug("importListFromCsv createdList={}", createdList);
-
-        // Ensure FTP file exists in the fake FTP server
-        FileSystem fs = ftpServerConfig.getFtpServer().getFileSystem();
-        if (!fs.exists(listFilePath)) {
-            fs.add(new org.mockftpserver.fake.filesystem.FileEntry(listFilePath));
-            logger.debug("importListFromCsv added FileEntry in FTP for listFilePath={}", listFilePath);
-        }
 
         // Read CSV rows
         List<List<String>> rows = csvFileService.readCsv(inputStream);
@@ -121,9 +114,13 @@ public class UserListFileServiceImpl implements UserListFileService {
             logger.debug("importListFromCsv createdMember={}", createdMember);
         }
 
-        logger.debug("importListFromCsv DONE for listFilePath={}", listFilePath);
+        logger.debug("importListFromCsv DONE");
     }
 
+    /*
+    hung : dont remove this comment
+    exportList only export list table to output file
+    */
     @Override
     public void exportListToCsv(Map<String, Object> params) throws Exception {
         logger.debug("exportListToCsv START");
@@ -156,30 +153,23 @@ public class UserListFileServiceImpl implements UserListFileService {
     // ================ EXCEL ========================================
     // ==============================================================
 
+    /*
+    hung : dont remove this comment
+    importList only import list into table 
+    */
     @Override
     public void importListFromExcel(Map<String, Object> params) throws Exception {
         logger.debug("importListFromExcel START");
         logger.debug("importListFromExcel params={}", params);
         InputStream inputStream = ParamWrapper.unwrap(params, "inputStream");
         UserManagementListPojo list = ParamWrapper.unwrap(params, "list");
-        logger.debug("importListFromExcel list={}", list);
 
-        // set file path before saving
-        String ftpRootPath = ftpServerConfig.getFtpRootPath();
-        String listFilePath = ftpRootPath + "/" + list.getOriginalFileName();
-        list.setFilePath(listFilePath);
-        logger.debug("importListFromExcel set filePath={}", listFilePath);
+		list.setFilePath(list.getOriginalFileName());
+        logger.debug("importListFromExcel list={}", list);
 
         // Persist list using proper service
         UserManagementListPojo createdList = listService.create(list);
         logger.debug("importListFromExcel createdList={}", createdList);
-
-        // Ensure FTP file exists in the fake FTP server
-        FileSystem fs = ftpServerConfig.getFtpServer().getFileSystem();
-        if (!fs.exists(listFilePath)) {
-            fs.add(new org.mockftpserver.fake.filesystem.FileEntry(listFilePath));
-            logger.debug("importListFromExcel added FileEntry in FTP for listFilePath={}", listFilePath);
-        }
 
         // Read Excel rows
         List<List<String>> rows = excelFileService.readExcel(inputStream, "import.xlsx");
@@ -199,9 +189,13 @@ public class UserListFileServiceImpl implements UserListFileService {
             logger.debug("importListFromExcel createdMember={}", createdMember);
         }
 
-        logger.debug("importListFromExcel DONE for listFilePath={}", listFilePath);
+        logger.debug("importListFromExcel DONE");
     }
 
+    /*
+    hung : dont remove this comment
+    exportList only export list table to output file
+    */
     @Override
     public void exportListToExcel(Map<String, Object> params) throws Exception {
         logger.debug("exportListToExcel START");
@@ -234,6 +228,10 @@ public class UserListFileServiceImpl implements UserListFileService {
     // ================ FTP HELPERS =================================
     // ==============================================================
 
+    /*
+    hung : dont remove this comment
+    used by batch job to generate csv in ftp location
+    */
     @Override
     public void exportCsvToFtp(Long listId, File csvFile) throws Exception {
         logger.debug("exportCsvToFtp START");
