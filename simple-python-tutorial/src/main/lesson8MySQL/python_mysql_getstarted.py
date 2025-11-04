@@ -62,6 +62,15 @@ def connect_db():
         "database": "chatgpt_db"
     }
     logger.debug("connect_db db_config=%s", db_config)
+
+    # **db_config unpacks the dictionary into keyword arguments
+    # equivalent to:
+    # conn = mysql.connector.connect(
+    #     host="localhost",
+    #     user="root",
+    #     password="ZAQ!zaq1",
+    #     database="chatgpt_db"
+    # )
     conn = mysql.connector.connect(**db_config)
     logger.debug("connect_db connection established")
     return conn
