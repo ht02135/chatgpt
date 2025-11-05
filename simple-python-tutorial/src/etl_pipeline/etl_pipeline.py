@@ -63,6 +63,9 @@ def test_connection(db_url):
     logger.debug("test_connection called")
     logger.debug("test_connection db_url=%s", db_url)
 
+    # engine comes from SQLAlchemy, which is a Python library for working with databases.
+    # create_engine(db_url) does not connect to the database immediately.
+    # It creates a “factory” object that knows how to talk to the database when needed.
     engine = create_engine(db_url)
     with engine.connect() as conn:
         result = conn.execute(text("SELECT VERSION()"))
@@ -91,6 +94,8 @@ def transform_data(data):
     data = data[data['age'] > 18]
 
     logger.debug("transform_data data after transform:\n%s", data.head())
+    
+    # So data is a Pandas DataFrame, which is basically a table in memory — like an Excel sheet or SQL table
     return data
 
 # ------------------------------------------------------------
@@ -105,6 +110,13 @@ def load_data_mysql(data, db_url):
     logger.debug("load_data_mysql engine created")
 
     # Create or replace table
+    # DataFrame.to_sql() is a Pandas method that writes a DataFrame to a database table.
+    # | Argument              | Meaning                                                                                                                                 |
+    # | --------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+    # | `'python_users'`      | The **name of the table** in the database. If it doesn’t exist, it will be created.                                                     |
+    # | `engine`              | SQLAlchemy **engine object** — it knows how to connect to your MySQL database.                                                          |
+    # | `if_exists='replace'` | If the table **already exists**, it will **drop it and recreate it**. Alternatives: `'append'` to add rows, `'fail'` to throw an error. |
+    # | `index=False`         | Do **not** write the DataFrame index as a column in the database table.                                                                 |
     data.to_sql('python_users', engine, if_exists='replace', index=False)
     logger.debug("load_data_mysql completed successfully")
 
