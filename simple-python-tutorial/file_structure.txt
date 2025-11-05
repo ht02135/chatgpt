@@ -1,0 +1,30 @@
+
+typical 
+
+project_root/
+├── configs/
+│   ├── db_connections.ini
+│   ├── etl_config.json
+│   └── logging.conf
+├── data/
+│   ├── input/
+│   │   └── raw_source_data.csv
+│   └── output/
+│       └── processed_data.csv
+├── src/
+│   ├── __init__.py
+│   ├── extract.py
+│   ├── transform.py
+│   ├── load.py
+│   ├── utils/
+│   │   ├── __init__.py
+│   │   ├── helpers.py
+│   │   └── connectors.py
+│   └── main.py
+├── tests/
+│   ├── __init__.py
+│   ├── test_extract.py
+│   ├── test_transform.py
+│   └── test_load.py
+├── requirements.txt
+└── README.md
