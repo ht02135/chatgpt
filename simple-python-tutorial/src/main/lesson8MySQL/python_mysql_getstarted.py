@@ -30,14 +30,6 @@
 # Test MySQL Connector
 # https://www.w3schools.com/python/python_mysql_create_table.asp
 
-# jdbc.driver=com.mysql.cj.jdbc.Driver
-# jdbc.url=jdbc:mysql://localhost:3306/chatgpt_db?useSSL=false
-# db.hostname=localhost
-# db.port=3306
-# db.name=chatgpt_db
-# db.username=root
-# db.password=ZAQ!zaq1
-
 import mysql.connector
 import logging
 

@@ -149,3 +149,205 @@ Traceback (most recent call last):
 sqlalchemy.exc.OperationalError: (pymysql.err.OperationalError) (1045, "Access denied for user 'root'@'localhost' (using password: NO)")
 (Background on this error at: https://sqlalche.me/e/20/e3q8)
 2025-11-05 12:36:54,133 [INFO] Sleeping for 24 hours before next run...
+2025-11-05 13:40:55,321 [DEBUG] Loading environment from C:\worksplace\sts\chatgpt\simple-python-tutorial\src\etl_pipeline\configs\db_connections.env
+2025-11-05 13:40:55,322 [ERROR] Environment file not found at C:\worksplace\sts\chatgpt\simple-python-tutorial\src\etl_pipeline\configs\db_connections.env
+2025-11-05 13:40:55,322 [ERROR] DB_PASS not found or empty! Check .env file format and path.
+2025-11-05 13:40:55,322 [DEBUG] run_etl_pipeline called
+2025-11-05 13:40:55,322 [DEBUG] build_db_url_from_env called
+2025-11-05 13:40:55,322 [DEBUG] build_db_url_from_env dialect=mysql+pymysql
+2025-11-05 13:40:55,323 [DEBUG] build_db_url_from_env host=localhost
+2025-11-05 13:40:55,323 [DEBUG] build_db_url_from_env port=3306
+2025-11-05 13:40:55,323 [DEBUG] build_db_url_from_env name=chatgpt_db
+2025-11-05 13:40:55,323 [DEBUG] build_db_url_from_env user=root
+2025-11-05 13:40:55,323 [DEBUG] test_connection called
+2025-11-05 13:40:55,323 [DEBUG] test_connection db_url=mysql+pymysql://root:ZAQ!zaq1@localhost:3306/chatgpt_db
+2025-11-05 13:40:55,391 [INFO] Connected to MySQL version: 8.0.42
+2025-11-05 13:40:55,392 [DEBUG] extract_data called
+2025-11-05 13:40:55,392 [DEBUG] extract_data file_path=data/source_data.csv
+2025-11-05 13:40:55,393 [ERROR] Error occurred in ETL pipeline: [Errno 2] No such file or directory: 'data/source_data.csv'
+Traceback (most recent call last):
+  File "C:\worksplace\sts\chatgpt\simple-python-tutorial\src\etl_pipeline\etl_pipeline.py", line 153, in run_etl_pipeline
+    data = extract_data('data/source_data.csv')
+  File "C:\worksplace\sts\chatgpt\simple-python-tutorial\src\etl_pipeline\etl_pipeline.py", line 102, in extract_data
+    data = pd.read_csv(file_path)
+  File "C:\Users\ht021\AppData\Local\Programs\Python\Python314\Lib\site-packages\pandas\io\parsers\readers.py", line 1026, in read_csv
+    return _read(filepath_or_buffer, kwds)
+  File "C:\Users\ht021\AppData\Local\Programs\Python\Python314\Lib\site-packages\pandas\io\parsers\readers.py", line 620, in _read
+    parser = TextFileReader(filepath_or_buffer, **kwds)
+  File "C:\Users\ht021\AppData\Local\Programs\Python\Python314\Lib\site-packages\pandas\io\parsers\readers.py", line 1620, in __init__
+    self._engine = self._make_engine(f, self.engine)
+                   ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "C:\Users\ht021\AppData\Local\Programs\Python\Python314\Lib\site-packages\pandas\io\parsers\readers.py", line 1880, in _make_engine
+    self.handles = get_handle(
+                   ~~~~~~~~~~^
+        f,
+        ^^
+    ...<6 lines>...
+        storage_options=self.options.get("storage_options", None),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\ht021\AppData\Local\Programs\Python\Python314\Lib\site-packages\pandas\io\common.py", line 873, in get_handle
+    handle = open(
+        handle,
+    ...<3 lines>...
+        newline="",
+    )
+FileNotFoundError: [Errno 2] No such file or directory: 'data/source_data.csv'
+2025-11-05 13:40:55,397 [INFO] Sleeping for 24 hours before next run...
+2025-11-05 13:43:54,040 [DEBUG] Loading environment from C:\worksplace\sts\chatgpt\simple-python-tutorial\src\etl_pipeline\configs\db_connections.env
+2025-11-05 13:43:54,040 [ERROR] Environment file not found at C:\worksplace\sts\chatgpt\simple-python-tutorial\src\etl_pipeline\configs\db_connections.env
+2025-11-05 13:43:54,040 [ERROR] DB_PASS not found or empty! Check .env file format and path.
+2025-11-05 13:43:54,041 [DEBUG] run_etl_pipeline called
+2025-11-05 13:43:54,041 [DEBUG] build_db_url_from_env called
+2025-11-05 13:43:54,041 [DEBUG] build_db_url_from_env dialect=mysql+pymysql
+2025-11-05 13:43:54,041 [DEBUG] build_db_url_from_env host=localhost
+2025-11-05 13:43:54,041 [DEBUG] build_db_url_from_env port=3306
+2025-11-05 13:43:54,042 [DEBUG] build_db_url_from_env name=chatgpt_db
+2025-11-05 13:43:54,042 [DEBUG] build_db_url_from_env user=root
+2025-11-05 13:43:54,042 [DEBUG] test_connection called
+2025-11-05 13:43:54,042 [DEBUG] test_connection db_url=mysql+pymysql://root:ZAQ!zaq1@localhost:3306/chatgpt_db
+2025-11-05 13:43:54,106 [INFO] Connected to MySQL version: 8.0.42
+2025-11-05 13:43:54,107 [ERROR] Error occurred in ETL pipeline: extract_data() takes 0 positional arguments but 1 was given
+Traceback (most recent call last):
+  File "C:\worksplace\sts\chatgpt\simple-python-tutorial\src\etl_pipeline\etl_pipeline.py", line 161, in run_etl_pipeline
+    data = extract_data('data/source_data.csv')
+TypeError: extract_data() takes 0 positional arguments but 1 was given
+2025-11-05 13:43:54,108 [INFO] Sleeping for 24 hours before next run...
+2025-11-05 13:45:31,549 [DEBUG] Loading environment from C:\worksplace\sts\chatgpt\simple-python-tutorial\src\etl_pipeline\configs\db_connections.env
+2025-11-05 13:45:31,550 [ERROR] Environment file not found at C:\worksplace\sts\chatgpt\simple-python-tutorial\src\etl_pipeline\configs\db_connections.env
+2025-11-05 13:45:31,550 [ERROR] DB_PASS not found or empty! Check .env file format and path.
+2025-11-05 13:45:31,550 [DEBUG] run_etl_pipeline called
+2025-11-05 13:45:31,550 [DEBUG] build_db_url_from_env called
+2025-11-05 13:45:31,550 [DEBUG] build_db_url_from_env dialect=mysql+pymysql
+2025-11-05 13:45:31,550 [DEBUG] build_db_url_from_env host=localhost
+2025-11-05 13:45:31,550 [DEBUG] build_db_url_from_env port=3306
+2025-11-05 13:45:31,550 [DEBUG] build_db_url_from_env name=chatgpt_db
+2025-11-05 13:45:31,550 [DEBUG] build_db_url_from_env user=root
+2025-11-05 13:45:31,550 [DEBUG] test_connection called
+2025-11-05 13:45:31,550 [DEBUG] test_connection db_url=mysql+pymysql://root:ZAQ!zaq1@localhost:3306/chatgpt_db
+2025-11-05 13:45:31,618 [INFO] Connected to MySQL version: 8.0.42
+2025-11-05 13:45:31,619 [DEBUG] extract_data called
+2025-11-05 13:45:31,619 [DEBUG] extract_data file_path=C:\worksplace\sts\chatgpt\simple-python-tutorial\src\data\source_data.csv
+2025-11-05 13:45:31,620 [ERROR] Error occurred in ETL pipeline: [Errno 2] No such file or directory: 'C:\\worksplace\\sts\\chatgpt\\simple-python-tutorial\\src\\data\\source_data.csv'
+Traceback (most recent call last):
+  File "C:\worksplace\sts\chatgpt\simple-python-tutorial\src\etl_pipeline\etl_pipeline.py", line 161, in run_etl_pipeline
+    data = extract_data()
+  File "C:\worksplace\sts\chatgpt\simple-python-tutorial\src\etl_pipeline\etl_pipeline.py", line 110, in extract_data
+    data = pd.read_csv(file_path)
+  File "C:\Users\ht021\AppData\Local\Programs\Python\Python314\Lib\site-packages\pandas\io\parsers\readers.py", line 1026, in read_csv
+    return _read(filepath_or_buffer, kwds)
+  File "C:\Users\ht021\AppData\Local\Programs\Python\Python314\Lib\site-packages\pandas\io\parsers\readers.py", line 620, in _read
+    parser = TextFileReader(filepath_or_buffer, **kwds)
+  File "C:\Users\ht021\AppData\Local\Programs\Python\Python314\Lib\site-packages\pandas\io\parsers\readers.py", line 1620, in __init__
+    self._engine = self._make_engine(f, self.engine)
+                   ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "C:\Users\ht021\AppData\Local\Programs\Python\Python314\Lib\site-packages\pandas\io\parsers\readers.py", line 1880, in _make_engine
+    self.handles = get_handle(
+                   ~~~~~~~~~~^
+        f,
+        ^^
+    ...<6 lines>...
+        storage_options=self.options.get("storage_options", None),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\ht021\AppData\Local\Programs\Python\Python314\Lib\site-packages\pandas\io\common.py", line 873, in get_handle
+    handle = open(
+        handle,
+    ...<3 lines>...
+        newline="",
+    )
+FileNotFoundError: [Errno 2] No such file or directory: 'C:\\worksplace\\sts\\chatgpt\\simple-python-tutorial\\src\\data\\source_data.csv'
+2025-11-05 13:45:31,624 [INFO] Sleeping for 24 hours before next run...
+2025-11-05 13:48:08,593 [DEBUG] Loading environment from C:\worksplace\sts\chatgpt\simple-python-tutorial\src\etl_pipeline\configs\db_connections.env
+2025-11-05 13:48:08,594 [ERROR] Environment file not found at C:\worksplace\sts\chatgpt\simple-python-tutorial\src\etl_pipeline\configs\db_connections.env
+2025-11-05 13:48:08,594 [ERROR] DB_PASS not found or empty! Check .env file format and path.
+2025-11-05 13:48:08,594 [DEBUG] run_etl_pipeline called
+2025-11-05 13:48:08,594 [DEBUG] build_db_url_from_env called
+2025-11-05 13:48:08,594 [DEBUG] build_db_url_from_env dialect=mysql+pymysql
+2025-11-05 13:48:08,595 [DEBUG] build_db_url_from_env host=localhost
+2025-11-05 13:48:08,595 [DEBUG] build_db_url_from_env port=3306
+2025-11-05 13:48:08,595 [DEBUG] build_db_url_from_env name=chatgpt_db
+2025-11-05 13:48:08,595 [DEBUG] build_db_url_from_env user=root
+2025-11-05 13:48:08,595 [DEBUG] test_connection called
+2025-11-05 13:48:08,595 [DEBUG] test_connection db_url=mysql+pymysql://root:ZAQ!zaq1@localhost:3306/chatgpt_db
+2025-11-05 13:48:08,664 [INFO] Connected to MySQL version: 8.0.42
+2025-11-05 13:48:08,664 [DEBUG] extract_data called
+2025-11-05 13:48:08,664 [DEBUG] extract_data file_path=C:\worksplace\sts\chatgpt\simple-python-tutorial\src\data\source_data.csv
+2025-11-05 13:48:08,666 [ERROR] Error occurred in ETL pipeline: [Errno 2] No such file or directory: 'C:\\worksplace\\sts\\chatgpt\\simple-python-tutorial\\src\\data\\source_data.csv'
+Traceback (most recent call last):
+  File "C:\worksplace\sts\chatgpt\simple-python-tutorial\src\etl_pipeline\etl_pipeline.py", line 159, in run_etl_pipeline
+    data = extract_data()
+  File "C:\worksplace\sts\chatgpt\simple-python-tutorial\src\etl_pipeline\etl_pipeline.py", line 108, in extract_data
+    data = pd.read_csv(file_path)
+  File "C:\Users\ht021\AppData\Local\Programs\Python\Python314\Lib\site-packages\pandas\io\parsers\readers.py", line 1026, in read_csv
+    return _read(filepath_or_buffer, kwds)
+  File "C:\Users\ht021\AppData\Local\Programs\Python\Python314\Lib\site-packages\pandas\io\parsers\readers.py", line 620, in _read
+    parser = TextFileReader(filepath_or_buffer, **kwds)
+  File "C:\Users\ht021\AppData\Local\Programs\Python\Python314\Lib\site-packages\pandas\io\parsers\readers.py", line 1620, in __init__
+    self._engine = self._make_engine(f, self.engine)
+                   ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "C:\Users\ht021\AppData\Local\Programs\Python\Python314\Lib\site-packages\pandas\io\parsers\readers.py", line 1880, in _make_engine
+    self.handles = get_handle(
+                   ~~~~~~~~~~^
+        f,
+        ^^
+    ...<6 lines>...
+        storage_options=self.options.get("storage_options", None),
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\ht021\AppData\Local\Programs\Python\Python314\Lib\site-packages\pandas\io\common.py", line 873, in get_handle
+    handle = open(
+        handle,
+    ...<3 lines>...
+        newline="",
+    )
+FileNotFoundError: [Errno 2] No such file or directory: 'C:\\worksplace\\sts\\chatgpt\\simple-python-tutorial\\src\\data\\source_data.csv'
+2025-11-05 13:48:08,670 [INFO] Sleeping for 24 hours before next run...
+2025-11-05 13:50:40,256 [DEBUG] Loading environment from C:\worksplace\sts\chatgpt\simple-python-tutorial\src\etl_pipeline\configs\db_connections.env
+2025-11-05 13:50:40,257 [ERROR] Environment file not found at C:\worksplace\sts\chatgpt\simple-python-tutorial\src\etl_pipeline\configs\db_connections.env
+2025-11-05 13:50:40,257 [ERROR] DB_PASS not found or empty! Check .env file format and path.
+2025-11-05 13:50:40,257 [DEBUG] run_etl_pipeline called
+2025-11-05 13:50:40,257 [DEBUG] build_db_url_from_env called
+2025-11-05 13:50:40,257 [DEBUG] build_db_url_from_env dialect=mysql+pymysql
+2025-11-05 13:50:40,257 [DEBUG] build_db_url_from_env host=localhost
+2025-11-05 13:50:40,257 [DEBUG] build_db_url_from_env port=3306
+2025-11-05 13:50:40,257 [DEBUG] build_db_url_from_env name=chatgpt_db
+2025-11-05 13:50:40,258 [DEBUG] build_db_url_from_env user=root
+2025-11-05 13:50:40,258 [DEBUG] test_connection called
+2025-11-05 13:50:40,258 [DEBUG] test_connection db_url=mysql+pymysql://root:ZAQ!zaq1@localhost:3306/chatgpt_db
+2025-11-05 13:50:40,323 [INFO] Connected to MySQL version: 8.0.42
+2025-11-05 13:50:40,323 [DEBUG] extract_data called
+2025-11-05 13:50:40,324 [DEBUG] extract_data file_path=C:\worksplace\sts\chatgpt\simple-python-tutorial\data\source_data.csv
+2025-11-05 13:50:40,339 [DEBUG] extract_data result (head)=   id     name   age
+0   1    Alice  25.0
+1   2      Bob  17.0
+2   3  Charlie  35.0
+3   4    David   NaN
+4   5      Eve  29.0
+2025-11-05 13:50:40,355 [DEBUG] transform_data called
+2025-11-05 13:50:40,355 [DEBUG] transform_data data before transform:
+   id     name   age
+0   1    Alice  25.0
+1   2      Bob  17.0
+2   3  Charlie  35.0
+3   4    David   NaN
+4   5      Eve  29.0
+2025-11-05 13:50:40,365 [DEBUG] transform_data data after transform:
+   id     name   age
+0   1    Alice  25.0
+2   3  Charlie  35.0
+4   5      Eve  29.0
+2025-11-05 13:50:40,382 [DEBUG] load_data_mysql called
+2025-11-05 13:50:40,382 [DEBUG] load_data_mysql db_url=mysql+pymysql://root:ZAQ!zaq1@localhost:3306/chatgpt_db
+2025-11-05 13:50:40,382 [DEBUG] load_data_mysql data to load:
+   id     name   age
+0   1    Alice  25.0
+2   3  Charlie  35.0
+4   5      Eve  29.0
+2025-11-05 13:50:40,389 [DEBUG] load_data_mysql engine created
+2025-11-05 13:50:40,532 [DEBUG] load_data_mysql completed successfully
+2025-11-05 13:50:40,532 [INFO] ETL pipeline completed successfully!
+2025-11-05 13:50:40,533 [INFO] Sleeping for 24 hours before next run...

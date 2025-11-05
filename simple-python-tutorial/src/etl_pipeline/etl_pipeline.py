@@ -33,7 +33,19 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 ENV_PATH = os.path.join(BASE_DIR, "configs", "db_connections.env")
 
 logger.debug("Loading environment from %s", ENV_PATH)
-load_dotenv(ENV_PATH)
+
+if not os.path.exists(ENV_PATH):
+    logger.error("Environment file not found at %s", ENV_PATH)
+else:
+    load_dotenv(ENV_PATH)
+    logger.debug("Environment file loaded successfully")
+
+# Verify .env contents
+pw_check = os.getenv("DB_PASS")
+if pw_check:
+    logger.debug("DB_PASS loaded (masked) = ******")
+else:
+    logger.error("DB_PASS not found or empty! Check .env file format and path.")
 
 # ------------------------------------------------------------
 # Step 3: Build DB URL from .env
@@ -54,7 +66,7 @@ def build_db_url_from_env():
     port = os.getenv("DB_PORT", "3306")
     name = os.getenv("DB_NAME", "chatgpt_db")
     user = os.getenv("DB_USER", "root")
-    pw = os.getenv("DB_PASS", "")
+    pw = os.getenv("DB_PASS", "ZAQ!zaq1")
 
     logger.debug("build_db_url_from_env dialect=%s", dialect)
     logger.debug("build_db_url_from_env host=%s", host)
@@ -83,13 +95,21 @@ def test_connection(db_url):
 # ------------------------------------------------------------
 # Step 5: Extract
 # ------------------------------------------------------------
-def extract_data(file_path):
+# ------------------------------------------------------------
+# Step 5: Extract
+# ------------------------------------------------------------
+def extract_data():
     logger.debug("extract_data called")
-    logger.debug("extract_data file_path=%s", file_path)
+    
+    # etl_pipeline.py
+    BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+    DATA_PATH = os.path.join(BASE_DIR, "data", "source_data.csv")
+    logger.debug("extract_data file_path=%s", DATA_PATH)
 
-    data = pd.read_csv(file_path)
+    data = pd.read_csv(DATA_PATH)
     logger.debug("extract_data result (head)=%s", data.head())
     return data
+
 
 # ------------------------------------------------------------
 # Step 6: Transform
@@ -138,7 +158,7 @@ def run_etl_pipeline():
         db_url = build_db_url_from_env()
         test_connection(db_url)
 
-        data = extract_data('data/source_data.csv')
+        data = extract_data()
         transformed = transform_data(data)
         load_data_mysql(transformed, db_url)
 
@@ -155,3 +175,4 @@ if __name__ == "__main__":
         run_etl_pipeline()
         logger.info("Sleeping for 24 hours before next run...")
         sleep(86400)
+
