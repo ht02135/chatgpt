@@ -25,6 +25,21 @@ Step 2 — Install Required Libraries
 pip install pandas
 We’ll also use Python’s built-in sqlite3 module (no need to install it).
 
+-------------
+
+Install the required libraries
+pip install sqlalchemy pymysql python-dotenv pandas
+
+-------------
+
+Create a .env file for your database config
+DB_DIALECT=mysql+pymysql
+DB_HOST=localhost
+DB_PORT=3306
+DB_NAME=chatgpt_db
+DB_USER=root
+DB_PASS=ZAQ!zaq1
+
 ///////////
 
 Step 3 — Write the ETL Pipeline (with logging)
