@@ -1,0 +1,268 @@
+
+https://www.fabi.ai/blog/data-pipelines-in-python-a-quickstart-guide-with-practical-tips
+
+0) Project structure & requirements
+data_pipeline_example/
+├── data/
+│   └── sales_data.csv
+├── etl_pipeline.py         # main ETL logic + logging
+├── prefect_flow.py         # lightweight orchestration example (Prefect)
+├── airflow_dag.py          # Airflow DAG (example) - put in $AIRFLOW_HOME/dags/
+└── requirements.txt
+
+//////////////////
+
+requirements.txt (install with pip install -r requirements.txt):
+pandas
+sqlalchemy
+psycopg2-binary
+prefect
+apache-airflow==2.8.0   # optional; Airflow install is heavier and often done separately
+
+//////////////////
+
+Create data/sales_data.csv sample:
+order_id,product,quantity,unit_price,date,region
+1,Widget,3,19.99,2024-08-01,EMEA
+2,Gadget,1,99.99,2024-08-02,NA
+3,Widget,2,19.99,2024-08-03,APAC
+4,Thing,5,9.99,2024-08-04,NA
+5,Gadget,,99.99,2024-08-05,EMEA
+
+//////////////////
+
+1) Common logging & helper patterns (rules you requested applied)
+
+We’ll use Python logging and ensure each function logs at start, logs each parameter separately, and logs the whole object as requested.
+
+etl_pipeline.py:
+
+import logging
+import pandas as pd
+from sqlalchemy import create_engine
+from typing import Optional
+
+# -------------------------
+# Logging setup (always present)
+# -------------------------
+# logger declaration (analogous to "private static final Logger ...")
+logger = logging.getLogger("DataPipeline")
+logger.setLevel(logging.DEBUG)
+handler = logging.StreamHandler()
+formatter = logging.Formatter("%(asctime)s [%(levelname)s] %(message)s")
+handler.setFormatter(formatter)
+logger.addHandler(handler)
+
+# -------------------------
+# EXTRACT
+# -------------------------
+def extract_data(file_path: str) -> pd.DataFrame:
+    logger.debug("extract_data called")
+    logger.debug("extract_data file_path=%s", file_path)      # one log per param
+    # read csv
+    df = pd.read_csv(file_path)
+    logger.debug("extract_data dataframe head:\n%s", df.head().to_string(index=False))  # log whole obj (head)
+    return df
+
+# -------------------------
+# TRANSFORM
+# -------------------------
+def transform_data(df: pd.DataFrame, min_quantity: Optional[int] = None) -> pd.DataFrame:
+    logger.debug("transform_data called")
+    logger.debug("transform_data df (rows)=%s", len(df))        # log param 1
+    logger.debug("transform_data min_quantity=%s", min_quantity) # log param 2
+
+    # Example transforms:
+    # 1) parse dates
+    df['date'] = pd.to_datetime(df['date'], errors='coerce')
+
+    # 2) fill/clean missing (we'll drop rows with missing quantity or unit_price)
+    df = df.dropna(subset=['quantity', 'unit_price'])
+
+    # 3) ensure numeric types
+    df['quantity'] = df['quantity'].astype(int)
+    df['unit_price'] = df['unit_price'].astype(float)
+
+    # 4) compute derived column
+    df['total_revenue'] = df['quantity'] * df['unit_price']
+
+    # 5) optional filter
+    if min_quantity is not None:
+        df = df[df['quantity'] >= min_quantity]
+
+    logger.debug("transform_data result head:\n%s", df.head().to_string(index=False))
+    return df
+
+# -------------------------
+# LOAD
+# -------------------------
+def load_to_postgres(df: pd.DataFrame, db_url: str, table_name: str = "sales_data", if_exists: str = "replace"):
+    logger.debug("load_to_postgres called")
+    logger.debug("load_to_postgres df rows=%s", len(df))     # log param 1
+    logger.debug("load_to_postgres db_url=%s", db_url)       # log param 2
+    logger.debug("load_to_postgres table_name=%s", table_name) # log param 3
+    logger.debug("load_to_postgres if_exists=%s", if_exists)   # log param 4
+
+    engine = create_engine(db_url)
+    logger.debug("load_to_postgres engine created: %s", engine)
+    df.to_sql(table_name, engine, if_exists=if_exists, index=False)
+    logger.info("load_to_postgres finished: %d rows -> %s.%s", len(df), engine.url.database, table_name)
+
+# -------------------------
+# Orchestration wrapper (local)
+# -------------------------
+def run_etl_local(csv_path: str, db_url: str, min_quantity: Optional[int] = None):
+    logger.debug("run_etl_local called")
+    logger.debug("run_etl_local csv_path=%s", csv_path)
+    logger.debug("run_etl_local db_url=%s", db_url)
+    logger.debug("run_etl_local min_quantity=%s", min_quantity)
+
+    try:
+        df = extract_data(csv_path)
+        df_t = transform_data(df, min_quantity=min_quantity)
+        load_to_postgres(df_t, db_url)
+        logger.info("run_etl_local completed successfully")
+    except Exception as e:
+        logger.exception("Error during ETL run: %s", e)
+
+# -------------------------
+# Example entry-point
+# -------------------------
+if __name__ == "__main__":
+    # Replace with your DB connection string
+    POSTGRES_URL = "postgresql://username:password@localhost:5432/mydatabase"
+    run_etl_local("data/sales_data.csv", POSTGRES_URL, min_quantity=1)
+
+//////////////////
+
+2) PostgreSQL setup (quick test)
+If you don’t have Postgres locally, you can run one with Docker quickly:
+docker run --name pg-test -e POSTGRES_PASSWORD=postgres -e POSTGRES_USER=postgres -e POSTGRES_DB=mydatabase -p 5432:5432 -d postgres:15
+
+Then DB URL: postgresql://postgres:postgres@localhost:5432/mydatabase
+
+Run the ETL script once:
+python etl_pipeline.py
+
+Verify with psql or pgcli:
+SELECT count(*) FROM sales_data;
+SELECT * FROM sales_data LIMIT 5;
+
+//////////////////
+
+3) Lightweight orchestration — Prefect example
+
+Prefect is simple to get running locally and good for development.
+
+prefect_flow.py:
+
+from prefect import flow, task
+import etl_pipeline as etl
+
+# Task wrappers — keep logging behavior from etl_pipeline
+@task
+def extract(file_path):
+    return etl.extract_data(file_path)
+
+@task
+def transform(df):
+    return etl.transform_data(df, min_quantity=1)
+
+@task
+def load(df, db_url):
+    etl.load_to_postgres(df, db_url)
+
+@flow(name="sales-etl-flow")
+def sales_etl_flow(csv_path: str, db_url: str):
+    df = extract(csv_path)
+    df2 = transform(df)
+    load(df2, db_url)
+
+if __name__ == "__main__":
+    CSV = "data/sales_data.csv"
+    DB_URL = "postgresql://postgres:postgres@localhost:5432/mydatabase"
+    sales_etl_flow(CSV, DB_URL)
+
+//////////////////
+
+4) Airflow DAG example (declarative scheduling)
+
+Airflow is heavier but standard in many orgs. Place the following in your Airflow dags/ directory.
+
+airflow_dag.py:
+
+from airflow import DAG
+from airflow.operators.python import PythonOperator
+from datetime import datetime, timedelta
+import etl_pipeline as etl
+
+default_args = {
+    "owner": "data_eng",
+    "depends_on_past": False,
+    "retries": 1,
+    "retry_delay": timedelta(minutes=5),
+}
+
+def _extract(**context):
+    df = etl.extract_data('/opt/airflow/data/sales_data.csv')
+    # push to xcom as CSV (small) or persist to temp file / storage for larger data
+    context['ti'].xcom_push(key='raw_df', value=df.to_json(orient='split'))
+
+def _transform(**context):
+    raw = context['ti'].xcom_pull(key='raw_df')
+    import pandas as pd
+    df = pd.read_json(raw, orient='split')
+    df2 = etl.transform_data(df, min_quantity=1)
+    context['ti'].xcom_push(key='transformed_df', value=df2.to_json(orient='split'))
+
+def _load(**context):
+    raw = context['ti'].xcom_pull(key='transformed_df')
+    import pandas as pd
+    df = pd.read_json(raw, orient='split')
+    etl.load_to_postgres(df, "postgresql://postgres:postgres@localhost:5432/mydatabase")
+
+with DAG(
+    dag_id='sales_data_pipeline',
+    default_args=default_args,
+    start_date=datetime(2024, 1, 1),
+    schedule_interval=timedelta(days=1),
+    catchup=False,
+) as dag:
+
+    t1 = PythonOperator(
+        task_id='extract',
+        python_callable=_extract,
+        provide_context=True
+    )
+
+    t2 = PythonOperator(
+        task_id='transform',
+        python_callable=_transform,
+        provide_context=True
+    )
+
+    t3 = PythonOperator(
+        task_id='load',
+        python_callable=_load,
+        provide_context=True
+    )
+
+    t1 >> t2 >> t3
+
+//////////////////
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

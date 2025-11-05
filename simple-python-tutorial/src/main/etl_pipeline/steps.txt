@@ -1,0 +1,197 @@
+
+https://rivery.io/data-learning-center/etl-pipeline-python/
+
+Step 1 — Project Setup
+Create this folder structure:
+
+etl_pipeline/
+│
+├── etl_pipeline.py
+└── data/
+    └── source_data.csv
+
+Inside data/source_data.csv, put a small sample like this:
+id,name,age
+1,Alice,25
+2,Bob,17
+3,Charlie,35
+4,David,
+5,Eve,29
+
+///////////
+
+Step 2 — Install Required Libraries
+
+pip install pandas
+We’ll also use Python’s built-in sqlite3 module (no need to install it).
+
+///////////
+
+Step 3 — Write the ETL Pipeline (with logging)
+
+Now in etl_pipeline.py, write the full script below.
+This includes extract → transform → load → orchestration → error handling, just like in the tutorial.
+
+import pandas as pd
+import sqlite3
+import logging
+from time import sleep
+
+# ------------------------------------------------------------
+# Step 1: Setup Logging
+# ------------------------------------------------------------
+logging.basicConfig(
+    level=logging.DEBUG,
+    format="%(asctime)s [%(levelname)s] %(message)s",
+    handlers=[
+        logging.FileHandler("etl_pipeline.log"),
+        logging.StreamHandler()
+    ]
+)
+logger = logging.getLogger(__name__)
+
+# ------------------------------------------------------------
+# Step 2: Extract
+# ------------------------------------------------------------
+def extract_data(file_path):
+    logger.debug("extract_data called")
+    logger.debug("extract_data file_path=%s", file_path)
+
+    data = pd.read_csv(file_path)
+    logger.debug("extract_data result (head)=%s", data.head())
+    return data
+
+# ------------------------------------------------------------
+# Step 3: Transform
+# ------------------------------------------------------------
+def transform_data(data):
+    logger.debug("transform_data called")
+    logger.debug("transform_data data before transform:\n%s", data.head())
+
+    # Remove missing rows
+    data = data.dropna()
+
+    # Keep only rows where 'age' > 18
+    data = data[data['age'] > 18]
+
+    logger.debug("transform_data data after transform:\n%s", data.head())
+    return data
+
+# ------------------------------------------------------------
+# Step 4: Load
+# ------------------------------------------------------------
+def load_data(data, database_path):
+    logger.debug("load_data called")
+    logger.debug("load_data database_path=%s", database_path)
+    logger.debug("load_data data to load:\n%s", data.head())
+
+    conn = sqlite3.connect(database_path)
+    cursor = conn.cursor()
+
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT,
+            age INTEGER
+        )
+    ''')
+
+    for _, row in data.iterrows():
+        cursor.execute('''
+            INSERT INTO users (name, age) VALUES (?, ?)
+        ''', (row['name'], row['age']))
+
+    conn.commit()
+    conn.close()
+    logger.debug("load_data completed successfully")
+
+# ------------------------------------------------------------
+# Step 5: Orchestrate ETL
+# ------------------------------------------------------------
+def run_etl_pipeline():
+    logger.debug("run_etl_pipeline called")
+
+    try:
+        # Extract
+        data = extract_data('data/source_data.csv')
+
+        # Transform
+        transformed = transform_data(data)
+
+        # Load
+        load_data(transformed, 'data/destination.db')
+
+        logger.info("ETL pipeline completed successfully!")
+
+    except Exception as e:
+        logger.error("Error occurred in ETL pipeline: %s", e, exc_info=True)
+
+# ------------------------------------------------------------
+# Step 6: Optional Scheduler (every 24 hours)
+# ------------------------------------------------------------
+if __name__ == "__main__":
+    while True:
+        run_etl_pipeline()
+        logger.info("Sleeping for 24 hours before next run...")
+        sleep(86400)
+
+///////////
+
+Step 4 — Run the Pipeline Once (for testing)
+
+During development, comment out the scheduler so it runs once:
+
+if __name__ == "__main__":
+    run_etl_pipeline()
+
+
+///////////
+
+Step 5 — Verify Output
+
+After running:
+
+Check data/destination.db
+You can open it with any SQLite viewer, or use the command line:
+
+sqlite3 data/destination.db
+sqlite> SELECT * FROM users;
+
+Check etl_pipeline.log
+You’ll see debug logs for every stage of the ETL process.
+
+///////////
+
+Step 6 — Automate (Optional)
+
+Once confirmed working, re-enable the loop to run daily:
+
+while True:
+    run_etl_pipeline()
+    sleep(86400)
+
+///////////
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
