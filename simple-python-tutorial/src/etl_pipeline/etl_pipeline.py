@@ -41,6 +41,14 @@ load_dotenv(ENV_PATH)
 def build_db_url_from_env():
     logger.debug("build_db_url_from_env called")
 
+# jdbc.driver=com.mysql.cj.jdbc.Driver
+# jdbc.url=jdbc:mysql://localhost:3306/chatgpt_db?useSSL=false
+# db.hostname=localhost
+# db.port=3306
+# db.name=chatgpt_db
+# db.username=root
+# db.password=ZAQ!zaq1
+
     dialect = os.getenv("DB_DIALECT", "mysql+pymysql")
     host = os.getenv("DB_HOST", "localhost")
     port = os.getenv("DB_PORT", "3306")
