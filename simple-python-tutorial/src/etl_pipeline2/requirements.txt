@@ -1,0 +1,6 @@
+# requirements.txt
+pandas
+sqlalchemy
+psycopg2-binary
+prefect
+# apache-airflow==2.8.0   # optional
