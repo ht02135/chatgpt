@@ -1,5 +1,5 @@
 
-# etl_pipeline.py
+# /simple-python-tutorial/src/etl_pipeline/etl_pipeline.py
 # python -m pip install pandas
 # python -m pip install sqlalchemy pymysql python-dotenv pandas
 # python -m pip list
@@ -26,26 +26,22 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # ------------------------------------------------------------
-# Step 2: Load Environment Variables
+# Step 2: Global Paths (for standalone run)
 # ------------------------------------------------------------
-# Ensure we explicitly load the correct .env file
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 ENV_PATH = os.path.join(BASE_DIR, "configs", "db_connections.env")
+DATA_PATH = os.path.join(BASE_DIR, "data", "source_data.csv")
 
-logger.debug("Loading environment from %s", ENV_PATH)
+logger.debug("Global BASE_DIR=%s", BASE_DIR)
+logger.debug("Global ENV_PATH=%s", ENV_PATH)
+logger.debug("Global DATA_PATH=%s", DATA_PATH)
 
+# Load environment
 if not os.path.exists(ENV_PATH):
     logger.error("Environment file not found at %s", ENV_PATH)
 else:
     load_dotenv(ENV_PATH)
     logger.debug("Environment file loaded successfully")
-
-# Verify .env contents
-pw_check = os.getenv("DB_PASS")
-if pw_check:
-    logger.debug("DB_PASS loaded (masked) = ******")
-else:
-    logger.error("DB_PASS not found or empty! Check .env file format and path.")
 
 # ------------------------------------------------------------
 # Step 3: Build DB URL from .env
@@ -53,13 +49,13 @@ else:
 def build_db_url_from_env():
     logger.debug("build_db_url_from_env called")
 
-# jdbc.driver=com.mysql.cj.jdbc.Driver
-# jdbc.url=jdbc:mysql://localhost:3306/chatgpt_db?useSSL=false
-# db.hostname=localhost
-# db.port=3306
-# db.name=chatgpt_db
-# db.username=root
-# db.password=ZAQ!zaq1
+    # jdbc.driver=com.mysql.cj.jdbc.Driver
+    # jdbc.url=jdbc:mysql://localhost:3306/chatgpt_db?useSSL=false
+    # db.hostname=localhost
+    # db.port=3306
+    # db.name=chatgpt_db
+    # db.username=root
+    # db.password=ZAQ!zaq1
 
     dialect = os.getenv("DB_DIALECT", "mysql+pymysql")
     host = os.getenv("DB_HOST", "localhost")
@@ -85,7 +81,7 @@ def test_connection(db_url):
 
     # engine comes from SQLAlchemy, which is a Python library for working with databases.
     # create_engine(db_url) does not connect to the database immediately.
-    # It creates a “factory” object that knows how to talk to the database when needed.
+    # It creates a �factory� object that knows how to talk to the database when needed.
     engine = create_engine(db_url)
     with engine.connect() as conn:
         result = conn.execute(text("SELECT VERSION()"))
@@ -95,21 +91,13 @@ def test_connection(db_url):
 # ------------------------------------------------------------
 # Step 5: Extract
 # ------------------------------------------------------------
-# ------------------------------------------------------------
-# Step 5: Extract
-# ------------------------------------------------------------
 def extract_data():
     logger.debug("extract_data called")
-    
-    # etl_pipeline.py
-    BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-    DATA_PATH = os.path.join(BASE_DIR, "data", "source_data.csv")
-    logger.debug("extract_data file_path=%s", DATA_PATH)
+    logger.debug("extract_data DATA_PATH=%s", DATA_PATH)
 
     data = pd.read_csv(DATA_PATH)
     logger.debug("extract_data result (head)=%s", data.head())
     return data
-
 
 # ------------------------------------------------------------
 # Step 6: Transform
@@ -123,11 +111,11 @@ def transform_data(data):
 
     logger.debug("transform_data data after transform:\n%s", data.head())
     
-    # So data is a Pandas DataFrame, which is basically a table in memory — like an Excel sheet or SQL table
+    # So data is a Pandas DataFrame, which is basically a table in memory � like an Excel sheet or SQL table
     return data
 
 # ------------------------------------------------------------
-# Step 7: Load (MySQL)
+# Step 7: Load
 # ------------------------------------------------------------
 def load_data_mysql(data, db_url):
     logger.debug("load_data_mysql called")
@@ -141,8 +129,8 @@ def load_data_mysql(data, db_url):
     # DataFrame.to_sql() is a Pandas method that writes a DataFrame to a database table.
     # | Argument              | Meaning                                                                                                                                 |
     # | --------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
-    # | `'python_users'`      | The **name of the table** in the database. If it doesn’t exist, it will be created.                                                     |
-    # | `engine`              | SQLAlchemy **engine object** — it knows how to connect to your MySQL database.                                                          |
+    # | `'python_users'`      | The **name of the table** in the database. If it doesn�t exist, it will be created.                                                     |
+    # | `engine`              | SQLAlchemy **engine object** � it knows how to connect to your MySQL database.                                                          |
     # | `if_exists='replace'` | If the table **already exists**, it will **drop it and recreate it**. Alternatives: `'append'` to add rows, `'fail'` to throw an error. |
     # | `index=False`         | Do **not** write the DataFrame index as a column in the database table.                                                                 |
     data.to_sql('python_users', engine, if_exists='replace', index=False)
@@ -153,26 +141,21 @@ def load_data_mysql(data, db_url):
 # ------------------------------------------------------------
 def run_etl_pipeline():
     logger.debug("run_etl_pipeline called")
-
     try:
         db_url = build_db_url_from_env()
         test_connection(db_url)
-
         data = extract_data()
         transformed = transform_data(data)
         load_data_mysql(transformed, db_url)
-
         logger.info("ETL pipeline completed successfully!")
-
     except Exception as e:
         logger.error("Error occurred in ETL pipeline: %s", e, exc_info=True)
 
 # ------------------------------------------------------------
-# Step 9: Scheduler (Optional)
+# Step 9: Entry point
 # ------------------------------------------------------------
 if __name__ == "__main__":
     while True:
         run_etl_pipeline()
         logger.info("Sleeping for 24 hours before next run...")
         sleep(86400)
-
