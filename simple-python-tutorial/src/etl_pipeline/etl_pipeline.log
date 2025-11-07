@@ -351,3 +351,49 @@ FileNotFoundError: [Errno 2] No such file or directory: 'C:\\worksplace\\sts\\ch
 2025-11-05 13:50:40,532 [DEBUG] load_data_mysql completed successfully
 2025-11-05 13:50:40,532 [INFO] ETL pipeline completed successfully!
 2025-11-05 13:50:40,533 [INFO] Sleeping for 24 hours before next run...
+2025-11-07 08:16:58,527 [DEBUG] Global BASE_DIR=C:\worksplace\sts\chatgpt\simple-python-tutorial
+2025-11-07 08:16:58,534 [DEBUG] Global ENV_PATH=C:\worksplace\sts\chatgpt\simple-python-tutorial\configs\db_connections.env
+2025-11-07 08:16:58,534 [DEBUG] Global DATA_PATH=C:\worksplace\sts\chatgpt\simple-python-tutorial\data\source_data.csv
+2025-11-07 08:16:58,535 [DEBUG] Environment file loaded successfully
+2025-11-07 08:16:58,536 [DEBUG] run_etl_pipeline called
+2025-11-07 08:16:58,536 [DEBUG] build_db_url_from_env called
+2025-11-07 08:16:58,536 [DEBUG] build_db_url_from_env dialect=mysql+pymysql
+2025-11-07 08:16:58,536 [DEBUG] build_db_url_from_env host=localhost
+2025-11-07 08:16:58,536 [DEBUG] build_db_url_from_env port=3306
+2025-11-07 08:16:58,536 [DEBUG] build_db_url_from_env name=chatgpt_db
+2025-11-07 08:16:58,536 [DEBUG] build_db_url_from_env user=root
+2025-11-07 08:16:58,536 [DEBUG] test_connection called
+2025-11-07 08:16:58,536 [DEBUG] test_connection db_url=mysql+pymysql://root:ZAQ!zaq1@localhost:3306/chatgpt_db
+2025-11-07 08:16:58,600 [INFO] Connected to MySQL version: 8.0.42
+2025-11-07 08:16:58,600 [DEBUG] extract_data called
+2025-11-07 08:16:58,600 [DEBUG] extract_data DATA_PATH=C:\worksplace\sts\chatgpt\simple-python-tutorial\data\source_data.csv
+2025-11-07 08:16:58,608 [DEBUG] extract_data result (head)=   id     name   age
+0   1    Alice  25.0
+1   2      Bob  17.0
+2   3  Charlie  35.0
+3   4    David   NaN
+4   5      Eve  29.0
+2025-11-07 08:16:58,618 [DEBUG] transform_data called
+2025-11-07 08:16:58,618 [DEBUG] transform_data data before transform:
+   id     name   age
+0   1    Alice  25.0
+1   2      Bob  17.0
+2   3  Charlie  35.0
+3   4    David   NaN
+4   5      Eve  29.0
+2025-11-07 08:16:58,626 [DEBUG] transform_data data after transform:
+   id     name   age
+0   1    Alice  25.0
+2   3  Charlie  35.0
+4   5      Eve  29.0
+2025-11-07 08:16:58,643 [DEBUG] load_data_mysql called
+2025-11-07 08:16:58,643 [DEBUG] load_data_mysql db_url=mysql+pymysql://root:ZAQ!zaq1@localhost:3306/chatgpt_db
+2025-11-07 08:16:58,643 [DEBUG] load_data_mysql data to load:
+   id     name   age
+0   1    Alice  25.0
+2   3  Charlie  35.0
+4   5      Eve  29.0
+2025-11-07 08:16:58,650 [DEBUG] load_data_mysql engine created
+2025-11-07 08:16:58,715 [DEBUG] load_data_mysql completed successfully
+2025-11-07 08:16:58,715 [INFO] ETL pipeline completed successfully!
+2025-11-07 08:16:58,716 [INFO] Sleeping for 24 hours before next run...
