@@ -70,3 +70,11 @@ Thumbs.db
 # Ignore the simple-chatgpt-web.txt file
 simple-chatgpt-web.txt
 constants.txt
+
+# ============================
+# Log files
+# ============================
+*.log
+**/*.log
+logs/
+**/logs/
