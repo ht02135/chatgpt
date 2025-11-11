@@ -1,0 +1,110 @@
+
+https://learn.microsoft.com/en-us/training/modules/build-with-playwright/
+
+https://playwright.dev/java/docs/intro
+
+Get started by installing Playwright and running the example file to see it in action.
+
+pom
+
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>org.example</groupId>
+  <artifactId>examples</artifactId>
+  <version>0.1-SNAPSHOT</version>
+  <name>Playwright Client Examples</name>
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
+  <dependencies>
+    <dependency>
+      <groupId>com.microsoft.playwright</groupId>
+      <artifactId>playwright</artifactId>
+      <version>1.55.0</version>
+    </dependency>
+  </dependencies>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.10.1</version>
+        <!-- References to interface static methods are allowed only at source level 1.8 or above -->
+        <configuration>
+          <source>1.8</source>
+          <target>1.8</target>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>
+
+///////////////
+
+src/main/java/org/example/App.java
+
+package org.example;
+
+import com.microsoft.playwright.*;
+
+public class App {
+    public static void main(String[] args) {
+        try (Playwright playwright = Playwright.create()) {
+            Browser browser = playwright.chromium().launch();
+            Page page = browser.newPage();
+            page.navigate("https://playwright.dev");
+            System.out.println(page.title());
+        }
+    }
+}
+
+///////////////////////
+
+First script
+In our first script, we will navigate to playwright.dev and take a screenshot in WebKit.
+
+package org.example;
+
+import com.microsoft.playwright.*;
+import java.nio.file.Paths;
+
+public class App {
+  public static void main(String[] args) {
+    try (Playwright playwright = Playwright.create()) {
+      Browser browser = playwright.webkit().launch();
+      Page page = browser.newPage();
+      page.navigate("https://playwright.dev/");
+      page.screenshot(new Page.ScreenshotOptions().setPath(Paths.get("example.png")));
+    }
+  }
+}
+
+////////////////////////////
+
+By default, Playwright runs the browsers in headless mode. To see the browser UI, setHeadless option to false. You can also use setSlowMo to slow down execution. Learn more in the debugging tools section.
+
+playwright.firefox().launch(new BrowserType.LaunchOptions().setHeadless(false).setSlowMo(50));
+
+//////////////////////////////
+
+Running the Example script
+
+mvn compile exec:java -D exec.mainClass="org.example.App"
+
+/////////////////////
+
+
+
+
+
+
+
+
+
+
+
+
+

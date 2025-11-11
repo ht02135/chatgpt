@@ -1,0 +1,20 @@
+
+https://learn.microsoft.com/en-us/training/modules/build-with-playwright/2-introduction-to-playwright
+
+Playwright core concepts
+
+In the following exercises, we'll learn how to perform test automation tasks using Playwright. To set the stage, here are a few core terms and concepts to keep in mind. Their purpose and usage becomes clearer when you work through the exercises.
+Concept 	Description
+TestConfig 	Configure Playwright Test Runner using File (static) or API (dynamic)
+TestProject 	Logical group of tests running same TestConfig and can be defined using filter.
+Test Timeout 	Global (per test run), Default (per test), Expect timeouts, Fixture timeouts
+Fixtures 	Core to Playwright test isolation. Set environment; see built-in options.
+Navigation 	Using page.goto() options to craft multi-page testing workflows
+Locators 	Core to Playwright auto-wait and auto-retry. Action finds target elements.
+Assertions 	Core to Playwright validation of expected outcomes based on actions.
+Annotations 	Tag tests to provide added context to deal with failures, focus, flakiness.
+use Options 	Configure Browser (project) or BrowserContext (context) within scope.
+Page Object Models 	Represent UI components by "Objects" and associate testing logic for reuse
+
+//////////////
+
