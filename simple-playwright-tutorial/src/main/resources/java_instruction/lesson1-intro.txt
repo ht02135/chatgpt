@@ -3,7 +3,8 @@ https://learn.microsoft.com/en-us/training/modules/build-with-playwright/
 
 https://playwright.dev/java/docs/intro
 
-Get started by installing Playwright and running the example file to see it in action.
+Get started by installing Playwright and running the example file to see 
+it in action.
 
 pom
 
@@ -64,7 +65,8 @@ public class App {
 ///////////////////////
 
 First script
-In our first script, we will navigate to playwright.dev and take a screenshot in WebKit.
+In our first script, we will navigate to playwright.dev and take a 
+screenshot in WebKit.
 
 package org.example;
 
@@ -84,7 +86,9 @@ public class App {
 
 ////////////////////////////
 
-By default, Playwright runs the browsers in headless mode. To see the browser UI, setHeadless option to false. You can also use setSlowMo to slow down execution. Learn more in the debugging tools section.
+By default, Playwright runs the browsers in headless mode. To see the 
+browser UI, setHeadless option to false. You can also use setSlowMo to 
+slow down execution. Learn more in the debugging tools section.
 
 playwright.firefox().launch(new BrowserType.LaunchOptions().setHeadless(false).setSlowMo(50));
 
