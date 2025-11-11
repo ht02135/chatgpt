@@ -1,3 +1,223 @@
 
 https://www.browserstack.com/guide/playwright-tutorial
 
+This tutorial, walks you through everything from setup to advanced capabilities — including parallel testing, API validation, and handling dynamic web elements — so you can build faster, more reliable pipelines and deliver high-quality software with confidence.
+
+Playwright is an open-source test automation library initially developed by Microsoft contributors. It supports programming languages like Java, Python, C#, and NodeJS. Playwright comes with Apache 2.0 License and is most popular with NodeJS with Javascript/Typescript. This Playwright tutorial will help set up NodeJS using Visual Studio Code.
+
+Here are the main features of Playwright Automation:
+
+    Cross-Browser Testing: Playwright offers cross-browser testing capability and supports browsers like Chromium, Firefox, and WebKit with a single API.
+    Multi-Language Support: Playwright supports JavaScript, TypeScript, Java, Python, and .NET.
+    Auto-Waiting: The open-source framework waits automatically for elements to be ready
+    Headless and Headed Modes: Run tests in visible or headless mode efficiently.
+    Mobile and Device Emulation: Can seamlessly emulate devices, screen sizes and geolocation.
+    Network Interception and Mocking: Playwright supports the interception of API calls and mocks responses for improved test control.
+    Built-in Test Generator: Record actions to auto-generate code for test scripts.
+    Visual and Screenshot Testing: Playwright supports visual and screenshot testing helping you capture full-page screenshots, element snapshots, and video recordings.
+    
+/////////////
+
+Step 5: Install Browsers
+
+However, Playwright is configured to run on existing browsers, which might create issues while running tests, so it is recommended to use the Playwright browsers. Using the below command, you can install all different browsers in Playwright.
+
+////////////////
+
+Step 6: Create the first Playwright test
+
+Navigate inside the tests folder and create a test spec file ex: demo.spec.ts
+
+Let’s start a test case with the below scenario
+
+Scenario: 
+
+    Navigate to https://www.browserstack.com/
+    Click on Sign In
+    Enter wrong credentials
+    Verify Error Message is displayed or not.
+
+The demo.spec.ts is our Playwright test script as follows
+
+//demo.spec.ts
+
+import { test, expect, Page } from '@playwright/test';
+
+test.beforeEach(async ({ page }) => {
+
+  await page.goto('https://www.browserstack.com/');
+
+});
+
+test.describe('Demo Test', () => {
+
+    test('Verify Login Error Message', async ({ page }) => {
+
+        await page.waitForSelector('text=Sign in',{state:'visible'});
+
+        await page.locator('text=Sign in').first().click();
+
+        await page.waitForSelector('#user_email_login')
+
+        await page.locator('#user_email_login').type('example1@example.com');
+
+        await page.locator('#user_password').type('examplepassword');
+
+        await page.locator('#user_submit').click();
+
+        const errorMessage = await (await page.locator("//input[@id='user_password']/../div[@class='error-msg']").textContent()).trim();
+
+        console.log("Browserstack Login Error Message: "+errorMessage);
+
+        expect(errorMessage).toBe('Invalid password');
+
+    });
+
+});
+
+///////////////////
+
+Step 7: Execute Playwright Test Script
+
+As discussed above, during installation, Playwright creates playwright.config.ts (playwright.config.ts is the global configuration file) which will have some settings. By default, the global configuration contains the value to run on all the browsers. It runs on all three different browsers when you execute the Playwright test. We don’t need it, so we need to remove that option.
+
+    Navigate to playwright.config.ts. Comment the option which starts with projects: [
+
+If you are finding to do the above, copy and paste the below line of code to playwright.config.ts
+
+//playwright.config.ts
+
+import type { PlaywrightTestConfig } from '@playwright/test';
+
+const config: PlaywrightTestConfig = {
+
+  testDir: './tests',
+
+  timeout: 30 * 1000,
+
+  expect: {
+
+    timeout: 5000
+
+  },
+
+  reporter: 'html',
+
+  use: {
+
+    actionTimeout: 0,
+
+    trace: 'on-first-retry',
+
+  },
+
+};
+
+export default config;
+
+////////////////////
+
+So, you have configured the playwright.config.ts, we are all set to execute the first Playwright test script.
+
+Execute Playwright Spec using the below command
+
+npx playwright test  demo.spec.ts –headed
+
+et’s understand the above command:
+
+    We are specifying which test file we need to run i.e. demo.spec.ts. Do not mention any spec file name if you want to run all the spec files inside the tests folder, do not mention any spec file name.
+    Playwright runs in headless mode by default, so we specify the –headed to run on headed mode.
+    We are not mentioning any browser name; by default, the Playwright test runs in the Chromium browser
+
+Once you execute the above command, the Playwright tests start executing in the Chromium browser.
+
+///////////////////
+
+Step 8: View the report
+
+In our playwright.config.ts, we specify the HTML report, so after executing the Playwright test, the HTML report gets generated automatically in the playwright-report folder.
+
+To view generated HTML report simply type:
+
+npx playwright show-report
+
+/////////////////
+
+How to Use Playwright with Java in Eclipse
+
+Playwright supports Java through its official client. Here’s how you can use it with Eclipse:
+
+1. Install Java & Eclipse:
+
+Ensure you have installed Java JDK 11 or higher. Also install Eclipse IDE for Java Developers.
+
+2. Set Up Maven Project in Eclipse
+
+    Open Eclipse. Then create a new Maven Project.
+    Add the given dependency to your pom.xml:
+    
+<dependency>
+
+  <groupId>com.microsoft.playwright</groupId>
+
+  <artifactId>playwright</artifactId>
+
+  <version>1.44.0</version> <!-- Check for latest version -->
+
+</dependency>
+
+////////////////////
+
+3. Install Playwright Browsers
+
+Once you resolve the dependency, run the following in your terminal to download Chromium, Firefox, and WebKit browsers for Playwright.
+
+3. Install Playwright Browsers
+
+Once you resolve the dependency, run the following in your terminal to download Chromium, Firefox, and WebKit browsers for Playwright.
+
+//////////////////////
+
+4. Sample Test
+
+Create a class like PlaywrightTest.java in src/main/java:
+
+import com.microsoft.playwright.*;
+
+
+
+
+public class PlaywrightTest {
+
+  public static void main(String[] args) {
+
+    try (Playwright playwright = Playwright.create()) {
+
+      Browser browser = playwright.chromium().launch(new BrowserType.LaunchOptions().setHeadless(false));
+
+      Page page = browser.newPage();
+
+      page.navigate("https://example.com");
+
+      System.out.println("Page title: " + page.title());
+
+    }
+
+  }
+
+}
+
+/////////////////////////
+
+
+
+
+
+
+
+
+
+
+
+
+
