@@ -2,7 +2,10 @@
 https://playwright.dev/java/docs/test-runners
 
 JUnit
-In JUnit you can initialize Playwright and Browser in @BeforeAll method and destroy them in @AfterAll. In the example below all three test methods use the same Browser. Each test uses its own BrowserContext and Page.
+In JUnit you can initialize Playwright and Browser in @BeforeAll 
+method and destroy them in @AfterAll. In the example below all 
+three test methods use the same Browser. Each test uses its own 
+BrowserContext and Page.
 
 package org.example;
 
@@ -74,9 +77,20 @@ public class TestExample {
 
 Running Tests in Parallel
 
-By default JUnit will run all tests sequentially on a single thread. Since JUnit 5.3 you can change this behavior to run tests in parallel to speed up execution (see this page). Since it is not safe to use same Playwright objects from multiple threads without extra synchronization we recommend you create Playwright instance per thread and use it on that thread exclusively. Here is an example how to run multiple test classes in parallel.
+By default JUnit will run all tests sequentially on a single thread. 
+Since JUnit 5.3 you can change this behavior to run tests in parallel 
+to speed up execution (see this page). Since it is not safe to use 
+same Playwright objects from multiple threads without extra 
+synchronization we recommend you create Playwright instance per 
+thread and use it on that thread exclusively. Here is an example 
+how to run multiple test classes in parallel.
 
-Use @TestInstance(TestInstance.Lifecycle.PER_CLASS) annotation to make JUnit create one instance of a class for all test methods within that class (by default each JUnit will create a new instance of the class for each test method). Store Playwright and Browser objects in instance fields. They will be shared between tests. Each instance of the class will use its own copy of Playwright.
+Use @TestInstance(TestInstance.Lifecycle.PER_CLASS) annotation to 
+make JUnit create one instance of a class for all test methods 
+within that class (by default each JUnit will create a new instance 
+of the class for each test method). Store Playwright and Browser 
+objects in instance fields. They will be shared between tests. 
+Each instance of the class will use its own copy of Playwright.
 
 // Subclasses will inherit PER_CLASS behavior.
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -155,7 +169,9 @@ class Test2 extends TestFixtures {
 
 /////////////////
 
-Configure JUnit to run tests in each class sequentially and run multiple classes on parallel threads (with max number of thread equal to 1/2 of the number of CPU cores):
+Configure JUnit to run tests in each class sequentially and 
+run multiple classes on parallel threads (with max number of 
+thread equal to 1/2 of the number of CPU cores):
 
 junit.jupiter.execution.parallel.enabled = true
 junit.jupiter.execution.parallel.mode.default = same_thread

@@ -1,0 +1,203 @@
+
+https://devassure.hashnode.dev/ultimate-playwright-handbook-for-beginners
+
+////////////
+
+Key Features:
+
+    Cross-Browser Compatibility: Playwright offers a consistent API for controlling web browsers, making it easier to write tests that work across different platforms and browsers.
+
+    Headless and Headful Testing: You can run tests in headless mode (without a visible browser window) for faster execution or in headful mode for visual inspection.
+
+    Page Object Model (POM): Playwright supports the POM pattern, which helps you organize your tests and make them more maintainable.
+
+    Assertions: Playwright provides built-in assertions for verifying the state of web pages, making it easy to write robust tests.
+
+    Network Interception: You can intercept network requests and responses to simulate network conditions or modify data.
+
+    Mobile Emulation: Playwright allows you to emulate mobile devices and their specific characteristics, making it suitable for mobile testing.
+
+    Accessibility Testing: You can use Playwright to test the accessibility of your web applications, ensuring that they are usable by people with disabilities.
+
+//////////////////
+
+Use Cases:
+
+    End-to-End Testing: Playwright is well-suited for testing web applications from start to finish, simulating user interactions and verifying the correctness of the application's behavior.
+
+    Integration Testing: You can use Playwright to test the integration between different components of your web application.
+
+    API Testing: Playwright can be used to test APIs by making HTTP requests and verifying the responses.
+
+    Visual Regression Testing: Playwright can help you identify visual changes in your web application, ensuring that the user interface remains consistent.
+
+////////////////////
+
+Javascript (Node.js runtime) | Playwright Documentation
+
+Setup Playwright
+
+Setup environment
+  npm install -D playwright ## yarn create playwright
+
+Setup First Test
+  import { test, expect } from '@playwright/test';
+
+  test('has title', async ({ page }) => {
+    await page.goto('https://playwright.dev/');
+
+    // Expect a title "to contain" a substring.
+    await expect(page).toHaveTitle(/Playwright/);
+  });
+
+  test('get started link', async ({ page }) => {
+    await page.goto('https://playwright.dev/');
+
+    // Click the get started link.
+    await page.getByRole('link', { name: 'Get started' }).click();
+
+    // Expects page to have a heading with the name of Installation.
+    await expect(page.getByRole('heading', { name: 'Installation' })).toBeVisible();
+  });
+
+////////////////////
+
+Python | Playwright Documentation
+
+Setup environment
+  pip install pytest-playwright
+
+Setup First Test
+        import re
+        from playwright.sync_api import Page, expect
+
+        def test_has_title(page: Page):
+            page.goto("https://playwright.dev/")
+
+            # Expect a title "to contain" a substring.
+            expect(page).to_have_title(re.compile("Playwright"))
+
+        def test_get_started_link(page: Page):
+            page.goto("https://playwright.dev/")
+
+            # Click the get started link.
+            page.get_by_role("link", name="Get started").click()
+
+            # Expects page to have a heading with the name of Installation.
+            expect(page.get_by_role("heading", name="Installation")).to_be_visible()
+
+/////////////////
+
+Java | Playwright Documentation
+
+Setup environment
+
+  package org.example;
+
+  import com.microsoft.playwright.*;
+
+  public class App {
+      public static void main(String[] args) {
+          try (Playwright playwright = Playwright.create()) {
+              Browser browser = playwright.chromium().launch();
+              Page page = browser.newPage();
+              page.navigate("http://playwright.dev");
+              System.out.println(page.title());
+          }
+      }
+  }
+
+---------------
+
+  <?xml version="1.0" encoding="UTF-8"?>
+  <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>org.example</groupId>
+    <artifactId>examples</artifactId>
+    <version>0.1-SNAPSHOT</version>
+    <name>Playwright Client Examples</name>
+    <properties>
+      <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+    <dependencies>
+      <dependency>
+        <groupId>com.microsoft.playwright</groupId>
+        <artifactId>playwright</artifactId>
+        <version>1.46.0</version>
+      </dependency>
+    </dependencies>
+    <build>
+      <plugins>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <version>3.10.1</version>
+          <!-- References to interface static methods are allowed only at source level 1.8 or above -->
+          <configuration>
+            <source>1.8</source>
+            <target>1.8</target>
+          </configuration>
+        </plugin>
+      </plugins>
+    </build>
+  </project>
+
+-----------------
+
+Setup First Test
+
+  package org.example;
+
+  import java.util.regex.Pattern;
+  import com.microsoft.playwright.*;
+  import com.microsoft.playwright.options.AriaRole;
+
+  import static com.microsoft.playwright.assertions.PlaywrightAssertions.assertThat;
+
+  public class App {
+      public static void main(String[] args) {
+          try (Playwright playwright = Playwright.create()) {
+              Browser browser = playwright.chromium().launch();
+              Page page = browser.newPage();
+              page.navigate("http://playwright.dev");
+
+              // Expect a title "to contain" a substring.
+              assertThat(page).hasTitle(Pattern.compile("Playwright"));
+
+              // create a locator
+              Locator getStarted = page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName("Get Started"));
+
+              // Expect an attribute "to be strictly equal" to the value.
+              assertThat(getStarted).hasAttribute("href", "/docs/intro");
+
+              // Click the get started link.
+              getStarted.click();
+
+              // Expects page to have a heading with the name of Installation.
+              assertThat(page.getByRole(AriaRole.HEADING,
+                 new Page.GetByRoleOptions().setName("Installation"))).isVisible();
+          }
+      }
+  }
+
+//////////////
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

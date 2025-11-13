@@ -1,0 +1,611 @@
+
+https://www.qabash.com/playwright-refresher-a-z-complete-guide-for-2025/
+
+Unlike Selenium, Playwright uses WebSocket connections for direct browser communication, making tests 3x faster and more stable.
+
+Key Advantages Over Selenium
+
+    Native browser control – No WebDriver layer
+    Auto-waiting mechanisms – Eliminates flaky tests
+    Built-in test runner – No external dependencies
+    Multiple browser support – Chrome, Firefox, Safari
+    Modern architecture – WebSocket-based communication
+
+////////////////////
+
+Method 1: VS Code Extension (Recommended)
+
+    Install Playwright extension by Microsoft in VS Code
+    Open Command Palette (Ctrl+Shift+P)
+    Type “Install Playwright” → Select browsers → Install
+
+///////////////////////
+
+Method 2: Command Line
+
+# Create new project
+npm init playwright@latest
+
+# Install in existing project
+npm install --save-dev @playwright/test
+
+# Install browsers
+npx playwright install
+
+////////////////////////
+
+Method 3: Specific Language Setup
+
+Python:
+
+pip install playwright
+playwright install
+
+--------------
+
+Java:
+
+<dependency>
+  <groupId>com.microsoft.playwright</groupId>
+  <artifactId>playwright</artifactId>
+  <version>1.40.0</version>
+</dependency>
+
+//////////////////////
+
+Project Structure
+
+text
+my-playwright-project/
+├── tests/
+│   └── example.spec.ts
+├── playwright.config.ts
+├── package.json
+└── tests-examples/
+
+///////////////////////
+///////////////////////
+
+Core Concepts
+
+Browser Contexts
+
+Browser contexts are isolated environments within a browser instance – like incognito windows.
+
+// Create isolated browser context
+const context = await browser.newContext({
+  viewport: { width: 1920, height: 1080 },
+  userAgent: 'custom-agent'
+});
+
+// Each test gets fresh context
+test('isolated test', async ({ page }) => {
+  // 'page' is automatically in new context
+});
+
+//////////////////////
+
+Pages vs Contexts vs Browsers
+
+    Browser: Chrome/Firefox process
+    Context: Isolated session (cookies, storage)
+    Page: Individual tab/window
+
+///////////////////////
+
+Auto-Waiting
+
+Playwright automatically waits for elements to be:
+
+    Attached to DOM
+    Visible on screen
+    Stable (not animating)
+    Enabled and ready for interaction
+
+////////////////////////////
+
+Locators Mastery
+Built-in Locators (Recommended)
+
+1. By Role (Most Reliable)
+
+// Best practice - semantic and accessible
+await page.getByRole('button', { name: 'Submit' }).click();
+await page.getByRole('textbox', { name: 'Username' }).fill('admin');
+await page.getByRole('link', { name: 'Home' }).click();
+
+----------------
+
+2. By Text Content
+
+await page.getByText('Welcome back!').isVisible();
+await page.getByText('Login', { exact: true }).click(); // Exact match
+
+--------------------
+
+3. By Labels (Form Elements)
+
+await page.getByLabel('Email Address').fill('user@test.com');
+await page.getByLabel('Password').fill('secretpass');
+
+---------------------
+
+4. By Placeholder
+
+await page.getByPlaceholder('Enter your email').fill('test@example.com');
+
+-----------------------
+
+5. By Test ID
+
+// HTML: <button data-testid="submit-btn">Submit</button>
+await page.getByTestId('submit-btn').click();
+
+--------------------------
+
+6. By Alt Text (Images)
+
+await page.getByAltText('Company logo').isVisible();
+
+-------------------------
+
+7. By Title Attribute
+
+await page.getByTitle('Close dialog').click();
+
+/////////////////////////
+
+CSS & XPath Locators
+
+// CSS selectors
+await page.locator('button.primary').click();
+await page.locator('#login-form input[type="email"]').fill('test@test.com');
+
+// XPath selectors
+await page.locator('//button[text()="Submit"]').click();
+await page.locator('//div[@class="modal"]//input[@name="username"]').fill('admin');
+
+//////////////////////////
+
+Chaining & Filtering Locators
+
+// Chain locators for precision
+const productCard = page.locator('.product-card')
+  .filter({ hasText: 'MacBook Pro' });
+await productCard.getByRole('button', { name: 'Add to Cart' }).click();
+
+// Multiple filters
+const tableRow = page.locator('tr')
+  .filter({ has: page.getByText('John Doe') })
+  .filter({ hasText: 'Active' });
+  
+/////////////////////////////
+//////////////////////////////
+
+Essential Commands
+Navigation
+
+// Navigate to URL
+await page.goto('https://example.com');
+await page.goto('https://test.com', { waitUntil: 'networkidle' });
+
+// Browser navigation
+await page.goBack();
+await page.goForward();
+await page.reload();
+
+//////////////////////
+
+Interactions
+
+// Click actions
+await page.click('button');
+await page.dblclick('.item');
+await page.click('button', { button: 'right' }); // Right click
+
+// Form interactions
+await page.fill('input[name="email"]', 'test@test.com');
+await page.type('#password', 'mypassword', { delay: 100 });
+await page.selectOption('select#country', 'US');
+await page.check('input[type="checkbox"]');
+await page.uncheck('#newsletter');
+
+// File uploads
+await page.setInputFiles('input[type="file"]', 'path/to/file.pdf');
+
+// Keyboard & Mouse
+await page.keyboard.press('Enter');
+await page.keyboard.type('Hello World');
+await page.mouse.click(100, 200);
+await page.mouse.wheel(0, 100); // Scroll
+
+///////////////////////
+
+Waiting Strategies
+
+// Wait for element
+await page.waitForSelector('.loading', { state: 'hidden' });
+await page.waitForSelector('button[disabled]', { state: 'detached' });
+
+// Wait for navigation
+await page.waitForURL('**/dashboard');
+await page.waitForLoadState('networkidle');
+
+// Wait for function
+await page.waitForFunction(() => window.location.href.includes('success'));
+
+// Custom timeouts
+await page.click('button', { timeout: 10000 });
+
+/////////////////////////
+
+Assertions
+
+// Element assertions
+await expect(page.getByText('Success!')).toBeVisible();
+await expect(page.getByRole('textbox')).toHaveValue('expected value');
+await expect(page.locator('.error')).toBeHidden();
+await expect(page.getByRole('button')).toBeEnabled();
+
+// Page assertions
+await expect(page).toHaveTitle('Dashboard - MyApp');
+await expect(page).toHaveURL(/.*dashboard/);
+
+// Count assertions
+await expect(page.getByRole('listitem')).toHaveCount(5);
+
+///////////////////////
+
+Screenshots & Videos
+
+// Full page screenshot
+await page.screenshot({ path: 'page.png', fullPage: true });
+
+// Element screenshot
+await page.locator('.chart').screenshot({ path: 'chart.png' });
+
+// Video recording (in config)
+// playwright.config.ts
+export default {
+  use: {
+    video: 'retain-on-failure',
+    screenshot: 'only-on-failure'
+  }
+}
+
+/////////////////////////////
+//////////////////////////////
+
+Best Practices
+1. Use Semantic Locators
+
+// ✅ Good - User-facing attributes
+await page.getByRole('button', { name: 'Submit Order' });
+await page.getByLabel('Email Address');
+
+// ❌ Avoid - Implementation details
+await page.locator('#btn-submit-order-id-12345');
+await page.locator('.css-module-btn-class');
+
+///////////////////////
+
+2. Test Isolation
+
+// Each test should be independent
+test.beforeEach(async ({ page }) => {
+  // Fresh state for each test
+  await page.goto('/login');
+  await page.evaluate(() => {
+    localStorage.clear();
+    sessionStorage.clear();
+  });
+});
+
+/////////////////////////
+
+3. Page Object Model
+
+// pages/LoginPage.ts
+export class LoginPage {
+  constructor(private page: Page) {}
+
+  get emailInput() {
+    return this.page.getByLabel('Email');
+  }
+
+  get passwordInput() {
+    return this.page.getByLabel('Password');
+  }
+
+  get submitButton() {
+    return this.page.getByRole('button', { name: 'Sign In' });
+  }
+
+  async login(email: string, password: string) {
+    await this.emailInput.fill(email);
+    await this.passwordInput.fill(password);
+    await this.submitButton.click();
+  }
+}
+
+// Usage in test
+test('user login', async ({ page }) => {
+  const loginPage = new LoginPage(page);
+  await loginPage.login('user@test.com', 'password');
+});
+
+///////////////////////////
+
+4. Data-Driven Testing
+
+const testData = [
+  { email: 'user1@test.com', password: 'pass1', expected: 'Dashboard' },
+  { email: 'user2@test.com', password: 'pass2', expected: 'Profile' }
+];
+
+for (const data of testData) {
+  test(`login for ${data.email}`, async ({ page }) => {
+    await page.goto('/login');
+    await page.getByLabel('Email').fill(data.email);
+    await page.getByLabel('Password').fill(data.password);
+    await page.getByRole('button', { name: 'Login' }).click();
+    await expect(page.getByText(data.expected)).toBeVisible();
+  });
+}
+
+//////////////////////////////
+////////////////////////////////
+
+Advanced Features
+API Testing Integration
+
+test('API + UI integration', async ({ page, request }) => {
+  // API call to setup data
+  const apiResponse = await request.post('/api/users', {
+    data: { name: 'John Doe', email: 'john@test.com' }
+  });
+  const user = await apiResponse.json();
+
+  // UI verification
+  await page.goto('/users');
+  await expect(page.getByText(user.name)).toBeVisible();
+});
+
+//////////////////////
+
+Mobile Testing
+
+// playwright.config.ts
+import { devices } from '@playwright/test';
+
+export default {
+  projects: [
+    {
+      name: 'Mobile Chrome',
+      use: { ...devices['Pixel 5'] },
+    },
+    {
+      name: 'Mobile Safari',
+      use: { ...devices['iPhone 12'] },
+    }
+  ],
+};
+
+/////////////////////////
+
+Visual Testing
+
+// Visual regression testing
+await expect(page).toHaveScreenshot('homepage.png');
+
+// Element visual comparison
+await expect(page.locator('.chart')).toHaveScreenshot('chart.png');
+
+// With threshold for minor differences
+await expect(page).toHaveScreenshot('page.png', { threshold: 0.2 });
+
+////////////////////////////
+
+Parallel Testing Configuration
+
+// playwright.config.ts
+export default {
+  // Run tests in parallel
+  fullyParallel: true,
+  
+  // Number of workers
+  workers: process.env.CI ? 2 : undefined,
+  
+  // Retry failed tests
+  retries: process.env.CI ? 2 : 0,
+  
+  // Global timeout
+  timeout: 30 * 1000,
+  
+  // Expect timeout
+  expect: {
+    timeout: 5000
+  }
+};
+
+//////////////////////////
+///////////////////////////
+
+Debugging & Troubleshooting
+Debug Mode
+
+# Run in debug mode
+npx playwright test --debug
+
+# Run specific test in debug mode
+npx playwright test tests/login.spec.ts --debug
+
+# Run in headed mode (visible browser)
+npx playwright test --headed
+
+# Run in slow motion
+npx playwright test --headed --slowMo=1000
+
+///////////////////////////////
+
+Trace Viewer
+
+// Enable tracing in config
+export default {
+  use: {
+    trace: 'on-first-retry',
+  },
+};
+
+# View trace after test failure
+npx playwright show-trace trace.zip
+
+////////////////////////
+
+Console & Network Logs
+
+test('debug with logs', async ({ page }) => {
+  // Listen to console logs
+  page.on('console', msg => console.log('PAGE LOG:', msg.text()));
+  
+  // Listen to network requests
+  page.on('request', request => {
+    console.log('REQUEST:', request.url());
+  });
+  
+  page.on('response', response => {
+    console.log('RESPONSE:', response.url(), response.status());
+  });
+});
+
+//////////////////////////
+////////////////////////////
+
+Common Issues & Solutions
+1. Element Not Found
+
+// ❌ Element might not be ready
+await page.click('button');
+
+// ✅ Wait for element explicitly
+await page.waitForSelector('button', { state: 'visible' });
+await page.click('button');
+
+///////////////////////
+
+. Flaky Tests Due to Animations
+
+// Disable animations
+await page.addStyleTag({
+  content: `
+    *, *::before, *::after {
+      animation-delay: -1ms !important;
+      animation-duration: 1ms !important;
+      animation-iteration-count: 1 !important;
+      background-attachment: initial !important;
+      scroll-behavior: auto !important;
+      transition-duration: 0s !important;
+      transition-delay: 0s !important;
+    }
+  `
+});
+
+////////////////////////
+
+3. Network Interception & Mocking
+
+// Mock API responses
+await page.route('**/api/users', async route => {
+  const json = [{ id: 1, name: 'John Doe' }];
+  await route.fulfill({ json });
+});
+
+// Block specific resources
+await page.route('**/*.{png,jpg,jpeg}', route => route.abort());
+
+///////////////////
+
+Essential CLI Commands Cheat Sheet
+
+# Installation
+npm init playwright@latest
+npx playwright install
+
+# Running tests
+npx playwright test                    # Run all tests
+npx playwright test login.spec.ts     # Run specific test file
+npx playwright test --headed          # Run with visible browser
+npx playwright test --debug           # Run in debug mode
+npx playwright test --project=chromium # Run on specific browser
+
+# Test generation
+npx playwright codegen example.com    # Generate test by recording
+
+# Reports
+npx playwright show-report           # Open HTML report
+npx playwright test --reporter=junit # Generate JUnit report
+
+# Browsers
+npx playwright install               # Install all browsers
+npx playwright install chromium      # Install specific browser
+
+# Configuration
+npx playwright test --config=playwright.config.ts
+
+////////////////////////
+////////////////////////////
+
+Quick Configuration Reference
+Basic playwright.config.ts
+
+import { defineConfig, devices } from '@playwright/test';
+
+export default defineConfig({
+  testDir: './tests',
+  fullyParallel: true,
+  forbidOnly: !!process.env.CI,
+  retries: process.env.CI ? 2 : 0,
+  workers: process.env.CI ? 1 : undefined,
+  reporter: 'html',
+  
+  use: {
+    baseURL: 'http://localhost:3000',
+    trace: 'on-first-retry',
+    video: 'retain-on-failure',
+    screenshot: 'only-on-failure',
+    headless: true,
+  },
+
+  projects: [
+    { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
+    { name: 'firefox', use: { ...devices['Desktop Firefox'] } },
+    { name: 'webkit', use: { ...devices['Desktop Safari'] } },
+  ],
+
+  webServer: {
+    command: 'npm run start',
+    url: 'http://localhost:3000',
+    reuseExistingServer: !process.env.CI,
+  },
+});
+
+///////////////////////
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

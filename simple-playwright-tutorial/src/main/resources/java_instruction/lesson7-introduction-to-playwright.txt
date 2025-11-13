@@ -3,7 +3,11 @@ https://learn.microsoft.com/en-us/training/modules/build-with-playwright/2-intro
 
 Playwright core concepts
 
-In the following exercises, we'll learn how to perform test automation tasks using Playwright. To set the stage, here are a few core terms and concepts to keep in mind. Their purpose and usage becomes clearer when you work through the exercises.
+In the following exercises, we'll learn how to perform test automation 
+tasks using Playwright. To set the stage, here are a few core terms 
+and concepts to keep in mind. Their purpose and usage becomes clearer 
+when you work through the exercises.
+
 Concept 	Description
 TestConfig 	Configure Playwright Test Runner using File (static) or API (dynamic)
 TestProject 	Logical group of tests running same TestConfig and can be defined using filter.
@@ -17,4 +21,14 @@ use Options 	Configure Browser (project) or BrowserContext (context) within scop
 Page Object Models 	Represent UI components by "Objects" and associate testing logic for reuse
 
 //////////////
+
+
+
+
+
+
+
+
+
+
 
