@@ -1,7 +1,8 @@
 
 https://www.qabash.com/playwright-refresher-a-z-complete-guide-for-2025/
 
-Unlike Selenium, Playwright uses WebSocket connections for direct browser communication, making tests 3x faster and more stable.
+Unlike Selenium, Playwright uses WebSocket connections for direct 
+browser communication, making tests 3x faster and more stable.
 
 Key Advantages Over Selenium
 
@@ -70,7 +71,8 @@ Core Concepts
 
 Browser Contexts
 
-Browser contexts are isolated environments within a browser instance – like incognito windows.
+Browser contexts are isolated environments within a browser 
+instance – like incognito windows.
 
 // Create isolated browser context
 const context = await browser.newContext({

@@ -5,31 +5,49 @@ https://devassure.hashnode.dev/ultimate-playwright-handbook-for-beginners
 
 Key Features:
 
-    Cross-Browser Compatibility: Playwright offers a consistent API for controlling web browsers, making it easier to write tests that work across different platforms and browsers.
+    Cross-Browser Compatibility: Playwright offers a consistent API 
+    for controlling web browsers, making it easier to write tests 
+    that work across different platforms and browsers.
 
-    Headless and Headful Testing: You can run tests in headless mode (without a visible browser window) for faster execution or in headful mode for visual inspection.
+    Headless and Headful Testing: You can run tests in headless mode 
+    (without a visible browser window) for faster execution or in 
+    headful mode for visual inspection.
 
-    Page Object Model (POM): Playwright supports the POM pattern, which helps you organize your tests and make them more maintainable.
+    Page Object Model (POM): Playwright supports the POM pattern, 
+    which helps you organize your tests and make them more maintainable.
 
-    Assertions: Playwright provides built-in assertions for verifying the state of web pages, making it easy to write robust tests.
+    Assertions: Playwright provides built-in assertions for verifying 
+    the state of web pages, making it easy to write robust tests.
 
-    Network Interception: You can intercept network requests and responses to simulate network conditions or modify data.
+    Network Interception: You can intercept network requests and 
+    responses to simulate network conditions or modify data.
 
-    Mobile Emulation: Playwright allows you to emulate mobile devices and their specific characteristics, making it suitable for mobile testing.
+    Mobile Emulation: Playwright allows you to emulate mobile 
+    devices and their specific characteristics, making it suitable 
+    for mobile testing.
 
-    Accessibility Testing: You can use Playwright to test the accessibility of your web applications, ensuring that they are usable by people with disabilities.
+    Accessibility Testing: You can use Playwright to test the 
+    accessibility of your web applications, ensuring that they 
+    are usable by people with disabilities.
 
 //////////////////
 
 Use Cases:
 
-    End-to-End Testing: Playwright is well-suited for testing web applications from start to finish, simulating user interactions and verifying the correctness of the application's behavior.
+    End-to-End Testing: Playwright is well-suited for testing 
+    web applications from start to finish, simulating user 
+    interactions and verifying the correctness of the application's 
+    behavior.
 
-    Integration Testing: You can use Playwright to test the integration between different components of your web application.
+    Integration Testing: You can use Playwright to test the 
+    integration between different components of your web application.
 
-    API Testing: Playwright can be used to test APIs by making HTTP requests and verifying the responses.
+    API Testing: Playwright can be used to test APIs by making 
+    HTTP requests and verifying the responses.
 
-    Visual Regression Testing: Playwright can help you identify visual changes in your web application, ensuring that the user interface remains consistent.
+    Visual Regression Testing: Playwright can help you identify 
+    visual changes in your web application, ensuring that the 
+    user interface remains consistent.
 
 ////////////////////
 
