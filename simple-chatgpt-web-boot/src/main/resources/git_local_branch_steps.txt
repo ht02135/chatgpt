@@ -1,0 +1,54 @@
+
+main branch (your existing branch) → create local feature branch → code + commits → merge back into that main branch.
+
+Below are the clean steps (Windows path is fine).
+
+0) Go to your repo folder
+cd C:\worksplace\sts\chatgpt\simple-chatgpt-web-boot
+
+1) Make sure your “main branch” is up to date
+First, see what branch you’re on:
+git status
+git branch
+
+Checkout the branch you want to base off (example: main or develop or whatever your main working branch is):
+git checkout main
+
+Pull latest change
+git pull
+
+2) Create a new local branch off that branch
+
+Pick a good branch name, example: feature/add-login:
+git checkout -b feature/add-login
+
+This does:
+create the branch
+switch you to it
+
+Confirm:
+git branch
+
+3) Do your code changes
+
+Edit files, build, test, etc.
+
+4) Commit your changes (as many commits as you want)
+
+5) Merge your feature branch back into the main branch (LOCAL)
+
+Switch back to main:
+git checkout main
+
+Make sure main is still updated (recommended):
+git pull
+
+Merge your feature branch:
+git merge feature/add-login
+
+6) Push the updated main branch to GitHub
+git push
+
+7) (Optional) Delete the local feature branch after merge
+git branch -d feature/add-login
+
