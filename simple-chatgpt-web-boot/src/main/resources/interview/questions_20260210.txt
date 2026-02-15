@@ -1,0 +1,206 @@
+question about java.lang.OutOfMemoryError
+
+A) java.lang.OutOfMemoryError: Java heap space
+
+Most common. Heap is full.
+
+Memory leak (objects accidentally retained)
+Cache growing without bounds
+Reading huge data into memory
+Too many large objects
+
+B) GC overhead limit exceeded
+JVM is spending almost all CPU doing GC and freeing almost nothing.
+Typical causes
+Same as heap leak, just more severe
+
+C) Metaspace
+Class metadata area is full.
+Typical causes
+Dynamic class generation (Spring proxies, ByteBuddy, CGLIB)
+hung-CGLIB spring proxies (load vs get)
+Classloader leaks (common in app servers / redeploys)
+
+D) Direct buffer memory
+Off-heap (NIO direct buffers) is exhausted.
+Typical causes
+Netty / NIO direct buffers
+Large direct ByteBuffers not released quickly enough
+
+E) unable to create new native thread
+Not heap. OS can’t create more threads.
+Typical causes
+Too many threads (thread leak)
+OS limits (ulimit, container limits)
+
+2) Don’t try to recover by catching OOM
+You can catch OutOfMemoryError, but it’s usually a bad idea.
+Why:
+JVM may be in a corrupted state
+Even logging may fail
+You can easily cause more OOM inside the catch block
+
+3) Turn on the right JVM diagnostics (this is the #1 real fix)
+
+For production, always run with:
+
+-XX:+HeapDumpOnOutOfMemoryError
+-XX:HeapDumpPath=/path/to/dumps
+-XX:ErrorFile=/path/to/hs_err_pid%p.log
+-Xlog:gc*:file=/path/to/gc.log:time,level,tags
+
+Then when OOM happens you get:
+heap dump (.hprof) → find the leak
+JVM error file → crash details
+GC logs → memory trend
+
+4) Find the leak (the real root cause)
+
+Once you have a heap dump, use:
+Eclipse MAT (most common)
+VisualVM
+YourKit / JProfiler
+What you’re looking for:
+“Dominators” / “retained size”
+“Path to GC root”
+Common leak patterns:
+static Map / static List grows forever
+caches with no eviction
+ThreadLocal not cleared
+listeners not removed
+scheduled tasks holding references
+
+////////////
+
+question about java.lang.OutOfMemoryError
+
+If you mean java.lang.StackOverflowError, that’s usually caused by infinite recursion
+
+1) Infinite recursion (most common)
+
+Example:
+public int f(int x) {
+    return f(x + 1);
+}
+
+2) Very deep recursion
+
+Even if recursion is correct, it can be too deep:
+DFS on huge graph
+recursive tree traversal on deep tree
+parsing large nested JSON/XML
+recursive string building
+
+How to fix it (real solutions)
+Fix 1: Replace recursion with iteration
+
+For DFS, use your own stack:
+
+Deque<Node> stack = new ArrayDeque<>();
+stack.push(root);
+
+while (!stack.isEmpty()) {
+    Node n = stack.pop();
+    // process n
+    for (Node child : n.children()) {
+        stack.push(child);
+    }
+}
+
+This moves memory usage to heap (which is much larger than stack).
+
+--------------
+
+Fix 2: Fix cyclic toString()
+
+This is super common.
+
+Bad:
+
+class User {
+    List<Order> orders;
+    public String toString() { return "User{orders=" + orders + "}"; }
+}
+class Order {
+    User user;
+    public String toString() { return "Order{user=" + user + "}"; }
+}
+
+Fix: only print IDs / small fields:
+
+public String toString() {
+    return "Order{id=" + id + ", userId=" + (user == null ? null : user.getId()) + "}";
+}
+
+-----------
+
+Fix 3: Fix Jackson infinite recursion
+
+If you have bidirectional relationships:
+
+Use:
+
+@JsonManagedReference / @JsonBackReference, OR
+
+@JsonIgnore, OR
+
+@JsonIdentityInfo
+
+Example:
+
+@JsonIgnore
+private User user;
+
+-------------
+
+Fix 4: Don’t log whole object if it can recurse
+
+Logging entire objects can trigger toString() recursion.
+
+If you must log:
+
+log IDs only
+
+or log shallow fields
+
+---------------
+
+ix 5: Only as last resort: increase stack size
+
+This is a band-aid, not a fix.
+
+-Xss2m
+
+If you need -Xss bigger, you almost always have a recursion design problem.
+
+////////////
+
+question about difference between class vs instance
+
+A class is like a blueprint / recipe, and an instance is the actual thing you built from that blueprint.
+
+Class
+
+Defines what something is
+Describes fields (data) and methods (behavior)
+Exists as a definition, not a real “object” you can use directly (in most cases)
+
+Instance (Object)
+
+A real object created from a class
+Has actual values stored in its fields
+Multiple instances can come from the same class, but each can hold different data
+
+Example:
+myCar = new Car() (a specific car)
+
+What’s happening here?
+
+Car is the class
+car1 and car2 are instances
+
+Both are made from the same class, but:
+car1.color is "Red"
+car2.color is "Blue"
+
+////////////
