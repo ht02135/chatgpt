@@ -215,9 +215,11 @@ Implementation Engineer — Broadridge
 2>Enhanced WFA batch job configuration to support print-ready PDF extraction and enable easier onboarding of future vendor fulfillment workflows.
 
 Software Engineer — SunGard
-1>Enhanced settlement date calculation engines and improved import/notification classification systems.
+1>Led end-to-end project delivery, including requirements analysis, effort estimation, technical specifications, offshore development guidance, code review coordination, and release communication.
 
-2>Integrated middleware with third-party Money Market Instrument (MMI) applications, working under guidance from a senior engineer in Paris.
+2>Enhanced settlement date calculation engines and improved import/notification classification systems.
+
+3>Integrated middleware with third-party Money Market Instrument (MMI) applications, working under guidance from a senior engineer in Paris.
 
 Software Engineer — Saba
 
