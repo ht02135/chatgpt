@@ -204,3 +204,42 @@ car1.color is "Red"
 car2.color is "Blue"
 
 ////////////
+
+tell me about yourself = tell me how you fit the role and organization
+1>tell your accomplishment
+need at least 5 accomplishment.
+
+Implementation Engineer — Broadridge
+1>Upgraded MassMutual from the dmEdge 4.0 architecture to a redesigned dmEdge 5.0 architecture, including full configuration conversion.
+
+2>Enhanced WFA batch job configuration to support print-ready PDF extraction and enable easier onboarding of future vendor fulfillment workflows.
+
+Software Engineer — SunGard
+1>Enhanced settlement date calculation engines and improved import/notification classification systems.
+
+2>Integrated middleware with third-party Money Market Instrument (MMI) applications, working under guidance from a senior engineer in Paris.
+
+Software Engineer — Saba
+
+1>Delivered Single Sign-On (SSO) integration between SiteMinder and the Centra Live platform.
+
+2>Improved the Centra Live installation and upgrade process by consolidating multiple InstallShield installers into a single installer, converting each application into a selectable component.
+
+-----------
+
+2>what is your biggest strength = tell me how you max match this role.
+
+3>why you want to work here = answer with accomplishment
+
+4>what is your salary requirements = use https://www.salary.com
+early interview deflect salary question. 
+
+do the range, according to my research, this type of role pays somewhere between x and y. do you agree?
+
+salary is not concern at this stage, at this point i like to learn more about the role and team and product that the role gonna work on and week to week how is like to work in here.
+
+lack of question = show no interest
+can you tell what is 90days of this role?  
+if person run into technical issue or domain knowledge issue, then is it red flag for this person to seek help in the team? 
+
+////////////
